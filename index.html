@@ -202,8 +202,10 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 
     <div class="card">
       <div class="card-label">Ditt namn</div>
-      <input type="text" id="guestName" placeholder="Förnamn och efternamn">
+      <input type="text" id="guestName" placeholder="Förnamn och efternamn" onblur="checkExistingOrder()">
     </div>
+
+    <div id="existingOrderNotice" style="display:none" class="msg ok" style="margin-bottom:.75rem"></div>
 
     <div id="courseWrap"></div>
 
@@ -212,6 +214,9 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
       <textarea id="guestAllergy" placeholder="T.ex. glutenintolerant, nötallergi, vegan... (lämna tomt om inget)"></textarea>
     </div>
 
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:.75rem;line-height:1.6">
+      Vill du ändra din beställning? Öppna länken igen,<br>skriv ditt namn och skicka om.
+    </p>
     <button class="btn btn-gold btn-full" id="guestSubmitBtn" onclick="submitGuestOrder()" style="margin-top:.5rem">Skicka beställning</button>
   </div>
 
@@ -263,12 +268,36 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
         <div class="form-field"><label>Datum</label><input type="date" id="nb-date"></div>
       </div>
       <div class="form-field"><label>Förväntat antal gäster</label><input type="text" id="nb-guests" placeholder="T.ex. 30"></div>
+      <div class="form-2col">
+        <div class="form-field"><label>Sista beställningsdag</label><input type="date" id="nb-deadline"></div>
+        <div class="form-field"><label>Kontaktperson (värden)</label><input type="text" id="nb-contact" placeholder="Namn, telefon eller mejl"></div>
+      </div>
+      <div class="form-2col">
+        <div class="form-field">
+          <label>Mejl till kontaktperson</label>
+          <input type="text" id="nb-email" placeholder="sara@exempel.se">
+        </div>
+        <div class="form-field">
+          <label>Skicka påminnelse</label>
+          <select id="nb-reminder">
+            <option value="0">Ingen påminnelse</option>
+            <option value="1">1 dag innan deadline</option>
+            <option value="2" selected>2 dagar innan deadline</option>
+            <option value="3">3 dagar innan deadline</option>
+            <option value="5">5 dagar innan deadline</option>
+            <option value="7">1 vecka innan deadline</option>
+          </select>
+        </div>
+      </div>
       <div class="flex-gap">
         <button class="btn btn-gold" onclick="createBooking()">Skapa bokning</button>
         <button class="btn btn-ghost" onclick="toggleNewBooking()">Avbryt</button>
       </div>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:.25rem;margin-bottom:.75rem">Klicka på en bokning för att se kökslista och gästlista.</p><div id="bookingList" style="margin-top:.25rem"></div>
+    <p style="font-size:12px;color:var(--muted);margin-top:.25rem;margin-bottom:.5rem">Klicka på en bokning för att se kökslista och gästlista.</p>
+    <div style="background:#0d2318;border:1px solid #1a4030;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;color:#6dbf94;line-height:1.6">
+      ✉ <strong>Automatiska påminnelsemejl</strong> skickas till kontaktpersonen det antal dagar du anger innan sista beställningsdag. Mejlet innehåller länken och visar hur många som ännu inte beställt.
+    </div><div id="bookingList" style="margin-top:.25rem"></div>
   </div>
 
   <div id="admin-evening" style="display:none">
@@ -278,25 +307,33 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
   </div>
 
   <div id="admin-menu" style="display:none">
-    <div class="flex-between"><h3>Menyn</h3><button class="btn btn-gold" onclick="toggleAddItem()">+ Lägg till rätt</button></div>
+    <div class="flex-between">
+      <h3>Uppdatera meny</h3>
+      <button class="btn btn-gold" onclick="toggleNewCat()">+ Ny rubrik</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:1rem">Klicka på en rubrik för att lägga till rätter, eller lägg till en ny rubrik.</p>
+    <!-- Add item form - opened per category -->
     <div id="addItemForm" style="display:none" class="card">
-      <div class="card-label">Ny rätt</div>
-      <div class="form-field"><label>Kurs</label>
-        <select id="ai-course">
-          <option value="starter">Förrätt</option>
-          <option value="main">Huvudrätt</option>
-          <option value="vegan">Vegan & Vegetariskt</option>
-          <option value="dessert">Efterrätt</option>
-        </select>
-      </div>
+      <div class="card-label" id="ai-cat-label">Lägg till rätt</div>
       <div class="form-field"><label>Namn</label><input type="text" id="ai-name" placeholder="Rättens namn"></div>
       <div class="form-field"><label>Beskrivning</label><textarea id="ai-desc" style="min-height:55px"></textarea></div>
       <div class="form-field"><label>Pris (kr)</label><input type="text" id="ai-price" placeholder="150"></div>
       <div class="flex-gap">
         <button class="btn btn-gold" onclick="addMenuItem()">Lägg till</button>
-        <button class="btn btn-ghost" onclick="toggleAddItem()">Avbryt</button>
+        <button class="btn btn-ghost" onclick="()=>{document.getElementById('addItemForm').style.display='none'}">Avbryt</button>
       </div>
     </div>
+
+    <!-- New category form -->
+    <div id="newCatForm" style="display:none" class="card">
+      <div class="card-label">Ny menyRubrik</div>
+      <div class="form-field"><label>Namn på rubrik</label><input type="text" id="new-cat-name" placeholder="T.ex. Snacksmeny, Dryck, Barnmeny..."></div>
+      <div class="flex-gap">
+        <button class="btn btn-gold" onclick="addCategory()">Skapa rubrik</button>
+        <button class="btn btn-ghost" onclick="toggleNewCat()">Avbryt</button>
+      </div>
+    </div>
+
     <div id="menuEditor" style="margin-top:1rem"></div>
   </div>
 </div>
@@ -320,60 +357,60 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 <script>
 const DEMO_PASSWORD = "brunsbo";
 
-function loadState(){try{return JSON.parse(localStorage.getItem("brunsbo_v3")||"null");}catch(e){return null;}}
-function saveState(s){localStorage.setItem("brunsbo_v3",JSON.stringify(s));}
+function loadState(){try{return JSON.parse(localStorage.getItem("brunsbo_v4")||"null");}catch(e){return null;}}
+function saveState(s){localStorage.setItem("brunsbo_v4",JSON.stringify(s));}
 
 function defaultState(){
   return {
     bookings:[
       {id:"b1",name:"Konferens Volvo",date:"fredag 13 juni 2025",expected:18,orders:[
-        {id:"o1",name:"Anna Lindqvist",starter:0,main:0,vegan:null,dessert:0,allergy:"Glutenintolerant",ts:1},
-        {id:"o2",name:"Per Eriksson",starter:null,main:1,vegan:null,dessert:1,allergy:"",ts:2},
-        {id:"o3",name:"Maria Svensson",starter:1,main:2,vegan:null,dessert:null,allergy:"Nötallergi",ts:3},
-        {id:"o4",name:"Jonas Berg",starter:null,main:null,vegan:0,dessert:2,allergy:"Vegan",ts:4},
-        {id:"o5",name:"Karin Holm",starter:2,main:0,vegan:null,dessert:3,allergy:"",ts:5},
-        {id:"o8",name:"Stefan Lindberg",starter:0,main:3,vegan:null,dessert:0,allergy:"",ts:8},
-        {id:"o9",name:"Helena Björk",starter:null,main:4,vegan:null,dessert:1,allergy:"",ts:9},
-        {id:"o10",name:"Mikael Strand",starter:1,main:5,vegan:null,dessert:2,allergy:"",ts:10},
-        {id:"o11",name:"Cecilia Nordin",starter:2,main:6,vegan:null,dessert:3,allergy:"Skaldjursallergi",ts:11},
-        {id:"o12",name:"Thomas Ågren",starter:null,main:1,vegan:null,dessert:null,allergy:"",ts:12},
-        {id:"o13",name:"Ulrika Palmér",starter:0,main:0,vegan:null,dessert:0,allergy:"",ts:13},
-        {id:"o14",name:"Fredrik Engström",starter:null,main:null,vegan:1,dessert:1,allergy:"Vegan",ts:14},
+        {id:"o1",name:"Anna Lindqvist",choices:{starter:0,main:0,dessert:0},allergy:"Glutenintolerant",ts:1},
+        {id:"o2",name:"Per Eriksson",choices:{main:1,dessert:1},allergy:"",ts:2},
+        {id:"o3",name:"Maria Svensson",choices:{starter:1,main:2},allergy:"Nötallergi",ts:3},
+        {id:"o4",name:"Jonas Berg",choices:{vegan:0,dessert:2},allergy:"Vegan",ts:4},
+        {id:"o5",name:"Karin Holm",choices:{starter:2,main:0,dessert:3},allergy:"",ts:5},
+        {id:"o8",name:"Stefan Lindberg",choices:{starter:0,main:3,dessert:0},allergy:"",ts:8},
+        {id:"o9",name:"Helena Björk",choices:{main:4,dessert:1},allergy:"",ts:9},
+        {id:"o10",name:"Mikael Strand",choices:{starter:1,main:5,dessert:2},allergy:"",ts:10},
+        {id:"o11",name:"Cecilia Nordin",choices:{starter:2,main:6,dessert:3},allergy:"Skaldjursallergi",ts:11},
+        {id:"o12",name:"Thomas Ågren",choices:{main:1},allergy:"",ts:12},
+        {id:"o13",name:"Ulrika Palmér",choices:{starter:0,main:0,dessert:0},allergy:"",ts:13},
+        {id:"o14",name:"Fredrik Engström",choices:{vegan:1,dessert:1},allergy:"Vegan",ts:14},
       ]},
       {id:"b2",name:"Bröllop Johansson",date:"lördag 14 juni 2025",expected:45,orders:[
-        {id:"o15",name:"Lena Johansson",starter:0,main:3,vegan:null,dessert:0,allergy:"",ts:15},
-        {id:"o16",name:"Erik Johansson",starter:1,main:null,vegan:1,dessert:1,allergy:"Laktosintoler.",ts:16},
-        {id:"o17",name:"Sara Karlsson",starter:0,main:2,vegan:null,dessert:0,allergy:"",ts:17},
-        {id:"o18",name:"Mattias Karlsson",starter:null,main:5,vegan:null,dessert:2,allergy:"",ts:18},
-        {id:"o19",name:"Ingrid Lund",starter:2,main:0,vegan:null,dessert:3,allergy:"Glutenintolerant",ts:19},
-        {id:"o20",name:"Björn Lund",starter:null,main:3,vegan:null,dessert:0,allergy:"",ts:20},
-        {id:"o21",name:"Maja Söderström",starter:1,main:1,vegan:null,dessert:1,allergy:"",ts:21},
-        {id:"o22",name:"Oscar Söderström",starter:0,main:4,vegan:null,dessert:2,allergy:"",ts:22},
-        {id:"o23",name:"Eva Nilsson",starter:null,main:null,vegan:0,dessert:3,allergy:"Vegan, nötallergi",ts:23},
-        {id:"o24",name:"Lars Nilsson",starter:2,main:6,vegan:null,dessert:null,allergy:"",ts:24},
-        {id:"o25",name:"Pernilla Ek",starter:0,main:0,vegan:null,dessert:0,allergy:"",ts:25},
-        {id:"o26",name:"Anders Ek",starter:1,main:2,vegan:null,dessert:1,allergy:"",ts:26},
+        {id:"o15",name:"Lena Johansson",choices:{starter:0,main:3,dessert:0},allergy:"",ts:15},
+        {id:"o16",name:"Erik Johansson",choices:{starter:1,vegan:1,dessert:1},allergy:"Laktosintoler.",ts:16},
+        {id:"o17",name:"Sara Karlsson",choices:{starter:0,main:2,dessert:0},allergy:"",ts:17},
+        {id:"o18",name:"Mattias Karlsson",choices:{main:5,dessert:2},allergy:"",ts:18},
+        {id:"o19",name:"Ingrid Lund",choices:{starter:2,main:0,dessert:3},allergy:"Glutenintolerant",ts:19},
+        {id:"o20",name:"Björn Lund",choices:{main:3,dessert:0},allergy:"",ts:20},
+        {id:"o21",name:"Maja Söderström",choices:{starter:1,main:1,dessert:1},allergy:"",ts:21},
+        {id:"o22",name:"Oscar Söderström",choices:{starter:0,main:4,dessert:2},allergy:"",ts:22},
+        {id:"o23",name:"Eva Nilsson",choices:{vegan:0,dessert:3},allergy:"Vegan, nötallergi",ts:23},
+        {id:"o24",name:"Lars Nilsson",choices:{starter:2,main:6},allergy:"",ts:24},
+        {id:"o25",name:"Pernilla Ek",choices:{starter:0,main:0,dessert:0},allergy:"",ts:25},
+        {id:"o26",name:"Anders Ek",choices:{starter:1,main:2,dessert:1},allergy:"",ts:26},
       ]},
       {id:"b3",name:"AW Handelshögskolan",date:"fredag 13 juni 2025",expected:25,orders:[
-        {id:"o27",name:"Johanna Berg",starter:0,main:1,vegan:null,dessert:1,allergy:"",ts:27},
-        {id:"o28",name:"Marcus Holm",starter:null,main:3,vegan:null,dessert:0,allergy:"",ts:28},
-        {id:"o29",name:"Emma Lindqvist",starter:2,main:null,vegan:0,dessert:2,allergy:"Vegetarian",ts:29},
-        {id:"o30",name:"David Svensson",starter:1,main:5,vegan:null,dessert:3,allergy:"",ts:30},
-        {id:"o31",name:"Sofia Eriksson",starter:0,main:0,vegan:null,dessert:0,allergy:"Skaldjursallergi",ts:31},
-        {id:"o32",name:"Niklas Persson",starter:null,main:4,vegan:null,dessert:1,allergy:"",ts:32},
-        {id:"o33",name:"Alicia Magnusson",starter:2,main:null,vegan:1,dessert:null,allergy:"Vegan",ts:33},
-        {id:"o34",name:"Daniel Gustafsson",starter:0,main:6,vegan:null,dessert:2,allergy:"",ts:34},
-        {id:"o35",name:"Linda Olsson",starter:1,main:1,vegan:null,dessert:3,allergy:"",ts:35},
-        {id:"o36",name:"Patrik Johansson",starter:null,main:2,vegan:null,dessert:0,allergy:"",ts:36},
+        {id:"o27",name:"Johanna Berg",choices:{starter:0,main:1,dessert:1},allergy:"",ts:27},
+        {id:"o28",name:"Marcus Holm",choices:{main:3,dessert:0},allergy:"",ts:28},
+        {id:"o29",name:"Emma Lindqvist",choices:{starter:2,vegan:0,dessert:2},allergy:"Vegetarian",ts:29},
+        {id:"o30",name:"David Svensson",choices:{starter:1,main:5,dessert:3},allergy:"",ts:30},
+        {id:"o31",name:"Sofia Eriksson",choices:{starter:0,main:0,dessert:0},allergy:"Skaldjursallergi",ts:31},
+        {id:"o32",name:"Niklas Persson",choices:{main:4,dessert:1},allergy:"",ts:32},
+        {id:"o33",name:"Alicia Magnusson",choices:{starter:2,vegan:1},allergy:"Vegan",ts:33},
+        {id:"o34",name:"Daniel Gustafsson",choices:{starter:0,main:6,dessert:2},allergy:"",ts:34},
+        {id:"o35",name:"Linda Olsson",choices:{starter:1,main:1,dessert:3},allergy:"",ts:35},
+        {id:"o36",name:"Patrik Johansson",choices:{main:2,dessert:0},allergy:"",ts:36},
       ]}
     ],
-    menu:{
-      starter:[
+    categories:[
+      {key:"starter",label:"Förrätter",items:[
         {id:"s1",name:"Toast skagen",desc:"Toast bröd med Brunsbos räkröra, majonnäs, citron och röd rom",price:105},
         {id:"s2",name:"Gubbröra med kavring",desc:"Klassisk gubbröra gjord på matjessill, ägg, gräslök och rödlök. Serveras på kavring",price:89},
         {id:"s3",name:"Vegetariska vårrullar",desc:"Smakrika vårrullar serveras med en kål- och morotssallad smaksatt med lime och sesamfrön. Tillkommer sweet chili och soja",price:75},
-      ],
-      main:[
+      ]},
+      {key:"main",label:"Huvudrätter",items:[
         {id:"m1",name:"Smörstekt torskrygg",desc:"Räkor, ägg, pepparrot, citron, skirat smör och kokt potatis",price:239},
         {id:"m2",name:"Biskopens smakfulla burgare",desc:"200 gram högrev serverad med cheddarost, hamburgardressing, syltad rödlök, sallad, tomat, ketchup, dillkryddad pommes frites och friterade lökringar",price:185},
         {id:"m3",name:"Stjärneskud de luxe",desc:"Friterad rödspätta med citronmajonnäs, kaviar, räkor och sparris på en skiva smörstekt bröd. Serveras med kokt potatis",price:225},
@@ -381,22 +418,42 @@ function defaultState(){
         {id:"m5",name:"Bookmaker toast",desc:"Entrecote, surdegsbröd, senapskräm, pepparrot, äggula, tomater, sallad och pommes frites",price:199},
         {id:"m6",name:"Entrecote",desc:"Med grillad lök och paprika. Serveras med pommes och bourbonsås. Tillval: stekt potatis",price:299},
         {id:"m7",name:"Club sandwich",desc:"Kyckling, bacon, tomat, rödlök, sallad på grekiskt lantbröd med curry- och apelsinmajonnäs samt pommes frites. Tillval: stekt potatis",price:189},
-      ],
-      vegan:[
+      ]},
+      {key:"vegan",label:"Vegan & Vegetariskt",items:[
         {id:"v1",name:"Chiliburger",desc:"Spicy grönkålsburgare serveras med vegansk chiliaioli, sallad, tomat, syltad rödlök och potatischips",price:179},
         {id:"v2",name:"Brunsbo veganbiff",desc:"Biff gjord på gröna linser med örter, vitlök, fond och sesamfrön. Serveras med nypotatis, picklade fänkål och tomatsalsa",price:199},
-      ],
-      dessert:[
+      ]},
+      {key:"dessert",label:"Efterrätter",items:[
         {id:"d1",name:"Tartufo nocciola",desc:"Glassbakelse med nötkrokant. Serveras med apelsincoulis och toppat med riven choklad",price:85},
         {id:"d2",name:"Brownie",desc:"Serveras med amarettogrädde",price:85},
         {id:"d3",name:"Chokladtryffel",desc:"Perfekt med en liten bit till kaffet",price:39},
         {id:"d4",name:"Vaniljglass med varm körsbärcoulis",desc:"Serveras med hemmagjorda havreflarn",price:85},
-      ]
-    }
+      ]}
+    ]
   };
 }
 
 let state = loadState() || defaultState();
+
+// migrate old menu format
+if(state.menu && !state.categories){
+  state.categories=[
+    {key:"starter",label:"Förrätter",items:state.menu.starter||[]},
+    {key:"main",label:"Huvudrätter",items:state.menu.main||[]},
+    {key:"vegan",label:"Vegan & Vegetariskt",items:state.menu.vegan||[]},
+    {key:"dessert",label:"Efterrätter",items:state.menu.dessert||[]},
+  ];
+  delete state.menu;
+  saveState(state);
+}
+
+function getCat(key){return state.categories.find(c=>c.key===key);}
+function getItemName(catKey,idx){
+  const cat=getCat(catKey);
+  if(!cat)return"–";
+  if(idx===null||idx===undefined)return null;
+  return cat.items[idx]?.name||"–";
+}
 
 // ── NAVIGATION ──
 function showPage(id){
@@ -411,46 +468,57 @@ function showPage(id){
 
 // ── GUEST ──
 let guestBookingId=null;
-let gSel={starter:null,main:null,vegan:null,dessert:null};
-
-const COURSES=[
-  {key:"starter",label:"Förrätter",sub:"Välj en förrätt – eller hoppa över"},
-  {key:"main",label:"Huvudrätter",sub:"Välj en huvudrätt"},
-  {key:"vegan",label:"Vegan & Vegetariskt",sub:"Välj om du föredrar ett vegetariskt alternativ"},
-  {key:"dessert",label:"Efterrätter",sub:"Välj en efterrätt – eller hoppa över"},
-];
+let gSel={};
 
 function renderGuestForm(){
   const params=new URLSearchParams(window.location.search);
   const bid=params.get("bokning")||(state.bookings[0]?.id);
   guestBookingId=bid;
   const booking=state.bookings.find(b=>b.id===bid);
-  if(booking) document.getElementById("bookingInfo").innerHTML="<strong style='color:var(--text)'>" + booking.name+"</strong> – "+booking.date+"<br><span style='font-size:12px'>Välj minst en rätt.</span>";
+  if(booking){
+    var deadlineHtml="";
+    var isClosed=false;
+    if(booking.deadlineRaw){
+      var today=new Date(); today.setHours(0,0,0,0);
+      var dl=new Date(booking.deadlineRaw+"T23:59:59");
+      isClosed=today>dl;
+      deadlineHtml=isClosed
+        ?"<div style='margin-top:6px;padding:6px 10px;background:#2a0d0d;border:1px solid #4a1a1a;border-radius:6px;font-size:12px;color:#e07070'>Beställningstiden har gått ut ("+booking.deadline+")</div>"
+        :"<div style='margin-top:6px;font-size:12px;color:#e8b84b'>⏱ Sista dag att beställa: "+booking.deadline+"</div>";
+    }
+    document.getElementById("bookingInfo").innerHTML=
+      "<strong style='color:var(--text)'>"+booking.name+"</strong> – "+booking.date
+      +"<br><span style='font-size:12px;color:var(--muted)'>Välj minst en rätt.</span>"
+      +deadlineHtml;
+    if(isClosed){
+      document.getElementById("guestSubmitBtn").disabled=true;
+      document.getElementById("guestSubmitBtn").textContent="Beställning stängd";
+    }
+  }
   buildCourses();
 }
 
 function buildCourses(){
   const wrap=document.getElementById("courseWrap");
-  gSel={starter:null,main:null,vegan:null,dessert:null};
+  gSel={};
+  state.categories.forEach(c=>{gSel[c.key]=null;});
   let html="";
-  COURSES.forEach(course=>{
-    const items=state.menu[course.key];
-    html+=`<div class="course-section">
-      <div class="course-title">${course.label}</div>
-      <div class="course-sub">${course.sub}</div>
-      <div class="meal skip-option" id="opt_${course.key}_skip" onclick="pickCourse('${course.key}',null)">
-        <div class="radio"><div class="dot"></div></div>
-        <div class="meal-body"><div class="meal-name" style="color:var(--muted);font-size:13px">Hoppa över</div></div>
-      </div>`;
-    items.forEach((item,i)=>{
-      html+=`<div class="meal" id="opt_${course.key}_${i}" onclick="pickCourse('${course.key}',${i})">
-        <div class="radio"><div class="dot"></div></div>
-        <div class="meal-body">
-          <div class="meal-name">${item.name}</div>
-          <div class="meal-desc">${item.desc}</div>
-        </div>
-        <div class="meal-price">${item.price} kr</div>
-      </div>`;
+  state.categories.forEach(function(cat){
+    html+="<div class='course-section'>"
+      +"<div class='course-title'>"+cat.label+"</div>"
+      +"<div class='course-sub'>Välj ett alternativ – eller hoppa över</div>"
+      +"<div class='meal skip-option' id='opt_"+cat.key+"_skip' onclick=\"pickCourse('\"+cat.key+\"',null)\">"
+      +"<div class='radio'><div class='dot'></div></div>"
+      +"<div class='meal-body'><div class='meal-name' style='color:var(--muted);font-size:13px'>Hoppa över</div></div></div>";
+    cat.items.forEach(function(item,i){
+      html+="<div class='meal' id='opt_"+cat.key+"_"+i+"' onclick=\"pickCourse('"+cat.key+"',"+i+")\">"
+        +"<div class='radio'><div class='dot'></div></div>"
+        +"<div class='meal-body'>"
+        +"<div class='meal-name'>"+item.name+"</div>"
+        +"<div class='meal-desc'>"+item.desc+"</div>"
+        +"</div>"
+        +"<div class='meal-price'>"+item.price+" kr</div>"
+        +"</div>";
     });
     html+="</div>";
   });
@@ -458,40 +526,113 @@ function buildCourses(){
   highlightSel();
 }
 
-function pickCourse(course,idx){gSel[course]=idx;highlightSel();}
+function pickCourse(key,idx){gSel[key]=idx;highlightSel();}
 
 function highlightSel(){
-  COURSES.forEach(course=>{
-    document.querySelectorAll(`[id^="opt_${course.key}_"]`).forEach(el=>el.classList.remove("selected"));
-    const s=gSel[course.key];
-    if(s===null){
-      const el=document.getElementById(`opt_${course.key}_skip`);
-      if(el)el.classList.add("selected");
-    } else if(s!==undefined&&s!==null){
-      const el=document.getElementById(`opt_${course.key}_${s}`);
-      if(el)el.classList.add("selected");
-    }
+  state.categories.forEach(function(cat){
+    document.querySelectorAll("[id^='opt_"+cat.key+"_']").forEach(function(el){el.classList.remove("selected");});
+    var s=gSel[cat.key];
+    if(s===null){var el=document.getElementById("opt_"+cat.key+"_skip");if(el)el.classList.add("selected");}
+    else if(s!==null&&s!==undefined){var el=document.getElementById("opt_"+cat.key+"_"+s);if(el)el.classList.add("selected");}
   });
 }
 
 function hasAtLeastOne(){
-  return COURSES.some(c=>gSel[c.key]!==null&&gSel[c.key]!==undefined);
+  return state.categories.some(function(c){var s=gSel[c.key];return s!==null&&s!==undefined;});
+}
+
+
+function prefillOrder(order){
+  state.categories.forEach(function(c){
+    var idx=(order.choices||{})[c.key];
+    gSel[c.key]=(idx!==undefined?idx:null);
+  });
+  highlightSel();
+  document.getElementById("guestAllergy").value=order.allergy||"";
+  document.getElementById("guestSubmitBtn").textContent="Uppdatera beställning";
+}
+
+function checkExistingOrder(){
+  var name=document.getElementById("guestName").value.trim();
+  if(!name)return;
+  var booking=state.bookings.find(function(b){return b.id===guestBookingId;});
+  if(!booking)return;
+  var matches=booking.orders.filter(function(o){return o.name.toLowerCase()===name.toLowerCase();});
+  var notice=document.getElementById("existingOrderNotice");
+
+  if(matches.length===0){
+    notice.style.display="none";
+    notice.innerHTML="";
+    document.getElementById("guestSubmitBtn").textContent="Skicka beställning";
+
+  } else if(matches.length===1){
+    prefillOrder(matches[0]);
+    notice.innerHTML="Vi hittade din tidigare beställning – gör dina ändringar och skicka om.";
+    notice.className="msg ok";
+    notice.style.display="block";
+
+  } else {
+    // Multiple matches – let user pick
+    var cardsHtml=matches.map(function(o,i){
+      var parts=[];
+      state.categories.forEach(function(c){
+        var idx=(o.choices||{})[c.key];
+        if(idx!==null&&idx!==undefined){
+          var cat=state.categories.find(function(x){return x.key===c.key;});
+          if(cat&&cat.items[idx])parts.push(cat.items[idx].name);
+        }
+      });
+      return "<div onclick='pickDuplicate("+i+")' style='cursor:pointer;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-top:6px;background:var(--surface2);transition:border-color .15s' id='dup_"+i+"'>"
+        +"<div style='font-size:13px;font-weight:500;color:var(--text)'>"+o.name+" #"+(i+1)+"</div>"
+        +"<div style='font-size:12px;color:var(--muted);margin-top:2px'>"+(parts.join(", ")||"Ingen rätt vald")+"</div>"
+        +(o.allergy?"<div style='font-size:11px;color:#e8b84b;margin-top:2px'>⚠️ "+o.allergy+"</div>":"")
+        +"</div>";
+    }).join("");
+    notice.innerHTML="<strong>Flera beställningar hittades med det namnet.</strong> Klicka på din beställning för att ändra den:"
+      +cardsHtml;
+    notice.className="msg err";
+    notice.style.display="block";
+    window._dupMatches=matches;
+  }
+}
+
+function pickDuplicate(i){
+  var matches=window._dupMatches||[];
+  var order=matches[i];
+  if(!order)return;
+  prefillOrder(order);
+  // highlight picked card
+  matches.forEach(function(_,j){
+    var el=document.getElementById("dup_"+j);
+    if(el)el.style.borderColor=j===i?"var(--gold)":"var(--border)";
+  });
+  document.getElementById("existingOrderNotice").className="msg ok";
+  // Remove old orders with this name except the selected one - tag it
+  window._selectedDupId=order.id;
 }
 
 async function submitGuestOrder(){
-  const name=document.getElementById("guestName").value.trim();
+  var name=document.getElementById("guestName").value.trim();
   if(!name){showGuestMsg("Ange ditt namn.","err");return;}
   if(!hasAtLeastOne()){showGuestMsg("Välj minst en rätt.","err");return;}
-  const booking=state.bookings.find(b=>b.id===guestBookingId);
+  var booking=state.bookings.find(function(b){return b.id===guestBookingId;});
   if(!booking){showGuestMsg("Bokning hittades inte.","err");return;}
-  const allergy=document.getElementById("guestAllergy").value.trim();
-  const order={id:"o"+Date.now(),name,starter:gSel.starter,main:gSel.main,vegan:gSel.vegan,dessert:gSel.dessert,allergy,ts:Date.now()};
-  booking.orders=booking.orders.filter(o=>o.name.toLowerCase()!==name.toLowerCase());
+  var allergy=document.getElementById("guestAllergy").value.trim();
+  var choices={};
+  state.categories.forEach(function(c){if(gSel[c.key]!==null&&gSel[c.key]!==undefined)choices[c.key]=gSel[c.key];});
+  var order={id:"o"+Date.now(),name:name,choices:choices,allergy:allergy,ts:Date.now()};
+  // If user picked a specific duplicate, only remove that one; otherwise remove all with same name
+  if(window._selectedDupId){
+    booking.orders=booking.orders.filter(function(o){return o.id!==window._selectedDupId;});
+    window._selectedDupId=null;
+  } else {
+    booking.orders=booking.orders.filter(function(o){return o.name.toLowerCase()!==name.toLowerCase();});
+  }
   booking.orders.push(order);
   saveState(state);
-  const btn=document.getElementById("guestSubmitBtn");
+  var btn=document.getElementById("guestSubmitBtn");
   btn.disabled=true;btn.innerHTML="<span class='spinner'></span>";
-  await new Promise(r=>setTimeout(r,600));
+  await new Promise(function(r){setTimeout(r,600);});
   showGuestMsg("✓ Tack "+name+"! Din beställning är sparad.","ok");
   document.getElementById("guestFormWrap").style.display="none";
   document.getElementById("guestDoneWrap").style.display="block";
@@ -501,15 +642,15 @@ function editGuestOrder(){
   document.getElementById("guestFormWrap").style.display="block";
   document.getElementById("guestDoneWrap").style.display="none";
   document.getElementById("guestMsg").style.display="none";
-  const btn=document.getElementById("guestSubmitBtn");
+  var btn=document.getElementById("guestSubmitBtn");
   btn.disabled=false;btn.textContent="Uppdatera beställning";
 }
 
-function showGuestMsg(t,type){const b=document.getElementById("guestMsg");b.textContent=t;b.className="msg "+type;b.style.display="block";}
+function showGuestMsg(t,type){var b=document.getElementById("guestMsg");b.textContent=t;b.className="msg "+type;b.style.display="block";}
 
 // ── ADMIN LOGIN ──
 function doLogin(){
-  const pw=document.getElementById("adminPassword").value;
+  var pw=document.getElementById("adminPassword").value;
   if(pw===DEMO_PASSWORD){document.getElementById("loginMsg").style.display="none";showPage("admin");}
   else{document.getElementById("loginMsg").style.display="block";}
 }
@@ -521,169 +662,61 @@ let activeDetailTab={};
 
 function showAdminTab(tab){
   activeAdminTab=tab;
-  document.getElementById("admin-bookings").style.display=tab==="bookings"?"block":"none";
-  document.getElementById("admin-menu").style.display=tab==="menu"?"block":"none";
-  document.getElementById("admin-evening").style.display=tab==="evening"?"block":"none";
-  document.getElementById("atab-b").className="detail-tab"+(tab==="bookings"?" active":"");
-  document.getElementById("atab-m").className="detail-tab"+(tab==="menu"?" active":"");
-  document.getElementById("atab-e").className="detail-tab"+(tab==="evening"?" active":"");
+  ["bookings","menu","evening"].forEach(function(t){
+    document.getElementById("admin-"+t).style.display=tab===t?"block":"none";
+    document.getElementById("atab-"+(t==="bookings"?"b":t==="menu"?"m":"e")).className="detail-tab"+(tab===t?" active":"");
+  });
   if(tab==="menu")renderMenuEditor();
   if(tab==="bookings")renderBookings();
   if(tab==="evening")renderEvening();
 }
 
-function renderEvening(){
-  const list=document.getElementById("eveningList");
-  if(!state.bookings.length){list.innerHTML='<div class="empty-state">Inga bokningar ännu.</div>';return;}
-
-  // Group bookings by date
-  const byDate={};
-  state.bookings.forEach(b=>{
-    if(!byDate[b.date])byDate[b.date]={date:b.date,bookings:[],orders:[]};
-    byDate[b.date].bookings.push(b.name);
-    byDate[b.date].orders.push(...b.orders);
-  });
-
-  const courseList=[
-    {key:"starter",label:"Förrätter"},
-    {key:"main",label:"Huvudrätter"},
-    {key:"vegan",label:"Vegan & Vegetariskt"},
-    {key:"dessert",label:"Efterrätter"},
-  ];
-
-  list.innerHTML=Object.values(byDate).map(ev=>{
-    const totalOrders=ev.orders.length;
-    let kitchenHtml="";
-    courseList.forEach(course=>{
-      const counts={};
-      ev.orders.forEach(o=>{
-        const idx=o[course.key];
-        if(idx!==null&&idx!==undefined){
-          const item=state.menu[course.key]?.[idx];
-          if(item)counts[item.name]=(counts[item.name]||0)+1;
-        }
-      });
-      const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-      if(!entries.length)return;
-      const max=totalOrders||1;
-      kitchenHtml+=`<div class="kitchen-head">${course.label}</div>`;
-      entries.forEach(([name,n])=>{
-        kitchenHtml+=`<div class="tally-row">
-          <span class="tally-name">${name}</span>
-          <div class="tally-bar-wrap"><div class="tally-bar" style="width:${Math.round(n/max*100)}%"></div></div>
-          <span class="tally-n">${n} st</span>
-        </div>`;
-      });
-    });
-
-    const allergies=ev.orders.filter(o=>o.allergy);
-    let allergyHtml="";
-    if(allergies.length){
-      allergyHtml=`<div class="allergy-box"><div class="allergy-head">⚠ Allergier & specialkost</div>`;
-      allergies.forEach(o=>{allergyHtml+=`<div class="allergy-item"><span class="allergy-name">${o.name}</span> – ${o.allergy}</div>`;});
-      allergyHtml+="</div>";
-    }
-
-    return `<div class="card" style="margin-bottom:1rem">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
-        <div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem">${ev.date}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">${ev.bookings.join(", ")} · ${totalOrders} beställningar</div>
-        </div>
-        <button class="btn btn-ghost" style="font-size:12px" onclick="copyEveningList('${ev.date}')">Kopiera kökslista</button>
-      </div>
-      ${kitchenHtml||'<div class="empty-state" style="padding:.5rem">Inga beställningar ännu.</div>'}
-      ${allergyHtml}
-    </div>`;
-  }).join("");
-}
-
-function copyEveningList(date){
-  const byDate={};
-  state.bookings.forEach(b=>{
-    if(!byDate[b.date])byDate[b.date]={date:b.date,bookings:[],orders:[]};
-    byDate[b.date].bookings.push(b.name);
-    byDate[b.date].orders.push(...b.orders);
-  });
-  const ev=byDate[date];if(!ev)return;
-  let txt=ev.date+"\n"+ev.bookings.join(", ")+"\n"+"─".repeat(30)+"\n";
-  const courseList=[
-    {key:"starter",label:"FÖRRÄTTER"},
-    {key:"main",label:"HUVUDRÄTTER"},
-    {key:"vegan",label:"VEGAN & VEGETARISKT"},
-    {key:"dessert",label:"EFTERRÄTTER"},
-  ];
-  courseList.forEach(course=>{
-    const counts={};
-    ev.orders.forEach(o=>{
-      const idx=o[course.key];
-      if(idx!==null&&idx!==undefined){const item=state.menu[course.key]?.[idx];if(item)counts[item.name]=(counts[item.name]||0)+1;}
-    });
-    const entries=Object.entries(counts);
-    if(entries.length){
-      txt+="\n"+course.label+"\n";
-      entries.sort((a,b)=>b[1]-a[1]).forEach(([n,c])=>txt+="  "+n+" x"+c+"\n");
-    }
-  });
-  const allergies=ev.orders.filter(o=>o.allergy);
-  if(allergies.length){txt+="\nALLERGIER\n";allergies.forEach(o=>txt+="  "+o.name+": "+o.allergy+"\n");}
-  navigator.clipboard.writeText(txt).then(()=>alert("Kopierat!"));
-}
-
 function renderAdmin(){renderBookings();}
 
 function renderBookings(){
-  const list=document.getElementById("bookingList");
+  var list=document.getElementById("bookingList");
   if(!state.bookings.length){list.innerHTML='<div class="empty-state">Inga bokningar ännu. Skapa din första!</div>';return;}
-  list.innerHTML=state.bookings.map(b=>{
-    const n=b.orders.length;
-    const isOpen=openBookingId===b.id;
-    const dtab=activeDetailTab[b.id]||"kitchen";
-    return `<div class="booking-card${isOpen?" open":""}" id="bc_${b.id}">
-      <div onclick="toggleBooking('${b.id}')" class="booking-header">
-        <div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="booking-name">${b.name}</div>
-          </div>
-          <div class="booking-date">${b.date}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="status-pill">${n} av ${b.expected} beställt</div>
-          <div style="font-size:11px;color:var(--gold);margin-top:5px;letter-spacing:.03em">${isOpen?"▲ Dölj":"▼ Se detaljer"}</div>
-          <div style="margin-top:6px;display:flex;gap:5px;justify-content:flex-end">
-            <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();copyLink('${b.id}')">Kopiera länk</button>
-            <button class="btn btn-danger" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();deleteBooking('${b.id}')">Ta bort</button>
-          </div>
-        </div>
-      </div>
-      <div class="link-box">headofhappiness.github.io/mat?bokning=${b.id}</div>
-      <div class="booking-detail">
-        <div class="detail-tabs-wrap" style="display:flex;gap:4px;margin-bottom:1rem">
-          <button class="detail-tab${dtab==="kitchen"?" active":""}" onclick="setDetailTab('${b.id}','kitchen')">🍽 Kökslista</button>
-          <button class="detail-tab${dtab==="guests"?" active":""}" onclick="setDetailTab('${b.id}','guests')">👥 Gästlista</button>
-        </div>
-        <div id="detail_${b.id}">${renderBookingDetail(b,dtab)}</div>
-        <div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap">
-          <button class="btn btn-ghost" style="font-size:12px" onclick="copyKitchenList('${b.id}')">Kopiera kökslista</button>
-        </div>
-      </div>
-    </div>`;
+  list.innerHTML=state.bookings.map(function(b){
+    var n=b.orders.length;
+    var isOpen=openBookingId===b.id;
+    var dtab=activeDetailTab[b.id]||"kitchen";
+    return "<div class='booking-card"+(isOpen?" open":"")+"' id='bc_"+b.id+"'>"
+      +"<div onclick=\"toggleBooking('"+b.id+"')\" class='booking-header'>"
+      +"<div>"
+      +"<div class='booking-name'>"+b.name+"</div>"
+      +"<div class='booking-date'>"+b.date+"</div>"
+      +(b.deadline?"<div style='font-size:11px;color:#e8b84b;margin-top:3px'>⏱ Sista beställning: "+b.deadline+"</div>":"")
+      +(b.contact?"<div style='font-size:11px;color:var(--muted);margin-top:2px'>👤 "+b.contact+(b.email?" · "+b.email:"")+"</div>":"")
+      +(b.reminder&&b.reminder>0?"<div style='font-size:11px;color:#6dbf94;margin-top:2px'>✉ Påminnelse skickas "+b.reminder+(b.reminder===1?" dag":" dagar")+" innan deadline</div>":"<div style='font-size:11px;color:var(--muted);margin-top:2px'>✉ Ingen påminnelse</div>")
+      +"</div>"
+      +"<div style='text-align:right'>"
+      +"<div class='status-pill'>"+n+" av "+b.expected+" beställt</div>"
+      +"<div style='font-size:11px;color:var(--gold);margin-top:5px;letter-spacing:.03em'>"+(isOpen?"▲ Dölj":"▼ Se detaljer")+"</div>"
+      +"<div style='margin-top:6px;display:flex;gap:5px;justify-content:flex-end'>"
+      +"<button class='btn btn-ghost' style='font-size:11px;padding:4px 10px' onclick=\"event.stopPropagation();copyLink('\"+b.id+\"')\">Kopiera länk</button>"
+      +"<button class='btn btn-danger' style='font-size:11px;padding:4px 10px' onclick=\"event.stopPropagation();deleteBooking('\"+b.id+\"')\">Ta bort</button>"
+      +"</div></div></div>"
+      +"<div class='link-box'>headofhappiness.github.io/mat?bokning="+b.id+"</div>"
+      +"<div class='booking-detail'>"
+      +"<div class='detail-tabs-wrap' style='display:flex;gap:4px;margin-bottom:1rem'>"
+      +"<button class='detail-tab"+(dtab==="kitchen"?" active":"")+"' onclick=\"setDetailTab('\"+b.id+\"','kitchen')\">🍽 Kökslista</button>"
+      +"<button class='detail-tab"+(dtab==="guests"?" active":"")+"' onclick=\"setDetailTab('\"+b.id+\"','guests')\">👥 Gästlista</button>"
+      +"</div>"
+      +"<div id='detail_"+b.id+"'>"+renderBookingDetail(b,dtab)+"</div>"
+      +"<div style='display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap'>"
+      +"<button class='btn btn-ghost' style='font-size:12px' onclick=\"copyKitchenList('\"+b.id+\"')\">Kopiera kökslista</button>"
+      +"</div></div></div>";
   }).join("");
 }
 
 function setDetailTab(bid,tab){
   activeDetailTab[bid]=tab;
-  const b=state.bookings.find(x=>x.id===bid);
+  var b=state.bookings.find(function(x){return x.id===bid;});
   document.getElementById("detail_"+bid).innerHTML=renderBookingDetail(b,tab);
-  const card=document.getElementById("bc_"+bid);
-  card.querySelectorAll(".booking-detail .detail-tab").forEach((t,i)=>{
+  var card=document.getElementById("bc_"+bid);
+  card.querySelectorAll(".booking-detail .detail-tab").forEach(function(t,i){
     t.className="detail-tab"+(i===(tab==="kitchen"?0:1)?" active":"");
   });
-}
-
-function getItemName(course,idx){
-  if(idx===null||idx===undefined)return null;
-  return state.menu[course]?.[idx]?.name||"–";
 }
 
 function renderBookingDetail(booking,tab){
@@ -693,38 +726,52 @@ function renderBookingDetail(booking,tab){
 
 function renderKitchen(booking){
   if(!booking.orders.length)return '<div class="empty-state">Inga beställningar ännu.</div>';
-  const courseList=[
-    {key:"starter",label:"Förrätter"},
-    {key:"main",label:"Huvudrätter"},
-    {key:"vegan",label:"Vegan & Vegetariskt"},
-    {key:"dessert",label:"Efterrätter"},
-  ];
-  let html="";
-  courseList.forEach(course=>{
-    const counts={};
-    booking.orders.forEach(o=>{
-      const idx=o[course.key];
+  var html="";
+  state.categories.forEach(function(cat){
+    var counts={};
+    var allergyMap={}; // dish name -> list of "name: allergy"
+    booking.orders.forEach(function(o){
+      var idx=(o.choices||{})[cat.key];
       if(idx!==null&&idx!==undefined){
-        const item=state.menu[course.key]?.[idx];
-        if(item)counts[item.name]=(counts[item.name]||0)+1;
+        var item=cat.items[idx];
+        if(item){
+          counts[item.name]=(counts[item.name]||0)+1;
+          if(o.allergy){
+            if(!allergyMap[item.name])allergyMap[item.name]=[];
+            allergyMap[item.name].push(o.name+": "+o.allergy);
+          }
+        }
       }
     });
-    const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+    var entries=Object.entries(counts).sort(function(a,b){return b[1]-a[1];});
     if(!entries.length)return;
-    const max=booking.orders.length||1;
-    html+=`<div class="kitchen-head">${course.label}</div>`;
-    entries.forEach(([name,n])=>{
-      html+=`<div class="tally-row">
-        <span class="tally-name">${name}</span>
-        <div class="tally-bar-wrap"><div class="tally-bar" style="width:${Math.round(n/max*100)}%"></div></div>
-        <span class="tally-n">${n} st</span>
-      </div>`;
+    var max=booking.orders.length||1;
+    html+="<div class='kitchen-head'>"+cat.label+"</div>";
+    entries.forEach(function(e){
+      var dishName=e[0]; var count=e[1];
+      var allergyNotes=allergyMap[dishName]||[];
+      var allergyHtml="";
+      if(allergyNotes.length){
+        allergyHtml="<div style='margin-top:4px;padding:5px 8px;background:#2a1a00;border:1px solid #6a4a10;border-radius:5px;width:100%'>"
+          +"<span style='font-size:10px;color:#e8b84b;font-weight:500;letter-spacing:.04em'>⚠️ ALLERGI/SPECIALKOST</span>"
+          +allergyNotes.map(function(n){return "<div style='font-size:12px;color:#c8b890;margin-top:2px'>"+n+"</div>";}).join("")
+          +"</div>";
+      }
+      html+="<div style='padding:6px 0;border-bottom:1px solid var(--border)'>"
+        +"<div class='tally-row' style='border:none;padding:0'>"
+        +"<span class='tally-name'>"+dishName+"</span>"
+        +"<div class='tally-bar-wrap'><div class='tally-bar' style='width:"+Math.round(count/max*100)+"%'></div></div>"
+        +"<span class='tally-n'>"+count+" st</span></div>"
+        +allergyHtml
+        +"</div>";
     });
   });
-  const allergies=booking.orders.filter(o=>o.allergy);
+  var allergies=booking.orders.filter(function(o){return o.allergy;});
   if(allergies.length){
-    html+=`<div class="allergy-box"><div class="allergy-head">⚠ Allergier & specialkost</div>`;
-    allergies.forEach(o=>{html+=`<div class="allergy-item"><span class="allergy-name">${o.name}</span> – ${o.allergy}</div>`;});
+    html+="<div class='allergy-box'><div class='allergy-head'>⚠️ Allergier & specialkost</div>";
+    allergies.forEach(function(o){
+      html+="<div class='allergy-item'><span class='allergy-name'>"+o.name+"</span> – "+o.allergy+"</div>";
+    });
     html+="</div>";
   }
   return html;
@@ -732,40 +779,37 @@ function renderKitchen(booking){
 
 function renderGuests(booking){
   if(!booking.orders.length)return '<div class="empty-state">Inga beställningar ännu.</div>';
-  const courseLabels={starter:"Förrätt",main:"Huvudrätt",vegan:"Vegan/Veg",dessert:"Efterrätt"};
   return booking.orders.map(function(o){
     var hasAllergy=!!o.allergy;
     var rows="";
-    ["starter","main","vegan","dessert"].forEach(function(k){
-      var idx=o[k];
+    state.categories.forEach(function(cat){
+      var idx=(o.choices||{})[cat.key];
       if(idx===null||idx===undefined)return;
-      var name=getItemName(k,idx);
-      rows+='<div style="display:flex;gap:6px;align-items:baseline;line-height:1.9">'
-           +'<span style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);min-width:64px;flex-shrink:0">'+courseLabels[k]+'</span>'
-           +'<span style="color:#d8d0c4">'+name+'</span></div>';
+      var name=cat.items[idx]?.name||"–";
+      rows+="<div style='display:flex;gap:6px;align-items:baseline;line-height:1.9'>"
+        +"<span style='font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);min-width:64px;flex-shrink:0'>"+cat.label+"</span>"
+        +"<span style='color:#d8d0c4'>"+name+"</span></div>";
     });
     var cardStyle=hasAllergy
       ?"border:1px solid #5a3a0a;background:#1a1200;border-radius:10px;padding:.875rem 1rem;margin-bottom:8px"
       :"border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:.875rem 1rem;margin-bottom:8px";
     var badge=hasAllergy
-      ?'<span style="font-size:10px;background:#5a3a0a;color:#e8b84b;padding:2px 7px;border-radius:100px;font-weight:500">ALLERGI</span>'
-      :"";
+      ?"<span style='font-size:10px;background:#5a3a0a;color:#e8b84b;padding:2px 7px;border-radius:100px;font-weight:500'>ALLERGI</span>":"";
     var allergyRow=hasAllergy
-      ?'<div style="display:flex;align-items:center;gap:7px;margin-top:.6rem;padding:.5rem .75rem;background:#2a1a00;border:1px solid #6a4a10;border-radius:6px">'
-       +'<span style="font-size:14px">⚠️</span>'
-       +'<span style="font-size:13px;font-weight:500;color:#e8b84b">'+o.allergy+'</span></div>'
-      :"";
+      ?"<div style='display:flex;align-items:center;gap:7px;margin-top:.6rem;padding:.5rem .75rem;background:#2a1a00;border:1px solid #6a4a10;border-radius:6px'>"
+       +"<span style='font-size:14px'>⚠️</span>"
+       +"<span style='font-size:13px;font-weight:500;color:#e8b84b'>"+o.allergy+"</span></div>":"";
     var bid=booking.id; var oid=o.id;
-    return '<div style="'+cardStyle+'">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
-      +'<div style="flex:1">'
-      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">'
-      +'<span style="font-size:14px;font-weight:500;color:var(--text)">'+o.name+'</span>'+badge+'</div>'
-      +rows+allergyRow+'</div>'
-      +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">'
-      +'<button class="btn btn-ghost" style="font-size:11px;padding:4px 8px" onclick="openEditOrder(\''+bid+'\',\''+oid+'\')">Redigera</button>'
-      +'<button class="btn btn-danger" style="font-size:11px;padding:4px 8px" onclick="deleteOrder(\''+bid+'\',\''+oid+'\')">Ta bort</button>'
-      +'</div></div></div>';
+    return "<div style='"+cardStyle+"'>"
+      +"<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:8px'>"
+      +"<div style='flex:1'>"
+      +"<div style='display:flex;align-items:center;gap:8px;margin-bottom:.5rem'>"
+      +"<span style='font-size:14px;font-weight:500;color:var(--text)'>"+o.name+"</span>"+badge+"</div>"
+      +rows+allergyRow+"</div>"
+      +"<div style='display:flex;flex-direction:column;gap:4px;flex-shrink:0'>"
+      +"<button class='btn btn-ghost' style='font-size:11px;padding:4px 8px' onclick=\"openEditOrder('"+bid+"','"+oid+"')\">Redigera</button>"
+      +"<button class='btn btn-danger' style='font-size:11px;padding:4px 8px' onclick=\"deleteOrder('"+bid+"','"+oid+"')\">Ta bort</button>"
+      +"</div></div></div>";
   }).join("");
 }
 
@@ -775,106 +819,116 @@ function toggleBooking(id){
   renderBookings();
 }
 
-function toggleNewBooking(){const f=document.getElementById("newBookingForm");f.style.display=f.style.display==="none"?"block":"none";}
+function toggleNewBooking(){var f=document.getElementById("newBookingForm");f.style.display=f.style.display==="none"?"block":"none";}
 
 function formatSwedishDate(dateStr){
   if(!dateStr)return"";
-  const d=new Date(dateStr+"T12:00:00");
-  const days=["söndag","måndag","tisdag","onsdag","torsdag","fredag","lördag"];
-  const months=["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+  var d=new Date(dateStr+"T12:00:00");
+  var days=["söndag","måndag","tisdag","onsdag","torsdag","fredag","lördag"];
+  var months=["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
   return days[d.getDay()]+" "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();
 }
 
 function createBooking(){
-  const name=document.getElementById("nb-name").value.trim();
-  const rawDate=document.getElementById("nb-date").value.trim();
-  const date=formatSwedishDate(rawDate)||rawDate;
-  const expected=parseInt(document.getElementById("nb-guests").value)||20;
+  var name=document.getElementById("nb-name").value.trim();
+  var rawDate=document.getElementById("nb-date").value.trim();
+  var date=formatSwedishDate(rawDate)||rawDate;
+  var expected=parseInt(document.getElementById("nb-guests").value)||20;
   if(!name||!rawDate)return;
-  const id="b"+Date.now();
-  state.bookings.unshift({id,name,date,expected,orders:[]});
+  var deadline=document.getElementById("nb-deadline").value;
+  var deadlineStr=formatSwedishDate(deadline)||"";
+  var contact=document.getElementById("nb-contact").value.trim();
+  var email=document.getElementById("nb-email").value.trim();
+  var reminder=parseInt(document.getElementById("nb-reminder").value)||0;
+  var id="b"+Date.now();
+  state.bookings.unshift({id:id,name:name,date:date,expected:expected,deadline:deadlineStr,deadlineRaw:deadline,contact:contact,email:email,reminder:reminder,orders:[]});
   saveState(state);
   document.getElementById("nb-name").value="";
   document.getElementById("nb-date").value="";
   document.getElementById("nb-guests").value="";
+  document.getElementById("nb-deadline").value="";
+  document.getElementById("nb-contact").value="";
+  document.getElementById("nb-email").value="";
+  document.getElementById("nb-reminder").value="2";
   toggleNewBooking();
   renderBookings();
 }
 
 function deleteBooking(id){
   if(!confirm("Ta bort bokningen och alla beställningar?"))return;
-  state.bookings=state.bookings.filter(b=>b.id!==id);
+  state.bookings=state.bookings.filter(function(b){return b.id!==id;});
   if(openBookingId===id)openBookingId=null;
   saveState(state);renderBookings();
 }
 
 function deleteOrder(bid,oid){
   if(!confirm("Ta bort beställningen?"))return;
-  const booking=state.bookings.find(b=>b.id===bid);
+  var booking=state.bookings.find(function(b){return b.id===bid;});
   if(!booking)return;
-  booking.orders=booking.orders.filter(o=>o.id!==oid);
+  booking.orders=booking.orders.filter(function(o){return o.id!==oid;});
   saveState(state);
   setDetailTab(bid,activeDetailTab[bid]||"guests");
 }
 
 // ── EDIT ORDER MODAL ──
 let editingBid=null,editingOid=null;
-let editSel={starter:null,main:null,vegan:null,dessert:null};
+let editSel={};
 
 function openEditOrder(bid,oid){
-  const booking=state.bookings.find(b=>b.id===bid);
-  const order=booking?.orders.find(o=>o.id===oid);
+  var booking=state.bookings.find(function(b){return b.id===bid;});
+  var order=booking?.orders.find(function(o){return o.id===oid;});
   if(!order)return;
   editingBid=bid;editingOid=oid;
-  editSel={starter:order.starter??null,main:order.main??null,vegan:order.vegan??null,dessert:order.dessert??null};
+  editSel={};
+  state.categories.forEach(function(c){
+    var v=(order.choices||{})[c.key];
+    editSel[c.key]=(v!==undefined?v:null);
+  });
   renderEditModal(order);
   document.getElementById("editModal").style.display="flex";
 }
 
 function renderEditModal(order){
-  let html=`<div class="form-field"><label>Namn</label><input type="text" id="edit-name" value="${order.name}"></div>`;
-  COURSES.forEach(course=>{
-    const items=state.menu[course.key];
-    html+=`<div class="course-section" style="margin-bottom:1rem">
-      <div class="course-title" style="font-size:1.1rem">${course.label}</div>
-      <div class="meal skip-option" id="edit_${course.key}_skip" onclick="pickEdit('${course.key}',null)" style="margin-top:.4rem">
-        <div class="radio"><div class="dot"></div></div>
-        <div class="meal-body"><div class="meal-name" style="color:var(--muted);font-size:13px">Hoppa över</div></div>
-      </div>`;
-    items.forEach((item,i)=>{
-      html+=`<div class="meal" id="edit_${course.key}_${i}" onclick="pickEdit('${course.key}',${i})">
-        <div class="radio"><div class="dot"></div></div>
-        <div class="meal-body"><div class="meal-name">${item.name}</div><div class="meal-desc">${item.desc}</div></div>
-        <div class="meal-price">${item.price} kr</div>
-      </div>`;
+  var html="<div class='form-field'><label>Namn</label><input type='text' id='edit-name' value='"+order.name+"'></div>";
+  state.categories.forEach(function(cat){
+    html+="<div class='course-section' style='margin-bottom:1rem'>"
+      +"<div class='course-title' style='font-size:1.1rem'>"+cat.label+"</div>"
+      +"<div class='meal skip-option' id='edit_"+cat.key+"_skip' onclick=\"pickEdit('\"+cat.key+\"',null)\" style='margin-top:.4rem'>"
+      +"<div class='radio'><div class='dot'></div></div>"
+      +"<div class='meal-body'><div class='meal-name' style='color:var(--muted);font-size:13px'>Hoppa över</div></div></div>";
+    cat.items.forEach(function(item,i){
+      html+="<div class='meal' id='edit_"+cat.key+"_"+i+"' onclick=\"pickEdit('"+cat.key+"',"+i+")\">"
+        +"<div class='radio'><div class='dot'></div></div>"
+        +"<div class='meal-body'><div class='meal-name'>"+item.name+"</div><div class='meal-desc'>"+item.desc+"</div></div>"
+        +"<div class='meal-price'>"+item.price+" kr</div></div>";
     });
     html+="</div>";
   });
-  html+=`<div class="form-field"><label>Allergier & specialkost</label><textarea id="edit-allergy">${order.allergy||""}</textarea></div>`;
-  html+=`<div class="flex-gap" style="margin-top:.5rem">
-    <button class="btn btn-gold" onclick="saveEditOrder()">Spara ändringar</button>
-    <button class="btn btn-ghost" onclick="closeModalDirect()">Avbryt</button>
-  </div>`;
+  html+="<div class='form-field'><label>Allergier & specialkost</label><textarea id='edit-allergy'>"+(order.allergy||"")+"</textarea></div>"
+    +"<div class='flex-gap' style='margin-top:.5rem'>"
+    +"<button class='btn btn-gold' onclick='saveEditOrder()'>Spara ändringar</button>"
+    +"<button class='btn btn-ghost' onclick='closeModalDirect()'>Avbryt</button></div>";
   document.getElementById("editModalContent").innerHTML=html;
   highlightEditSel();
 }
 
-function pickEdit(course,idx){editSel[course]=idx;highlightEditSel();}
+function pickEdit(key,idx){editSel[key]=idx;highlightEditSel();}
 function highlightEditSel(){
-  COURSES.forEach(course=>{
-    document.querySelectorAll(`[id^="edit_${course.key}_"]`).forEach(el=>el.classList.remove("selected"));
-    const s=editSel[course.key];
-    if(s===null){const el=document.getElementById(`edit_${course.key}_skip`);if(el)el.classList.add("selected");}
-    else if(s!==null&&s!==undefined){const el=document.getElementById(`edit_${course.key}_${s}`);if(el)el.classList.add("selected");}
+  state.categories.forEach(function(cat){
+    document.querySelectorAll("[id^='edit_"+cat.key+"_']").forEach(function(el){el.classList.remove("selected");});
+    var s=editSel[cat.key];
+    if(s===null){var el=document.getElementById("edit_"+cat.key+"_skip");if(el)el.classList.add("selected");}
+    else if(s!==null&&s!==undefined){var el=document.getElementById("edit_"+cat.key+"_"+s);if(el)el.classList.add("selected");}
   });
 }
 
 function saveEditOrder(){
-  const booking=state.bookings.find(b=>b.id===editingBid);
-  const order=booking?.orders.find(o=>o.id===editingOid);
+  var booking=state.bookings.find(function(b){return b.id===editingBid;});
+  var order=booking?.orders.find(function(o){return o.id===editingOid;});
   if(!order)return;
   order.name=document.getElementById("edit-name").value.trim()||order.name;
-  order.starter=editSel.starter;order.main=editSel.main;order.vegan=editSel.vegan;order.dessert=editSel.dessert;
+  order.choices={};
+  state.categories.forEach(function(c){if(editSel[c.key]!==null&&editSel[c.key]!==undefined)order.choices[c.key]=editSel[c.key];});
   order.allergy=document.getElementById("edit-allergy").value.trim();
   saveState(state);
   closeModalDirect();
@@ -885,111 +939,241 @@ function closeModal(e){if(e.target===document.getElementById("editModal"))closeM
 function closeModalDirect(){document.getElementById("editModal").style.display="none";editingBid=null;editingOid=null;}
 
 function copyLink(id){
-  const url=window.location.origin+window.location.pathname+"?bokning="+id;
-  navigator.clipboard.writeText(url).then(()=>{
-    alert("Länk kopierad!\n\n"+url);
-  });
+  var url=window.location.origin+window.location.pathname+"?bokning="+id;
+  navigator.clipboard.writeText(url).then(function(){alert("Länk kopierad!\n\n"+url);});
 }
 
 function copyKitchenList(bid){
-  const booking=state.bookings.find(b=>b.id===bid);if(!booking)return;
-  let txt=booking.name+" – "+booking.date+"\n"+"─".repeat(30)+"\n";
-  const courseList=[
-    {key:"starter",label:"FÖRRÄTTER"},
-    {key:"main",label:"HUVUDRÄTTER"},
-    {key:"vegan",label:"VEGAN & VEGETARISKT"},
-    {key:"dessert",label:"EFTERRÄTTER"},
-  ];
-  courseList.forEach(course=>{
-    const counts={};
-    booking.orders.forEach(o=>{
-      const idx=o[course.key];
-      if(idx!==null&&idx!==undefined){const item=state.menu[course.key]?.[idx];if(item)counts[item.name]=(counts[item.name]||0)+1;}
+  var booking=state.bookings.find(function(b){return b.id===bid;});if(!booking)return;
+  var txt=booking.name+" – "+booking.date+"\n"+"─".repeat(30)+"\n";
+  state.categories.forEach(function(cat){
+    var counts={};
+    booking.orders.forEach(function(o){
+      var idx=(o.choices||{})[cat.key];
+      if(idx!==null&&idx!==undefined){var item=cat.items[idx];if(item)counts[item.name]=(counts[item.name]||0)+1;}
     });
-    const entries=Object.entries(counts);
+    var entries=Object.entries(counts);
     if(entries.length){
-      txt+="\n"+course.label+"\n";
-      entries.sort((a,b)=>b[1]-a[1]).forEach(([n,c])=>txt+="  "+n+" x"+c+"\n");
+      txt+="\n"+cat.label.toUpperCase()+"\n";
+      entries.sort(function(a,b){return b[1]-a[1];}).forEach(function(e){txt+="  "+e[0]+" x"+e[1]+"\n";});
     }
   });
-  const allergies=booking.orders.filter(o=>o.allergy);
-  if(allergies.length){txt+="\nALLERGIER\n";allergies.forEach(o=>txt+="  "+o.name+": "+o.allergy+"\n");}
-  navigator.clipboard.writeText(txt).then(()=>alert("Kopierat!"));
+  var allergies=booking.orders.filter(function(o){return o.allergy;});
+  if(allergies.length){txt+="\nALLERGIER\n";allergies.forEach(function(o){txt+="  "+o.name+": "+o.allergy+"\n";});}
+  navigator.clipboard.writeText(txt).then(function(){alert("Kopierat!");});
+}
+
+// ── EVENING ──
+function renderEvening(){
+  var list=document.getElementById("eveningList");
+  if(!state.bookings.length){list.innerHTML='<div class="empty-state">Inga bokningar ännu.</div>';return;}
+  var byDate={};
+  state.bookings.forEach(function(b){
+    if(!byDate[b.date])byDate[b.date]={date:b.date,bookings:[],orders:[]};
+    byDate[b.date].bookings.push(b.name);
+    byDate[b.date].orders=byDate[b.date].orders.concat(b.orders);
+  });
+  list.innerHTML=Object.values(byDate).map(function(ev){
+    var totalOrders=ev.orders.length;
+    var kitchenHtml="";
+    state.categories.forEach(function(cat){
+      var counts={};
+      var allergyMap={};
+      ev.orders.forEach(function(o){
+        var idx=(o.choices||{})[cat.key];
+        if(idx!==null&&idx!==undefined){
+          var item=cat.items[idx];
+          if(item){
+            counts[item.name]=(counts[item.name]||0)+1;
+            if(o.allergy){
+              if(!allergyMap[item.name])allergyMap[item.name]=[];
+              allergyMap[item.name].push(o.name+": "+o.allergy);
+            }
+          }
+        }
+      });
+      var entries=Object.entries(counts).sort(function(a,b){return b[1]-a[1];});
+      if(!entries.length)return;
+      var max=totalOrders||1;
+      kitchenHtml+="<div class='kitchen-head'>"+cat.label+"</div>";
+      entries.forEach(function(e){
+        var dishName=e[0]; var count=e[1];
+        var allergyNotes=allergyMap[dishName]||[];
+        var aHtml="";
+        if(allergyNotes.length){
+          aHtml="<div style='margin-top:4px;padding:5px 8px;background:#2a1a00;border:1px solid #6a4a10;border-radius:5px;width:100%'>"
+            +"<span style='font-size:10px;color:#e8b84b;font-weight:500;letter-spacing:.04em'>⚠️ ALLERGI/SPECIALKOST</span>"
+            +allergyNotes.map(function(n){return "<div style='font-size:12px;color:#c8b890;margin-top:2px'>"+n+"</div>";}).join("")
+            +"</div>";
+        }
+        kitchenHtml+="<div style='padding:6px 0;border-bottom:1px solid var(--border)'>"
+          +"<div class='tally-row' style='border:none;padding:0'>"
+          +"<span class='tally-name'>"+dishName+"</span>"
+          +"<div class='tally-bar-wrap'><div class='tally-bar' style='width:"+Math.round(count/max*100)+"%'></div></div>"
+          +"<span class='tally-n'>"+count+" st</span></div>"
+          +aHtml+"</div>";
+      });
+    });
+    var allergies=ev.orders.filter(function(o){return o.allergy;});
+    var allergyHtml="";
+    if(allergies.length){
+      allergyHtml="<div class='allergy-box'><div class='allergy-head'>⚠️ Allergier & specialkost</div>";
+      allergies.forEach(function(o){allergyHtml+="<div class='allergy-item'><span class='allergy-name'>"+o.name+"</span> – "+o.allergy+"</div>";});
+      allergyHtml+="</div>";
+    }
+    return "<div class='card' style='margin-bottom:1rem'>"
+      +"<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem'>"
+      +"<div>"
+      +"<div style=\"font-family:'Cormorant Garamond',serif;font-size:1.3rem\">"+ev.date+"</div>"
+      +"<div style='font-size:12px;color:var(--muted);margin-top:2px'>"+ev.bookings.join(", ")+" · "+totalOrders+" beställningar</div>"
+      +"</div>"
+      +"<button class='btn btn-ghost' style='font-size:12px' onclick=\"copyEveningList('\"+ev.date+\"')\">Kopiera kökslista</button>"
+      +"</div>"
+      +(kitchenHtml||'<div class="empty-state" style="padding:.5rem">Inga beställningar ännu.</div>')
+      +allergyHtml+"</div>";
+  }).join("");
+}
+
+function copyEveningList(date){
+  var byDate={};
+  state.bookings.forEach(function(b){
+    if(!byDate[b.date])byDate[b.date]={date:b.date,bookings:[],orders:[]};
+    byDate[b.date].bookings.push(b.name);
+    byDate[b.date].orders=byDate[b.date].orders.concat(b.orders);
+  });
+  var ev=byDate[date];if(!ev)return;
+  var txt=ev.date+"\n"+ev.bookings.join(", ")+"\n"+"─".repeat(30)+"\n";
+  state.categories.forEach(function(cat){
+    var counts={};
+    ev.orders.forEach(function(o){
+      var idx=(o.choices||{})[cat.key];
+      if(idx!==null&&idx!==undefined){var item=cat.items[idx];if(item)counts[item.name]=(counts[item.name]||0)+1;}
+    });
+    var entries=Object.entries(counts);
+    if(entries.length){
+      txt+="\n"+cat.label.toUpperCase()+"\n";
+      entries.sort(function(a,b){return b[1]-a[1];}).forEach(function(e){txt+="  "+e[0]+" x"+e[1]+"\n";});
+    }
+  });
+  var allergies=ev.orders.filter(function(o){return o.allergy;});
+  if(allergies.length){txt+="\nALLERGIER\n";allergies.forEach(function(o){txt+="  "+o.name+": "+o.allergy+"\n";});}
+  navigator.clipboard.writeText(txt).then(function(){alert("Kopierat!");});
 }
 
 // ── MENU EDITOR ──
-function openEditMenuItem(course,idx){
-  const item=state.menu[course][idx];
+function openEditMenuItem(catKey,idx){
+  var cat=getCat(catKey);
+  var item=cat?.items[idx];
   if(!item)return;
-  const courseLabels={starter:"Förrätt",main:"Huvudrätt",vegan:"Vegan & Vegetariskt",dessert:"Efterrätt"};
-  document.getElementById("editMenuContent").innerHTML=`
-    <div class="form-field"><label>Kurs</label><input type="text" value="${courseLabels[course]}" disabled style="opacity:.5"></div>
-    <div class="form-field"><label>Namn</label><input type="text" id="em-name" value="${item.name}"></div>
-    <div class="form-field"><label>Beskrivning</label><textarea id="em-desc">${item.desc}</textarea></div>
-    <div class="form-field"><label>Pris (kr)</label><input type="text" id="em-price" value="${item.price}"></div>
-    <div class="flex-gap" style="margin-top:.5rem">
-      <button class="btn btn-gold" onclick="saveEditMenuItem('${course}',${idx})">Spara</button>
-      <button class="btn btn-ghost" onclick="closeMenuModalDirect()">Avbryt</button>
-    </div>`;
+  document.getElementById("editMenuContent").innerHTML=
+    "<div class='form-field'><label>Rubrik</label><input type='text' value='"+cat.label+"' disabled style='opacity:.5'></div>"
+    +"<div class='form-field'><label>Namn</label><input type='text' id='em-name' value='"+item.name+"'></div>"
+    +"<div class='form-field'><label>Beskrivning</label><textarea id='em-desc'>"+item.desc+"</textarea></div>"
+    +"<div class='form-field'><label>Pris (kr)</label><input type='text' id='em-price' value='"+item.price+"'></div>"
+    +"<div class='flex-gap' style='margin-top:.5rem'>"
+    +"<button class='btn btn-gold' onclick=\"saveEditMenuItem('\"+catKey+\"',"+idx+")\">Spara</button>"
+    +"<button class='btn btn-ghost' onclick='closeMenuModalDirect()'>Avbryt</button></div>";
   document.getElementById("editMenuModal").style.display="flex";
 }
 
-function saveEditMenuItem(course,idx){
-  const item=state.menu[course][idx];
+function saveEditMenuItem(catKey,idx){
+  var cat=getCat(catKey);
+  var item=cat?.items[idx];
   if(!item)return;
   item.name=document.getElementById("em-name").value.trim()||item.name;
   item.desc=document.getElementById("em-desc").value.trim();
   item.price=parseInt(document.getElementById("em-price").value)||item.price;
-  saveState(state);
-  closeMenuModalDirect();
-  renderMenuEditor();
+  saveState(state);closeMenuModalDirect();renderMenuEditor();
 }
 
 function closeMenuModal(e){if(e.target===document.getElementById("editMenuModal"))closeMenuModalDirect();}
 function closeMenuModalDirect(){document.getElementById("editMenuModal").style.display="none";}
 
+let addingToCategory=null;
+
 function renderMenuEditor(){
-  const wrap=document.getElementById("menuEditor");
-  const labels={starter:"Förrätter",main:"Huvudrätter",vegan:"Vegan & Vegetariskt",dessert:"Efterrätter"};
-  let html="";
-  ["starter","main","vegan","dessert"].forEach(course=>{
-    html+=`<div style="margin-bottom:1.5rem"><div class="card-label">${labels[course]}</div><div class="card">`;
-    if(!state.menu[course].length)html+='<div class="empty-state" style="padding:.75rem">Inga rätter.</div>';
-    state.menu[course].forEach((item,i)=>{
-      html+=`<div class="menu-item-row">
-        <div class="menu-item-info">
-          <div class="menu-item-name">${item.name}</div>
-          <div class="menu-item-desc">${item.desc}</div>
-        </div>
-        <div class="menu-item-price">${item.price} kr</div>
-        <button class="btn btn-ghost" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="openEditMenuItem('${course}',${i})">Redigera</button>
-        <button class="btn btn-danger" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="removeMenuItem('${course}',${i})">Ta bort</button>
-      </div>`;
+  var wrap=document.getElementById("menuEditor");
+  var html="";
+  state.categories.forEach(function(cat,ci){
+    var canDelete=cat.items.length===0;
+    html+="<div style='margin-bottom:1.75rem'>"
+      +"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem'>"
+      +"<div class='card-label' style='margin:0'>"+cat.label+"</div>"
+      +"<div style='display:flex;gap:6px'>"
+      +"<button class='btn btn-ghost' style='font-size:11px;padding:4px 10px' onclick=\"openAddItem('\"+cat.key+\"')\">+ Lägg till rätt</button>"
+      +(canDelete?"<button class='btn btn-danger' style='font-size:11px;padding:4px 10px' onclick=\"deleteCategory('\"+cat.key+\"')\">Ta bort rubrik</button>":"")
+      +"</div></div>"
+      +"<div class='card'>";
+    if(!cat.items.length)html+="<div class='empty-state' style='padding:.75rem;font-size:12px'>Inga rätter ännu.</div>";
+    cat.items.forEach(function(item,i){
+      html+="<div class='menu-item-row'>"
+        +"<div class='menu-item-info'>"
+        +"<div class='menu-item-name'>"+item.name+"</div>"
+        +"<div class='menu-item-desc'>"+item.desc+"</div></div>"
+        +"<div class='menu-item-price'>"+item.price+" kr</div>"
+        +"<button class='btn btn-ghost' style='font-size:11px;padding:4px 8px;flex-shrink:0' onclick=\"openEditMenuItem('\"+cat.key+\"',"+i+")\">Redigera</button>"
+        +"<button class='btn btn-danger' style='font-size:11px;padding:4px 8px;flex-shrink:0' onclick=\"removeMenuItem('\"+cat.key+\"',"+i+")\">Ta bort</button>"
+        +"</div>";
     });
     html+="</div></div>";
   });
   wrap.innerHTML=html;
 }
 
-function toggleAddItem(){const f=document.getElementById("addItemForm");f.style.display=f.style.display==="none"?"block":"none";}
+function toggleAddItem(){var f=document.getElementById("addItemForm");f.style.display=f.style.display==="none"?"block":"none";}
+
+function openAddItem(catKey){
+  addingToCategory=catKey;
+  var cat=getCat(catKey);
+  document.getElementById("ai-cat-label").textContent="Lägg till i: "+cat.label;
+  document.getElementById("ai-name").value="";
+  document.getElementById("ai-desc").value="";
+  document.getElementById("ai-price").value="";
+  document.getElementById("addItemForm").style.display="block";
+  document.getElementById("addItemForm").scrollIntoView({behavior:"smooth"});
+}
 
 function addMenuItem(){
-  const course=document.getElementById("ai-course").value;
-  const name=document.getElementById("ai-name").value.trim();
-  const desc=document.getElementById("ai-desc").value.trim();
-  const price=parseInt(document.getElementById("ai-price").value)||0;
-  if(!name)return;
-  if(!state.menu[course])state.menu[course]=[];
-  state.menu[course].push({id:"x"+Date.now(),name,desc,price});
-  saveState(state);
-  document.getElementById("ai-name").value="";document.getElementById("ai-desc").value="";document.getElementById("ai-price").value="";
-  toggleAddItem();renderMenuEditor();
+  var catKey=addingToCategory||document.getElementById("ai-course").value;
+  var cat=getCat(catKey);
+  var name=document.getElementById("ai-name").value.trim();
+  var desc=document.getElementById("ai-desc").value.trim();
+  var price=parseInt(document.getElementById("ai-price").value)||0;
+  if(!name||!cat)return;
+  cat.items.push({id:"x"+Date.now(),name:name,desc:desc,price:price});
+  saveState(state);addingToCategory=null;
+  document.getElementById("addItemForm").style.display="none";
+  renderMenuEditor();
 }
 
-function removeMenuItem(course,idx){
+function removeMenuItem(catKey,idx){
+  var cat=getCat(catKey);
+  if(!cat)return;
   if(!confirm("Ta bort rätten?"))return;
-  state.menu[course].splice(idx,1);saveState(state);renderMenuEditor();
+  cat.items.splice(idx,1);saveState(state);renderMenuEditor();
 }
+
+function addCategory(){
+  var name=document.getElementById("new-cat-name").value.trim();
+  if(!name)return;
+  var key="cat"+Date.now();
+  state.categories.push({key:key,label:name,items:[]});
+  saveState(state);
+  document.getElementById("new-cat-name").value="";
+  document.getElementById("newCatForm").style.display="none";
+  renderMenuEditor();
+}
+
+function deleteCategory(key){
+  var cat=getCat(key);
+  if(!cat)return;
+  if(cat.items.length>0){alert("Ta bort alla rätter i rubriken först.");return;}
+  if(!confirm("Ta bort rubriken '"+cat.label+"'?"))return;
+  state.categories=state.categories.filter(function(c){return c.key!==key;});
+  saveState(state);renderMenuEditor();
+}
+
+function toggleNewCat(){var f=document.getElementById("newCatForm");f.style.display=f.style.display==="none"?"block":"none";}
 
 // ── INIT ──
 renderGuestForm();
