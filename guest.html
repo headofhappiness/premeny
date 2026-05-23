@@ -8,49 +8,65 @@
 <style>
 :root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--gold:#b8955a;--dark:#1a1712;--text:#2d2a24;--muted:#8a8070;--red:#c0392b}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
-.nav-logo{font-family:"Playfair Display",serif;font-size:1.1rem;font-style:italic;color:var(--dark)}
+.nav-logo{font-family:"Playfair Display",serif;font-size:1.2rem;font-style:italic;color:var(--dark)}
 .nav-logo span{color:var(--gold)}
-.nav-rest{font-size:13px;color:var(--muted)}
+.nav-rest{font-size:14px;color:var(--muted)}
 .page{max-width:600px;margin:0 auto;padding:2rem 1.25rem 5rem}
-h1{font-family:"Playfair Display",serif;font-size:1.9rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
+h1{font-family:"Playfair Display",serif;font-size:2rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
 .gold-line{width:32px;height:1px;background:var(--gold);margin:.5rem 0 1.25rem;opacity:.7}
-.booking-info{background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:.875rem 1rem;margin-bottom:1.5rem;font-size:13.5px;line-height:1.7}
-.booking-info strong{color:var(--dark);font-weight:500}
-.deadline-closed{background:#fdf2f2;border-color:#e8c0c0;color:#8a2020}
+.booking-info{background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1.5rem;font-size:15px;line-height:1.8}
+.closed-banner{background:#fdf2f2;border:1.5px solid #e8c0c0;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;text-align:center;line-height:1.8}
+.closed-banner h2{font-family:"Playfair Display",serif;font-size:1.3rem;color:#8a2020;margin-bottom:.5rem;font-weight:400}
+.closed-banner p{font-size:15px;color:#8a2020}
+.closed-banner a{color:#8a2020;font-weight:500}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem}
-.card-label{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
-input[type=text],textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-family:"Outfit",sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;resize:none;font-weight:300}
+.card-label{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
+input[type=text],textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:13px 15px;font-family:"Outfit",sans-serif;font-size:16px;color:var(--text);outline:none;transition:border-color .2s;resize:none;font-weight:300}
 input:focus,textarea:focus{border-color:var(--gold);background:var(--surface)}
-textarea{min-height:70px}
-.course-section{margin-bottom:1.75rem}
-.course-title{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:var(--dark);margin-bottom:.15rem}
-.course-sub{font-size:11px;color:var(--muted);margin-bottom:.6rem}
-.meal{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;cursor:pointer;background:var(--surface);transition:all .2s;user-select:none}
-.meal:hover{border-color:#d4ccc0;background:var(--surface2)}
-.meal.selected{border-color:var(--gold);background:rgba(184,149,90,.05)}
+textarea{min-height:75px}
+.course-section{margin-bottom:2rem}
+.course-title{font-family:"Playfair Display",serif;font-size:1.3rem;font-weight:400;color:var(--dark);margin-bottom:.2rem}
+.course-sub{font-size:13px;color:var(--muted);margin-bottom:.75rem}
+.meal{border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:var(--surface);transition:all .2s;overflow:hidden}
+.meal-top{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;transition:background .15s}
+.meal:hover .meal-top{background:var(--surface2)}
+.meal.selected{border-color:var(--gold)}
+.meal.selected .meal-top{background:rgba(184,149,90,.05)}
 .meal.skip{border-style:dashed;border-color:#ddd8d0}
-.radio{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border);margin-top:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .2s}
+.radio{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);margin-top:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .2s}
 .meal.selected .radio{border-color:var(--gold)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);display:none}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--gold);display:none}
 .meal.selected .dot{display:block}
-.meal-body{flex:1}
-.meal-name{font-size:14px;color:var(--dark)}
-.meal-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px}
-.meal-price{font-size:13px;color:var(--gold);font-weight:500;font-family:"Playfair Display",serif;padding-left:8px;margin-top:2px;flex-shrink:0}
-.msg{padding:11px 16px;border-radius:8px;font-size:13px;margin-bottom:1rem;border:1px solid}
+.meal-body{flex:1;min-width:0}
+.meal-name{font-size:16px;color:var(--dark);line-height:1.3;font-weight:400}
+.meal-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-top:3px}
+.meal-price{font-size:14px;color:var(--gold);font-weight:500;font-family:"Playfair Display",serif;padding-left:8px;margin-top:2px;flex-shrink:0;white-space:nowrap}
+.meal-comment-wrap{padding:0 16px 14px 48px;display:none;animation:fadeIn .15s ease}
+.meal.selected .meal-comment-wrap{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.meal-comment-wrap label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
+.meal-comment-wrap textarea{font-size:14px;min-height:60px;padding:10px 12px;border-radius:8px}
+.msg{padding:13px 16px;border-radius:10px;font-size:15px;margin-bottom:1rem;border:1px solid;line-height:1.6}
 .msg.ok{background:#f2f8ec;color:#3a6020;border-color:#c8e0a8}
 .msg.err{background:#fdf2f2;color:#8a2020;border-color:#e8c0c0}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 24px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;border:none;width:100%;letter-spacing:.03em;margin-top:.5rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:15px 24px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:all .2s;border:none;width:100%;letter-spacing:.02em;margin-top:.5rem}
 .btn-primary{background:var(--dark);color:#fff}.btn-primary:hover{background:#2d2820;transform:translateY(-1px)}.btn-primary:disabled{opacity:.5;cursor:default;transform:none}
-.done-icon{font-size:2.5rem;color:var(--gold);text-align:center;margin-bottom:.75rem}
-.summary-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.done-wrap{padding:2rem 0;text-align:center}
+.done-icon{font-size:3.5rem;color:var(--gold);margin-bottom:.75rem}
+.summary-row{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);font-size:15px;gap:12px}
 .summary-row:last-child{border-bottom:none}
-.loading{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
-.spinner{width:20px;height:20px;border:2px solid rgba(184,149,90,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle}
+.loading{text-align:center;padding:4rem;color:var(--muted);font-size:15px}
+.spinner{width:22px;height:22px;border:2px solid rgba(184,149,90,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:560px){.page{padding:1.5rem 1rem 4rem}h1{font-size:1.6rem}input[type=text],textarea{font-size:16px}.meal-name{font-size:15px}}
+@media(max-width:560px){
+  .page{padding:1.5rem 1rem 4rem}
+  h1{font-size:1.75rem}
+  .meal-name{font-size:17px}
+  .meal-comment-wrap{padding:0 12px 12px 44px}
+}
 </style>
 </head>
 <body>
@@ -62,8 +78,14 @@ textarea{min-height:70px}
 <div class="page">
   <div id="loadingState" class="loading"><span class="spinner"></span> Laddar...</div>
   <div id="errorState" style="display:none" class="msg err"></div>
-
   <div id="mainContent" style="display:none">
+
+    <!-- STÄNGD BANNER -->
+    <div id="closedBanner" style="display:none" class="closed-banner">
+      <h2>Beställningstiden har passerat</h2>
+      <p id="closedMsg">Kontakta restaurangen för att göra ändringar.</p>
+    </div>
+
     <div id="guestMsg" style="display:none" class="msg"></div>
 
     <!-- FORMULÄR -->
@@ -71,212 +93,204 @@ textarea{min-height:70px}
       <h1>Förbeställ din mat</h1>
       <div class="gold-line"></div>
       <div class="booking-info" id="bookingInfo"></div>
-
       <div class="card">
         <div class="card-label">Ditt namn</div>
-        <input type="text" id="guestName" placeholder="Förnamn och efternamn" onblur="checkExisting()">
+        <input type="text" id="guestName" placeholder="Förnamn och efternamn" autocomplete="name" onblur="checkExisting()">
       </div>
       <div id="existingNotice" style="display:none" class="msg ok"></div>
       <div id="courseWrap"></div>
-      <div class="card">
-        <div class="card-label">Allergier & specialkost</div>
-        <textarea id="guestAllergy" placeholder="T.ex. glutenintolerant, nötallergi... (lämna tomt om inget)"></textarea>
-      </div>
-      <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:.75rem;line-height:1.6">Vill du ändra? Öppna länken igen och skriv ditt namn.</p>
       <button class="btn btn-primary" id="submitBtn" onclick="submitOrder()">Skicka beställning</button>
+      <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:.75rem;line-height:1.6">Vill du ändra? Öppna länken igen och skriv ditt namn.</p>
     </div>
 
     <!-- BEKRÄFTELSE -->
-    <div id="doneWrap" style="display:none;padding:2rem 0">
+    <div id="doneWrap" style="display:none" class="done-wrap">
       <div class="done-icon">✓</div>
-      <h1 style="text-align:center">Tack!</h1>
+      <h1>Tack!</h1>
       <div class="gold-line" style="margin:.5rem auto 1.25rem"></div>
-      <p style="text-align:center;color:var(--muted);font-size:14px;margin-bottom:1.5rem">Din beställning är sparad.</p>
-      <div class="card"><div class="card-label">Din beställning</div><div id="confirmSummary"></div></div>
-      <button class="btn btn-primary" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:.75rem" onclick="editOrder()">← Ändra beställning</button>
+      <p style="color:var(--muted);font-size:15px;margin-bottom:.5rem">Din beställning är sparad.</p>
+      <div id="doneTimestamp" style="font-size:13px;color:var(--muted);margin-bottom:1.5rem"></div>
+      <div class="card" style="text-align:left"><div class="card-label">Din beställning</div><div id="confirmSummary"></div></div>
+      <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-top:1rem;font-size:14px;line-height:1.7;text-align:left">
+        <strong style="color:var(--dark)">Vill du ändra din beställning?</strong><br>
+        <span style="color:var(--muted)">Öppna samma länk igen, skriv ditt namn och skicka om. Du kan ändra fram till sista beställningsdagen.</span>
+      </div>
+      <button class="btn btn-outline" style="margin-top:.75rem" onclick="editOrder()">← Ändra min beställning nu</button>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-const SUPABASE_URL = 'https://gndzalmkbsfhclpoidqi.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL='https://gndzalmkbsfhclpoidqi.supabase.co';
+const SUPABASE_KEY='sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
+const {createClient}=supabase;
+const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const params = new URLSearchParams(location.search);
-const RESTAURANT_SLUG = params.get('r') || params.get('restaurant');
-const BOOKING_ID = params.get('b') || params.get('booking');
+const params=new URLSearchParams(location.search);
+const SLUG=params.get('r');
+const BID=params.get('b');
+let restaurant=null,booking=null,categories=[],gSel={},gComments={},existingOrderId=null,isClosed=false;
 
-let restaurant = null, booking = null, categories = [], gSel = {}, existingOrderId = null;
+async function init(){
+  if(!SLUG||!BID){showError('Ogiltig länk.');return;}
+  try{
+    const {data:rest,error:e1}=await db.from('restaurants').select('*').eq('slug',SLUG).single();
+    if(e1||!rest){showError('Restaurangen hittades inte.');return;}
+    restaurant=rest;
+    document.documentElement.style.setProperty('--gold',rest.accent_color||'#b8955a');
+    document.getElementById('navRest').textContent=rest.name;
+    document.title=rest.name+' – Förbeställning';
 
-async function init() {
-  if (!RESTAURANT_SLUG || !BOOKING_ID) {
-    showError('Ogiltig länk – saknar restaurang eller boknings-ID.');
-    return;
-  }
-  try {
-    // Hämta restaurang
-    const { data: rest, error: e1 } = await db.from('restaurants').select('*').eq('slug', RESTAURANT_SLUG).single();
-    if (e1 || !rest) { showError('Restaurangen hittades inte.'); return; }
-    restaurant = rest;
+    const {data:book,error:e2}=await db.from('bookings').select('*').eq('id',BID).eq('restaurant_id',rest.id).single();
+    if(e2||!book){showError('Bokningen hittades inte.');return;}
+    booking=book;
 
-    // Applicera branding
-    document.documentElement.style.setProperty('--gold', rest.accent_color || '#b8955a');
-    document.getElementById('navRest').textContent = rest.name;
-    document.title = rest.name + ' – Förbeställning';
+    const today=new Date();today.setHours(0,0,0,0);
+    const dl=book.deadline?new Date(book.deadline+'T23:59:59'):null;
+    isClosed=dl&&today>dl;
 
-    // Hämta bokning
-    const { data: book, error: e2 } = await db.from('bookings').select('*').eq('id', BOOKING_ID).eq('restaurant_id', rest.id).single();
-    if (e2 || !book) { showError('Bokningen hittades inte.'); return; }
-    booking = book;
-
-    // Visa bokningsinfo
-    const today = new Date(); today.setHours(0,0,0,0);
-    const dl = book.deadline ? new Date(book.deadline + 'T23:59:59') : null;
-    const isClosed = dl && today > dl;
-    const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-    const d = new Date(book.event_date);
-    const dateStr = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
-    let infoHtml = '<strong>' + book.name + '</strong> – ' + dateStr + (book.event_time ? ' kl ' + book.event_time.slice(0,5) : '');
-    if (dl) {
-      const dlStr = dl.getDate() + ' ' + months[dl.getMonth()];
-      infoHtml += isClosed
-        ? '<br><span style="color:#8a2020">⚠ Beställningstiden gick ut ' + dlStr + '</span>'
-        : '<br><span style="color:#8a7020">⏱ Sista dag: ' + dlStr + '</span>';
+    const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    const d=new Date(book.event_date);
+    const dateStr=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+    let info='<strong>'+book.name+'</strong> – '+dateStr+(book.event_time?' kl '+book.event_time.slice(0,5):'');
+    if(dl&&!isClosed){
+      const dlStr=dl.getDate()+' '+months[dl.getMonth()];
+      info+='<br><span style="color:#8a7020;font-size:14px">⏱ Sista dag att beställa: '+dlStr+'</span>';
     }
-    const infoEl = document.getElementById('bookingInfo');
-    infoEl.innerHTML = infoHtml;
-    if (isClosed) infoEl.classList.add('deadline-closed');
-    if (isClosed) { document.getElementById('submitBtn').disabled = true; document.getElementById('submitBtn').textContent = 'Beställning stängd'; }
+    document.getElementById('bookingInfo').innerHTML=info;
 
-    // Hämta meny
-    const { data: cats } = await db.from('menu_categories').select('*, menu_items(*)').eq('restaurant_id', rest.id).order('sort_order');
-    categories = (cats || []).map(c => ({ ...c, menu_items: (c.menu_items || []).filter(i => i.active).sort((a,b) => a.sort_order - b.sort_order) })).filter(c => c.menu_items.length > 0);
-    categories.forEach(c => gSel[c.id] = null);
+    if(isClosed){
+      // Bygg kontaktmeddelande med restaurangens info
+      let contactMsg='Kontakta <strong>'+rest.name+'</strong>';
+      if(rest.phone) contactMsg+=' på <a href="tel:'+rest.phone+'" style="color:var(--red);font-weight:500">'+rest.phone+'</a>';
+      if(rest.contact_email) contactMsg+=' eller <a href="mailto:'+rest.contact_email+'" style="color:var(--red)">'+rest.contact_email+'</a>';
+      contactMsg+=' för att göra ändringar.';
+      document.getElementById('closedMsg').innerHTML=contactMsg;
+      document.getElementById('closedBanner').style.display='block';
+      document.getElementById('submitBtn').disabled=true;
+      document.getElementById('submitBtn').textContent='Beställning stängd';
+    }
 
+    const {data:cats}=await db.from('menu_categories').select('*, menu_items(*)').eq('restaurant_id',rest.id).order('sort_order');
+    categories=(cats||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)})).filter(c=>c.menu_items.length>0);
+    categories.forEach(c=>{gSel[c.id]=null;gComments[c.id]='';});
     buildMenu();
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('mainContent').style.display = 'block';
-  } catch(err) {
-    showError('Något gick fel: ' + err.message);
-  }
+    document.getElementById('loadingState').style.display='none';
+    document.getElementById('mainContent').style.display='block';
+  }catch(err){showError('Något gick fel: '+err.message);}
 }
 
-function buildMenu() {
-  const wrap = document.getElementById('courseWrap');
-  if (!categories.length) { wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:1rem 0">Ingen meny inlagd ännu.</p>'; return; }
-  wrap.innerHTML = categories.map(cat => `
+function buildMenu(){
+  const wrap=document.getElementById('courseWrap');
+  if(!categories.length){wrap.innerHTML='<p style="color:var(--muted);padding:1rem 0">Ingen meny inlagd ännu.</p>';return;}
+  wrap.innerHTML=categories.map(cat=>`
     <div class="course-section">
       <div class="course-title">${cat.label}</div>
       <div class="course-sub">Välj ett alternativ – eller hoppa över</div>
-      <div class="meal skip" id="skip_${cat.id}" onclick="pick('${cat.id}',null)">
-        <div class="radio"><div class="dot"></div></div>
-        <div class="meal-body"><div class="meal-name" style="color:var(--muted);font-size:13px">Hoppa över</div></div>
-      </div>
-      ${cat.menu_items.map((item,i) => `
-        <div class="meal" id="opt_${cat.id}_${i}" onclick="pick('${cat.id}','${item.id}')">
+      <div class="meal skip${gSel[cat.id]===null?' selected':''}" id="skip_${cat.id}" onclick="pick('${cat.id}',null)">
+        <div class="meal-top">
           <div class="radio"><div class="dot"></div></div>
-          <div class="meal-body">
-            <div class="meal-name">${item.name}</div>
-            ${item.description ? `<div class="meal-desc">${item.description}</div>` : ''}
+          <div class="meal-body"><div class="meal-name" style="color:var(--muted);font-size:15px">Hoppa över</div></div>
+        </div>
+      </div>
+      ${cat.menu_items.map((item,i)=>`
+        <div class="meal${gSel[cat.id]===item.id?' selected':''}" id="opt_${cat.id}_${i}">
+          <div class="meal-top" onclick="pick('${cat.id}','${item.id}')">
+            <div class="radio"><div class="dot"></div></div>
+            <div class="meal-body">
+              <div class="meal-name">${item.name}</div>
+              ${item.description?`<div class="meal-desc">${item.description}</div>`:''}
+            </div>
+            ${item.price?`<div class="meal-price">${item.price} kr</div>`:''}
           </div>
-          ${item.price ? `<div class="meal-price">${item.price} kr</div>` : ''}
+          <div class="meal-comment-wrap" id="cmtwrap_${cat.id}">
+            <label>Kommentar / allergi för denna rätt (valfritt)</label>
+            <textarea placeholder="T.ex. utan nötter, extra sås, vegansk variant..." onchange="gComments['${cat.id}']=this.value">${gComments[cat.id]||''}</textarea>
+          </div>
         </div>`).join('')}
     </div>`).join('');
-  highlight();
 }
 
-function pick(catId, itemId) { gSel[catId] = itemId; highlight(); }
-
-function highlight() {
-  categories.forEach(cat => {
-    const skip = document.getElementById('skip_' + cat.id);
-    if (skip) skip.classList.toggle('selected', gSel[cat.id] === null);
-    cat.menu_items.forEach((item, i) => {
-      const el = document.getElementById('opt_' + cat.id + '_' + i);
-      if (el) el.classList.toggle('selected', gSel[cat.id] === item.id);
-    });
+function pick(catId,itemId){
+  gSel[catId]=itemId;
+  const cat=categories.find(c=>c.id===catId);
+  if(!cat)return;
+  document.getElementById('skip_'+catId)?.classList.toggle('selected',itemId===null);
+  cat.menu_items.forEach((item,i)=>{
+    document.getElementById('opt_'+catId+'_'+i)?.classList.toggle('selected',gSel[catId]===item.id);
   });
 }
 
-async function checkExisting() {
-  const name = document.getElementById('guestName').value.trim().toLowerCase();
-  if (!name || !BOOKING_ID) return;
-  const { data: existing } = await db.from('orders').select('*, order_items(*)').eq('booking_id', BOOKING_ID).ilike('guest_name', name).maybeSingle();
-  const notice = document.getElementById('existingNotice');
-  if (existing) {
-    existingOrderId = existing.id;
-    notice.style.display = 'block';
-    notice.textContent = '✓ Du har redan beställt. Gör ändringar nedan och skicka om.';
-    document.getElementById('guestAllergy').value = existing.allergy_notes || '';
-    // Återfyll val
-    categories.forEach(cat => {
-      const item = (existing.order_items || []).find(oi => oi.category_id === cat.id);
-      gSel[cat.id] = item ? item.menu_item_id : null;
+async function checkExisting(){
+  const name=document.getElementById('guestName').value.trim().toLowerCase();
+  if(!name||!BID)return;
+  const {data:ex}=await db.from('orders').select('*, order_items(*)').eq('booking_id',BID).ilike('guest_name',name).maybeSingle();
+  const notice=document.getElementById('existingNotice');
+  if(ex){
+    existingOrderId=ex.id;
+    notice.style.display='block';
+    notice.textContent='✓ Du har redan beställt. Gör ändringar nedan och skicka om.';
+    categories.forEach(cat=>{
+      const oi=(ex.order_items||[]).find(o=>o.category_id===cat.id);
+      gSel[cat.id]=oi?oi.menu_item_id:null;
+      gComments[cat.id]=oi?(oi.comment||''):'';
     });
-    highlight();
-  } else {
-    existingOrderId = null;
-    notice.style.display = 'none';
-    categories.forEach(c => gSel[c.id] = null);
-    highlight();
+    buildMenu();
+  }else{
+    existingOrderId=null;notice.style.display='none';
+    categories.forEach(c=>{gSel[c.id]=null;gComments[c.id]='';});
+    buildMenu();
   }
 }
 
-async function submitOrder() {
-  const name = document.getElementById('guestName').value.trim();
-  const allergy = document.getElementById('guestAllergy').value.trim();
-  const msg = document.getElementById('guestMsg');
-  if (!name) { msg.style.display='block'; msg.className='msg err'; msg.textContent='Ange ditt namn.'; return; }
-  const hasChoice = categories.some(c => gSel[c.id] !== null);
-  if (!hasChoice) { msg.style.display='block'; msg.className='msg err'; msg.textContent='Välj minst en rätt.'; return; }
-
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Sparar...';
-  try {
-    let orderId = existingOrderId;
-    if (orderId) {
-      await db.from('orders').update({ guest_name: name, allergy_notes: allergy, updated_at: new Date().toISOString() }).eq('id', orderId);
-      await db.from('order_items').delete().eq('order_id', orderId);
-    } else {
-      const { data: newOrder } = await db.from('orders').insert({ booking_id: BOOKING_ID, restaurant_id: restaurant.id, guest_name: name, allergy_notes: allergy }).select().single();
-      orderId = newOrder.id;
+async function submitOrder(){
+  if(isClosed)return;
+  const name=document.getElementById('guestName').value.trim();
+  const msg=document.getElementById('guestMsg');
+  if(!name){msg.style.display='block';msg.className='msg err';msg.textContent='Ange ditt namn.';return;}
+  if(!categories.some(c=>gSel[c.id]!==null)){msg.style.display='block';msg.className='msg err';msg.textContent='Välj minst en rätt.';return;}
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='Sparar...';
+  try{
+    categories.forEach(cat=>{
+      const ta=document.querySelector('#cmtwrap_'+cat.id+' textarea');
+      if(ta)gComments[cat.id]=ta.value;
+    });
+    let orderId=existingOrderId;
+    if(orderId){
+      await db.from('orders').update({guest_name:name,updated_at:new Date().toISOString()}).eq('id',orderId);
+      await db.from('order_items').delete().eq('order_id',orderId);
+    }else{
+      const {data:o}=await db.from('orders').insert({booking_id:BID,restaurant_id:restaurant.id,guest_name:name}).select().single();
+      orderId=o.id;
     }
-    const items = categories.filter(c => gSel[c.id]).map(c => ({ order_id: orderId, menu_item_id: gSel[c.id], category_id: c.id }));
-    if (items.length) await db.from('order_items').insert(items);
-
-    // Visa bekräftelse
-    let summary = '';
-    categories.forEach(cat => {
-      if (gSel[cat.id]) {
-        const item = cat.menu_items.find(i => i.id === gSel[cat.id]);
-        if (item) summary += `<div class="summary-row"><span>${item.name}</span>${item.price ? `<span style="color:var(--gold)">${item.price} kr</span>` : ''}</div>`;
+    const items=categories.filter(c=>gSel[c.id]).map(c=>({order_id:orderId,menu_item_id:gSel[c.id],category_id:c.id,comment:gComments[c.id]||''}));
+    if(items.length)await db.from('order_items').insert(items);
+    let summary='';
+    categories.forEach(cat=>{
+      if(gSel[cat.id]){
+        const item=cat.menu_items.find(i=>i.id===gSel[cat.id]);
+        if(item)summary+=`<div class="summary-row"><div><div>${item.name}</div>${gComments[cat.id]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${gComments[cat.id]}</div>`:''}</div>${item.price?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
       }
     });
-    if (allergy) summary += `<div style="font-size:12px;color:#8a7020;margin-top:.75rem">⚠ ${allergy}</div>`;
-    document.getElementById('confirmSummary').innerHTML = summary;
-    document.getElementById('formWrap').style.display = 'none';
-    document.getElementById('doneWrap').style.display = 'block';
-    msg.style.display = 'none';
-  } catch(err) {
-    msg.style.display='block'; msg.className='msg err'; msg.textContent='Fel: ' + err.message;
-    btn.disabled = false; btn.textContent = 'Skicka beställning';
+    document.getElementById('confirmSummary').innerHTML=summary;
+    // Show timestamp
+    const now=new Date();
+    const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    const tsEl=document.getElementById('doneTimestamp');
+    if(tsEl)tsEl.textContent='Skickad '+ts;
+    document.getElementById('formWrap').style.display='none';
+    document.getElementById('doneWrap').style.display='block';
+    msg.style.display='none';
+  }catch(err){
+    msg.style.display='block';msg.className='msg err';msg.textContent='Fel: '+err.message;
+    btn.disabled=false;btn.textContent='Skicka beställning';
   }
 }
 
-function editOrder() {
-  document.getElementById('doneWrap').style.display = 'none';
-  document.getElementById('formWrap').style.display = 'block';
-}
-
-function showError(msg) {
-  document.getElementById('loadingState').style.display = 'none';
-  const el = document.getElementById('errorState');
-  el.style.display = 'block'; el.textContent = msg;
-}
-
+function editOrder(){document.getElementById('doneWrap').style.display='none';document.getElementById('formWrap').style.display='block';}
+function showError(m){document.getElementById('loadingState').style.display='none';const el=document.getElementById('errorState');el.style.display='block';el.textContent=m;}
 init();
 </script>
 </body>
