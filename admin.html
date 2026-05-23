@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – PreMeny</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--border-s:#d4ccc0;--gold:#b8955a;--dark:#1a1712;--text:#2d2a24;--muted:#8a8070;--red:#c0392b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
+.logo{font-family:"Playfair Display",serif;font-size:1.1rem;font-style:italic;color:var(--dark)}
+.logo span{color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.rest-name{font-size:13px;color:var(--muted)}
+.page{max-width:700px;margin:0 auto;padding:2rem 1.25rem 5rem}
+h1{font-family:"Playfair Display",serif;font-size:1.8rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
+h2{font-family:"Playfair Display",serif;font-size:1.3rem;font-weight:400;color:var(--dark)}
+h3{font-family:"Playfair Display",serif;font-size:1.1rem;font-weight:400;color:var(--dark)}
+.gold-line{width:32px;height:1px;background:var(--gold);margin:.5rem 0 1.25rem;opacity:.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem}
+.card-label{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
+input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:"Outfit",sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;resize:none;font-weight:300}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);background:var(--surface)}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;letter-spacing:.02em}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-field{margin-bottom:.75rem}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;border:1px solid transparent;white-space:nowrap;letter-spacing:.02em}
+.btn-primary{background:var(--dark);color:#fff;border-color:var(--dark)}.btn-primary:hover{background:#2d2820}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--muted)}.btn-ghost:hover{border-color:var(--dark);color:var(--dark)}
+.btn-danger{background:transparent;border-color:#e8d0d0;color:#a05050}.btn-danger:hover{border-color:var(--red);color:var(--red)}
+.btn-full{width:100%;justify-content:center;padding:13px}
+.tab-bar{display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{background:transparent;border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-family:"Outfit",sans-serif;font-size:12.5px;color:var(--muted);cursor:pointer;transition:all .2s}
+.tab:hover{border-color:var(--dark);color:var(--dark)}
+.tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.booking-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem;cursor:pointer;transition:border-color .2s}
+.booking-card:hover{border-color:var(--border-s)}
+.booking-card.open{border-color:var(--gold)}
+.booking-header{display:flex;justify-content:space-between;align-items:flex-start}
+.booking-name{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark)}
+.booking-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.pill{border-radius:100px;padding:3px 10px;font-size:11px;font-weight:500;letter-spacing:.02em}
+.pill-open{background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.25);color:var(--gold)}
+.pill-closed{background:#fdf2f2;border:1px solid #e8c0c0;color:#a05050}
+.pill-archived{background:var(--surface2);border:1px solid var(--border-s);color:var(--muted)}
+.booking-detail{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;display:none}
+.booking-card.open .booking-detail{display:block}
+.link-box{font-size:11.5px;color:var(--gold);font-family:monospace;word-break:break-all;padding:8px 12px;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:6px;margin:.5rem 0}
+.tally-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.tally-row:last-child{border-bottom:none}
+.tally-name{flex:1}
+.tally-bar-wrap{width:60px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.tally-bar{height:100%;background:var(--gold);border-radius:2px}
+.tally-n{font-weight:500;color:var(--gold);min-width:20px;text-align:right;font-size:12px;font-family:"Playfair Display",serif}
+.cat-head{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 .4rem}
+.cat-head:first-child{margin-top:0}
+.allergy-box{background:#fffbec;border:1px solid #e8d898;border-radius:10px;padding:1rem 1.1rem;margin-top:1rem}
+.allergy-head{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#8a7020;margin-bottom:.75rem}
+.allergy-item{font-size:13px;color:#4a3a10;padding:4px 0;border-bottom:1px solid #e8d898}
+.allergy-item:last-child{border-bottom:none}
+.guest-row{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.guest-row:last-child{border-bottom:none}
+.msg{padding:11px 16px;border-radius:8px;font-size:13px;margin-bottom:1rem;border:1px solid}
+.msg.ok{background:#f2f8ec;color:#3a6020;border-color:#c8e0a8}
+.msg.err{background:#fdf2f2;color:#8a2020;border-color:#e8c0c0}
+.flex-between{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.flex-gap{display:flex;gap:8px;flex-wrap:wrap}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:13px}
+.login-wrap{max-width:360px;margin:4rem auto;padding:2.5rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;box-shadow:0 4px 32px rgba(0,0,0,.06)}
+.login-logo{font-family:"Playfair Display",serif;font-size:2rem;font-style:italic;color:var(--dark);margin-bottom:.25rem}
+.login-logo span{color:var(--gold)}
+.spinner{width:14px;height:14px;border:2px solid rgba(184,149,90,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.reminder-note{background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;color:#6a5030;line-height:1.6}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}.page{padding:1.5rem 1rem 4rem}.booking-header{flex-direction:column;gap:.5rem}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-wrap">
+    <div class="login-logo">Pre<span>Meny</span></div>
+    <p style="font-size:13px;color:var(--muted);margin:.25rem 0 1.5rem">Admin</p>
+    <div id="loginMsg" style="display:none" class="msg err"></div>
+    <div class="form-field"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" onkeydown="if(event.key==='Enter')login()"></div>
+    <div class="form-field"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn btn-primary btn-full" onclick="login()">Logga in</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminPage" style="display:none">
+  <nav class="nav">
+    <div class="logo">Pre<span>Meny</span></div>
+    <div class="nav-right">
+      <span class="rest-name" id="restName"></span>
+      <button class="btn btn-ghost" style="padding:6px 14px;font-size:12px" onclick="logout()">Logga ut</button>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="flex-between">
+      <div><h1>Admin</h1><div class="gold-line"></div></div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab active" id="tab-bookings" onclick="showTab('bookings')">Bokningar</button>
+      <button class="tab" id="tab-evening" onclick="showTab('evening')">Per dag</button>
+      <button class="tab" id="tab-menu" onclick="showTab('menu')">Meny</button>
+      <button class="tab" id="tab-archive" onclick="showTab('archive')">Arkiv</button>
+    </div>
+
+    <!-- BOKNINGAR -->
+    <div id="pane-bookings">
+      <div class="flex-between">
+        <h3>Aktiva bokningar</h3>
+        <button class="btn btn-primary" onclick="toggleNewBooking()">+ Ny bokning</button>
+      </div>
+      <div class="reminder-note">✉ <strong>Automatiska påminnelser</strong> skickas det antal dagar du anger före deadline – men aldrig om alla gäster redan svarat.</div>
+      <div id="newBookingForm" style="display:none" class="card">
+        <div class="card-label">Skapa bokning</div>
+        <div class="form-row">
+          <div class="form-field"><label>Sällskapets namn</label><input type="text" id="nb-name" placeholder="T.ex. Bröllop Karlsson"></div>
+          <div class="form-field"><label>Datum</label><input type="date" id="nb-date"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Klockslag</label><input type="time" id="nb-time" value="18:00"></div>
+          <div class="form-field"><label>Förväntat antal gäster</label><input type="number" id="nb-guests" placeholder="30"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Sista beställningsdag</label><input type="date" id="nb-deadline"></div>
+          <div class="form-field"><label>Kontaktperson</label><input type="text" id="nb-contact" placeholder="Namn eller e-post"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Kontaktens e-post</label><input type="email" id="nb-email" placeholder="kontakt@email.se"></div>
+          <div class="form-field"><label>Påminnelse</label>
+            <select id="nb-reminder">
+              <option value="0">Ingen påminnelse</option>
+              <option value="1">1 dag innan deadline</option>
+              <option value="2" selected>2 dagar innan deadline</option>
+              <option value="3">3 dagar innan deadline</option>
+              <option value="5">5 dagar innan deadline</option>
+              <option value="7">1 vecka innan deadline</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex-gap">
+          <button class="btn btn-primary" onclick="createBooking()">Skapa bokning</button>
+          <button class="btn btn-ghost" onclick="toggleNewBooking()">Avbryt</button>
+        </div>
+        <div id="nb-msg" style="display:none;margin-top:.75rem" class="msg"></div>
+      </div>
+      <div id="bookingList" style="margin-top:1rem"></div>
+    </div>
+
+    <!-- PER DAG -->
+    <div id="pane-evening" style="display:none">
+      <h3 style="margin-bottom:.5rem">Per dag – alla sällskap</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Totalt per datum oavsett hur många sällskap.</p>
+      <div id="eveningList"></div>
+    </div>
+
+    <!-- MENY -->
+    <div id="pane-menu" style="display:none">
+      <div class="flex-between"><h3>Meny</h3><button class="btn btn-primary" onclick="toggleNewCat()">+ Ny rubrik</button></div>
+      <div id="newCatForm" style="display:none" class="card">
+        <div class="card-label">Ny menyrubrik</div>
+        <div class="form-field"><label>Namn</label><input type="text" id="new-cat-name" placeholder="T.ex. Förrätter, Dessert..."></div>
+        <div class="flex-gap">
+          <button class="btn btn-primary" onclick="addCategory()">Skapa</button>
+          <button class="btn btn-ghost" onclick="toggleNewCat()">Avbryt</button>
+        </div>
+      </div>
+      <div id="menuEditor" style="margin-top:1rem"></div>
+    </div>
+
+    <!-- ARKIV -->
+    <div id="pane-archive" style="display:none">
+      <h3 style="margin-bottom:.25rem">Arkiverade bokningar</h3>
+      <div class="gold-line"></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Bokningar vars datum passerat arkiveras automatiskt.</p>
+      <div id="archiveList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://gndzalmkbsfhclpoidqi.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let restaurant = null, categories = [], openBookings = {}, detailTabs = {};
+
+// AUTH
+async function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const msg = document.getElementById('loginMsg');
+  const { error } = await db.auth.signInWithPassword({ email, password: pass });
+  if (error) { msg.style.display='block'; msg.textContent='Fel e-post eller lösenord.'; return; }
+  initAdmin();
+}
+
+async function logout() {
+  await db.auth.signOut();
+  document.getElementById('adminPage').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'block';
+}
+
+async function initAdmin() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+
+  // Hämta restaurang kopplad till adminen
+  const { data: adminRow } = await db.from('restaurant_admins').select('restaurant_id').eq('user_id', user.id).single();
+  if (!adminRow) { alert('Ditt konto är inte kopplat till en restaurang. Kontakta PreMeny.'); return; }
+
+  const { data: rest } = await db.from('restaurants').select('*').eq('id', adminRow.restaurant_id).single();
+  restaurant = rest;
+  document.getElementById('restName').textContent = rest.name;
+  document.documentElement.style.setProperty('--gold', rest.accent_color || '#b8955a');
+
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('adminPage').style.display = 'block';
+
+  loadCategories();
+  renderBookingList();
+}
+
+// TABS
+function showTab(tab) {
+  ['bookings','evening','menu','archive'].forEach(t => {
+    document.getElementById('pane-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  if (tab==='evening') renderEvening();
+  if (tab==='menu') renderMenuEditor();
+  if (tab==='archive') renderArchive();
+}
+
+// BOOKINGS
+async function renderBookingList() {
+  if (!restaurant) return;
+  const today = new Date().toISOString().split('T')[0];
+  const { data: bookings } = await db.from('bookings').select('*, orders(id)').eq('restaurant_id', restaurant.id).gte('event_date', today).order('event_date');
+  const list = document.getElementById('bookingList');
+  if (!bookings?.length) { list.innerHTML = '<div class="empty">Inga aktiva bokningar. Klicka "+ Ny bokning" för att komma igång.</div>'; return; }
+  list.innerHTML = bookings.map(b => renderBookingCard(b)).join('');
+}
+
+function renderBookingCard(b) {
+  const isOpen = !!openBookings[b.id];
+  const dtab = detailTabs[b.id] || 'tally';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dl = b.deadline ? new Date(b.deadline+'T23:59:59') : null;
+  const isClosed = dl && today > dl;
+  const orderCount = (b.orders || []).length;
+  const guestLink = location.origin + '/guest.html?r=' + (restaurant?.slug||'') + '&b=' + b.id;
+  const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d = new Date(b.event_date);
+  const dateStr = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+
+  let html = `<div class="booking-card${isOpen?' open':''}" id="bc_${b.id}">
+    <div class="booking-header" onclick="toggleBooking('${b.id}')">
+      <div>
+        <div class="booking-name">${b.name}</div>
+        <div class="booking-meta">${dateStr}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orderCount}${b.expected_guests?' av '+b.expected_guests:''} beställda</div>
+      </div>
+      <span class="pill ${isClosed?'pill-closed':'pill-open'}">${isClosed?'Stängd':'Öppen'}</span>
+    </div>`;
+
+  if (isOpen) {
+    html += `<div class="booking-detail">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase">Gästlänk</div>
+      <div class="link-box">${guestLink}</div>
+      <button onclick="navigator.clipboard.writeText('${guestLink}').then(()=>alert('Kopierad!'))" class="btn btn-ghost" style="font-size:11px;padding:4px 12px;margin-bottom:.75rem">Kopiera länk</button>`;
+
+    // Reminder status
+    const allAnswered = b.expected_guests && orderCount >= b.expected_guests;
+    if (b.reminder_sent_at) {
+      const rs = new Date(b.reminder_sent_at);
+      html += `<div style="font-size:11px;color:#6a5030;margin-bottom:.75rem">✉ Påminnelse skickad: ${rs.toLocaleDateString('sv-SE')}</div>`;
+    } else if (!b.reminder_days) {
+      html += `<div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">— Ingen påminnelse konfigurerad</div>`;
+    } else if (allAnswered) {
+      html += `<div style="font-size:11px;background:rgba(184,149,90,.08);border:1px solid rgba(184,149,90,.2);border-radius:6px;padding:5px 10px;margin-bottom:.75rem;color:#6a5030">✓ Alla ${orderCount} gäster har svarat – ingen påminnelse behövs</div>`;
+    } else {
+      const missing = b.expected_guests ? (b.expected_guests - orderCount) + ' av ' + b.expected_guests + ' har inte svarat' : orderCount + ' har svarat';
+      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+        <div style="font-size:11px;color:var(--muted)">✉ Påminnelse ${b.reminder_days} dag(ar) före deadline · ${missing}</div>
+        <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="sendReminder('${b.id}',event)">Skicka nu</button>
+      </div>`;
+    }
+
+    html += `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
+      ${[['tally','Sammanfattning'],['kitchen','Kökslista'],['guests','Gästlista']].map(([t,l]) =>
+        `<button class="tab${dtab===t?' active':''}" onclick="switchDetail('${b.id}','${t}')">${l}</button>`).join('')}
+    </div>
+    <div id="det_${b.id}"></div>
+    <div style="display:flex;gap:6px;margin-top:1rem;flex-wrap:wrap">
+      <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>
+      <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
+      <button class="btn btn-danger" style="font-size:11px;padding:5px 10px" onclick="deleteBooking('${b.id}',event)">Ta bort</button>
+    </div></div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+async function toggleBooking(id) {
+  openBookings[id] = !openBookings[id];
+  if (!detailTabs[id]) detailTabs[id] = 'tally';
+  await reRenderBooking(id);
+  if (openBookings[id]) loadDetail(id, detailTabs[id]);
+}
+
+async function switchDetail(id, tab) {
+  detailTabs[id] = tab;
+  await reRenderBooking(id);
+  loadDetail(id, tab);
+}
+
+async function reRenderBooking(id) {
+  const el = document.getElementById('bc_' + id);
+  if (!el) return;
+  const today = new Date().toISOString().split('T')[0];
+  const { data: b } = await db.from('bookings').select('*, orders(id)').eq('id', id).single();
+  if (b) el.outerHTML = renderBookingCard(b);
+}
+
+async function loadDetail(id, tab) {
+  const el = document.getElementById('det_' + id);
+  if (!el) return;
+  el.innerHTML = '<span class="spinner"></span>';
+
+  const { data: orders } = await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id', id);
+  if (!orders?.length) { el.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:4px 0">Inga beställningar ännu.</div>'; return; }
+
+  if (tab === 'tally') el.innerHTML = renderTally(orders);
+  else if (tab === 'kitchen') el.innerHTML = renderKitchen(orders);
+  else if (tab === 'guests') el.innerHTML = renderGuests(orders, id);
+}
+
+function renderTally(orders) {
+  const counts = {};
+  orders.forEach(o => (o.order_items||[]).forEach(oi => {
+    const name = oi.menu_items?.name || '?';
+    const cat = oi.menu_items?.menu_categories?.label || '?';
+    const key = cat + '||' + name;
+    counts[key] = (counts[key]||0) + 1;
+  }));
+  if (!Object.keys(counts).length) return '<div style="font-size:13px;color:var(--muted)">Inga val ännu.</div>';
+  const max = Math.max(...Object.values(counts));
+  const byCat = {};
+  Object.entries(counts).forEach(([key, n]) => {
+    const [cat, name] = key.split('||');
+    if (!byCat[cat]) byCat[cat] = [];
+    byCat[cat].push({ name, n });
+  });
+  return Object.entries(byCat).map(([cat, items]) =>
+    `<div class="cat-head">${cat}</div>` +
+    items.map(({ name, n }) =>
+      `<div class="tally-row"><span class="tally-name">${name}</span><div class="tally-bar-wrap"><div class="tally-bar" style="width:${Math.round(n/max*100)}%"></div></div><span class="tally-n">${n}</span></div>`
+    ).join('')
+  ).join('');
+}
+
+function renderKitchen(orders) {
+  const byCat = {};
+  orders.forEach(o => (o.order_items||[]).forEach(oi => {
+    const cat = oi.menu_items?.menu_categories?.label || '?';
+    const name = oi.menu_items?.name || '?';
+    if (!byCat[cat]) byCat[cat] = {};
+    if (!byCat[cat][name]) byCat[cat][name] = [];
+    byCat[cat][name].push(o.guest_name + (o.allergy_notes ? ' ('+o.allergy_notes+')' : ''));
+  }));
+  let html = Object.entries(byCat).map(([cat, items]) =>
+    `<div class="cat-head">${cat}</div>` +
+    Object.entries(items).map(([name, guests]) =>
+      `<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)"><strong>${name}</strong> ×${guests.length} <span style="color:var(--muted);font-size:11px">${guests.join(', ')}</span></div>`
+    ).join('')
+  ).join('');
+  const allergies = orders.filter(o => o.allergy_notes?.trim());
+  if (allergies.length) {
+    html += `<div class="allergy-box"><div class="allergy-head">⚠ Allergier & specialkost</div>` +
+      allergies.map(o => `<div class="allergy-item"><strong>${o.guest_name}</strong> – ${o.allergy_notes}</div>`).join('') + '</div>';
+  }
+  return html;
+}
+
+function renderGuests(orders, bookingId) {
+  return orders.map(o => {
+    const choices = (o.order_items||[]).map(oi => oi.menu_items?.name).filter(Boolean).join(' · ');
+    return `<div class="guest-row">
+      <div>
+        <div style="font-size:13px;font-weight:400">${o.guest_name}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${choices}</div>
+        ${o.allergy_notes ? `<div style="font-size:11px;color:#8a7020;margin-top:2px">${o.allergy_notes}</div>` : ''}
+      </div>
+      <button class="btn btn-danger" style="font-size:11px;padding:4px 10px;flex-shrink:0" onclick="deleteOrder('${o.id}','${bookingId}')">Ta bort</button>
+    </div>`;
+  }).join('');
+}
+
+async function deleteOrder(orderId, bookingId) {
+  if (!confirm('Ta bort beställning?')) return;
+  await db.from('orders').delete().eq('id', orderId);
+  loadDetail(bookingId, detailTabs[bookingId]||'guests');
+  reRenderBooking(bookingId);
+}
+
+// EVENING
+async function renderEvening() {
+  if (!restaurant) return;
+  const today = new Date().toISOString().split('T')[0];
+  const { data: bookings } = await db.from('bookings').select('*, orders(*, order_items(*, menu_items(name)))').eq('restaurant_id', restaurant.id).gte('event_date', today).order('event_date');
+  const list = document.getElementById('eveningList');
+  if (!bookings?.length) { list.innerHTML = '<div class="empty">Inga bokningar.</div>'; return; }
+  const byDate = {};
+  bookings.forEach(b => {
+    const d = b.event_date;
+    if (!byDate[d]) byDate[d] = { bookings: [], counts: {} };
+    byDate[d].bookings.push(b.name);
+    (b.orders||[]).forEach(o => (o.order_items||[]).forEach(oi => {
+      const name = oi.menu_items?.name || '?';
+      byDate[d].counts[name] = (byDate[d].counts[name]||0) + 1;
+    }));
+  });
+  list.innerHTML = Object.entries(byDate).map(([date, d]) => {
+    const dl = new Date(date); const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    return `<div class="card"><div class="card-label">${dl.getDate()} ${months[dl.getMonth()]} ${dl.getFullYear()}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">${d.bookings.join(', ')}</div>
+      ${Object.entries(d.counts).map(([name,n]) => `<div class="tally-row"><span class="tally-name">${name}</span><span class="tally-n">${n}</span></div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ARCHIVE
+async function renderArchive() {
+  if (!restaurant) return;
+  const today = new Date().toISOString().split('T')[0];
+  const { data: bookings } = await db.from('bookings').select('*, orders(id)').eq('restaurant_id', restaurant.id).lt('event_date', today).order('event_date', { ascending: false });
+  const list = document.getElementById('archiveList');
+  if (!bookings?.length) { list.innerHTML = '<div class="empty">Inga arkiverade bokningar ännu.</div>'; return; }
+  list.innerHTML = bookings.map(b => {
+    const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    const d = new Date(b.event_date);
+    return `<div class="booking-card">
+      <div class="booking-header" onclick="toggleArchive('${b.id}')">
+        <div>
+          <div class="booking-name">${b.name}</div>
+          <div class="booking-meta">${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} · ${(b.orders||[]).length} beställningar</div>
+        </div>
+        <span class="pill pill-archived">Arkiverad</span>
+      </div>
+      <div id="arc_${b.id}" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem"></div>
+    </div>`;
+  }).join('');
+}
+
+async function toggleArchive(id) {
+  const el = document.getElementById('arc_' + id);
+  if (!el) return;
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    el.innerHTML = '<span class="spinner"></span>';
+    const { data: orders } = await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id', id);
+    el.innerHTML = orders?.length ? renderKitchen(orders) : '<div style="font-size:13px;color:var(--muted)">Inga beställningar.</div>';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// CREATE BOOKING
+function toggleNewBooking() {
+  const f = document.getElementById('newBookingForm');
+  f.style.display = f.style.display==='none' ? 'block' : 'none';
+}
+
+async function createBooking() {
+  const name = document.getElementById('nb-name').value.trim();
+  const date = document.getElementById('nb-date').value;
+  if (!name || !date) { showMsg('nb-msg','err','Namn och datum krävs.'); return; }
+  const { error } = await db.from('bookings').insert({
+    restaurant_id: restaurant.id, name, event_date: date,
+    event_time: document.getElementById('nb-time').value || null,
+    expected_guests: parseInt(document.getElementById('nb-guests').value)||null,
+    deadline: document.getElementById('nb-deadline').value || null,
+    contact_name: document.getElementById('nb-contact').value.trim()||null,
+    contact_email: document.getElementById('nb-email').value.trim()||null,
+    reminder_days: parseInt(document.getElementById('nb-reminder').value)||0
+  });
+  if (error) { showMsg('nb-msg','err','Fel: '+error.message); return; }
+  document.getElementById('newBookingForm').style.display = 'none';
+  renderBookingList();
+}
+
+async function deleteBooking(id, ev) {
+  ev.stopPropagation();
+  if (!confirm('Ta bort bokning och alla beställningar?')) return;
+  await db.from('bookings').delete().eq('id', id);
+  renderBookingList();
+}
+
+async function sendReminder(id, ev) {
+  ev.stopPropagation();
+  const { data: b } = await db.from('bookings').select('*, orders(id)').eq('id', id).single();
+  if (b.expected_guests && (b.orders||[]).length >= b.expected_guests) { alert('Alla gäster har svarat – ingen påminnelse behövs!'); return; }
+  const missing = b.expected_guests ? (b.expected_guests-(b.orders||[]).length)+' av '+b.expected_guests+' har inte svarat.' : '';
+  if (!confirm('Skicka påminnelse till '+b.contact_name+'?\n\n'+missing+'\n\n(I demo markeras som skickad – inget riktigt mejl)')) return;
+  await db.from('bookings').update({ reminder_sent_at: new Date().toISOString() }).eq('id', id);
+  reRenderBooking(id);
+}
+
+// COPY/PRINT KITCHEN
+async function copyKitchen(id) {
+  const { data: orders } = await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id', id);
+  const { data: b } = await db.from('bookings').select('name,event_date,event_time').eq('id', id).single();
+  let text = b.name + ' – Kökslista\n' + b.event_date + (b.event_time?' kl '+b.event_time.slice(0,5):'')+'\n\n';
+  const byCat = {};
+  (orders||[]).forEach(o => (o.order_items||[]).forEach(oi => {
+    const cat = oi.menu_items?.menu_categories?.label||'?', name = oi.menu_items?.name||'?';
+    if (!byCat[cat]) byCat[cat] = {};
+    if (!byCat[cat][name]) byCat[cat][name] = [];
+    byCat[cat][name].push(o.guest_name);
+  }));
+  Object.entries(byCat).forEach(([cat, items]) => { text += cat+':\n'; Object.entries(items).forEach(([n, gs]) => text += '  '+n+' x'+gs.length+': '+gs.join(', ')+'\n'); text+='\n'; });
+  const allergies = (orders||[]).filter(o => o.allergy_notes?.trim());
+  if (allergies.length) { text += 'ALLERGIER:\n'; allergies.forEach(o => text += '  '+o.guest_name+': '+o.allergy_notes+'\n'); }
+  navigator.clipboard.writeText(text).then(()=>alert('Kopierad!')).catch(()=>alert('Kunde inte kopiera.'));
+}
+
+async function printKitchen(id) {
+  const { data: orders } = await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id', id);
+  const { data: b } = await db.from('bookings').select('name,event_date,event_time').eq('id', id).single();
+  const w = window.open('','_blank');
+  let html = `<html><head><title>${b.name}</title><style>body{font-family:sans-serif;padding:2rem}h1{font-size:1.3rem}h2{font-size:.95rem;border-bottom:1px solid #ccc;padding-bottom:4px;margin:1.5rem 0 .5rem}.row{padding:3px 0;border-bottom:1px solid #eee;font-size:.9rem}.allergy{background:#fff3cd;padding:.75rem;margin-top:1rem;border-radius:4px}@media print{body{padding:.5rem}}</style></head><body>`;
+  html += `<h1>${b.name}</h1><p style="color:#666;font-size:.9rem">${b.event_date}${b.event_time?' kl '+b.event_time.slice(0,5):''}</p>`;
+  const byCat = {};
+  (orders||[]).forEach(o => (o.order_items||[]).forEach(oi => {
+    const cat = oi.menu_items?.menu_categories?.label||'?', name = oi.menu_items?.name||'?';
+    if (!byCat[cat]) byCat[cat] = {};
+    if (!byCat[cat][name]) byCat[cat][name] = [];
+    byCat[cat][name].push(o.guest_name+(o.allergy_notes?' ('+o.allergy_notes+')':''));
+  }));
+  Object.entries(byCat).forEach(([cat, items]) => { html += `<h2>${cat}</h2>`; Object.entries(items).forEach(([n, gs]) => html += `<div class="row"><strong>${n} ×${gs.length}</strong> – ${gs.join(', ')}</div>`); });
+  const allergies = (orders||[]).filter(o => o.allergy_notes?.trim());
+  if (allergies.length) html += `<div class="allergy"><strong>⚠ Allergier:</strong><br>${allergies.map(o => o.guest_name+': '+o.allergy_notes).join('<br>')}</div>`;
+  html += '</body></html>';
+  w.document.write(html); w.document.close(); w.print();
+}
+
+// MENU
+async function loadCategories() {
+  const { data } = await db.from('menu_categories').select('*, menu_items(*)').eq('restaurant_id', restaurant.id).order('sort_order');
+  categories = data || [];
+}
+
+async function renderMenuEditor() {
+  await loadCategories();
+  const ed = document.getElementById('menuEditor');
+  if (!categories.length) { ed.innerHTML = '<div class="empty">Inga menyrubrikerna ännu. Klicka "+ Ny rubrik".</div>'; return; }
+  ed.innerHTML = categories.map(cat => `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <div class="card-label" style="margin:0">${cat.label}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="showAddItem('${cat.id}')">+ Lägg till rätt</button>
+          <button class="btn btn-danger" style="font-size:10px;padding:3px 8px" onclick="delCategory('${cat.id}')">Ta bort</button>
+        </div>
+      </div>
+      ${(cat.menu_items||[]).sort((a,b)=>a.sort_order-b.sort_order).map(item => `
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="flex:1">
+            <div style="font-size:13px;color:var(--dark)">${item.name}</div>
+            ${item.description?`<div style="font-size:11px;color:var(--muted);margin-top:1px">${item.description}</div>`:''}
+          </div>
+          ${item.price?`<div style="font-size:12px;color:var(--gold);font-weight:500;margin-top:2px">${item.price} kr</div>`:''}
+          <button class="btn btn-danger" style="font-size:10px;padding:3px 8px;flex-shrink:0" onclick="delMenuItem('${item.id}')">✕</button>
+        </div>`).join('')}
+      <div id="addItemForm_${cat.id}" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)">
+        <div class="form-row">
+          <div class="form-field"><label>Namn</label><input type="text" id="ai_name_${cat.id}" placeholder="Rättens namn"></div>
+          <div class="form-field"><label>Pris (kr)</label><input type="number" id="ai_price_${cat.id}" placeholder="150"></div>
+        </div>
+        <div class="form-field"><label>Beskrivning</label><textarea id="ai_desc_${cat.id}" style="min-height:55px" placeholder="Ingredienser, tillagning..."></textarea></div>
+        <div class="flex-gap">
+          <button class="btn btn-primary" style="font-size:12px" onclick="addMenuItem('${cat.id}')">Lägg till</button>
+          <button class="btn btn-ghost" style="font-size:12px" onclick="document.getElementById('addItemForm_${cat.id}').style.display='none'">Avbryt</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function showAddItem(catId) { document.getElementById('addItemForm_'+catId).style.display='block'; }
+
+async function addMenuItem(catId) {
+  const name = document.getElementById('ai_name_'+catId).value.trim();
+  if (!name) return;
+  await db.from('menu_items').insert({ category_id: catId, restaurant_id: restaurant.id, name, description: document.getElementById('ai_desc_'+catId).value.trim(), price: parseInt(document.getElementById('ai_price_'+catId).value)||0 });
+  renderMenuEditor();
+}
+
+async function delMenuItem(id) {
+  if (!confirm('Ta bort rätten?')) return;
+  await db.from('menu_items').delete().eq('id', id);
+  renderMenuEditor();
+}
+
+function toggleNewCat() { const f=document.getElementById('newCatForm'); f.style.display=f.style.display==='none'?'block':'none'; }
+
+async function addCategory() {
+  const name = document.getElementById('new-cat-name').value.trim();
+  if (!name) return;
+  const maxOrder = Math.max(0, ...categories.map(c => c.sort_order||0));
+  await db.from('menu_categories').insert({ restaurant_id: restaurant.id, label: name, sort_order: maxOrder+1 });
+  document.getElementById('new-cat-name').value='';
+  document.getElementById('newCatForm').style.display='none';
+  renderMenuEditor();
+}
+
+async function delCategory(id) {
+  const cat = categories.find(c => c.id===id);
+  if (cat?.menu_items?.length > 0) { alert('Ta bort alla rätter i rubriken först.'); return; }
+  if (!confirm('Ta bort rubriken?')) return;
+  await db.from('menu_categories').delete().eq('id', id);
+  renderMenuEditor();
+}
+
+// HELPERS
+function showMsg(id, type, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display='block'; el.className='msg '+type; el.textContent=text;
+  setTimeout(()=>el.style.display='none', 4000);
+}
+
+// INIT
+db.auth.getSession().then(({ data: { session } }) => {
+  if (session) initAdmin();
+});
+</script>
+</body>
+</html>
