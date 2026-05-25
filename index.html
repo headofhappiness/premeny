@@ -60,7 +60,7 @@ h1 em{font-style:italic;color:var(--gold)}
 /* ── SECTION BASE ── */
 section{padding:6rem 2rem}
 .container{max-width:1100px;margin:0 auto}
-.section-tag{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem}
+.section-tag{font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem}
 h2{font-family:"Playfair Display",serif;font-size:clamp(2rem,4vw,3rem);font-weight:400;line-height:1.2;color:var(--dark);margin-bottom:1rem}
 .section-sub{font-size:17px;color:var(--muted);line-height:1.7;max-width:520px}
 
@@ -211,7 +211,8 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
   /* Heading hierarchy on mobile */
   h1{font-size:42px}
   h2{font-size:32px}
-  h3, .section-tag{font-size:28px}
+  h3{font-size:28px}
+  .section-tag{font-size:11px;letter-spacing:.15em;color:var(--gold)}
 
   /* Keep body and list text readable */
   .hero-sub, .section-sub, .step-desc, .feature-desc, .for-who-list li, .price-list li, .phone-item-name, .phone-item-desc, .phone-item-price, .cta-section p, .footer p, .stat-label{font-size:17px}
@@ -335,7 +336,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
       <div class="feature-card">
         <div class="feature-icon">✉️</div>
         <div class="feature-title">Automatiska påminnelsemejl</div>
-        <div class="feature-desc">Systemet skickar automatiskt ett mejl till värden innan deadline. Ni väljer själva hur många dagar innan – stort sällskap kanske behöver en vecka medan mindre bara ett par dagar. Ni bestämmer.</div>
+        <div class="feature-desc">Systemet skickar automatiskt ett mejl till kontaktpersonen innan deadline. Ni väljer själva hur många dagar innan – stort sällskap kanske behöver en vecka medan mindre bara ett par dagar. Ni bestämmer.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon">⚠️</div>
@@ -366,6 +367,11 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
         <div class="feature-icon">📱</div>
         <div class="feature-title">Mobilanpassad</div>
         <div class="feature-desc">Gästformuläret är optimerat för mobil – stort, tydligt och enkelt att använda. Admin fungerar bäst på dator.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Summering över flera datum</div>
+        <div class="feature-desc">Välj flera datum i kalendern och få en samlad kökslista – perfekt för inköpsplanering i god tid.</div>
       </div>
     </div>
   </div>
@@ -437,6 +443,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
           <li>Kökslista med allergier markerade</li>
           <li>Automatiska påminnelsemejl</li>
           <li>Sammanställning per dag & sällskap</li>
+          <li>Summering över flera datum och sällskap</li>
           <li>Vi fixar er meny vid uppstart</li>
           <li>Support via mejl och telefon</li>
         </ul>
