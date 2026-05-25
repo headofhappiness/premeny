@@ -1169,7 +1169,7 @@ async function importMenu(){
   document.getElementById('import-loading').style.display='block';
   document.getElementById('import-result').style.display='none';
   try{
-    var resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY'},body:JSON.stringify({messages:messages})});
+    var resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduZHphbG1rYnNmaGNscG9pZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NDAxODcsImV4cCI6MjA5NTAxNjE4N30.Om9UOmTFR8CZZKu5qyiu1YImGdVxzI3KtlgukUV3Q-s'},body:JSON.stringify({messages:messages})});
     var data=await resp.json();
     var txt=data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
     var clean=txt.replace(/```json|```/g,'').trim();
