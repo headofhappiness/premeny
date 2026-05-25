@@ -136,7 +136,10 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
 <div id="adminPage" style="display:none">
   <nav class="nav">
-    <div class="logo">Pre<span>Meny</span></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div id="nav-logo-wrap" style="display:none"><img id="nav-logo" style="height:36px;width:auto;object-fit:contain;border-radius:4px"></div>
+      <div class="logo">Pre<span>Meny</span></div>
+    </div>
     <div style="display:flex;align-items:center;gap:12px">
       <span style="font-size:13px;color:var(--muted)" id="restName"></span>
       <button class="btn bg" style="padding:6px 14px;font-size:12px" onclick="doLogout()">Logga ut</button>
@@ -324,6 +327,20 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           <div class="ff"><label>Webbplats</label><input type="text" id="set-website" placeholder="www.restaurangen.se"></div>
         </div>
 
+        <div class="set-section">
+          <div class="card-label">Logotyp</div>
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+            <div id="logo-preview" style="width:80px;height:80px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+              <span style="font-size:12px;color:var(--muted)">Ingen logga</span>
+            </div>
+            <div>
+              <input type="file" id="set-logo" accept="image/*" style="display:none" onchange="previewLogo(this)">
+              <button class="btn bg" style="font-size:12px" onclick="document.getElementById('set-logo').click()">Välj bild</button>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px">PNG, JPG eller SVG. Max 2MB.</div>
+            </div>
+          </div>
+        </div>
+
         <button class="btn bp" onclick="saveSettings()">Spara inställningar</button>
         <div id="set-msg" style="display:none;margin-top:.75rem" class="msg mok"></div>
       </div>
@@ -421,6 +438,11 @@ async function initAdmin(){
   rest=r;
   document.getElementById('restName').textContent=r.name;
   document.documentElement.style.setProperty('--gold',r.accent_color||'#b8955a');
+  if(r.logo_url){
+    const navLogo=document.getElementById('nav-logo');
+    navLogo.src=r.logo_url;
+    document.getElementById('nav-logo-wrap').style.display='block';
+  }
   document.getElementById('loginPage').style.display='none';
   document.getElementById('adminPage').style.display='block';
   await loadCats();
@@ -1276,7 +1298,17 @@ async function loadSettings(){
   document.getElementById('set-email').value=rest.contact_email||'';
   document.getElementById('set-address').value=rest.address||'';
   document.getElementById('set-website').value=rest.website||'';
+  if(rest.logo_url){
+    document.getElementById('logo-preview').innerHTML=`<img src="${rest.logo_url}" style="width:100%;height:100%;object-fit:contain">`;
+  }
 
+}
+
+function previewLogo(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{document.getElementById('logo-preview').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:contain">`;};
+  reader.readAsDataURL(file);
 }
 
 async function saveSettings(){
@@ -1284,9 +1316,24 @@ async function saveSettings(){
   const email=document.getElementById('set-email').value.trim();
   const address=document.getElementById('set-address').value.trim();
   const website=document.getElementById('set-website').value.trim();
-  const {error}=await db.from('restaurants').update({phone,contact_email:email,address,website}).eq('id',rest.id);
+  
+  let logo_url=rest.logo_url||null;
+  const logoFile=document.getElementById('set-logo').files[0];
+  if(logoFile){
+    const ext=logoFile.name.split('.').pop();
+    const path=rest.id+'/logo.'+ext;
+    const {error:upErr}=await db.storage.from('logos').upload(path,logoFile,{upsert:true});
+    if(upErr){showMsg('set-msg','merr','Logga: '+upErr.message);return;}
+    const {data:urlData}=db.storage.from('logos').getPublicUrl(path);
+    logo_url=urlData.publicUrl;
+    const navLogo=document.getElementById('nav-logo');
+    navLogo.src=logo_url;
+    document.getElementById('nav-logo-wrap').style.display='block';
+  }
+  
+  const {error}=await db.from('restaurants').update({phone,contact_email:email,address,website,logo_url}).eq('id',rest.id);
   if(error){showMsg('set-msg','merr','Fel: '+error.message);return;}
-  rest={...rest,phone,contact_email:email,address,website};
+  rest={...rest,phone,contact_email:email,address,website,logo_url};
   showMsg('set-msg','mok','✓ Inställningar sparade!');
 }
 
