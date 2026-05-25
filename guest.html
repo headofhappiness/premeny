@@ -151,7 +151,7 @@ async function init(){
   if(!SLUG||!BID){showError('Ogiltig länk.');return;}
   try{
     const {data:rest,error:e1}=await db.from('restaurants').select('*').eq('slug',SLUG).single();
-    if(e1||!rest){showError('Restaurangen hittades inte.');return;}
+    if(e1||!rest){showError('Restaurangen hittades inte. Slug: '+SLUG+' Fel: '+(e1?.message||'ingen data'));return;}
     restaurant=rest;
     document.documentElement.style.setProperty('--gold',rest.accent_color||'#b8955a');
     document.getElementById('navRest').textContent=rest.name;
