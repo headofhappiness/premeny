@@ -10,7 +10,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
-.nav-logo{font-family:"Playfair Display",serif;font-size:1.2rem;font-style:italic;color:var(--dark)}
+.nav-logo{font-family:"Playfair Display",serif;font-size:1.2rem;color:var(--dark)}
 .nav-logo span{color:var(--gold)}
 .nav-rest{font-size:14px;color:var(--muted)}
 .page{max-width:600px;margin:0 auto;padding:2rem 1.25rem 5rem}
@@ -85,7 +85,8 @@ textarea{min-height:75px}
 </head>
 <body>
 <nav class="nav">
-  <div class="nav-logo">Pre<span>Meny</span></div>
+  <div id="rest-logo-wrap" style="display:none"><img id="rest-logo-img" style="height:40px;width:auto;object-fit:contain"></div>
+  <div id="rest-logo-placeholder" class="nav-logo">Pre<span>Meny</span></div>
   <div class="nav-rest" id="navRest"></div>
 </nav>
 
@@ -154,6 +155,11 @@ async function init(){
     restaurant=rest;
     document.documentElement.style.setProperty('--gold',rest.accent_color||'#b8955a');
     document.getElementById('navRest').textContent=rest.name;
+    if(rest.logo_url){
+      document.getElementById('rest-logo-img').src=rest.logo_url;
+      document.getElementById('rest-logo-wrap').style.display='block';
+      document.getElementById('rest-logo-placeholder').style.display='none';
+    }
     document.title=rest.name+' – Förbeställning';
 
     const {data:book,error:e2}=await db.from('bookings').select('*').eq('id',BID).eq('restaurant_id',rest.id).single();
@@ -307,5 +313,8 @@ function editOrder(){document.getElementById('doneWrap').style.display='none';do
 function showError(m){document.getElementById('loadingState').style.display='none';const el=document.getElementById('errorState');el.style.display='block';el.textContent=m;}
 init();
 </script>
+<footer style="text-align:center;padding:2rem 1rem 1.5rem;margin-top:2rem;border-top:1px solid var(--border)">
+  <a href="https://premeny.se" target="_blank" style="font-size:12px;color:var(--muted);text-decoration:none;letter-spacing:.04em">Powered by <span style="color:var(--gold)">PreMeny.se</span></a>
+</footer>
 </body>
 </html>
