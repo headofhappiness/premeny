@@ -374,6 +374,50 @@ async function forgotPassword(){
   if(error){m.className='msg merr';m.textContent='Fel: '+error.message;}
   else{m.className='msg mok';m.textContent='✓ Återställningslänk skickad till '+email;}
 }
+async function sendConfirmation(id){
+  const b=allBookings.find(x=>x.id===id);
+  if(!b){alert('Bokning hittades inte.');return;}
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date);
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  const gLink=location.origin+'/guest.html?r='+rest.slug+'&b='+b.id;
+  
+  // Generate QR code URL using Google Charts API
+  const qrUrl='https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl='+encodeURIComponent(gLink);
+  
+  const subject=encodeURIComponent('Bekräftelse: '+b.name+' – '+ds);
+  const body=encodeURIComponent(
+    'Hej '+b.contact_name+'!
+
+'+
+    'Här är bekräftelsen för '+b.name+' den '+ds+(b.event_time?' kl '+b.event_time.slice(0,5):'')+
+    (b.expected_guests?'
+Antal gäster: '+b.expected_guests:'')+
+    '
+
+Gäster beställer via denna länk:
+'+gLink+
+    '
+
+Sista beställningsdag: '+(b.deadline||'–')+
+    '
+
+Med vänliga hälsningar,
+'+rest.name
+  );
+  
+  if(b.contact_email){
+    window.location.href='mailto:'+b.contact_email+'?subject='+subject+'&body='+body;
+    // Log it
+    const timeStr=new Date().toLocaleString('sv-SE');
+    const log=(b.summary_sent_log||'')+timeStr+' bekräftelse via mejl till '+b.contact_email+'
+';
+    await db.from('bookings').update({summary_sent_log:log,summary_sent_at:new Date().toISOString()}).eq('id',id);
+    await renderBookings();
+  } else {
+    alert('Ingen e-postadress registrerad för kontaktpersonen.');
+  }
+}
 async function doLogout(){await db.auth.signOut();location.reload();}
 
 async function initAdmin(){
@@ -526,10 +570,10 @@ function renderBCard(b){
     html+=`<div style="font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase">Gästlänk</div>
       <div class="linkbox">${gLink}</div>
       <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap">
-        <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera länk</button>
-        <button onclick="showQR('${b.id}','${b.name}','${gLink}')" class="btn bg" style="font-size:11px;padding:5px 12px">📱 QR-kod</button>
-        <button onclick="sendSummary('${b.id}','email')" class="btn bo" style="font-size:11px;padding:5px 12px">✉ Skicka länk via mejl</button>
+        <button onclick="sendConfirmation('${b.id}')" class="btn bo" style="font-size:11px;padding:5px 12px">✉ Skicka bekräftelse till kontaktperson</button>
+        <button onclick="sendSummary('${b.id}','email')" class="btn bg" style="font-size:11px;padding:5px 12px">✉ Skicka länk via mejl</button>
         ${b.contact_phone?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:''}
+        <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera länk</button>
       </div>`;
 
     // Påminnelse status
@@ -734,8 +778,8 @@ async function createBooking(){
     responsible_staff:document.getElementById('nb-responsible').value.trim()||null
   });
   if(error){showMsg('nb-msg','merr','Fel: '+error.message);return;}
-  showMsg('nb-msg','mok','✓ Bokning skapad!');
-  setTimeout(()=>{document.getElementById('newBookingForm').style.display='none';},1000);
+  showMsg('nb-msg','mok','✓ Bokning skapad! Gå in i bokningen och skicka bekräftelse till kontaktpersonen samt länk till beställningssida för gästerna.');
+  setTimeout(()=>{document.getElementById('newBookingForm').style.display='none';},4000);
   renderBookings();
 }
 
@@ -1171,6 +1215,7 @@ async function importMenu(){
   try{
     var resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduZHphbG1rYnNmaGNscG9pZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NDAxODcsImV4cCI6MjA5NTAxNjE4N30.Om9UOmTFR8CZZKu5qyiu1YImGdVxzI3KtlgukUV3Q-s'},body:JSON.stringify({messages:messages})});
     var data=await resp.json();
+    if(data.error||!data.content){throw new Error(data.error?.message||'API-fel: '+JSON.stringify(data).slice(0,100));}
     var txt=data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
     var clean=txt.replace(/```json|```/g,'').trim();
     var parsed=JSON.parse(clean);
