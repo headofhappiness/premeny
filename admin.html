@@ -128,6 +128,9 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <div class="ff"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <button class="btn bp bfull" style="padding:13px" onclick="doLogin()">Logga in</button>
+    <div style="margin-top:1rem;text-align:center">
+      <button onclick="forgotPassword()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline">Glömt lösenord?</button>
+    </div>
   </div>
 </div>
 
@@ -360,6 +363,16 @@ async function doLogin(){
   const {error}=await db.auth.signInWithPassword({email,password:pass});
   if(error){const m=document.getElementById('loginMsg');m.style.display='block';m.textContent='Fel e-post eller lösenord.';return;}
   initAdmin();
+}
+async function forgotPassword(){
+  const email=document.getElementById('loginEmail').value.trim();
+  if(!email){
+    const m=document.getElementById('loginMsg');m.style.display='block';m.className='msg merr';m.textContent='Ange din e-postadress först.';return;
+  }
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/admin.html'});
+  const m=document.getElementById('loginMsg');m.style.display='block';
+  if(error){m.className='msg merr';m.textContent='Fel: '+error.message;}
+  else{m.className='msg mok';m.textContent='✓ Återställningslänk skickad till '+email;}
 }
 async function doLogout(){await db.auth.signOut();location.reload();}
 
@@ -1103,7 +1116,7 @@ async function loadSettings(){
   document.getElementById('set-email').value=rest.contact_email||'';
   document.getElementById('set-address').value=rest.address||'';
   document.getElementById('set-website').value=rest.website||'';
-  document.getElementById('set-color').value=rest.accent_color||'#b8955a';
+
 }
 
 async function saveSettings(){
@@ -1111,11 +1124,9 @@ async function saveSettings(){
   const email=document.getElementById('set-email').value.trim();
   const address=document.getElementById('set-address').value.trim();
   const website=document.getElementById('set-website').value.trim();
-  const color=document.getElementById('set-color').value;
-  const {error}=await db.from('restaurants').update({phone,contact_email:email,address,website,accent_color:color}).eq('id',rest.id);
+  const {error}=await db.from('restaurants').update({phone,contact_email:email,address,website}).eq('id',rest.id);
   if(error){showMsg('set-msg','merr','Fel: '+error.message);return;}
-  rest={...rest,phone,contact_email:email,address,website,accent_color:color};
-  document.documentElement.style.setProperty('--gold',color);
+  rest={...rest,phone,contact_email:email,address,website};
   showMsg('set-msg','mok','✓ Inställningar sparade!');
 }
 
