@@ -145,7 +145,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <div class="tabs">
       <button class="tab active" id="tab-bookings" onclick="showTab('bookings')">Bokningar</button>
       <button class="tab" id="tab-calendar" onclick="showTab('calendar')">Kalender</button>
-      <button class="tab" id="tab-menu" onclick="showTab('menu')">Meny</button>
+      <button class="tab" id="tab-menu" onclick="showTab('menu')">Uppdatera meny</button>
       <button class="tab" id="tab-archive" onclick="showTab('archive')">Arkiv</button>
       <button class="tab" id="tab-settings" onclick="showTab('settings')">⚙ Inställningar</button>
     </div>
@@ -196,7 +196,16 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
               <option value="14">2 veckor innan deadline</option>
             </select>
           </div>
-          <div class="ff"></div>
+          <div class="ff"><label>Påminnelse via</label>
+            <div style="display:flex;gap:1rem;margin-top:8px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:15px;color:var(--text);cursor:pointer">
+                <input type="checkbox" id="nb-remind-email" checked style="width:18px;height:18px;accent-color:var(--gold)"> Mejl
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:15px;color:var(--text);cursor:pointer">
+                <input type="checkbox" id="nb-remind-sms" style="width:18px;height:18px;accent-color:var(--gold)"> SMS
+              </label>
+            </div>
+          </div>
         </div>
         <div class="r2">
           <div class="ff"><label>Bokningsansvarig (restaurangens personal)</label><input type="text" id="nb-responsible" placeholder="T.ex. Maria, Kalle..."></div>
@@ -231,7 +240,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           <div class="cal-m" id="calMonth"></div>
           <button class="btn bg" style="padding:6px 12px" onclick="calNext()">→</button>
         </div>
-        <div class="cal-hdr">${['Mån','Tis','Ons','Tor','Fre','Lör','Sön'].map(d=>`<div class="cal-dn">${d}</div>`).join('')}</div>
+        <div class="cal-hdr"><div class="cal-dn">Mån</div><div class="cal-dn">Tis</div><div class="cal-dn">Ons</div><div class="cal-dn">Tor</div><div class="cal-dn">Fre</div><div class="cal-dn">Lör</div><div class="cal-dn">Sön</div></div>
         <div class="cal-grid" id="calGrid"></div>
         <div style="margin-top:.75rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="calClear()">Rensa val</button>
@@ -243,13 +252,42 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
     <!-- MENY -->
     <div id="pane-menu" style="display:none">
-      <div class="fb"><h3>Meny</h3><button class="btn bp" onclick="toggleNC()">+ Ny rubrik</button></div>
+      <div class="fb"><h3>Uppdatera meny</h3><button class="btn bp" onclick="toggleNC()">+ Ny rubrik</button></div>
       <div id="newCatForm" style="display:none" class="card">
         <div class="card-label">Ny menyrubrik</div>
         <div class="ff"><label>Namn</label><input type="text" id="nc-name" placeholder="T.ex. Förrätter, Varmrätt, Dessert..."></div>
         <div class="fg"><button class="btn bp" onclick="addCat()">Skapa</button><button class="btn bg" onclick="toggleNC()">Avbryt</button></div>
       </div>
       <div id="menuEditor" style="margin-top:1rem"></div>
+
+      <!-- AI MENYIMPORT -->
+      <div class="card" style="margin-top:1.5rem;background:rgba(184,149,90,.04);border:1px solid rgba(184,149,90,.18)">
+        <h3 style="margin-bottom:.25rem">Importera meny med AI</h3>
+        <div class="gold-line"></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Ladda upp en skärmdump från er hemsida eller klistra in text – AI:n tolkar menyn automatiskt och skapar rubriker och rätter.</p>
+        <div style="display:flex;gap:4px;margin-bottom:1rem">
+          <button class="btn bg" id="import-tab-text" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('text')">📝 Klistra in text</button>
+          <button class="btn bg" id="import-tab-image" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('image')">🖼 Ladda upp bild</button>
+        </div>
+        <div id="import-text-wrap">
+          <div class="ff"><label>Menytext</label><textarea id="menu-import-text" style="min-height:140px;font-size:13px" placeholder="Klistra in er meny här..."></textarea></div>
+        </div>
+        <div id="import-image-wrap" style="display:none">
+          <div class="ff"><label>Menybild (skärmdump)</label><input type="file" id="menu-import-image" accept="image/*" style="font-size:13px;color:var(--muted)"></div>
+          <div id="menu-img-preview" style="display:none;margin-top:.5rem"><img id="menu-img-preview-img" style="max-width:100%;border-radius:8px;border:1px solid var(--border)"></div>
+        </div>
+        <div id="import-warning" style="display:none;margin:.75rem 0" class="msg merr"></div>
+        <button class="btn bp" id="import-btn" onclick="importMenu()" style="margin-top:.5rem">✦ Importera meny</button>
+        <div id="import-loading" style="display:none;margin-top:1rem;font-size:13px;color:var(--muted)"><span class="spinner"></span> Tolkar menyn med AI...</div>
+        <div id="import-result" style="display:none;margin-top:1.25rem">
+          <div style="font-size:12px;font-weight:500;color:#3a6020;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:8px 12px;margin-bottom:.75rem">✓ Meny tolkad – granska och bekräfta nedan</div>
+          <div id="import-preview-content"></div>
+          <div style="display:flex;gap:8px;margin-top:1rem">
+            <button class="btn bp" onclick="confirmImport()">Lägg till i menyn</button>
+            <button class="btn bg" onclick="cancelImport()">Avbryt</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ARKIV -->
@@ -282,18 +320,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           <div class="ff"><label>Adress</label><input type="text" id="set-address" placeholder="Storgatan 1, 123 45 Stad"></div>
           <div class="ff"><label>Webbplats</label><input type="text" id="set-website" placeholder="www.restaurangen.se"></div>
         </div>
-        <div class="set-section">
-          <div class="card-label">Utseende</div>
-          <div class="r2">
-            <div class="ff"><label>Accentfärg</label>
-              <div style="display:flex;align-items:center;gap:10px">
-                <input type="color" id="set-color" value="#b8955a" style="width:48px;height:38px;padding:2px;border-radius:6px;cursor:pointer;flex-shrink:0">
-                <span style="font-size:13px;color:var(--muted)">Anpassa till er profil</span>
-              </div>
-            </div>
-            <div class="ff"></div>
-          </div>
-        </div>
+
         <button class="btn bp" onclick="saveSettings()">Spara inställningar</button>
         <div id="set-msg" style="display:none;margin-top:.75rem" class="msg mok"></div>
       </div>
@@ -436,14 +463,34 @@ function renderBCard(b){
   const pct=b.expected_guests?Math.min(100,Math.round(n/b.expected_guests*100)):0;
   const gLink=location.origin+'/guest.html?r='+rest.slug+'&b='+b.id;
 
+  // Påminnelsestatus
+  let reminderHtml='';
+  const allOk=b.expected_guests&&n>=b.expected_guests;
+  if(b.reminder_sent_at){
+    const sentD=new Date(b.reminder_sent_at);
+    reminderHtml=`<div style="font-size:12px;color:#6a5030;margin-top:4px">✉ Påminnelse skickad ${sentD.getDate()} ${months[sentD.getMonth()]} ${sentD.getFullYear()}</div>`;
+  } else if(b.reminder_days&&!allOk){
+    reminderHtml=`<div style="font-size:12px;color:var(--muted);margin-top:4px">🔔 Påminnelse ${b.reminder_days} dagar före deadline</div>`;
+  } else if(allOk){
+    reminderHtml=`<div style="font-size:12px;color:#3a7d44;margin-top:4px">✓ Alla gäster har svarat</div>`;
+  }
+
   let html=`<div class="bcard${isOpen?' open':''}" id="bc_${b.id}">
     <div class="bhead" onclick="toggleB('${b.id}')">
       <div style="flex:1">
-        <div class="bname">${b.name}</div>
-        <div class="bmeta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${n}${b.expected_guests?' av '+b.expected_guests:''} beställda</div>
-        ${b.expected_guests?`<div style="margin-top:7px;height:3px;background:var(--border);border-radius:2px;width:180px"><div style="height:100%;width:${pct}%;background:var(--gold);border-radius:2px;transition:width .3s"></div></div>`:''}
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="bname">${b.name}</div>
+          <span style="font-size:12px;color:var(--gold);font-weight:400;letter-spacing:.02em">Se mer ›</span>
+        </div>
+        <div class="bmeta" style="margin-top:4px">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''}</div>
+        ${b.deadline?`<div style="font-size:12px;color:var(--muted);margin-top:2px">Sista beställning: ${new Date(b.deadline+'T12:00:00').getDate()} ${months[new Date(b.deadline+'T12:00:00').getMonth()]} ${new Date(b.deadline+'T12:00:00').getFullYear()}</div>`:''}
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--muted)">${n}${b.expected_guests?' av '+b.expected_guests:''} beställda</div>
+          ${b.expected_guests?`<div style="height:3px;background:var(--border);border-radius:2px;width:120px;flex-shrink:0"><div style="height:100%;width:${pct}%;background:var(--gold);border-radius:2px;transition:width .3s"></div></div>`:''}
+        </div>
+        ${reminderHtml}
       </div>
-      <span class="pill ${closed?'pc':'po'}">${closed?'Stängd':'Öppen'}</span>
+      <span class="pill ${closed?'pc':'po'}" style="flex-shrink:0">${closed?'Stängd':'Öppen'}</span>
     </div>`;
 
   if(isOpen){
@@ -669,6 +716,7 @@ async function createBooking(){
     contact_email:document.getElementById('nb-email').value.trim()||null,
     contact_phone:document.getElementById('nb-phone').value.trim()||null,
     reminder_days:parseInt(document.getElementById('nb-reminder').value)||0,
+    reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
     internal_comment:document.getElementById('nb-comment').value.trim()||null,
     responsible_staff:document.getElementById('nb-responsible').value.trim()||null
   });
@@ -1073,6 +1121,93 @@ async function saveSettings(){
 
 // HELPERS
 function showMsg(id,cls,text){const el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=text;setTimeout(()=>el.style.display='none',4000);}
+
+// IMPORT-FLIK
+function switchImportTab(tab){
+  document.getElementById('import-text-wrap').style.display=tab==='text'?'block':'none';
+  document.getElementById('import-image-wrap').style.display=tab==='image'?'block':'none';
+  document.getElementById('import-tab-text').style.background=tab==='text'?'var(--dark)':'transparent';
+  document.getElementById('import-tab-text').style.color=tab==='text'?'#fff':'var(--muted)';
+  document.getElementById('import-tab-image').style.background=tab==='image'?'var(--dark)':'transparent';
+  document.getElementById('import-tab-image').style.color=tab==='image'?'#fff':'var(--muted)';
+}
+document.addEventListener('change',function(e){
+  if(e.target.id==='menu-import-image'){
+    var file=e.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(ev){document.getElementById('menu-img-preview-img').src=ev.target.result;document.getElementById('menu-img-preview').style.display='block';};
+    reader.readAsDataURL(file);
+  }
+});
+var importedCategories=null;
+async function importMenu(){
+  var warn=document.getElementById('import-warning');warn.style.display='none';
+  var isText=document.getElementById('import-tab-text').style.background!=='transparent'&&document.getElementById('import-text-wrap').style.display!=='none';
+  var messages=[];
+  if(isText){
+    var text=document.getElementById('menu-import-text').value.trim();
+    if(!text){warn.textContent='Klistra in menytext först.';warn.style.display='block';return;}
+    messages=[{role:'user',content:'Här är restaurangens meny:
+
+'+text+'
+
+Tolka menyn och returnera ENDAST ett JSON-objekt (inga backticks, ingen annan text) med strukturen:
+{"categories":[{"key":"unik_nyckel","label":"Rubriken","items":[{"id":"x1","name":"Namn","description":"Beskrivning","price":0}]}]}'}];
+  } else {
+    var fileInput=document.getElementById('menu-import-image');
+    if(!fileInput.files[0]){warn.textContent='Välj en bild först.';warn.style.display='block';return;}
+    var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(e){res(e.target.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(fileInput.files[0]);});
+    messages=[{role:'user',content:[{type:'image',source:{type:'base64',media_type:fileInput.files[0].type,data:b64}},{type:'text',text:'Tolka menyn i bilden och returnera ENDAST ett JSON-objekt utan backticks. Struktur: {"categories":[{"key":"unik_nyckel","label":"Rubrik","items":[{"id":"x1","name":"Namn","description":"Beskrivning","price":0}]}]}'}]}];
+  }
+  document.getElementById('import-btn').disabled=true;
+  document.getElementById('import-loading').style.display='block';
+  document.getElementById('import-result').style.display='none';
+  try{
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:messages})});
+    var data=await resp.json();
+    var txt=data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    var clean=txt.replace(/```json|```/g,'').trim();
+    var parsed=JSON.parse(clean);
+    if(!parsed.categories||!Array.isArray(parsed.categories))throw new Error('Fel format');
+    importedCategories=parsed.categories;
+    var html='';
+    parsed.categories.forEach(function(cat){
+      html+='<div style="margin-bottom:1rem"><div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">'+cat.label+'</div>';
+      cat.items.forEach(function(item){
+        html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><div><div style="color:var(--dark)">'+item.name+'</div>'+(item.description?'<div style="font-size:11px;color:var(--muted)">'+item.description+'</div>':'')+'</div>'+(item.price?'<div style="color:var(--gold);font-weight:500;white-space:nowrap;padding-left:8px">'+item.price+' kr</div>':'')+'</div>';
+      });
+      html+='</div>';
+    });
+    document.getElementById('import-preview-content').innerHTML=html;
+    document.getElementById('import-result').style.display='block';
+  }catch(e){warn.textContent='Kunde inte tolka menyn. Försök igen eller justera texten/bilden.';warn.style.display='block';}
+  finally{document.getElementById('import-btn').disabled=false;document.getElementById('import-loading').style.display='none';}
+}
+async function confirmImport(){
+  if(!importedCategories)return;
+  try{
+    for(const cat of importedCategories){
+      const mo=Math.max(0,...cats.map(c=>c.sort_order||0));
+      const {data:newCat,error:ce}=await db.from('menu_categories').insert({restaurant_id:rest.id,label:cat.label,sort_order:mo+1}).select().single();
+      if(ce)throw new Error(ce.message);
+      for(let i=0;i<cat.items.length;i++){
+        const item=cat.items[i];
+        await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description||'',price:parseInt(item.price)||0,sort_order:i,active:true});
+      }
+    }
+    importedCategories=null;
+    document.getElementById('import-result').style.display='none';
+    document.getElementById('menu-import-text').value='';
+    document.getElementById('menu-img-preview').style.display='none';
+    showMsg('import-warning','mok','✓ Menyn är importerad!');
+    document.getElementById('import-warning').style.display='block';
+    renderMenu();
+  }catch(e){
+    document.getElementById('import-warning').textContent='Fel vid sparning: '+e.message;
+    document.getElementById('import-warning').style.display='block';
+  }
+}
+function cancelImport(){importedCategories=null;document.getElementById('import-result').style.display='none';}
 
 // INIT
 db.auth.getSession().then(({data:{session}})=>{if(session)initAdmin();});
