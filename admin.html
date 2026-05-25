@@ -339,9 +339,22 @@ async function doLogout(){await db.auth.signOut();location.reload();}
 async function initAdmin(){
   const {data:{user}}=await db.auth.getUser();
   if(!user)return;
-  const {data:ar}=await db.from('restaurant_admins').select('restaurant_id').eq('user_id',user.id).single();
-  if(!ar){alert('Kontot är inte kopplat till en restaurang.');return;}
-  const {data:r}=await db.from('restaurants').select('*').eq('id',ar.restaurant_id).single();
+  const {data:ar,error:arErr}=await db.from('restaurant_admins').select('restaurant_id').eq('user_id',user.id).single();
+  if(arErr||!ar){
+    const msg=document.getElementById('loginMsg');
+    msg.style.display='block';
+    msg.textContent='Debug: user.id='+user.id+' fel='+(arErr?.message||'ingen rad hittad');
+    await db.auth.signOut();
+    return;
+  }
+  const {data:r,error:rErr}=await db.from('restaurants').select('*').eq('id',ar.restaurant_id).single();
+  if(rErr||!r){
+    const msg=document.getElementById('loginMsg');
+    msg.style.display='block';
+    msg.textContent='Restaurangfel: '+(rErr?.message||'okänt');
+    await db.auth.signOut();
+    return;
+  }
   rest=r;
   document.getElementById('restName').textContent=r.name;
   document.documentElement.style.setProperty('--gold',r.accent_color||'#b8955a');
