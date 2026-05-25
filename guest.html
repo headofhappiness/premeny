@@ -153,7 +153,7 @@ async function init(){
     const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
     const d=new Date(book.event_date);
     const dateStr=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-    let info='<strong>'+book.name+'</strong> – '+dateStr+(book.event_time?' kl '+book.event_time.slice(0,5):'');
+    let info='<strong>'+book.name+'</strong> – '+dateStr+(book.event_type?' – <span style="color:var(--gold)">'+book.event_type+'</span>':'')+(book.event_time?' kl '+book.event_time.slice(0,5):'');
     if(dl&&!isClosed){
       const dlStr=dl.getDate()+' '+months[dl.getMonth()];
       info+='<br><span style="color:#8a7020;font-size:14px">⏱ Sista dag att beställa: '+dlStr+'</span>';

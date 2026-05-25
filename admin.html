@@ -145,6 +145,19 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
         </div>
         <div class="r3">
           <div class="ff"><label>Klockslag</label><input type="time" id="nb-time" value="18:00"></div>
+          <div class="ff"><label>Typ av sittning</label>
+            <select id="nb-event-type">
+              <option value="Middag">Middag</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Brunch">Brunch</option>
+              <option value="Mingel">Mingel</option>
+              <option value="Frukost">Frukost</option>
+              <option value="Konferens">Konferens</option>
+              <option value="Bröllop">Bröllop</option>
+              <option value="Kalas">Kalas</option>
+              <option value="Annat">Annat</option>
+            </select>
+          </div>
           <div class="ff"><label>Antal gäster (förväntat)</label><input type="number" id="nb-guests" placeholder="30" min="1"></div>
           <div class="ff"><label>Sista beställningsdag</label><input type="date" id="nb-deadline"></div>
         </div>
@@ -619,6 +632,7 @@ async function createBooking(){
   const {error}=await db.from('bookings').insert({
     restaurant_id:rest.id,name,event_date:date,
     event_time:document.getElementById('nb-time').value||null,
+    event_type:document.getElementById('nb-event-type').value||null,
     expected_guests:parseInt(document.getElementById('nb-guests').value)||null,
     deadline:document.getElementById('nb-deadline').value||null,
     contact_name:document.getElementById('nb-contact').value.trim()||null,
@@ -662,7 +676,7 @@ async function sendSummary(id,ch){
     alert(ch==='email'?'Ingen e-post registrerad för kontaktpersonen.':'Inget telefonnummer registrerat för kontaktpersonen.');
     return;
   }
-  let text=b.name+'\n'+ds+(b.event_time?' kl '+b.event_time.slice(0,5):'')+' | '+b.contact_name+'\n';
+  let text=b.name+'\n'+ds+(b.event_type?' – '+b.event_type:'')+(b.event_time?' kl '+b.event_time.slice(0,5):'')+' | '+b.contact_name+'\n';
   text+='Beställningar: '+(orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+'\n\n';
   const byCat={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
