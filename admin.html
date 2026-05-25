@@ -673,7 +673,8 @@ async function createBooking(){
     responsible_staff:document.getElementById('nb-responsible').value.trim()||null
   });
   if(error){showMsg('nb-msg','merr','Fel: '+error.message);return;}
-  document.getElementById('newBookingForm').style.display='none';
+  showMsg('nb-msg','mok','✓ Bokning skapad!');
+  setTimeout(()=>{document.getElementById('newBookingForm').style.display='none';},1000);
   renderBookings();
 }
 
