@@ -381,37 +381,16 @@ async function sendConfirmation(id){
   const d=new Date(b.event_date);
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
   const gLink=location.origin+'/guest.html?r='+rest.slug+'&b='+b.id;
-  
-  // Generate QR code URL using Google Charts API
-  const qrUrl='https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl='+encodeURIComponent(gLink);
-  
   const subject=encodeURIComponent('Bekräftelse: '+b.name+' – '+ds);
-  const body=encodeURIComponent(
-    'Hej '+b.contact_name+'!
-
-'+
-    'Här är bekräftelsen för '+b.name+' den '+ds+(b.event_time?' kl '+b.event_time.slice(0,5):'')+
-    (b.expected_guests?'
-Antal gäster: '+b.expected_guests:'')+
-    '
-
-Gäster beställer via denna länk:
-'+gLink+
-    '
-
-Sista beställningsdag: '+(b.deadline||'–')+
-    '
-
-Med vänliga hälsningar,
-'+rest.name
-  );
-  
+  const bodyText='Hej '+b.contact_name+'!\n\nHär är bekräftelsen för '+b.name+' den '+ds+(b.event_time?' kl '+b.event_time.slice(0,5):'')+
+    (b.expected_guests?'\nAntal gäster: '+b.expected_guests:'')+
+    '\n\nGäster beställer via denna länk:\n'+gLink+
+    '\n\nSista beställningsdag: '+(b.deadline||'–')+
+    '\n\nMed vänliga hälsningar,\n'+rest.name;
   if(b.contact_email){
-    window.location.href='mailto:'+b.contact_email+'?subject='+subject+'&body='+body;
-    // Log it
+    window.location.href='mailto:'+b.contact_email+'?subject='+subject+'&body='+encodeURIComponent(bodyText);
     const timeStr=new Date().toLocaleString('sv-SE');
-    const log=(b.summary_sent_log||'')+timeStr+' bekräftelse via mejl till '+b.contact_email+'
-';
+    const log=(b.summary_sent_log||'')+timeStr+' bekräftelse via mejl till '+b.contact_email+'\n';
     await db.from('bookings').update({summary_sent_log:log,summary_sent_at:new Date().toISOString()}).eq('id',id);
     await renderBookings();
   } else {
