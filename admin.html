@@ -6,7 +6,7 @@
 <title>Admin – PreMeny</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--bs:#d4ccc0;--gold:#b8955a;--dark:#1a1712;--text:#2d2a24;--muted:#8a8070;--red:#c0392b}
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--bs:#d4ccc0;--gold:#b8955a;--dark:#1a1712;--text:#1a1712;--muted:#5a5248;--red:#c0392b}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
@@ -528,8 +528,8 @@ function renderBCard(b){
       <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap">
         <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera länk</button>
         <button onclick="showQR('${b.id}','${b.name}','${gLink}')" class="btn bg" style="font-size:11px;padding:5px 12px">📱 QR-kod</button>
-        <button onclick="sendSummary('${b.id}','email')" class="btn bo" style="font-size:11px;padding:5px 12px">✉ Skicka sammanställning</button>
-        ${b.contact_phone?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">📱 SMS</button>`:''}
+        <button onclick="sendSummary('${b.id}','email')" class="btn bo" style="font-size:11px;padding:5px 12px">✉ Skicka länk via mejl</button>
+        ${b.contact_phone?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:''}
       </div>`;
 
     // Påminnelse status
@@ -1169,7 +1169,7 @@ async function importMenu(){
   document.getElementById('import-loading').style.display='block';
   document.getElementById('import-result').style.display='none';
   try{
-    var resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:messages})});
+    var resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY'},body:JSON.stringify({messages:messages})});
     var data=await resp.json();
     var txt=data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
     var clean=txt.replace(/```json|```/g,'').trim();
