@@ -1,0 +1,1035 @@
+<!DOCTYPE html><!-- PreMeny Demo – neutral version -->
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PreMeny – Interaktiv demo</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500&display=swap');
+:root{
+  --bg:#faf8f4;
+  --surface:#ffffff;
+  --surface2:#f5f0e8;
+  --border:#e8e2d8;
+  --border-strong:#d4ccc0;
+  --gold:#b8955a;
+  --gold-light:#d4b07a;
+  --dark:#1a1712;
+  --text:#2d2a24;
+  --muted:#8a8070;
+  --red:#c0392b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh}
+
+/* DEMO BANNER */
+.demo-banner{background:rgba(184,149,90,.08);border-bottom:1px solid rgba(184,149,90,.18);padding:7px 1.5rem;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--muted);letter-spacing:.04em}
+.demo-banner strong{font-weight:500;color:var(--gold)}
+.demo-badge{background:rgba(184,149,90,.12);border:1px solid rgba(184,149,90,.3);border-radius:100px;padding:2px 10px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.demo-reset-btn{background:transparent;border:1px solid rgba(184,149,90,.3);border-radius:100px;padding:2px 10px;font-size:10.5px;color:var(--gold);cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:all .15s}
+.demo-reset-btn:hover{border-color:var(--gold);background:rgba(184,149,90,.08)}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 2rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(250,248,244,.94);backdrop-filter:blur(12px);z-index:100}
+.nav-logo-wrap{display:flex;align-items:center;gap:10px}
+.nav-logo-icon{width:34px;height:34px;border-radius:50%;background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.25);display:flex;align-items:center;justify-content:center;font-family:"Playfair Display",serif;font-size:13px;font-style:italic;color:var(--gold);flex-shrink:0}
+.nav-rest-name{font-family:"Playfair Display",serif;font-size:1.15rem;color:var(--dark);font-style:italic;letter-spacing:.01em}
+.nav-tabs{display:flex;gap:6px}
+.nav-tab{background:transparent;border:1px solid var(--border);border-radius:100px;padding:7px 16px;font-family:"Outfit",sans-serif;font-size:13px;color:var(--muted);cursor:pointer;letter-spacing:.02em;transition:all .2s;font-weight:400}
+.nav-tab:hover{color:var(--dark);border-color:var(--border-strong)}
+.nav-tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+
+/* PAGES */
+.page{display:none;max-width:640px;margin:0 auto;padding:2.5rem 1.5rem 5rem}
+.page.active{display:block}
+h1{font-family:"Playfair Display",serif;font-size:2rem;font-weight:400;letter-spacing:-.01em;margin-bottom:.25rem;color:var(--dark);line-height:1.2}
+h2{font-family:"Playfair Display",serif;font-size:1.4rem;font-weight:400;letter-spacing:-.01em;margin-bottom:.5rem;color:var(--dark)}
+h3{font-family:"Playfair Display",serif;font-size:1.1rem;font-weight:400;color:var(--dark)}
+.gold-line{width:32px;height:1px;background:var(--gold);margin:.5rem 0 1.25rem;opacity:.7}
+.sub{font-size:14px;color:var(--muted);margin-bottom:1.5rem;line-height:1.7;font-weight:400}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem}
+.card-label{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
+input[type=text],input[type=password],input[type=date],input[type=time],textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:"Outfit",sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;resize:none;font-weight:300}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);background:var(--surface)}
+textarea{min-height:68px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;letter-spacing:.03em}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:13px;font-weight:500;letter-spacing:.03em;cursor:pointer;transition:all .2s;border:1px solid transparent;white-space:nowrap}
+.btn-gold{background:var(--dark);color:#fff;border-color:var(--dark)}.btn-gold:hover{background:#2d2820;transform:translateY(-1px)}.btn-gold:disabled{opacity:.5;cursor:default;transform:none}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--muted)}.btn-ghost:hover{border-color:var(--dark);color:var(--dark)}
+.btn-danger{background:transparent;border-color:#e8d0d0;color:#a05050}.btn-danger:hover{border-color:var(--red);color:var(--red)}
+.btn-full{width:100%;justify-content:center;padding:13px}
+.course-section{margin-bottom:1.75rem}
+.course-title{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:var(--dark);margin:.25rem 0 .15rem}
+.course-sub{font-size:11px;color:var(--muted);margin-bottom:.6rem;letter-spacing:.02em}
+.meal{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;cursor:pointer;background:var(--surface);transition:all .2s;user-select:none}
+.meal:hover{border-color:var(--border-strong);background:var(--surface2)}
+.meal.selected{border-color:var(--gold);background:rgba(184,149,90,.05)}
+.meal.skip-option{border-style:dashed;border-color:#ddd8d0}
+.meal.skip-option:hover{border-color:var(--border-strong)}
+.radio{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border);margin-top:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .2s}
+.meal.selected .radio{border-color:var(--gold)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);display:none}
+.meal.selected .dot{display:block}
+.meal-body{flex:1;min-width:0}
+.meal-name{font-size:14px;font-weight:400;color:var(--dark);line-height:1.3}
+.meal-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-top:2px}
+.meal-price{font-size:13px;color:var(--gold);flex-shrink:0;padding-left:8px;margin-top:2px;font-weight:500;font-family:"Playfair Display",serif}
+.msg{padding:11px 16px;border-radius:8px;font-size:13px;margin-bottom:1rem;border:1px solid}
+.msg.ok{background:#f2f8ec;color:#6a5030;border-color:#c8e0a8}
+.msg.err{background:#fdf2f2;color:#8a2020;border-color:#e8c0c0}
+hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+.flex-between{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.flex-gap{display:flex;gap:8px;flex-wrap:wrap}
+.booking-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem;transition:all .2s;cursor:pointer}
+.booking-card:hover{border-color:var(--border-strong)}
+.booking-card.open{border-color:var(--gold)}
+.booking-header{display:flex;justify-content:space-between;align-items:flex-start}
+.booking-name{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark)}
+.booking-date{font-size:12px;color:var(--muted);margin-top:2px}
+.status-pill{background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.25);border-radius:100px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:500;letter-spacing:.02em}
+.status-pill.closed{background:#fdf2f2;border-color:#e8c0c0;color:#a05050}
+.status-pill.archived{background:#f5f0e8;border-color:var(--border-strong);color:var(--muted)}
+.link-box{font-size:11px;color:var(--gold);font-family:monospace;word-break:break-all;margin:.6rem 0;padding:8px 12px;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:6px}
+.booking-detail{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;display:none}
+.booking-card.open .booking-detail{display:block}
+.detail-tab{background:transparent;border:1px solid var(--border);border-radius:100px;padding:5px 13px;font-family:"Outfit",sans-serif;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.02em}
+.detail-tab:hover{border-color:var(--dark);color:var(--dark)}
+.detail-tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.tally-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.tally-row:last-child{border-bottom:none}
+.tally-name{flex:1;color:var(--text);font-weight:400}
+.tally-bar-wrap{width:70px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.tally-bar{height:100%;background:var(--gold);border-radius:2px}
+.tally-n{font-weight:500;color:var(--gold);min-width:24px;text-align:right;font-size:12px;font-family:"Playfair Display",serif}
+.allergy-box{background:#fffbec;border:1px solid #e8d898;border-radius:10px;padding:1rem 1.1rem;margin-top:1rem}
+.allergy-head{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#8a7020;margin-bottom:.75rem}
+.allergy-item{font-size:13px;color:#4a3a10;line-height:2;padding:3px 0;border-bottom:1px solid #e8d898}
+.allergy-item:last-child{border-bottom:none}
+.allergy-name{font-weight:500;color:#2a2010}
+.kitchen-head{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 .4rem}
+.kitchen-head:first-child{margin-top:0}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-field{margin-bottom:.75rem}
+.login-wrap{max-width:340px;margin:4rem auto;padding:2rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;box-shadow:0 4px 32px rgba(0,0,0,.06)}
+.empty-state{text-align:center;padding:2rem 1rem;color:var(--muted);font-size:13px;font-weight:400}
+.modal-overlay{position:fixed;inset:0;background:rgba(26,23,18,.5);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 48px rgba(0,0,0,.12)}
+.spinner{width:14px;height:14px;border:2px solid rgba(184,149,90,.25);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.menu-item-row{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}
+.menu-item-row:last-child{border-bottom:none}
+.menu-item-info{flex:1}
+.menu-item-name-sm{font-size:13px;color:var(--dark);font-weight:400}
+.menu-item-desc-sm{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5}
+.menu-item-price-sm{font-size:12px;color:var(--gold);white-space:nowrap;margin-top:2px;font-weight:500;font-family:"Playfair Display",serif}
+.reminder-note{background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;color:#6a5030;line-height:1.6}
+@media(max-width:600px){
+  .meal{padding:13px 12px;margin-bottom:8px}
+  .meal-name{font-size:15px}
+  input[type=text],input[type=password],input[type=date],input[type=time],textarea,select{font-size:16px;padding:12px 14px}
+  h1{font-size:1.7rem}
+  .btn-full{padding:16px;font-size:15px}
+  .nav{padding:.65rem 1rem}
+  .nav-tab{padding:6px 12px;font-size:12px}
+  .booking-header{flex-direction:column;gap:.5rem}
+  .form-2col{grid-template-columns:1fr}
+  .tally-bar-wrap{width:50px}
+  .page{padding:1.5rem 1rem 4rem}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  <span>PreMeny <strong>Demo</strong> – Alla &auml;ndringar sparas lokalt i din webbl&auml;sare.</span>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button onclick="resetDemo()" style="background:transparent;border:1px solid rgba(106,146,69,.4);border-radius:100px;padding:2px 10px;font-size:10.5px;color:var(--gold);cursor:pointer;font-family:inherit;letter-spacing:.04em">&#8635; &Aring;terst&auml;ll demo</button>
+    <span class="demo-badge">Demo</span>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-logo-wrap">
+    <div class="nav-logo-icon" id="navLogoIcon">R</div>
+    <span class="nav-rest-name" id="navRestName">Restaurang Demo</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('guest')">G&auml;stvy</button>
+    <button class="nav-tab" onclick="showPage('admin-login')">Admin</button>
+  </div>
+</nav>
+
+<!-- GUEST PAGE -->
+<div id="page-guest" class="page active">
+  <div id="guestMsg" style="display:none" class="msg"></div>
+  <div id="guestFormWrap">
+    <h1>F&ouml;rbest&auml;ll din mat</h1>
+    <div class="green-line"></div>
+    <p class="sub" id="bookingInfo">V&auml;lj minst en r&auml;tt och ange ditt namn.</p>
+    <div class="card">
+      <div class="card-label">Ditt namn</div>
+      <input type="text" id="guestName" placeholder="F&ouml;rnamn och efternamn" onblur="checkExistingOrder()">
+    </div>
+    <div id="existingOrderNotice" style="display:none" class="msg ok"></div>
+    <div id="courseWrap"></div>
+    <div class="card">
+      <div class="card-label">Allergier &amp; specialkost</div>
+      <textarea id="guestAllergy" placeholder="T.ex. glutenintolerant, n&ouml;tallergi, vegan... (l&auml;mna tomt om inget)"></textarea>
+    </div>
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:.75rem;line-height:1.6">Vill du &auml;ndra din best&auml;llning? &Ouml;ppna l&auml;nken igen och skriv ditt namn.</p>
+    <button class="btn btn-gold btn-full" id="guestSubmitBtn" onclick="submitGuestOrder()" style="margin-top:.5rem">Skicka best&auml;llning</button>
+  </div>
+  <div id="guestDoneWrap" style="display:none;padding:2rem 0">
+    <div style="text-align:center">
+      <div style="font-size:2.5rem;color:var(--gold);margin-bottom:.75rem">&#10003;</div>
+      <h2>Tack!</h2>
+      <p style="color:var(--muted);margin-top:.25rem;font-size:14px;margin-bottom:1.5rem">Din best&auml;llning &auml;r sparad.</p>
+    </div>
+    <div class="card"><div class="card-label">Din best&auml;llning</div><div id="confirmationSummary"></div></div>
+    <button class="btn btn-ghost btn-full" style="margin-top:.75rem" onclick="editGuestOrder()">&larr; &Auml;ndra best&auml;llning</button>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="page-admin-login" class="page">
+  <div class="login-wrap">
+    <div style="width:64px;height:64px;border-radius:50%;background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-family:'Cormorant Garamond',serif;font-size:28px;font-style:italic;color:var(--gold)" id="loginLogoIcon">R</div>
+    <h2 style="margin-bottom:.25rem">Admin</h2>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:1.25rem">B&auml;st p&aring; dator eller surfplatta.</p>
+    <div id="loginMsg" style="display:none" class="msg err">Fel l&ouml;senord</div>
+    <div class="form-field"><label>L&ouml;senord</label><input type="password" id="adminPassword" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-gold btn-full" onclick="doLogin()">Logga in</button>
+    <p style="font-size:11px;color:var(--muted);margin-top:1rem">Demo-l&ouml;senord: <strong style="color:var(--gold)">demo</strong></p>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="page-admin" class="page">
+  <div class="flex-between">
+    <div><h1>Admin</h1><div class="green-line"></div></div>
+    <button class="btn btn-ghost" onclick="showPage('admin-login')" style="font-size:12px">Logga ut</button>
+  </div>
+  <div style="display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap">
+    <button class="detail-tab active" id="atab-b" onclick="showAdminTab('bookings')">Bokningar</button>
+    <button class="detail-tab" id="atab-e" onclick="showAdminTab('evening')">Datum — alla sällskap</button>
+    <button class="detail-tab" id="atab-m" onclick="showAdminTab('menu')">Uppdatera meny</button>
+    <button class="detail-tab" id="atab-a" onclick="showAdminTab('archive')">Arkiv</button>
+    <button class="detail-tab" id="atab-s" onclick="showAdminTab('settings')">&starf; Inst&auml;llningar</button>
+  </div>
+
+  <div id="admin-bookings">
+    <div class="flex-between"><h3>Aktiva bokningar</h3><button class="btn btn-gold" onclick="toggleNewBooking()">+ Ny bokning</button></div>
+    <div style="background:rgba(184,149,90,.07);border:1px solid #1a4030;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;color:#6a5030;line-height:1.6">
+      &#9993; <strong>Automatiska p&aring;minnelsemejl</strong> skickas det antal dagar du anger f&ouml;re deadline &ndash; men <strong>aldrig om alla g&auml;ster redan svarat</strong>.
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem">Klicka p&aring; en bokning f&ouml;r att se k&ouml;kslista och g&auml;stlista.</p>
+    <div id="newBookingForm" style="display:none" class="card">
+      <div class="card-label">Skapa bokning</div>
+      <div class="form-2col">
+        <div class="form-field"><label>S&auml;llskapets namn</label><input type="text" id="nb-name" placeholder="T.ex. Br&ouml;llop Karlsson"></div>
+        <div class="form-field"><label>Datum</label><input type="date" id="nb-date"></div>
+      </div>
+      <div class="form-2col">
+        <div class="form-field"><label>Klockslag</label><input type="time" id="nb-time" value="18:00"></div>
+        <div class="form-field"><label>F&ouml;rv&auml;ntat antal g&auml;ster</label><input type="text" id="nb-guests" placeholder="T.ex. 30"></div>
+      </div>
+      <div class="form-2col">
+        <div class="form-field"><label>Sista best&auml;llningsdag</label><input type="date" id="nb-deadline"></div>
+        <div class="form-field"><label>Kontaktperson</label><input type="text" id="nb-contact" placeholder="Namn eller mejl"></div>
+      </div>
+      <div class="form-2col">
+        <div class="form-field"><label>Mejl till kontaktperson</label><input type="text" id="nb-email" placeholder="namn@exempel.se"></div>
+        <div class="form-field"><label>Skicka p&aring;minnelse</label>
+          <select id="nb-reminder">
+            <option value="0">Ingen p&aring;minnelse</option>
+            <option value="1">1 dag innan deadline</option>
+            <option value="2" selected>2 dagar innan deadline</option>
+            <option value="3">3 dagar innan deadline</option>
+            <option value="5">5 dagar innan deadline</option>
+            <option value="7">1 vecka innan deadline</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex-gap">
+        <button class="btn btn-gold" onclick="createBooking()">Skapa bokning</button>
+        <button class="btn btn-ghost" onclick="toggleNewBooking()">Avbryt</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;margin-bottom:8px">
+      <input type="text" id="demoBookingSearch" placeholder="Sök bokningar (namn, kontaktperson, mejl)..." oninput="renderBookingList()" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;color:var(--text);background:var(--surface)">
+    </div>
+    <div id="bookingList" style="margin-top:1rem"></div>
+  </div>
+
+  <div id="admin-evening" style="display:none">
+    <h3 style="margin-bottom:.5rem">Datum &ndash; alla s&auml;llskap</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Totalt antal r&auml;tter per datum &ndash; oavsett hur m&aring;nga s&auml;llskap.</p>
+    <div id="eveningList"></div>
+  </div>
+
+  <div id="admin-menu" style="display:none">
+    <div class="flex-between"><h3>Uppdatera meny</h3><button class="btn btn-gold" onclick="toggleNewCat()">+ Ny rubrik</button></div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:1rem">L&auml;gg till r&auml;tter under varje rubrik, eller importera hela menyn med AI nedan.</p>
+    <div id="addItemForm" style="display:none" class="card">
+      <div class="card-label" id="ai-cat-label">L&auml;gg till r&auml;tt</div>
+      <div class="form-field"><label>Namn</label><input type="text" id="ai-name" placeholder="R&auml;ttens namn"></div>
+      <div class="form-field"><label>Beskrivning</label><textarea id="ai-desc" style="min-height:55px"></textarea></div>
+      <div class="form-field"><label>Pris (kr)</label><input type="text" id="ai-price" placeholder="150"></div>
+      <div class="flex-gap">
+        <button class="btn btn-gold" onclick="addMenuItem()">L&auml;gg till</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('addItemForm').style.display='none'">Avbryt</button>
+      </div>
+    </div>
+    <div id="newCatForm" style="display:none" class="card">
+      <div class="card-label">Ny menyrubrik</div>
+      <div class="form-field"><label>Namn</label><input type="text" id="new-cat-name" placeholder="T.ex. Snacks, Dryck, Barnmeny..."></div>
+      <div class="flex-gap">
+        <button class="btn btn-gold" onclick="addCategory()">Skapa rubrik</button>
+        <button class="btn btn-ghost" onclick="toggleNewCat()">Avbryt</button>
+      </div>
+    </div>
+    <div id="menuEditor" style="margin-top:1rem"></div>
+  </div>
+
+  <div id="admin-archive" style="display:none">
+    <h3 style="margin-bottom:.25rem">Arkiverade bokningar</h3>
+    <div class="gold-line"></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6">Bokningar vars datum har passerat arkiveras automatiskt h&auml;r. Kl&auml;m dig aldrig om en g&auml;mmal k&ouml;kslista.</p>
+    <div id="archiveList"></div>
+  </div>
+
+  <div id="admin-settings" style="display:none">
+    <h3 style="margin-bottom:.5rem">Restauranginst&auml;llningar</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:1.5rem">Logotyp och namn visas i g&auml;stformuläret.</p>
+    <div class="card"><div class="card-label">Restaurangens namn</div><input type="text" id="set-name" placeholder="T.ex. Freadals G&aring;rdskrog"></div>
+    <div class="card">
+      <div class="card-label">Logotyp</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem">PNG eller JPG, helst kvadratisk</p>
+      <input type="file" id="set-logo-file" accept="image/*" onchange="handleLogoUpload(this)" style="font-size:13px;color:var(--muted)">
+      <div id="logo-preview" style="display:none;margin-top:1rem;align-items:center;gap:.75rem">
+        <img id="logo-preview-img" style="width:60px;height:60px;object-fit:contain;border-radius:50%;border:1px solid var(--border)">
+        <button class="btn btn-danger" style="font-size:11px;padding:4px 10px" onclick="removeLogo()">Ta bort</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Accentf&auml;rg</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <input type="color" id="set-color" value="#c8a84b" style="width:48px;height:36px;padding:2px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer">
+        <span style="font-size:13px;color:var(--muted)">Anpassa till ert varum&auml;rke</span>
+      </div>
+    </div>
+    <button class="btn btn-gold" onclick="saveSettings()" style="margin-top:.5rem">Spara inst&auml;llningar</button>
+    <div id="settings-saved" style="display:none;font-size:13px;color:#6a5030;margin-top:.75rem">&#10003; Sparat!</div>
+    <div style="margin-top:2rem">
+      <h3 style="margin-bottom:.25rem">S&auml;kerhetskopia</h3>
+      <div class="gold-line"></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">All data lagras i webbl&auml;sarens localStorage &ndash; den &auml;r borta om du rensar cachen eller byter enhet. Exportera regelb&uuml;ndet som JSON-fil.</p>
+      <div style="background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem">
+        <div class="card-label">Aktuell data</div>
+        <div id="backup-stats" style="font-size:13px;color:var(--text);line-height:2.2"></div>
+      </div>
+      <div class="flex-gap" style="margin-bottom:.5rem">
+        <button class="btn btn-gold" onclick="exportBackup()">&#11015; Exportera JSON</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('backup-file-input').click()">&#11014; Importera fr&aring;n fil</button>
+        <input type="file" id="backup-file-input" accept=".json" style="display:none" onchange="importBackup(this)">
+      </div>
+      <div id="backup-msg" style="display:none;margin-top:.75rem" class="msg ok"></div>
+    </div>
+
+    <hr>
+
+    <div style="margin-top:2rem">
+      <h3 style="margin-bottom:.25rem">Importera meny med AI</h3>
+      <div class="gold-line"></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Klistra in er meny som text eller ladda upp ett foto &ndash; AI:n tolkar den automatiskt. Uppdatera n&auml;r som helst.</p>
+      <div style="display:flex;gap:4px;margin-bottom:1rem">
+        <button class="detail-tab active" id="import-tab-text" onclick="switchImportTab('text')">Klistra in text</button>
+        <button class="detail-tab" id="import-tab-image" onclick="switchImportTab('image')">Ladda upp bild</button>
+      </div>
+      <div id="import-text-wrap"><div class="form-field"><label>Menytext</label><textarea id="menu-import-text" style="min-height:160px;font-size:13px" placeholder="Klistra in er meny h&auml;r..."></textarea></div></div>
+      <div id="import-image-wrap" style="display:none">
+        <div class="form-field"><label>Menybild</label><input type="file" id="menu-import-image" accept="image/*" style="font-size:13px;color:var(--muted)"></div>
+        <div id="menu-img-preview" style="display:none;margin-top:.5rem"><img id="menu-img-preview-img" style="max-width:100%;border-radius:8px;border:1px solid var(--border)"></div>
+      </div>
+      <div id="import-warning" style="display:none;margin:.75rem 0" class="msg err"></div>
+      <button class="btn btn-gold" id="import-btn" onclick="importMenu()" style="margin-top:.5rem">&#x2736; Importera meny med AI</button>
+      <div id="import-loading" style="display:none;margin-top:1rem;text-align:center;color:var(--muted);font-size:13px"><span class="spinner"></span> Tolkar menyn...</div>
+      <div id="import-result" style="display:none;margin-top:1.25rem">
+        <div style="font-size:12px;font-weight:500;color:#6a5030;margin-bottom:.75rem">&#10003; Meny tolkad &ndash; granska och bekr&auml;fta</div>
+        <div id="import-preview-content"></div>
+        <div style="display:flex;gap:8px;margin-top:1rem">
+          <button class="btn btn-gold" onclick="confirmImport()">Ers&auml;tt nuvarande meny</button>
+          <button class="btn btn-ghost" onclick="cancelImport()">Avbryt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT ORDER MODAL -->
+<div id="editModal" class="modal-overlay" style="display:none" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="flex-between"><h3>Redigera best&auml;llning</h3><button class="btn btn-ghost" onclick="closeModalDirect()" style="font-size:12px">&#10005;</button></div>
+    <div id="editModalContent"></div>
+  </div>
+</div>
+
+<!-- EDIT MENU ITEM MODAL -->
+<div id="editMenuModal" class="modal-overlay" style="display:none" onclick="closeMenuModal(event)">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:480px">
+    <div class="flex-between"><h3>Redigera r&auml;tt</h3><button class="btn btn-ghost" onclick="closeMenuModalDirect()" style="font-size:12px">&#10005;</button></div>
+    <div id="editMenuContent"></div>
+  </div>
+</div>
+
+<script>
+var DEMO_PW="demo";
+var SK="premeny_demo_v3";
+function loadState(){try{return JSON.parse(localStorage.getItem(SK)||"null");}catch(e){return null;}}
+function saveState(s){localStorage.setItem(SK,JSON.stringify(s));}
+function defaultState(){return{
+  bookings:[
+    {id:"b1",name:"Br\u00f6llop Lindgren",date:"l\u00f6rdag 28 juni 2026",time:"18:00",expected:52,deadline:"m\u00e5ndag 23 juni 2026",deadlineRaw:"2026-06-23",contact:"Anna Lindgren",email:"anna@demo.se",reminder:3,reminderSent:"20 juni 2026 09:00",orders:[
+      {id:"o1",name:"Anna Lindgren",choices:{forratter:0,huvud:2,dessert:0},allergy:"",ts:1},
+      {id:"o2",name:"Per Lindgren",choices:{forratter:1,huvud:5,dessert:1},allergy:"",ts:2},
+      {id:"o3",name:"Maria Svensson",choices:{vego:0,dessert:0},allergy:"Vegan",ts:3},
+      {id:"o4",name:"Jonas Berg",choices:{huvud:3,dessert:2},allergy:"",ts:4},
+      {id:"o5",name:"Karin Holm",choices:{forratter:2,huvud:1,dessert:3},allergy:"",ts:5},
+      {id:"o6",name:"Lars Ek",choices:{forratter:0,fisk:0,dessert:0},allergy:"Skaldjursallergi",ts:6},
+      {id:"o7",name:"Eva Nordin",choices:{forratter:1,huvud:4,dessert:1},allergy:"",ts:7},
+      {id:"o8",name:"Stefan Björk",choices:{barn:0},allergy:"",ts:8},
+      {id:"o9",name:"Helena Strand",choices:{forratter:0,huvud:0,dessert:2},allergy:"Glutenintolerant",ts:9},
+      {id:"o10",name:"Mikael Ågren",choices:{vego:1,dessert:0},allergy:"Vegetarian",ts:10},
+      {id:"o11",name:"Cecilia Palm",choices:{forratter:2,fisk:1,dessert:3},allergy:"",ts:11},
+      {id:"o12",name:"Thomas Lund",choices:{forratter:0,huvud:6,dessert:1},allergy:"",ts:12}
+    ]},
+    {id:"b2",name:"Konferens Alfa AB",date:"fredag 27 juni 2026",time:"12:00",expected:20,deadline:"tisdag 24 juni 2026",deadlineRaw:"2026-06-24",contact:"Maja Eriksson",email:"maja@alfaab.se",reminder:2,orders:[
+      {id:"o13",name:"Maja Eriksson",choices:{forratter:1,huvud:2,dessert:0},allergy:"",ts:13},
+      {id:"o14",name:"Erik Nyman",choices:{forratter:0,fisk:0,dessert:1},allergy:"",ts:14},
+      {id:"o15",name:"Sofia Karlsson",choices:{vego:0,dessert:2},allergy:"Vegan",ts:15},
+      {id:"o16",name:"David Holmberg",choices:{forratter:2,huvud:5,dessert:3},allergy:"Nötallergi",ts:16},
+      {id:"o17",name:"Linda Persson",choices:{forratter:0,huvud:1,dessert:0},allergy:"",ts:17},
+      {id:"o18",name:"Patrik Ohlsson",choices:{forratter:1,fisk:1,dessert:1},allergy:"",ts:18}
+    ]},
+    {id:"b3",name:"50-\u00e5rskalas Johansson",date:"l\u00f6rdag 28 juni 2026",time:"20:00",expected:30,deadline:"onsdag 25 juni 2026",deadlineRaw:"2026-06-25",contact:"Johan Johansson",email:"jj50@gmail.com",reminder:5,orders:[
+      {id:"o20",name:"Johan Johansson",choices:{forratter:0,huvud:3,dessert:0},allergy:"",ts:20},
+      {id:"o21",name:"Petra Johansson",choices:{forratter:1,vego:1},allergy:"Vegetarian",ts:21},
+      {id:"o22",name:"Gustav Lindén",choices:{forratter:2,huvud:4,dessert:2},allergy:"",ts:22},
+      {id:"o23",name:"Fanny Lindén",choices:{forratter:0,fisk:0,dessert:3},allergy:"",ts:23},
+      {id:"o24",name:"Carl Ström",choices:{forratter:1,huvud:0,dessert:1},allergy:"Laktosintoler.",ts:24}
+    ]}
+  ],
+  categories:[
+    {key:"forratter",label:"F\u00f6rr\u00e4tter & Snacks",items:[
+      {id:"f1",name:"Toast Skagen",desc:"Hembakad brioche med r\u00e4kr\u00f6ra, riven pepparrot, majonnäs och citron",price:139},
+      {id:"f2",name:"Pubbricka",desc:"Saltrostade padr\u00f3n-paprika, dipp, oliver, l\u00f6kringar och g\u00e5rdschips",price:129},
+      {id:"f3",name:"Vitl\u00f6ksbr\u00f6d",desc:"Ostgratinerat surdegsbr\u00f6d med rostad vitl\u00f6kssmör och aioli",price:99}
+    ]},
+    {key:"huvud",label:"Huvudr\u00e4tter",items:[
+      {id:"h1",name:"Klassisk ryggbiff",desc:"Fr\u00e5n lokalt k\u00f6tt, serveras medium. Med friterad kulpotatis, peppars\u00e5s och sm\u00f6rstekt sparris",price:309},
+      {id:"h2",name:"Bookmaker toast",desc:"Tunt skivad charlottenstek, pepparrot fr\u00e5n Fj\u00e4r\u00e5s samt senapskr\u00e4m och \u00e4ggula",price:249},
+      {id:"h3",name:"Klassisk wienerschnitzel",desc:"Panerat kalvk\u00f6tt med kapris, ansjovis, kryddsmör, citron och f\u00e4rskpotatis",price:279},
+      {id:"h4",name:"Fireball Smashburger",desc:"2\u00d775g n\u00f6tf\u00e4rs med potatisbun, fireballdressing, rostad l\u00f6k, krispsallad och dubbelost. Serveras med coleslaw",price:189},
+      {id:"h5",name:"Wild truffle Smashburger",desc:"2\u00d775g n\u00f6tf\u00e4rs med tryffelsmör, krispsallad, tomat, dubbelost och karamelliserad l\u00f6k",price:189},
+      {id:"h6",name:"R\u00e4ksm\u00f6rg\u00e5s",desc:"Handskalade r\u00e4kor, majonnäs, \u00e4gg, picklad r\u00f6dl\u00f6k, tomat, sallad och \u00f6rtolja p\u00e5 r\u00e5gbr\u00f6d",price:189},
+      {id:"h7",name:"Friterad Halloumi",desc:"Svensk grillost med s\u00e4songens sallad, gurka, tomat och tzatziki",price:189}
+    ]},
+    {key:"fisk",label:"Fisken",items:[
+      {id:"fi1",name:"Fiskgrat\u00e4ng",desc:"P\u00e5 torskrygg med hummers\u00e5s, duchesspotatis och handskalade r\u00e4kor",price:249},
+      {id:"fi2",name:"Pocherad torskrygg",desc:"Med kulpotatis, skirat smör toppad med f\u00e4rskriven pepparrot och handskalade r\u00e4kor",price:229}
+    ]},
+    {key:"vego",label:"Vego & Veganskt",items:[
+      {id:"vg1",name:"Vegetarisk burgare",desc:"Grillost med s\u00e4songens smak, sallad, tomat, picklad r\u00f6dl\u00f6k och dressing. Serveras med pommes",price:189},
+      {id:"vg2",name:"R\u00e4ksallad (vegansk)",desc:"Handskalade havskr\u00e4ftor, \u00e4gg, majonnäs, gurka, tomat, paprika och \u00f6rtdressing",price:199}
+    ]},
+    {key:"barn",label:"Barnen",items:[
+      {id:"b1",name:"Barnburgare",desc:"100g n\u00f6tf\u00e4rs med pommes, ost, tomat och dressing",price:99},
+      {id:"b2",name:"Chicken nuggets (6 st)",desc:"Serveras med pommes och ketchup",price:79},
+      {id:"b3",name:"Pannkakor",desc:"3 st med b\u00e4rkompott och vispad gr\u00e4dde",price:69}
+    ]},
+    {key:"dessert",label:"Efterr\u00e4tter",items:[
+      {id:"e1",name:"B\u00e4rpaj med vaniljs\u00e5s",desc:"Hembakad paj med s\u00e4songens b\u00e4r, serveras varm med vaniljs\u00e5s",price:89},
+      {id:"e2",name:"Bananasplit",desc:"Noisette, vaniljglass, hallonsorbet, mar\u00e4ng, banan med gr\u00e4dde och n\u00f6tkross",price:89},
+      {id:"e3",name:"Friterad camembert",desc:"Serveras med ljummen hjortronsylt och friterad persilja",price:99},
+      {id:"e4",name:"Vaniljglass med topping",desc:"V\u00e4lj bland s\u00e4songens toppings",price:79}
+    ]}
+  ]
+};}
+var state=loadState()||defaultState();
+var selectedEveningDates={};
+function getCat(key){return state.categories.find(function(c){return c.key===key;});}
+
+function showPage(id){
+  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});
+  document.querySelectorAll(".nav-tab").forEach(function(t){t.classList.remove("active");});
+  document.getElementById("page-"+id).classList.add("active");
+  if(id==="guest")document.querySelectorAll(".nav-tab")[0].classList.add("active");
+  else document.querySelectorAll(".nav-tab")[1].classList.add("active");
+  if(id==="admin")renderAdmin();
+  if(id==="guest")renderGuestForm();
+}
+
+// GUEST
+var guestBookingId=null,gSel={};
+function renderGuestForm(){
+  var params=new URLSearchParams(window.location.search);
+  var bid=params.get("bokning")||(state.bookings[0]&&state.bookings[0].id);
+  guestBookingId=bid;
+  var b=state.bookings.find(function(x){return x.id===bid;});
+  if(b){
+    var dlHtml="",isClosed=false;
+    if(b.deadlineRaw){var today=new Date();today.setHours(0,0,0,0);var dl=new Date(b.deadlineRaw+"T23:59:59");isClosed=today>dl;
+      dlHtml=isClosed?"<div style='margin-top:6px;padding:6px 10px;background:#fdf2f2;border:1px solid #e8c0c0;border-radius:6px;font-size:12px;color:#8a2020'>Best\u00e4llningstiden har g\u00e5tt ut ("+b.deadline+")</div>"
+        :"<div style='margin-top:6px;font-size:12px;color:var(--gold)'>&#9201; Sista dag att best\u00e4lla: "+b.deadline+"</div>";
+    }
+    document.getElementById("bookingInfo").innerHTML="<strong style='color:var(--text)'>"+b.name+"</strong> \u2013 "+b.date+(b.time?" kl "+b.time:"")+"<br><span style='font-size:12px;color:var(--muted)'>V\u00e4lj minst en r\u00e4tt.</span>"+dlHtml;
+    if(isClosed){document.getElementById("guestSubmitBtn").disabled=true;document.getElementById("guestSubmitBtn").textContent="Best\u00e4llning st\u00e4ngd";}
+  }
+  buildCourses();
+}
+function buildCourses(){
+  var wrap=document.getElementById("courseWrap");
+  if(!state.categories||!state.categories.length){wrap.innerHTML="<p style='color:var(--muted);font-size:13px;padding:1rem'>Ingen meny inlagd \u00e4nnu.</p>";return;}
+  gSel={};state.categories.forEach(function(c){gSel[c.key]=null;});
+  var html="";
+  state.categories.forEach(function(cat){
+    html+="<div class='course-section'><div class='course-title'>"+cat.label+"</div><div class='course-sub'>V\u00e4lj ett alternativ \u2013 eller hoppa \u00f6ver</div>";
+    html+="<div class='meal skip-option' id='opt_"+cat.key+"_skip' data-key='"+cat.key+"' data-idx='null' onclick='handleMealClick(this)'><div class='radio'><div class='dot'></div></div><div class='meal-body'><div class='meal-name' style='color:var(--muted);font-size:13px'>Hoppa \u00f6ver</div></div></div>";
+    cat.items.forEach(function(item,i){
+      html+="<div class='meal' id='opt_"+cat.key+"_"+i+"' data-key='"+cat.key+"' data-idx='"+i+"' onclick='handleMealClick(this)'><div class='radio'><div class='dot'></div></div><div class='meal-body'><div class='meal-name'>"+item.name+"</div><div class='meal-desc'>"+item.desc+"</div></div><div class='meal-price'>"+item.price+" kr</div></div>";
+    });
+    html+="</div>";
+  });
+  wrap.innerHTML=html;highlightSel();
+}
+function handleMealClick(el){pickCourse(el.dataset.key,el.dataset.idx==='null'?null:parseInt(el.dataset.idx));}
+function pickCourse(key,idx){gSel[key]=idx;highlightSel();}
+function highlightSel(){
+  state.categories.forEach(function(cat){
+    var k=cat.key;
+    var skip=document.getElementById("opt_"+k+"_skip");
+    if(skip)skip.classList.toggle("selected",gSel[k]===null);
+    cat.items.forEach(function(item,i){var el=document.getElementById("opt_"+k+"_"+i);if(el)el.classList.toggle("selected",gSel[k]===i);});
+  });
+}
+function checkExistingOrder(){
+  var name=document.getElementById("guestName").value.trim().toLowerCase();
+  if(!name||!guestBookingId)return;
+  var b=state.bookings.find(function(x){return x.id===guestBookingId;});
+  if(!b)return;
+  var ex=b.orders.find(function(o){return o.name.toLowerCase()===name;});
+  var notice=document.getElementById("existingOrderNotice");
+  if(ex){
+    notice.style.display="block";notice.textContent="\u2713 Du har redan best\u00e4llt. G\u00f6r \u00e4ndringar nedan och skicka om.";
+    document.getElementById("guestAllergy").value=ex.allergy||"";
+    state.categories.forEach(function(cat){gSel[cat.key]=(ex.choices[cat.key]!==undefined)?ex.choices[cat.key]:null;});
+    highlightSel();
+  }else{notice.style.display="none";gSel={};state.categories.forEach(function(c){gSel[c.key]=null;});highlightSel();}
+}
+function submitGuestOrder(){
+  var name=document.getElementById("guestName").value.trim();
+  var allergy=document.getElementById("guestAllergy").value.trim();
+  var m=document.getElementById("guestMsg");
+  if(!name){m.style.display="block";m.className="msg err";m.textContent="Ange ditt namn.";return;}
+  if(!state.categories.some(function(cat){return gSel[cat.key]!==null;})){m.style.display="block";m.className="msg err";m.textContent="V\u00e4lj minst en r\u00e4tt.";return;}
+  var b=state.bookings.find(function(x){return x.id===guestBookingId;});if(!b)return;
+  var choices={};state.categories.forEach(function(cat){if(gSel[cat.key]!==null)choices[cat.key]=gSel[cat.key];});
+  var order={id:"o"+Date.now(),name:name,choices:choices,allergy:allergy,ts:Date.now()};
+  var ei=b.orders.findIndex(function(o){return o.name.toLowerCase()===name.toLowerCase();});
+  if(ei>=0)b.orders[ei]=order;else b.orders.push(order);
+  saveState(state);
+  var summary="";
+  state.categories.forEach(function(cat){if(choices[cat.key]!==undefined){var item=cat.items[choices[cat.key]];if(item)summary+="<div style='display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px'><span>"+item.name+"</span><span style='color:var(--gold)'>"+item.price+" kr</span></div>";}});
+  if(allergy)summary+="<div style='font-size:12px;color:var(--gold);margin-top:.75rem'>&#9888; "+allergy+"</div>";
+  document.getElementById("confirmationSummary").innerHTML=summary;
+  document.getElementById("guestFormWrap").style.display="none";
+  document.getElementById("guestDoneWrap").style.display="block";
+  document.getElementById("guestMsg").style.display="none";
+}
+function editGuestOrder(){document.getElementById("guestDoneWrap").style.display="none";document.getElementById("guestFormWrap").style.display="block";}
+
+// LOGIN
+function doLogin(){
+  if(document.getElementById("adminPassword").value===DEMO_PW){document.getElementById("loginMsg").style.display="none";showPage("admin");}
+  else{document.getElementById("loginMsg").style.display="block";document.getElementById("adminPassword").value="";}
+}
+
+// ADMIN TABS
+function showAdminTab(tab){
+  ["bookings","evening","menu","archive","settings"].forEach(function(t){
+    document.getElementById("admin-"+t).style.display=t===tab?"block":"none";
+    var btnKey=t==="archive"?"a":t==="settings"?"s":t[0];var btn=document.getElementById("atab-"+btnKey);if(btn)btn.classList.toggle("active",t===tab);
+  });
+  if(tab==="evening")renderEvening();
+  if(tab==="bookings")renderBookingList();
+  if(tab==="menu")renderMenuEditor();
+  if(tab==="archive")renderArchive();
+  if(tab==="settings")setTimeout(updateBackupStats,50);
+}
+function renderAdmin(){renderBookingList();}
+
+// BOOKINGS
+var openB={},dtabs={};
+function isArchived(b){
+  if(!b.deadlineRaw)return false;
+  var today=new Date();today.setHours(0,0,0,0);
+  var dl=new Date(b.deadlineRaw+"T23:59:59");
+  return today>dl;
+}
+function renderBookingList(){
+  var list=document.getElementById("bookingList");
+  var q=(document.getElementById("demoBookingSearch")&&document.getElementById("demoBookingSearch").value||"").trim().toLowerCase();
+  var active=state.bookings.filter(function(b){
+    if(isArchived(b))return false;
+    if(!q)return true;
+    var hay=(b.name+" "+(b.contact||"")+" "+(b.email||"")).toLowerCase();
+    return hay.indexOf(q)!==-1;
+  });
+  if(!active.length){
+    list.innerHTML="<div class='empty-state'>Inga aktiva bokningar. Arkiverade bokningar hittas under fl\u00f6det Arkiv.</div>";
+    return;
+  }
+  list.innerHTML=active.map(renderBookingCard).join("");
+}
+function renderArchive(){
+  var list=document.getElementById("archiveList");
+  var archived=state.bookings.filter(isArchived);
+  if(!archived.length){
+    list.innerHTML="<div class='empty-state'>Inga arkiverade bokningar \u00e4nnu.</div>";
+    return;
+  }
+  list.innerHTML=archived.map(function(b){return renderBookingCard(b,true);}).join("");
+}
+function renderBookingCard(b,archived){
+  var dtab=dtabs[b.id]||"kitchen",isOpen=archived||!!openB[b.id],n=b.orders?b.orders.length:0;
+  var today=new Date();today.setHours(0,0,0,0);
+  var dl=b.deadlineRaw?new Date(b.deadlineRaw+"T23:59:59"):null;
+  var isClosed=dl&&today>dl;
+  var p=[];
+  p.push("<div class='booking-card"+(isOpen?" open":"")+"' id='bc_"+b.id+"'>");
+  p.push("<div class='booking-header'"+(archived?"":" onclick='toggleBooking(\""+b.id+"\")'")+">"); 
+  p.push("<div><div class='booking-name'>"+b.name+"</div><div class='booking-date'>"+b.date+(b.time?" kl "+b.time:"")+" &middot; "+n+(b.expected?" av "+b.expected:"")+" best\u00e4llda</div></div>");
+  p.push("<span class='status-pill'>"+(isClosed?"St\u00e4ngd":"\u00d6ppen")+"</span></div>");
+  if(isOpen){
+    p.push("<div class='booking-detail'>");
+    var link=window.location.href.split("?")[0]+"?bokning="+b.id;
+    p.push("<div style='font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase'>G\u00e4stl\u00e4nk</div>");
+    p.push("<div class='link-box'>"+link+"</div>");
+    // Reminder status logic
+    var allAnswered=b.expected&&b.orders.length>=b.expected;
+    var noReminder=!b.reminder||b.reminder===0;
+    var reminderHtml="";
+    if(b.reminderSent){
+      reminderHtml="<div style='font-size:11px;color:#6a5030;margin-bottom:.75rem'>&#9993; P\u00e5minnelse skickad: "+b.reminderSent+"</div>";
+    } else if(noReminder){
+      reminderHtml="<div style='font-size:11px;color:var(--muted);margin-bottom:.75rem'>&#8212; Ingen p\u00e5minnelse konfigurerad</div>";
+    } else if(allAnswered){
+      reminderHtml="<div style='font-size:11px;background:rgba(184,149,90,.08);border:1px solid rgba(184,149,90,.2);border-radius:6px;padding:5px 10px;margin-bottom:.75rem;color:#6a5030'>&#10003; Alla "+b.orders.length+" g\u00e4ster har svarat &#8211; ingen p\u00e5minnelse beh\u00f6vs</div>";
+    } else {
+      var missing=b.expected?(b.expected-b.orders.length)+" av "+b.expected+" har inte svarat":b.orders.length+" har svarat";
+      reminderHtml="<div style='display:flex;align-items:center;gap:8px;margin-bottom:.75rem'>"
+        +"<div style='font-size:11px;color:var(--muted)'>&#9993; P\u00e5minnelse g\u00e5r ut "+b.reminder+" dag(ar) f\u00f6re deadline &#183; "+missing+"</div>"
+        +"<button class='btn btn-ghost' style='font-size:11px;padding:4px 10px;border-radius:100px' data-bid='"+b.id+"' onclick='sendReminder(this.dataset.bid,event)'>Skicka nu</button>"
+        +"</div>";
+    }
+    p.push(reminderHtml);
+    p.push("<div style='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem'>");
+    [["tally","Sammanfattning"],["kitchen","K\u00f6kslista"],["guests","G\u00e4stlista"]].forEach(function(t){
+      p.push("<button class='detail-tab"+(dtab===t[0]?" active":"")+"' onclick='switchDtab(\""+b.id+"\",\""+t[0]+"\")'>"+t[1]+"</button>");
+    });
+    p.push("</div>");
+    p.push("<div id='det_"+b.id+"'>"+renderDetail(b,dtab)+"</div>");
+    p.push("<div style='display:flex;gap:6px;margin-top:1rem'>");
+    p.push("<button class='btn btn-ghost' style='font-size:11px;padding:5px 10px' data-bid='"+b.id+"' onclick='copyKL(this.dataset.bid)'>Kopiera k\u00f6kslista</button>");
+    p.push("<button class='btn btn-ghost' style='font-size:11px;padding:5px 10px' data-bid='"+b.id+"' onclick='printKL(this.dataset.bid)'>&#128424; Skriv ut</button>");
+    p.push("</div></div>");
+  }
+  p.push("<div style='display:flex;gap:6px;margin-top:1rem;flex-wrap:wrap'>");
+  p.push("<button class='btn btn-danger' style='font-size:11px;padding:5px 10px' data-bid='"+b.id+"' onclick='delBooking(this.dataset.bid,event)'>Ta bort bokning</button>");
+  p.push("</div></div>");
+  return p.join("");
+}
+function toggleBooking(bid){openB[bid]=!openB[bid];var b=state.bookings.find(function(x){return x.id===bid;});var el=document.getElementById("bc_"+bid);if(el&&b)el.outerHTML=renderBookingCard(b);}
+function switchDtab(bid,tab){dtabs[bid]=tab;var b=state.bookings.find(function(x){return x.id===bid;});var el=document.getElementById("bc_"+bid);if(el&&b)el.outerHTML=renderBookingCard(b);}
+function renderDetail(b,tab){
+  var orders=b.orders||[];
+  if(!orders.length)return "<div style='font-size:13px;color:var(--muted);padding:4px 0'>Inga best\u00e4llningar \u00e4nnu.</div>";
+  if(tab==="tally")return renderTally(b);
+  if(tab==="kitchen")return renderKitchen(b);
+  if(tab==="guests")return renderGuests(b);
+  return "";
+}
+function renderTally(b){
+  var orders=b.orders||[],counts={};
+  orders.forEach(function(o){state.categories.forEach(function(cat){if(o.choices[cat.key]!==undefined){var item=cat.items[o.choices[cat.key]];if(item)counts[item.name]=(counts[item.name]||0)+1;}});});
+  var max=Math.max.apply(null,Object.values(counts).concat([1]));
+  var html="";
+  state.categories.forEach(function(cat){
+    var ch="";cat.items.forEach(function(item){if(counts[item.name])ch+="<div class='tally-row'><span class='tally-name'>"+item.name+"</span><div class='tally-bar-wrap'><div class='tally-bar' style='width:"+Math.round(counts[item.name]/max*100)+"%'></div></div><span class='tally-n'>"+counts[item.name]+"</span></div>";});
+    if(ch)html+="<div class='kitchen-head'>"+cat.label+"</div>"+ch;
+  });
+  return html||"<div style='font-size:13px;color:var(--muted)'>Inga val \u00e4nnu.</div>";
+}
+function renderKitchen(b){
+  var orders=b.orders||[],html="";
+  state.categories.forEach(function(cat){
+    var lines="";
+    cat.items.forEach(function(item,i){
+      var gs=orders.filter(function(o){return o.choices[cat.key]===i;});
+      if(gs.length)lines+="<div style='font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)'><strong>"+item.name+"</strong> &times;"+gs.length+" <span style='color:var(--muted);font-size:11px'>"+gs.map(function(g){return g.name+(g.allergy?" ("+g.allergy+")":"");}).join(", ")+"</span></div>";
+    });
+    if(lines)html+="<div class='kitchen-head'>"+cat.label+"</div>"+lines;
+  });
+  var al=orders.filter(function(o){return o.allergy&&o.allergy.trim();});
+  if(al.length){html+="<div class='allergy-box'><div class='allergy-head'>&#9888; Allergier & specialkost</div>";al.forEach(function(o){html+="<div class='allergy-item'><span class='allergy-name'>"+o.name+"</span> \u2013 "+o.allergy+"</div>";});html+="</div>";}
+  return html;
+}
+function renderGuests(b){
+  var orders=b.orders||[];
+  if(!orders.length)return "<div style='font-size:13px;color:var(--muted)'>Inga best\u00e4llningar \u00e4nnu.</div>";
+  var html="<div style='font-size:12px;color:var(--muted);margin-bottom:.5rem'>"+orders.length+" av "+(b.expected||"?")+" g\u00e4ster har best\u00e4llt</div>";
+  orders.forEach(function(o){
+    var choices=[];state.categories.forEach(function(cat){if(o.choices[cat.key]!==undefined){var item=cat.items[o.choices[cat.key]];if(item)choices.push(item.name);}});
+    html+="<div style='padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:8px'>";
+    html+="<div><div style='font-size:13px'>"+o.name+"</div><div style='font-size:11px;color:var(--muted);margin-top:2px'>"+choices.join(" \u00b7 ")+"</div>";
+    if(o.allergy)html+="<div style='font-size:11px;color:var(--gold);margin-top:2px'>"+o.allergy+"</div>";
+    html+="</div><button class='btn btn-ghost' style='font-size:11px;padding:4px 9px;flex-shrink:0' data-bid='"+b.id+"' data-oid='"+o.id+"' onclick='openEditModal(this.dataset.bid,this.dataset.oid)'>Redigera</button></div>";
+  });
+  return html;
+}
+
+// CREATE BOOKING
+var nextBid=10;
+function createBooking(){
+  var name=document.getElementById("nb-name").value.trim();
+  var date=document.getElementById("nb-date").value;
+  if(!name||!date){alert("Namn och datum kr\u00e4vs.");return;}
+  var dObj=new Date(date+"T00:00:00");
+  var days=["s\u00f6ndag","m\u00e5ndag","tisdag","onsdag","torsdag","fredag","l\u00f6rdag"];
+  var months=["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+  var dateStr=days[dObj.getDay()]+" "+dObj.getDate()+" "+months[dObj.getMonth()]+" "+dObj.getFullYear();
+  var dl=document.getElementById("nb-deadline").value;var dlStr="";
+  if(dl){var dlObj=new Date(dl+"T00:00:00");dlStr=days[dlObj.getDay()]+" "+dlObj.getDate()+" "+months[dlObj.getMonth()]+" "+dlObj.getFullYear();}
+  var b={id:"b"+(++nextBid),name:name,date:dateStr,time:document.getElementById("nb-time").value,expected:parseInt(document.getElementById("nb-guests").value)||null,deadline:dlStr,deadlineRaw:dl,contact:document.getElementById("nb-contact").value.trim(),email:document.getElementById("nb-email").value.trim(),reminder:parseInt(document.getElementById("nb-reminder").value)||0,orders:[]};
+  state.bookings.unshift(b);saveState(state);
+  document.getElementById("newBookingForm").style.display="none";renderBookingList();
+}
+function toggleNewBooking(){var f=document.getElementById("newBookingForm");f.style.display=f.style.display==="none"?"block":"none";}
+function delBooking(bid,ev){ev.stopPropagation();if(!confirm("Ta bort bokning?"))return;state.bookings=state.bookings.filter(function(b){return b.id!==bid;});saveState(state);renderBookingList();}
+
+// EVENING
+// BACKUP
+function updateBackupStats(){
+  var el=document.getElementById("backup-stats");if(!el)return;
+  var totalOrders=state.bookings.reduce(function(s,b){return s+(b.orders?b.orders.length:0);},0);
+  var archived=state.bookings.filter(isArchived).length;
+  var items=state.categories.reduce(function(s,c){return s+(c.items?c.items.length:0);},0);
+  var sizeKb=(JSON.stringify(state).length/1024).toFixed(1);
+  el.innerHTML="<div style='display:grid;grid-template-columns:auto 1fr;gap:2px 16px'>"
+    +"<span style='color:var(--muted);font-size:12px'>Aktiva bokningar</span><strong>"+(state.bookings.length-archived)+"</strong>"
+    +"<span style='color:var(--muted);font-size:12px'>Arkiverade bokningar</span><strong>"+archived+"</strong>"
+    +"<span style='color:var(--muted);font-size:12px'>G\u00e4stbest\u00e4llningar totalt</span><strong>"+totalOrders+"</strong>"
+    +"<span style='color:var(--muted);font-size:12px'>Menyr\u00e4tter</span><strong>"+items+"</strong>"
+    +"<span style='color:var(--muted);font-size:12px'>Datastorlek</span><strong>"+sizeKb+" KB</strong>"
+    +"</div>";
+}
+function exportBackup(){
+  var d=new Date();
+  var ds=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  var backup={version:1,exported:d.toISOString(),state:state};
+  var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");
+  a.href=url;a.download="premeny-backup-"+ds+".json";a.click();URL.revokeObjectURL(url);
+  showBackupMsg("ok","\u2713 Exporterad: premeny-backup-"+ds+".json");
+}
+function importBackup(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var backup=JSON.parse(e.target.result);
+      if(!backup.state||!Array.isArray(backup.state.bookings)||!Array.isArray(backup.state.categories))
+        {showBackupMsg("err","Ogiltig fil \u2013 inte en PreMeny-export.");return;}
+      var bCount=backup.state.bookings.length;
+      var oCount=backup.state.bookings.reduce(function(s,b){return s+(b.orders?b.orders.length:0);},0);
+      var exported=backup.exported?new Date(backup.exported).toLocaleString("sv-SE"):"ok\u00e4nt datum";
+      if(!confirm("Importera backup fr\u00e5n "+exported+"?\n\n"+bCount+" bokningar, "+oCount+" best\u00e4llningar.\n\nDetta ers\u00e4tter all nuvarande data!"))return;
+      state=backup.state;saveState(state);
+      updateBackupStats();renderBookingList();
+      showBackupMsg("ok","\u2713 "+bCount+" bokningar och "+oCount+" best\u00e4llningar \u00e5terst\u00e4llda.");
+    }catch(err){showBackupMsg("err","Kunde inte l\u00e4sa filen: "+err.message);}
+    input.value="";
+  };
+  reader.readAsText(file);
+}
+function showBackupMsg(type,text){
+  var el=document.getElementById("backup-msg");if(!el)return;
+  el.style.display="block";el.className="msg "+(type==="ok"?"ok":"err");el.textContent=text;
+  setTimeout(function(){el.style.display="none";},5000);
+}
+
+function sendReminder(bid,ev){
+  ev.stopPropagation();
+  var b=state.bookings.find(function(x){return x.id===bid;});
+  if(!b)return;
+  // Check again: don't send if all answered
+  if(b.expected&&b.orders.length>=b.expected){
+    alert("Alla g\u00e4ster har redan svarat \u2013 ingen p\u00e5minnelse beh\u00f6vs!");
+    return;
+  }
+  var missing=b.expected?b.expected-b.orders.length:null;
+  var msg=missing?"P\u00e5minnelse skickas till "+b.contact+(b.email?" ("+b.email+")":" ")+"\n\n"+missing+" av "+b.expected+" g\u00e4ster har inte svarat \u00e4nnu.":"P\u00e5minnelse skickas till "+b.contact+".";
+  if(!confirm(msg+"\n\nBekr\u00e4fta f\u00f6r att markera som skickad (i demo skickas inget riktigt mejl)."))return;
+  var now=new Date();
+  var days=["s\u00f6n","m\u00e5n","tis","ons","tor","fre","l\u00f6r"];
+  var months=["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"];
+  b.reminderSent=days[now.getDay()]+" "+now.getDate()+" "+months[now.getMonth()]+" "+now.getFullYear()+" "+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  saveState(state);
+  renderBookingList();
+}
+function renderEvening(){
+  var el=document.getElementById("eveningList"),byDate={};
+  state.bookings.forEach(function(b){
+    var d=b.date||"Ok\u00e4nt datum";
+    if(!byDate[d])byDate[d]={bookings:[],counts:{}};
+    byDate[d].bookings.push(b.name);
+    (b.orders||[]).forEach(function(o){state.categories.forEach(function(cat){if(o.choices[cat.key]!==undefined){var item=cat.items[o.choices[cat.key]];if(item)byDate[d].counts[item.name]=(byDate[d].counts[item.name]||0)+1;}});});
+  });
+  var dates=Object.keys(byDate);
+  if(!dates.length){el.innerHTML="<div class='empty-state'>Inga bokningar.</div>";return;}
+  var html="";
+  // Date checkbox selector
+  html+="<div style='margin-bottom:12px'><div style='font-size:13px;color:var(--muted);margin-bottom:6px'>V\u00e4lj datum f\u00f6r summering:</div>";
+  dates.forEach(function(date){
+    var id="ev_"+encodeURIComponent(date);
+    var checked=selectedEveningDates[date]?"checked":"";
+    html+="<label style='display:inline-flex;align-items:center;gap:8px;margin-right:10px;margin-bottom:6px;font-size:13px'><input type='checkbox' data-date='"+encodeURIComponent(date)+"' onchange='toggleEveningDate(this.dataset.date)' "+checked+"> <span style='color:var(--text)'>"+date+"</span></label>";
+  });
+  html+="</div>";
+
+  // Aggregated summary for selected dates
+  var selDates=dates.filter(function(d){return selectedEveningDates[d];});
+  if(selDates.length){
+    var combined={};
+    selDates.forEach(function(d){Object.keys(byDate[d].counts).forEach(function(name){combined[name]=(combined[name]||0)+byDate[d].counts[name];});});
+    var max=Math.max.apply(null,Object.values(combined).concat([1]));
+    html+="<div class='card'><div class='card-label'>Summering</div>";
+    state.categories.forEach(function(cat){var ch="";cat.items.forEach(function(item){var cnt=combined[item.name]||0;if(cnt)ch+="<div class='tally-row'><span class='tally-name'>"+item.name+"</span><div class='tally-bar-wrap'><div class='tally-bar' style='width:"+Math.round(cnt/max*100)+"%'></div></div><span class='tally-n'>"+cnt+"</span></div>";});if(ch)html+="<div class='kitchen-head'>"+cat.label+"</div>"+ch;});
+    html+="</div>";
+  }
+
+  // Per-date cards with bars
+  dates.forEach(function(date){
+    var d=byDate[date];
+    var max=Math.max.apply(null,Object.values(d.counts).concat([1]));
+    html+="<div class='card'><div class='card-label'>"+date+"</div><div style='font-size:11px;color:var(--muted);margin-bottom:.75rem'>"+d.bookings.join(", ")+"</div>";
+    Object.keys(d.counts).forEach(function(name){var cnt=d.counts[name];html+="<div class='tally-row'><span class='tally-name'>"+name+"</span><div class='tally-bar-wrap'><div class='tally-bar' style='width:"+Math.round(cnt/max*100)+"%'></div></div><span class='tally-n'>"+cnt+"</span></div>";});
+    html+="</div>";
+  });
+  el.innerHTML=html;
+}
+
+function toggleEveningDate(encoded){
+  try{var date=decodeURIComponent(encoded);}catch(e){var date=encoded;}
+  selectedEveningDates[date]=!selectedEveningDates[date];renderEvening();
+}
+
+// KITCHEN PRINT/COPY
+function copyKL(bid){
+  var b=state.bookings.find(function(x){return x.id===bid;});if(!b)return;
+  var text=b.name+" \u2013 K\u00f6kslista\n"+b.date+(b.time?" kl "+b.time:"")+"\n\n";
+  state.categories.forEach(function(cat){
+    var lines="";cat.items.forEach(function(item,i){var gs=(b.orders||[]).filter(function(o){return o.choices[cat.key]===i;});if(gs.length)lines+="  "+item.name+" x"+gs.length+": "+gs.map(function(g){return g.name;}).join(", ")+"\n";});
+    if(lines)text+=cat.label+":\n"+lines+"\n";
+  });
+  var al=(b.orders||[]).filter(function(o){return o.allergy&&o.allergy.trim();});
+  if(al.length){text+="ALLERGIER:\n";al.forEach(function(o){text+="  "+o.name+": "+o.allergy+"\n";});}
+  navigator.clipboard.writeText(text).then(function(){alert("K\u00f6kslistan kopierad!");}).catch(function(){alert("Kunde inte kopiera.");});
+}
+function printKL(bid){
+  var b=state.bookings.find(function(x){return x.id===bid;});if(!b)return;
+  var w=window.open("","_blank");
+  var html="<html><head><title>K\u00f6kslista \u2013 "+b.name+"</title><style>body{font-family:sans-serif;padding:2rem}h1{font-size:1.4rem}h2{font-size:1rem;border-bottom:1px solid #ccc;padding-bottom:4px;margin:1.5rem 0 .5rem}p{font-size:.9rem;color:#555}.item{padding:4px 0;border-bottom:1px solid #eee;font-size:.9rem}.allergy{background:#fff3cd;border:1px solid #f5a623;padding:.5rem;margin-top:1rem;border-radius:4px}@media print{body{padding:.5rem}}</style></head><body>";
+  html+="<h1>"+b.name+"</h1><p>"+b.date+(b.time?" kl "+b.time:"")+"</p>";
+  state.categories.forEach(function(cat){var items="";cat.items.forEach(function(item,i){var gs=(b.orders||[]).filter(function(o){return o.choices[cat.key]===i;});if(gs.length)items+="<div class='item'><strong>"+item.name+" &times;"+gs.length+"</strong> \u2013 "+gs.map(function(g){return g.name+(g.allergy?" ("+g.allergy+")":"");}).join(", ")+"</div>";});if(items)html+="<h2>"+cat.label+"</h2>"+items;});
+  var al=(b.orders||[]).filter(function(o){return o.allergy&&o.allergy.trim();});
+  if(al.length)html+="<div class='allergy'><strong>&#9888; Allergier:</strong><br>"+al.map(function(o){return o.name+": "+o.allergy;}).join("<br>")+"</div>";
+  html+="</body></html>";w.document.write(html);w.document.close();w.print();
+}
+
+// EDIT ORDER MODAL
+var emBid=null,emOid=null;
+function openEditModal(bid,oid){
+  emBid=bid;emOid=oid;
+  var b=state.bookings.find(function(x){return x.id===bid;});
+  var o=b&&b.orders.find(function(x){return x.id===oid;});if(!o)return;
+  var html="<div class='form-field' style='margin-top:.5rem'><label>Namn</label><input type='text' id='em-name' value='"+o.name+"'></div>";
+  state.categories.forEach(function(cat){
+    html+="<div style='margin-bottom:.75rem'><label>"+cat.label+"</label><select id='em-sel-"+cat.key+"'><option value=''>\u2013 Inget val \u2013</option>";
+    cat.items.forEach(function(item,i){html+="<option value='"+i+"'"+(o.choices[cat.key]===i?" selected":"")+">"+item.name+"</option>";});
+    html+="</select></div>";
+  });
+  html+="<div class='form-field'><label>Allergier</label><textarea id='em-allergy'>"+o.allergy+"</textarea></div>";
+  html+="<div class='flex-gap'><button class='btn btn-gold' onclick='saveEditModal()'>Spara</button><button class='btn btn-danger' onclick='deleteOrder()'>Ta bort</button></div>";
+  document.getElementById("editModalContent").innerHTML=html;
+  document.getElementById("editModal").style.display="flex";
+}
+function saveEditModal(){
+  var b=state.bookings.find(function(x){return x.id===emBid;});var o=b&&b.orders.find(function(x){return x.id===emOid;});if(!o)return;
+  o.name=document.getElementById("em-name").value.trim();o.allergy=document.getElementById("em-allergy").value.trim();o.choices={};
+  state.categories.forEach(function(cat){var v=document.getElementById("em-sel-"+cat.key).value;if(v!=="")o.choices[cat.key]=parseInt(v);});
+  saveState(state);closeModalDirect();renderBookingList();
+}
+function deleteOrder(){if(!confirm("Ta bort best\u00e4llning?"))return;var b=state.bookings.find(function(x){return x.id===emBid;});if(b)b.orders=b.orders.filter(function(o){return o.id!==emOid;});saveState(state);closeModalDirect();renderBookingList();}
+function closeModal(ev){if(ev.target===document.getElementById("editModal"))closeModalDirect();}
+function closeModalDirect(){document.getElementById("editModal").style.display="none";}
+
+// MENU EDITOR
+var editCat=null;
+function renderMenuEditor(){
+  var ed=document.getElementById("menuEditor");
+  if(!state.categories.length){ed.innerHTML="<div class='empty-state'>Inga menyrubriker. Klicka '+ Ny rubrik' ovan.</div>";return;}
+  ed.innerHTML=state.categories.map(function(cat){
+    var rows=cat.items.map(function(item){
+      return "<div class='menu-item-row'><div class='menu-item-info'><div class='menu-item-name-sm'>"+item.name+"</div><div class='menu-item-desc-sm'>"+item.desc+"</div></div>"
+        +"<div style='display:flex;align-items:center;gap:6px;flex-shrink:0'><div class='menu-item-price-sm'>"+item.price+" kr</div>"
+        +"<button class='btn btn-ghost' style='font-size:10px;padding:3px 8px' data-cat='"+cat.key+"' data-id='"+item.id+"' onclick='openEditMenuModal(this.dataset.cat,this.dataset.id)'>Redigera</button>"
+        +"<button class='btn btn-danger' style='font-size:10px;padding:3px 8px' data-cat='"+cat.key+"' data-id='"+item.id+"' onclick='delMenuItem(this.dataset.cat,this.dataset.id)'>Ta bort</button>"
+        +"</div></div>";
+    }).join("");
+    return "<div class='card'><div class='flex-between' style='margin-bottom:.5rem'><div class='card-label'>"+cat.label+"</div>"
+      +"<div style='display:flex;gap:6px'><button class='btn btn-ghost' style='font-size:11px;padding:5px 10px' data-k='"+cat.key+"' onclick='showAddItem(this.dataset.k)'>+ L\u00e4gg till r\u00e4tt</button>"
+      +"<button class='btn btn-danger' style='font-size:10px;padding:4px 8px' data-k='"+cat.key+"' onclick='delCategory(this.dataset.k)'>Ta bort rubrik</button></div></div>"
+      +(rows||"<div style='font-size:12px;color:var(--muted);padding:4px 0'>Inga r\u00e4tter \u00e4nnu.</div>")+"</div>";
+  }).join("");
+}
+function showAddItem(k){editCat=k;var cat=getCat(k);document.getElementById("ai-cat-label").textContent="L\u00e4gg till r\u00e4tt i: "+cat.label;["ai-name","ai-desc","ai-price"].forEach(function(id){document.getElementById(id).value="";});document.getElementById("addItemForm").style.display="block";document.getElementById("ai-name").focus();}
+function addMenuItem(){var name=document.getElementById("ai-name").value.trim();if(!name||!editCat)return;var cat=getCat(editCat);if(!cat)return;cat.items.push({id:"i"+Date.now(),name:name,desc:document.getElementById("ai-desc").value.trim(),price:parseInt(document.getElementById("ai-price").value)||0});saveState(state);document.getElementById("addItemForm").style.display="none";renderMenuEditor();}
+function openEditMenuModal(catKey,itemId){
+  var cat=getCat(catKey);var item=cat&&cat.items.find(function(x){return x.id===itemId;});if(!item)return;
+  var html="<div class='form-field'><label>Namn</label><input type='text' id='mm-name' value='"+item.name.replace(/'/g,"&#39;")+"'></div>"
+    +"<div class='form-field'><label>Beskrivning</label><textarea id='mm-desc'>"+item.desc+"</textarea></div>"
+    +"<div class='form-field'><label>Pris (kr)</label><input type='text' id='mm-price' value='"+item.price+"'></div>"
+    +"<div class='flex-gap'><button class='btn btn-gold' data-cat='"+catKey+"' data-id='"+itemId+"' onclick='saveMenuEdit(this.dataset.cat,this.dataset.id)'>Spara</button></div>";
+  document.getElementById("editMenuContent").innerHTML=html;document.getElementById("editMenuModal").style.display="flex";
+}
+function saveMenuEdit(catKey,itemId){var cat=getCat(catKey);var item=cat&&cat.items.find(function(x){return x.id===itemId;});if(!item)return;item.name=document.getElementById("mm-name").value.trim();item.desc=document.getElementById("mm-desc").value.trim();item.price=parseInt(document.getElementById("mm-price").value)||0;saveState(state);closeMenuModalDirect();renderMenuEditor();}
+function closeMenuModal(ev){if(ev.target===document.getElementById("editMenuModal"))closeMenuModalDirect();}
+function closeMenuModalDirect(){document.getElementById("editMenuModal").style.display="none";}
+function delMenuItem(catKey,itemId){if(!confirm("Ta bort r\u00e4tt?"))return;var cat=getCat(catKey);if(cat)cat.items=cat.items.filter(function(x){return x.id!==itemId;});saveState(state);renderMenuEditor();}
+function addCategory(){var name=document.getElementById("new-cat-name").value.trim();if(!name)return;state.categories.push({key:"cat_"+Date.now(),label:name,items:[]});saveState(state);document.getElementById("new-cat-name").value="";document.getElementById("newCatForm").style.display="none";renderMenuEditor();}
+function delCategory(key){var cat=getCat(key);if(!cat)return;if(cat.items.length>0){alert("Ta bort alla r\u00e4tter i rubriken f\u00f6rst.");return;}if(!confirm("Ta bort rubriken?"))return;state.categories=state.categories.filter(function(c){return c.key!==key;});saveState(state);renderMenuEditor();}
+function toggleNewCat(){var f=document.getElementById("newCatForm");f.style.display=f.style.display==="none"?"block":"none";}
+
+// SETTINGS
+function loadSettings(){try{return JSON.parse(localStorage.getItem("premeny_settings")||"null");}catch(e){return null;}}
+function saveSettings(){
+  var s={name:document.getElementById("set-name").value.trim(),color:document.getElementById("set-color").value,logo:localStorage.getItem("premeny_logo")||""};
+  localStorage.setItem("premeny_settings",JSON.stringify(s));applySettings(s);
+  document.getElementById("settings-saved").style.display="block";setTimeout(function(){document.getElementById("settings-saved").style.display="none";},2000);
+}
+function applySettings(s){
+  if(!s)return;
+  if(s.name){document.getElementById("navRestName").textContent=s.name;var c=s.name[0]||"R";document.getElementById("navLogoIcon").textContent=c;document.getElementById("loginLogoIcon").textContent=c;}
+  if(s.logo){var ic=document.getElementById("navLogoIcon");if(ic){ic.innerHTML="<img src='"+s.logo+"' style='width:28px;height:28px;border-radius:50%;object-fit:contain'>";}}
+  if(s.color){document.documentElement.style.setProperty("--gold",s.color);document.documentElement.style.setProperty("--gold-light",s.color);}
+}
+function handleLogoUpload(input){var file=input.files[0];if(!file)return;var r=new FileReader();r.onload=function(e){var b64=e.target.result;localStorage.setItem("premeny_logo",b64);document.getElementById("logo-preview-img").src=b64;document.getElementById("logo-preview").style.display="flex";};r.readAsDataURL(file);}
+function removeLogo(){localStorage.removeItem("premeny_logo");document.getElementById("logo-preview").style.display="none";}
+function initSettings(){
+  var s=loadSettings();
+  if(s){
+    if(s.name&&document.getElementById("set-name"))document.getElementById("set-name").value=s.name;
+    if(s.color&&document.getElementById("set-color"))document.getElementById("set-color").value=s.color;
+    var logo=localStorage.getItem("premeny_logo");
+    if(logo&&document.getElementById("logo-preview")){document.getElementById("logo-preview-img").src=logo;document.getElementById("logo-preview").style.display="flex";}
+    applySettings(s);
+  }
+}
+
+// MENU IMPORT
+function switchImportTab(tab){
+  document.getElementById("import-text-wrap").style.display=tab==="text"?"block":"none";
+  document.getElementById("import-image-wrap").style.display=tab==="image"?"block":"none";
+  document.getElementById("import-tab-text").className="detail-tab"+(tab==="text"?" active":"");
+  document.getElementById("import-tab-image").className="detail-tab"+(tab==="image"?" active":"");
+}
+document.addEventListener("change",function(e){
+  if(e.target.id==="menu-import-image"){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(ev){document.getElementById("menu-img-preview-img").src=ev.target.result;document.getElementById("menu-img-preview").style.display="block";};r.readAsDataURL(file);}
+});
+var importedCategories=null;
+async function importMenu(){
+  var activeTab=document.getElementById("import-tab-text").classList.contains("active")?"text":"image";
+  var warn=document.getElementById("import-warning");warn.style.display="none";
+  var messages=[];
+  if(activeTab==="text"){
+    var text=document.getElementById("menu-import-text").value.trim();
+    if(!text){warn.textContent="Klistra in menytext f\u00f6rst.";warn.style.display="block";return;}
+    messages=[{role:"user",content:"H\u00e4r \u00e4r restaurangens meny:\n\n"+text+"\n\nTolka menyn och returnera ENDAST ett JSON-objekt (inga backticks) med:\n{categories:[{key:unik_nyckel,label:Rubriken,items:[{id:x1,name:Namn,desc:Beskrivning,price:0}]}]}"}];
+  }else{
+    var fileInput=document.getElementById("menu-import-image");
+    if(!fileInput.files[0]){warn.textContent="V\u00e4lj en bild f\u00f6rst.";warn.style.display="block";return;}
+    var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(e){res(e.target.result.split(",")[1]);};r.onerror=rej;r.readAsDataURL(fileInput.files[0]);});
+    messages=[{role:"user",content:[{type:"image",source:{type:"base64",media_type:fileInput.files[0].type,data:b64}},{type:"text",text:"Tolka menyn i bilden och returnera ENDAST ett JSON-objekt utan backticks. Struktur: categories med key label och items(id,name,desc,price)."}]}];
+  }
+  document.getElementById("import-btn").disabled=true;
+  document.getElementById("import-loading").style.display="block";
+  document.getElementById("import-result").style.display="none";
+  try{
+    var resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:messages})});
+    var data=await resp.json();
+    var txt=data.content.filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
+    var clean=txt.replace(/```json|```/g,"").trim();
+    var parsed=JSON.parse(clean);
+    if(!parsed.categories||!Array.isArray(parsed.categories))throw new Error("Fel format");
+    importedCategories=parsed.categories;
+    var ph="";
+    parsed.categories.forEach(function(cat){
+      ph+="<div style='margin-bottom:1rem'><div class='card-label'>"+cat.label+"</div><div class='card' style='padding:.75rem 1rem'>";
+      cat.items.forEach(function(item){ph+="<div class='menu-item-row'><div class='menu-item-info'><div class='menu-item-name-sm'>"+item.name+"</div>"+(item.desc?"<div class='menu-item-desc-sm'>"+item.desc+"</div>":"")+"</div>"+(item.price?"<div class='menu-item-price-sm'>"+item.price+" kr</div>":"")+"</div>";});
+      ph+="</div></div>";
+    });
+    document.getElementById("import-preview-content").innerHTML=ph;
+    document.getElementById("import-result").style.display="block";
+  }catch(e){warn.textContent="Kunde inte tolka menyn. F\u00f6rs\u00f6k igen eller klistra in som text.";warn.style.display="block";}
+  finally{document.getElementById("import-btn").disabled=false;document.getElementById("import-loading").style.display="none";}
+}
+function confirmImport(){if(!importedCategories)return;state.categories=importedCategories;saveState(state);importedCategories=null;document.getElementById("import-result").style.display="none";document.getElementById("menu-import-text").value="";alert("\u2713 Menyn \u00e4r importerad!");renderMenuEditor();}
+function cancelImport(){importedCategories=null;document.getElementById("import-result").style.display="none";}
+
+function resetDemo(){
+  localStorage.removeItem("premeny_demo_v3");
+  localStorage.removeItem("premeny_settings");
+  localStorage.removeItem("premeny_logo");
+  state=defaultState();
+  renderGuestForm();
+  initSettings();
+  if(document.getElementById("page-admin").classList.contains("active")){
+    showAdminTab("bookings");
+  }
+}
+renderGuestForm();
+initSettings();
+
+function cancelImport(){importedCategories=null;document.getElementById("import-result").style.display="none";}
+
+function resetDemo(){
+  localStorage.removeItem("premeny_demo_v3");
+  localStorage.removeItem("premeny_settings");
+  localStorage.removeItem("premeny_logo");
+  state=defaultState();
+  renderGuestForm();
+  initSettings();
+  if(document.getElementById("page-admin").classList.contains("active")){
+    showAdminTab("bookings");
+  }
+}
+renderGuestForm();
+initSettings();
+enderGuestForm();
+initSettings();
+</script>
+</body>
+</html>
