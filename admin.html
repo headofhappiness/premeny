@@ -1158,12 +1158,7 @@ async function importMenu(){
   if(isText){
     var text=document.getElementById('menu-import-text').value.trim();
     if(!text){warn.textContent='Klistra in menytext först.';warn.style.display='block';return;}
-    messages=[{role:'user',content:'Här är restaurangens meny:
-
-'+text+'
-
-Tolka menyn och returnera ENDAST ett JSON-objekt (inga backticks, ingen annan text) med strukturen:
-{"categories":[{"key":"unik_nyckel","label":"Rubriken","items":[{"id":"x1","name":"Namn","description":"Beskrivning","price":0}]}]}'}];
+    messages=[{role:'user',content:'Här är restaurangens meny:\n\n'+text+'\n\nTolka menyn och returnera ENDAST ett JSON-objekt (inga backticks, ingen annan text) med strukturen:\n{"categories":[{"key":"unik_nyckel","label":"Rubriken","items":[{"id":"x1","name":"Namn","description":"Beskrivning","price":0}]}]}'}];
   } else {
     var fileInput=document.getElementById('menu-import-image');
     if(!fileInput.files[0]){warn.textContent='Välj en bild först.';warn.style.display='block';return;}
