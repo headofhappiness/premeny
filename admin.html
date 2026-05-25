@@ -1036,19 +1036,21 @@ function buildKitchenHtml(orders){
   ).join('');
 }
 
-function copyCalKitchen(dateStr){
-  const el=document.getElementById('cal_kitchen_'+dateStr);
+function copyCalKitchen(){
+  const el=document.getElementById('cal_kitchen_all');
   if(!el)return;
   navigator.clipboard.writeText(el.innerText).then(()=>alert('Kökslista kopierad!'));
 }
 
-function printCalKitchen(dateStr){
-  const el=document.getElementById('cal_kitchen_'+dateStr);
+function printCalKitchen(){
+  const el=document.getElementById('cal_kitchen_all');
   if(!el)return;
-  const header=document.getElementById('cal_header_'+dateStr)?.innerText||dateStr;
+  const dates=[...calSel].sort();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
+  const title=dates.length===1?dateLabels:dates.length+' datum: '+dateLabels;
   const w=window.open('','_blank');
-  const allDates=[...calSel].sort().join(', ');
-  w.document.write('<html><head><title>Kökslista '+dateStr+'</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin-bottom:1.5rem}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#b8955a}.alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#7a5c00}hr{border:none;border-top:1px solid #eee;margin:1rem 0}</style></head><body><h2>Kökslista – '+header+'</h2><p>Valda datum: '+allDates+'</p><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr>'+el.innerHTML+'</body></html>');
+  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #e8d49a;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#b8955a}.alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#7a5c00}</style></head><body><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</body></html>');
   w.document.close();w.print();
 }
 
@@ -1060,36 +1062,40 @@ async function renderCalResults(){
   const {data:bs}=await db.from('bookings').select('*, orders(*, order_items(*, menu_items(name, menu_categories(label))))').eq('restaurant_id',rest.id).in('event_date',dates);
   if(!bs?.length){el.innerHTML='<div class="empty">Inga bokningar dessa datum.</div>';return;}
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-  let html='';
 
-  // Group by date
+  // All orders across all selected dates
+  const allOrders=bs.flatMap(b=>b.orders||[]);
+  const totalBookings=bs.length;
+
+  // Date labels
+  const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
+
+  // Sallskap info per date
   const byDate={};
   dates.forEach(d=>{byDate[d]=bs.filter(b=>b.event_date===d);});
+  const sallskapInfo=dates.map(d=>{
+    const dbs=byDate[d]||[];
+    if(!dbs.length)return'';
+    const dt=new Date(d+'T12:00:00');
+    const ds=dt.getDate()+' '+months[dt.getMonth()];
+    return ds+': '+dbs.map(b=>b.name+(b.event_time?' kl '+b.event_time.slice(0,5):'')).join(', ');
+  }).filter(Boolean).join(' · ');
 
-  dates.forEach(dateStr=>{
-    const dayBs=byDate[dateStr]||[];
-    if(!dayBs.length)return;
-    const d=new Date(dateStr+'T12:00:00');
-    const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-    const allOrders=dayBs.flatMap(b=>b.orders||[]);
-    const totalOrders=allOrders.length;
-    const sallskap=dayBs.map(b=>b.name+(b.event_time?' kl '+b.event_time.slice(0,5):'')).join(' · ');
-
-    html+=`<div class="card" style="margin-bottom:1rem">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
-        <div>
-          <div id="cal_header_${dateStr}" style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${ds}</div>
-          <div style="font-size:1.1rem;font-family:'Playfair Display',serif;color:var(--dark)">${totalOrders} beställningar</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">${sallskap}</div>
-        </div>
-        <div style="display:flex;gap:6px;flex-shrink:0">
-          <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyCalKitchen('${dateStr}')">📋 Kopiera</button>
-          <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="printCalKitchen('${dateStr}')">🖨 Skriv ut</button>
-        </div>
+  let html=`<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
+      <div>
+        <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${dateLabels}</div>
+        <div style="font-size:1.1rem;font-family:'Playfair Display',serif;color:var(--dark)">${allOrders.length} beställningar · ${totalBookings} sällskap</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${sallskapInfo}</div>
       </div>
-      <div id="cal_kitchen_${dateStr}">${buildKitchenHtml(allOrders)}</div>
-    </div>`;
-  });
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyCalKitchen()">📋 Kopiera</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="printCalKitchen()">🖨 Skriv ut</button>
+      </div>
+    </div>
+    <div id="cal_kitchen_all">${buildKitchenHtml(allOrders)}</div>
+  </div>`;
+
   el.innerHTML=html;
 }
 
