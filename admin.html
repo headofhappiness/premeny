@@ -1186,7 +1186,7 @@ async function importMenu(){
     });
     document.getElementById('import-preview-content').innerHTML=html;
     document.getElementById('import-result').style.display='block';
-  }catch(e){warn.textContent='Kunde inte tolka menyn. Försök igen eller justera texten/bilden.';warn.style.display='block';}
+  }catch(e){warn.textContent='Fel: '+e.message+' | Resp: '+(typeof data!=='undefined'?JSON.stringify(data).slice(0,200):'ingen respons');warn.style.display='block';}
   finally{document.getElementById('import-btn').disabled=false;document.getElementById('import-loading').style.display='none';}
 }
 async function confirmImport(){
