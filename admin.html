@@ -82,11 +82,11 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
 /* CALENDAR */
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.cal-m{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark)}
+.cal-m{font-family:"Playfair Display",serif;font-size:1rem;color:var(--dark)}
 .cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
-.cal-dn{text-align:center;font-size:11px;color:var(--muted);font-weight:500;padding:4px 0}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid transparent;transition:all .15s;position:relative;flex-direction:column;gap:2px}
+.cal-dn{text-align:center;font-size:10px;color:var(--muted);font-weight:500;padding:2px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid transparent;transition:all .15s;position:relative;flex-direction:column;gap:1px}
 .cal-day:hover{background:var(--surface2);border-color:var(--border)}
 .cal-day.has{background:rgba(184,149,90,.12);border-color:rgba(184,149,90,.3);color:var(--dark);font-weight:500}
 .cal-day.sel{background:var(--gold);color:#fff;border-color:var(--gold)}
@@ -235,9 +235,9 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
     <!-- KALENDER -->
     <div id="pane-calendar" style="display:none">
-      <h3 style="margin-bottom:.5rem">Kalender</h3>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:1.25rem">Klicka på ett eller flera datum för att se bokningar och sammanställning.</p>
-      <div class="card">
+      <h3 style="margin-bottom:.25rem">Per dag – alla sällskap</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Välj ett eller flera datum för att se beställningar och sammanställning.</p>
+      <div class="card" style="max-width:420px">
         <div class="cal-nav">
           <button class="btn bg" style="padding:6px 12px" onclick="calPrev()">←</button>
           <div class="cal-m" id="calMonth"></div>
@@ -684,17 +684,24 @@ async function saveBulk(bid){
 // TALLY / KITCHEN / GUESTS
 function renderTally(orders){
   const counts={};
+  const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
     const n=oi.menu_items?.name||'?',c=oi.menu_items?.menu_categories?.label||'?';
-    counts[c+'||'+n]=(counts[c+'||'+n]||0)+1;
+    const k=c+'||'+n;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){
+      if(!allergies[k])allergies[k]=[];
+      allergies[k].push(o.guest_name+': '+oi.comment.trim());
+    }
   }));
   if(!Object.keys(counts).length)return'<div style="font-size:13px;color:var(--muted)">Inga val ännu.</div>';
   const max=Math.max(...Object.values(counts));
   const byCat={};
-  Object.entries(counts).forEach(([k,n])=>{const[c,name]=k.split('||');if(!byCat[c])byCat[c]=[];byCat[c].push({name,n});});
+  Object.entries(counts).forEach(([k,n])=>{const[c,name]=k.split('||');if(!byCat[c])byCat[c]=[];byCat[c].push({name,n,k});});
   return Object.entries(byCat).map(([c,items])=>
-    `<div class="chead">${c}</div>`+items.map(({name,n})=>
-      `<div class="trow"><span class="tn">${name}</span><div class="tbw"><div class="tb" style="width:${Math.round(n/max*100)}%"></div></div><span class="tnr">${n}</span></div>`
+    `<div class="chead">${c}</div>`+items.map(({name,n,k})=>
+      `<div class="trow"><span class="tn">${name}</span><div class="tbw"><div class="tb" style="width:${Math.round(n/max*100)}%"></div></div><span class="tnr">${n}</span></div>`+
+      (allergies[k]?`<div style="margin:-2px 0 6px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:'')
     ).join('')
   ).join('');
 }
@@ -977,6 +984,14 @@ function renderCal(){
 
 function toggleCalDay(ds){calSel.has(ds)?calSel.delete(ds):calSel.add(ds);renderCal();}
 function calClear(){calSel.clear();renderCal();}
+async function delBookingFromCal(id){
+  if(!confirm('Ta bort bokningen?'))return;
+  await db.from('order_items').delete().in('order_id',(await db.from('orders').select('id').eq('booking_id',id)).data?.map(o=>o.id)||[]);
+  await db.from('orders').delete().eq('booking_id',id);
+  await db.from('bookings').delete().eq('id',id);
+  await initCalendar();
+  await renderBookings();
+}
 function calPrev(){calM--;if(calM<0){calM=11;calY--;}renderCal();}
 function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCal();}
 
@@ -990,17 +1005,26 @@ async function renderCalResults(){
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   let html='';
   if(calSel.size>1){
-    const total={};
+    const total={};const tallyAllergies={};
     bs.forEach(b=>(b.orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
       const k=(oi.menu_items?.menu_categories?.label||'?')+'||'+(oi.menu_items?.name||'?');
       total[k]=(total[k]||0)+1;
+      if(oi.comment?.trim()){if(!tallyAllergies[k])tallyAllergies[k]=[];tallyAllergies[k].push(o.guest_name+': '+oi.comment.trim());}
     })));
-    html+=`<div class="card"><div class="card-label">Sammanlagt – ${dates.length} datum (${bs.length} bokningar)</div>`;
-    const byCat={};Object.entries(total).forEach(([k,n])=>{const[c,name]=k.split('||');if(!byCat[c])byCat[c]=[];byCat[c].push({name,n});});
+    html+=`<div class="card" style="margin-bottom:1rem"><div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">Sammanlagt – ${dates.length} datum · ${bs.length} sällskap</div>`;
+    const byCat={};Object.entries(total).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
     const max=Math.max(...Object.values(total));
-    html+=Object.entries(byCat).map(([c,items])=>
-      `<div class="chead">${c}</div>`+items.map(({name,n})=>
-        `<div class="trow"><span class="tn">${name}</span><div class="tbw"><div class="tb" style="width:${Math.round(n/max*100)}%"></div></div><span class="tnr">${n}</span></div>`
+    html+=Object.entries(byCat).map(([cat,items])=>
+      `<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem">${cat}</div>`+
+      items.map(({name,n,k})=>
+        `<div style="margin-bottom:${tallyAllergies[k]?'.6rem':'.3rem'}">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
+            <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
+            <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
+          </div>
+          ${tallyAllergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${tallyAllergies[k].join('<br>')}</div>`:''}
+        </div>`
       ).join('')
     ).join('');
     html+='</div>';
@@ -1011,8 +1035,13 @@ async function renderCalResults(){
     const n=(b.orders||[]).length;
     const time=b.event_time?' kl '+b.event_time.slice(0,5):'';
     html+=`<div class="card" style="margin-bottom:1rem">`;
-    html+=`<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${ds}${time}</div>`;
-    html+=`<div style="font-size:1.1rem;font-family:'Playfair Display',serif;color:var(--dark);margin-bottom:.25rem">${b.name}</div>`;
+    html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">
+      <div>
+        <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${ds}${time}</div>
+        <div style="font-size:1.1rem;font-family:'Playfair Display',serif;color:var(--dark)">${b.name}</div>
+      </div>
+      <button onclick="delBookingFromCal('${b.id}')" class="btn bd" style="font-size:11px;padding:4px 10px;flex-shrink:0">Ta bort</button>
+    </div>`;
     html+=`<div style="font-size:13px;color:var(--muted);margin-bottom:.75rem">${n}${b.expected_guests?' av '+b.expected_guests:''} beställda</div>`;
     if(n){
       // Build tally with allergier per rätt
