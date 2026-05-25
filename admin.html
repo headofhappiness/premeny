@@ -1092,10 +1092,26 @@ async function renderMenu(){
         </div>
       </div>
       ${(cat.menu_items||[]).map(item=>`
-        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
-          <div style="flex:1"><div style="font-size:13px;color:var(--dark)">${item.name}</div>${item.description?`<div style="font-size:11px;color:var(--muted);margin-top:1px">${item.description}</div>`:''}</div>
-          ${item.price?`<div style="font-size:12px;color:var(--gold);font-weight:500;margin-top:2px;white-space:nowrap">${item.price} kr</div>`:''}
-          <button class="btn bd" style="font-size:10px;padding:3px 8px;flex-shrink:0" onclick="delItem('${item.id}')">✕</button>
+        <div id="irow_${item.id}" style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:flex-start;gap:8px">
+            <div style="flex:1;cursor:pointer" onclick="editItem('${item.id}')">
+              <div style="font-size:13px;color:var(--dark)">${item.name}</div>
+              ${item.description?`<div style="font-size:11px;color:var(--muted);margin-top:1px">${item.description}</div>`:''}
+            </div>
+            <div style="font-size:12px;color:var(--gold);font-weight:500;margin-top:2px;white-space:nowrap;cursor:pointer" onclick="editItem('${item.id}')">${item.price?item.price+' kr':''}</div>
+            <button class="btn bd" style="font-size:10px;padding:3px 8px;flex-shrink:0" onclick="delItem('${item.id}')">✕</button>
+          </div>
+          <div id="iedit_${item.id}" style="display:none;margin-top:8px;background:var(--surface2);border-radius:8px;padding:10px">
+            <div class="r2">
+              <div class="ff"><label>Namn</label><input type="text" id="ien_${item.id}" value="${item.name.replace(/"/g,'&quot;')}"></div>
+              <div class="ff"><label>Pris (kr)</label><input type="number" id="iep_${item.id}" value="${item.price||0}"></div>
+            </div>
+            <div class="ff"><label>Beskrivning</label><textarea id="ied_${item.id}" style="min-height:55px">${item.description||''}</textarea></div>
+            <div class="fg">
+              <button class="btn bp" style="font-size:12px" onclick="saveItem('${item.id}')">Spara</button>
+              <button class="btn bg" style="font-size:12px" onclick="document.getElementById('iedit_${item.id}').style.display='none'">Avbryt</button>
+            </div>
+          </div>
         </div>`).join('')}
       <div id="ai_${cat.id}" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)">
         <div class="r2">
@@ -1115,6 +1131,18 @@ function showAI(id){document.getElementById('ai_'+id).style.display='block';}
 async function addItem(cid){
   const name=document.getElementById('ain_'+cid).value.trim();if(!name)return;
   await db.from('menu_items').insert({category_id:cid,restaurant_id:rest.id,name,description:document.getElementById('aid_'+cid).value.trim(),price:parseInt(document.getElementById('aip_'+cid).value)||0});
+  renderMenu();
+}
+function editItem(id){
+  const el=document.getElementById('iedit_'+id);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+async function saveItem(id){
+  const name=document.getElementById('ien_'+id).value.trim();
+  const desc=document.getElementById('ied_'+id).value.trim();
+  const price=parseInt(document.getElementById('iep_'+id).value)||0;
+  if(!name)return;
+  await db.from('menu_items').update({name,description:desc,price}).eq('id',id);
   renderMenu();
 }
 async function delItem(id){if(!confirm('Ta bort rätten?'))return;await db.from('menu_items').delete().eq('id',id);renderMenu();}
