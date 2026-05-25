@@ -521,8 +521,10 @@ function renderBCard(b){
         <div class="bmeta" style="margin-top:4px">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''}</div>
         ${b.deadline?`<div style="font-size:12px;color:var(--muted);margin-top:2px">Sista beställning: ${new Date(b.deadline+'T12:00:00').getDate()} ${months[new Date(b.deadline+'T12:00:00').getMonth()]} ${new Date(b.deadline+'T12:00:00').getFullYear()}</div>`:''}
         <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
-          <div style="font-size:12px;color:var(--muted)">${n}${b.expected_guests?' av '+b.expected_guests:''} beställda</div>
-          ${b.expected_guests?`<div style="height:3px;background:var(--border);border-radius:2px;width:120px;flex-shrink:0"><div style="height:100%;width:${pct}%;background:var(--gold);border-radius:2px;transition:width .3s"></div></div>`:''}
+          <div style="font-size:12px;color:${b.expected_guests&&n>b.expected_guests?'#b05a00':'var(--muted)'}">
+            ${b.expected_guests?(n>b.expected_guests?n+' beställda ('+b.expected_guests+' förväntade)':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
+          </div>
+          ${b.expected_guests?`<div style="height:3px;background:var(--border);border-radius:2px;width:120px;flex-shrink:0"><div style="height:100%;width:${Math.min(100,pct)}%;background:${pct>100?'#b05a00':'var(--gold)'};border-radius:2px;transition:width .3s"></div></div>`:''}
         </div>
         ${reminderHtml}
       </div>
@@ -582,12 +584,12 @@ function renderBCard(b){
 
     // Detaljflikar
     html+=`<div class="fg" style="margin-bottom:1rem;flex-wrap:wrap">
-      ${[['tally','Sammanfattning'],['bulk','Fyll i för sällskap'],['kitchen','Kökslista'],['guests','Gästlista']].map(([t,l])=>
+      ${[['tally','Sammanfattning'],['bulk','Fyll i för sällskap'],['guests','Gästlista']].map(([t,l])=>
         `<button class="dtab${dtab===t?' active':''}" onclick="switchDtab('${b.id}','${t}')">${l}</button>`).join('')}
     </div>
     <div id="det_${b.id}"></div>
     <div class="fg" style="margin-top:1rem;flex-wrap:wrap">
-      <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>
+      <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera sammanfattning</button>
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportPDF('${b.id}')">📄 Ladda ner PDF</button>
       <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
@@ -861,21 +863,44 @@ async function copyKitchen(id){
 }
 
 async function printKitchen(id){
-  // Open print-friendly page
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time').eq('id',id).single();
-  const w=window.open('','_blank');
-  let ph=`<html><head><title>${b.name}</title><style>body{font-family:sans-serif;padding:2rem;font-size:14px}h1{font-size:1.4rem;margin-bottom:.25rem}p{color:#666;margin-bottom:1.5rem;font-size:.9rem}h2{font-size:1rem;border-bottom:2px solid #eee;padding-bottom:4px;margin:1.5rem 0 .5rem}.row{padding:4px 0;border-bottom:1px solid #f0f0f0;font-size:.9rem}.allergy{background:#fff3cd;border-left:4px solid #f5a623;padding:.75rem 1rem;margin-top:1.5rem;border-radius:4px}@media print{body{padding:.75rem}}</style></head><body>`;
-  ph+=`<h1>${b.name}</h1><p>${b.event_date}${b.event_time?' kl '+b.event_time.slice(0,5):''}</p>`;
-  const byCat={};
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date+'T12:00:00');
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  
+  // Count per dish
+  const counts={};const allergies={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?',n=oi.menu_items?.name||'?';
-    if(!byCat[c])byCat[c]={};if(!byCat[c][n])byCat[c][n]=[];
-    byCat[c][n].push(o.guest_name+(oi.comment?' ('+oi.comment+')':''));
+    const cat=oi.menu_items?.menu_categories?.label||'?';
+    const name=oi.menu_items?.name||'?';
+    const k=cat+'||'+name;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push(oi.comment.trim());}
   }));
-  Object.entries(byCat).forEach(([c,items])=>{ph+=`<h2>${c}</h2>`;Object.entries(items).forEach(([n,gs])=>ph+=`<div class="row"><strong>${n} ×${gs.length}</strong> – ${gs.join(', ')}</div>`);});
-  const al=[];(orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{if(oi.comment?.trim())al.push('<strong>'+o.guest_name+'</strong> – '+oi.menu_items?.name+': '+oi.comment);}));
-  if(al.length)ph+=`<div class="allergy"><strong>⚠ Kommentarer & Allergier:</strong><br><br>${al.join('<br>')}</div>`;
+  const byCat={};
+  Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
+
+  const w=window.open('','_blank');
+  let ph=`<html><head><title>${b.name}</title><style>
+    body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
+    h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
+    .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
+    .cat{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b8955a;margin:1.25rem 0 .4rem}
+    .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:13px}
+    .alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:5px 10px;font-size:11px;margin:2px 0 8px;color:#7a5c00}
+    @media print{body{padding:.75rem}}
+  </style></head><body>`;
+  ph+=`<h1>${b.name}</h1>`;
+  ph+=`<div class="meta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orders?.length||0}${b.expected_guests?' av '+b.expected_guests:''} beställningar · Skrivet ut: ${new Date().toLocaleString('sv-SE')}</div>`;
+  
+  Object.entries(byCat).forEach(([cat,items])=>{
+    ph+=`<div class="cat">${cat}</div>`;
+    items.forEach(({name,n,k})=>{
+      ph+=`<div class="row"><span>${name}</span><strong>${n} st</strong></div>`;
+      if(allergies[k])ph+=`<div class="alg">⚠ ${allergies[k].join(' · ')}</div>`;
+    });
+  });
   ph+='</body></html>';
   w.document.write(ph);w.document.close();w.print();
 }
