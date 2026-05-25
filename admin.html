@@ -707,22 +707,35 @@ function renderTally(orders){
 }
 
 function renderKitchen(orders){
-  const byCat={};
+  const counts={};
+  const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?',n=oi.menu_items?.name||'?',cmt=oi.comment||'';
-    if(!byCat[c])byCat[c]={};
-    if(!byCat[c][n])byCat[c][n]=[];
-    byCat[c][n].push(o.guest_name+(cmt?' ('+cmt+')':''));
+    const cat=oi.menu_items?.menu_categories?.label||'?';
+    const name=oi.menu_items?.name||'?';
+    const k=cat+'||'+name;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){
+      if(!allergies[k])allergies[k]=[];
+      allergies[k].push(o.guest_name+': '+oi.comment.trim());
+    }
   }));
-  let html=Object.entries(byCat).map(([c,items])=>
-    `<div class="chead">${c}</div>`+Object.entries(items).map(([n,gs])=>
-      `<div style="font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)"><strong>${n}</strong> ×${gs.length} <span style="color:var(--muted);font-size:12px">${gs.join(', ')}</span></div>`
+  if(!Object.keys(counts).length)return'<div style="font-size:13px;color:var(--muted)">Inga beställningar ännu.</div>';
+  const max=Math.max(...Object.values(counts));
+  const byCat={};
+  Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
+  return Object.entries(byCat).map(([cat,items])=>
+    `<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem">${cat}</div>`+
+    items.map(({name,n,k})=>
+      `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
+          <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
+          <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
+        </div>
+        ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
+      </div>`
     ).join('')
   ).join('');
-  const al=[];
-  orders.forEach(o=>(o.order_items||[]).forEach(oi=>{if(oi.comment?.trim())al.push({g:o.guest_name,i:oi.menu_items?.name||'?',c:oi.comment});}));
-  if(al.length)html+=`<div class="abox"><div class="ahead">⚠ Kommentarer & Allergier</div>`+al.map(a=>`<div class="aitem"><strong>${a.g}</strong> – ${a.i}: <em>${a.c}</em></div>`).join('')+'</div>';
-  return html;
 }
 
 function renderGuests(orders,bid){
@@ -995,6 +1008,48 @@ async function delBookingFromCal(id){
 function calPrev(){calM--;if(calM<0){calM=11;calY--;}renderCal();}
 function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCal();}
 
+function buildKitchenHtml(orders){
+  const counts={};const allergies={};
+  orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const cat=oi.menu_items?.menu_categories?.label||'Övrigt';
+    const name=oi.menu_items?.name||'?';
+    const k=cat+'||'+name;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push(o.guest_name+': '+oi.comment.trim());}
+  }));
+  if(!Object.keys(counts).length)return'<div style="font-size:13px;color:var(--muted)">Inga beställningar ännu.</div>';
+  const max=Math.max(...Object.values(counts));
+  const byCat={};
+  Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
+  return Object.entries(byCat).map(([cat,items])=>
+    `<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem">${cat}</div>`+
+    items.map(({name,n,k})=>
+      `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
+          <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
+          <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
+        </div>
+        ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
+      </div>`
+    ).join('')
+  ).join('');
+}
+
+function copyCalKitchen(dateStr){
+  const el=document.getElementById('cal_kitchen_'+dateStr);
+  if(!el)return;
+  navigator.clipboard.writeText(el.innerText).then(()=>alert('Kökslista kopierad!'));
+}
+
+function printCalKitchen(dateStr){
+  const el=document.getElementById('cal_kitchen_'+dateStr);
+  if(!el)return;
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.5rem}.cat{font-weight:bold;text-transform:uppercase;font-size:11px;margin:1rem 0 .3rem;color:#b8955a}.row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee}.alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#7a5c00}</style></head><body>'+el.innerHTML+'</body></html>');
+  w.document.close();w.print();
+}
+
 async function renderCalResults(){
   const el=document.getElementById('calResults');
   if(!calSel.size){el.innerHTML='';return;}
@@ -1004,79 +1059,34 @@ async function renderCalResults(){
   if(!bs?.length){el.innerHTML='<div class="empty">Inga bokningar dessa datum.</div>';return;}
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   let html='';
-  if(calSel.size>1){
-    const total={};const tallyAllergies={};
-    bs.forEach(b=>(b.orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-      const k=(oi.menu_items?.menu_categories?.label||'?')+'||'+(oi.menu_items?.name||'?');
-      total[k]=(total[k]||0)+1;
-      if(oi.comment?.trim()){if(!tallyAllergies[k])tallyAllergies[k]=[];tallyAllergies[k].push(o.guest_name+': '+oi.comment.trim());}
-    })));
-    html+=`<div class="card" style="margin-bottom:1rem"><div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">Sammanlagt – ${dates.length} datum · ${bs.length} sällskap</div>`;
-    const byCat={};Object.entries(total).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
-    const max=Math.max(...Object.values(total));
-    html+=Object.entries(byCat).map(([cat,items])=>
-      `<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem">${cat}</div>`+
-      items.map(({name,n,k})=>
-        `<div style="margin-bottom:${tallyAllergies[k]?'.6rem':'.3rem'}">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
-            <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
-            <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
-          </div>
-          ${tallyAllergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${tallyAllergies[k].join('<br>')}</div>`:''}
-        </div>`
-      ).join('')
-    ).join('');
-    html+='</div>';
-  }
-  bs.forEach(b=>{
-    const d=new Date(b.event_date);
+
+  // Group by date
+  const byDate={};
+  dates.forEach(d=>{byDate[d]=bs.filter(b=>b.event_date===d);});
+
+  dates.forEach(dateStr=>{
+    const dayBs=byDate[dateStr]||[];
+    if(!dayBs.length)return;
+    const d=new Date(dateStr+'T12:00:00');
     const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-    const n=(b.orders||[]).length;
-    const time=b.event_time?' kl '+b.event_time.slice(0,5):'';
-    html+=`<div class="card" style="margin-bottom:1rem">`;
-    html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">
-      <div>
-        <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${ds}${time}</div>
-        <div style="font-size:1.1rem;font-family:'Playfair Display',serif;color:var(--dark)">${b.name}</div>
+    const allOrders=dayBs.flatMap(b=>b.orders||[]);
+    const totalOrders=allOrders.length;
+    const sallskap=dayBs.map(b=>b.name+(b.event_time?' kl '+b.event_time.slice(0,5):'')).join(' · ');
+
+    html+=`<div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
+        <div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${ds}</div>
+          <div style="font-size:1.1rem;font-family:'Playfair Display',serif;color:var(--dark)">${totalOrders} beställningar</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${sallskap}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyCalKitchen('${dateStr}')">📋 Kopiera</button>
+          <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="printCalKitchen('${dateStr}')">🖨 Skriv ut</button>
+        </div>
       </div>
-      <button onclick="delBookingFromCal('${b.id}')" class="btn bd" style="font-size:11px;padding:4px 10px;flex-shrink:0">Ta bort</button>
+      <div id="cal_kitchen_${dateStr}">${buildKitchenHtml(allOrders)}</div>
     </div>`;
-    html+=`<div style="font-size:13px;color:var(--muted);margin-bottom:.75rem">${n}${b.expected_guests?' av '+b.expected_guests:''} beställda</div>`;
-    if(n){
-      // Build tally with allergier per rätt
-      const tally={};
-      const allergies={};
-      (b.orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-        const cat=oi.menu_items?.menu_categories?.label||'Övrigt';
-        const name=oi.menu_items?.name||'?';
-        const k=cat+'||'+name;
-        tally[k]=(tally[k]||0)+1;
-        if(oi.comment?.trim()){
-          if(!allergies[k])allergies[k]=[];
-          allergies[k].push(o.guest_name+': '+oi.comment.trim());
-        }
-      }));
-      const max=Math.max(...Object.values(tally));
-      const byCat={};
-      Object.entries(tally).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
-      html+=Object.entries(byCat).map(([cat,items])=>
-        `<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem">${cat}</div>`+
-        items.map(({name,n:cnt,k})=>
-          `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
-              <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(cnt/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
-              <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${cnt} st</span>
-            </div>
-            ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
-          </div>`
-        ).join('')
-      ).join('');
-    } else {
-      html+='<div style="font-size:13px;color:var(--muted)">Inga beställningar ännu.</div>';
-    }
-    html+='</div>';
   });
   el.innerHTML=html;
 }
