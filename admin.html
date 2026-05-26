@@ -1522,13 +1522,18 @@ async function addItem(catId){
 }
 
 async function renderMenu(){
-  // Load all menus (not cats - those load per menu on expand)
-  const {data:menuData}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
-  menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
-
   const sel=document.getElementById('menu-selector');
   const ed=document.getElementById('menuEditor');
+  // Visa laddningsindikator direkt
+  sel.innerHTML='<div style="font-size:13px;color:var(--muted)"><span class="spinner"></span> Laddar menyer...</div>';
   ed.innerHTML='';
+
+  console.log('[renderMenu] start, rest.id=', rest?.id);
+  const {data:menuData, error:menuErr}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
+  console.log('[renderMenu] got data:', menuData, 'error:', menuErr);
+  if(menuErr){sel.innerHTML='<div style="font-size:13px;color:red">Fel: '+menuErr.message+'</div>';return;}
+  menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
+  console.log('[renderMenu] menus after filter:', menus.length);
 
   if(!menus.length){
     sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Skapa din första meny för att komma igång.</div>';
