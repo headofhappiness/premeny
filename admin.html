@@ -1259,6 +1259,7 @@ async function renderMenu(){
     const {count}=catIds.length?await db.from('menu_items').select('*',{count:'exact',head:true}).in('category_id',catIds):{count:0};
     const isActive=m.id===activeMenuId;
     const desc=m.description?'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+escHtml(m.description)+'</div>':'';
+
     html+='<div class="bcard'+(isActive?' open':'')+'" id="mc_'+m.id+'">'
       +'<div class="bhead" onclick="toggleMenuCard('+mi+')">'
         +'<div style="flex:1">'
@@ -1272,25 +1273,30 @@ async function renderMenu(){
         +(isActive?'<span class="pill po">Aktiv</span>':'')
       +'</div>'
       +'<div class="bdetail">'
+        // Action buttons
         +'<div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap">'
-          +'<button class="btn '+(isActive?'bp':'bg')+'" style="font-size:12px;padding:6px 14px" onclick="switchMenu(window._menuIds['+mi+'])">'+(isActive?'Redigerar':'Redigera')+'</button>'
-          +'<button class="btn bg" style="font-size:12px;padding:6px 14px" onclick="copyMenu(window._menuIds['+mi+'])">Kopiera meny</button>'
-          +'<button class="btn bd" style="font-size:12px;padding:6px 14px" onclick="deleteMenu(window._menuIds['+mi+'])">Ta bort</button>'
+          +'<button class="btn '+(isActive?'bp':'bg')+'" style="font-size:12px;padding:6px 14px" onclick="event.stopPropagation();switchMenu(window._menuIds['+mi+'])">'+(isActive?'Redigerar':'Redigera')+'</button>'
+          +'<button class="btn bg" style="font-size:12px;padding:6px 14px" onclick="event.stopPropagation();copyMenu(window._menuIds['+mi+'])">Kopiera meny</button>'
+          +'<button class="btn bd" style="font-size:12px;padding:6px 14px" onclick="event.stopPropagation();deleteMenu(window._menuIds['+mi+'])">Ta bort</button>'
         +'</div>'
+        // Menu preview - Brunsbo style
         +'<div id="mc-items-'+m.id+'"><div style="font-size:13px;color:var(--muted)">Laddar...</div></div>'
       +'</div>'
     +'</div>';
   }
   sel.innerHTML=html;
 
-  // Load preview for active menu
-  if(activeMenuId){
-    loadMenuPreview(activeMenuId);
+  // Load preview for open menus
+  for(const m of menus){
+    const el=document.getElementById('mc_'+m.id);
+    if(el&&el.classList.contains('open'))loadMenuPreview(m.id);
   }
 
-  // Show editor below
-  if(!activeMenuId||!cats.length){
-    ed.innerHTML=activeMenuId?'<div style="margin-top:1rem;display:flex;gap:8px"><button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button></div><div class="empty" style="margin-top:.75rem">Inga rätter. Lägg till en rubrik.</div>':'';
+  // Editor below
+  if(!activeMenuId){ed.innerHTML='';return;}
+  if(!cats.length){
+    ed.innerHTML='<div style="margin-top:1rem;display:flex;gap:8px"><button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button></div>'
+      +'<div class="empty" style="margin-top:.75rem">Inga rätter. Lägg till en rubrik.</div>';
     return;
   }
 
@@ -1318,26 +1324,22 @@ async function renderMenu(){
 
     for(let ii=0;ii<(cat.menu_items||[]).length;ii++){
       const item=cat.menu_items[ii];
-      const desc=item.description?'<div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">'+escHtml(item.description)+'</div>':'';
-      edHtml+='<div id="irow_'+item.id+'" style="padding:10px 0;border-bottom:1px solid var(--border)">'
-        +'<div style="display:flex;align-items:flex-start;gap:8px">'
-          +'<div style="flex:1"><div style="font-size:14px;color:var(--dark)">'+escHtml(item.name)+'</div>'+desc+'</div>'
-          +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">'
-            +'<span style="font-size:13px;color:var(--gold);font-weight:500">'+(item.price?item.price+' kr':'')+'</span>'
-            +'<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="editItem('+JSON.stringify(item.id)+')">Redigera</button>'
-            +'<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delItem('+JSON.stringify(item.id)+')">Ta bort</button>'
-          +'</div>'
+      const desc=item.description?'<div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4">'+escHtml(item.description)+'</div>':'';
+      edHtml+='<div id="irow_'+item.id+'" style="display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)">'
+        +'<div style="flex:1"><div style="font-size:13px;color:var(--dark)">'+escHtml(item.name)+'</div>'+desc+'</div>'
+        +'<div style="font-size:12px;color:var(--gold);white-space:nowrap;margin-top:2px">'+(item.price?item.price+' kr':'')+'</div>'
+        +'<button class="btn bg" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="editItem('+JSON.stringify(item.id)+')">Redigera</button>'
+        +'<button class="btn bd" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="delItem('+JSON.stringify(item.id)+')">Ta bort</button>'
+      +'</div>'
+      +'<div id="iedit_'+item.id+'" style="display:none;margin-top:10px;background:var(--surface2);border-radius:8px;padding:12px">'
+        +'<div class="r2">'
+          +'<div class="ff"><label>Namn</label><input type="text" id="ien_'+item.id+'" value="'+escAttr(item.name)+'"></div>'
+          +'<div class="ff"><label>Pris (kr)</label><input type="number" id="iep_'+item.id+'" value="'+(item.price||0)+'"></div>'
         +'</div>'
-        +'<div id="iedit_'+item.id+'" style="display:none;margin-top:10px;background:var(--surface2);border-radius:8px;padding:12px">'
-          +'<div class="r2">'
-            +'<div class="ff"><label>Namn</label><input type="text" id="ien_'+item.id+'" value="'+escAttr(item.name)+'"></div>'
-            +'<div class="ff"><label>Pris (kr)</label><input type="number" id="iep_'+item.id+'" value="'+(item.price||0)+'"></div>'
-          +'</div>'
-          +'<div class="ff"><label>Beskrivning</label><textarea id="ied_'+item.id+'" style="min-height:55px">'+escHtml(item.description||'')+'</textarea></div>'
-          +'<div class="fg">'
-            +'<button class="btn bp" style="font-size:12px" onclick="saveItem('+JSON.stringify(item.id)+')">Spara</button>'
-            +'<button class="btn bg" style="font-size:12px" onclick="closeEdit(\'iedit_'+item.id+'\')" >Avbryt</button>'
-          +'</div>'
+        +'<div class="ff"><label>Beskrivning</label><textarea id="ied_'+item.id+'" style="min-height:55px">'+escHtml(item.description||'')+'</textarea></div>'
+        +'<div class="fg">'
+          +'<button class="btn bp" style="font-size:12px" onclick="saveItem('+JSON.stringify(item.id)+')">Spara</button>'
+          +'<button class="btn bg" style="font-size:12px" data-id="iedit_'+item.id+'" onclick="closeEdit(this.dataset.id)">Avbryt</button>'
         +'</div>'
       +'</div>';
     }
@@ -1358,116 +1360,6 @@ async function renderMenu(){
   edHtml+='</div>';
   ed.innerHTML=edHtml;
 }
-
-function toggleMenuCard(mi){
-  const m=menus[mi];if(!m)return;
-  const el=document.getElementById('mc_'+m.id);
-  if(!el)return;
-  const isOpen=el.classList.contains('open');
-  // Close all
-  menus.forEach(mn=>{const e=document.getElementById('mc_'+mn.id);if(e)e.classList.remove('open');});
-  if(!isOpen){
-    el.classList.add('open');
-    loadMenuPreview(m.id);
-  }
-}
-
-async function loadMenuPreview(menuId){
-  const el=document.getElementById('mc-items-'+menuId);
-  if(!el)return;
-  const {data:mCats}=await db.from('menu_categories').select('*, menu_items(name,price,active)').eq('menu_id',menuId).order('sort_order');
-  if(!mCats?.length){el.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga rätter ännu.</div>';return;}
-  let html='';
-  mCats.forEach(cat=>{
-    html+='<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.5rem 0 .25rem">'+escHtml(cat.label)+'</div>';
-    (cat.menu_items||[]).filter(i=>i.active).forEach(item=>{
-      html+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px solid var(--border)"><span>'+escHtml(item.name)+'</span><span style="color:var(--gold)">'+(item.price?item.price+' kr':'')+'</span></div>';
-    });
-  });
-  el.innerHTML=html;
-}
-
-
-async function toggleMenuPreview(mi){
-  const m=menus[mi];
-  if(!m)return;
-  const el=document.getElementById('menu-preview-'+m.id);
-  if(!el)return;
-  if(el.style.display!=='none'){el.style.display='none';return;}
-  el.style.display='block';
-  const {data:mCats}=await db.from('menu_categories').select('*, menu_items(name,price,active)').eq('menu_id',m.id).order('sort_order');
-  if(!mCats?.length){el.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga rätter ännu.</div>';return;}
-  let html='';
-  mCats.forEach(cat=>{
-    html+='<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.5rem 0 .25rem">'+escHtml(cat.label)+'</div>';
-    (cat.menu_items||[]).filter(i=>i.active).forEach(item=>{
-      html+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px solid var(--border)">'+
-        '<span>'+escHtml(item.name)+'</span>'+
-        '<span style="color:var(--gold)">'+(item.price?item.price+' kr':'')+'</span>'+
-      '</div>';
-    });
-  });
-  el.innerHTML=html;
-}
-
-async function switchMenu(id){activeMenuId=id;await renderMenu();}
-
-async function deleteMenu(id){
-  if(!confirm('Ta bort menyn och alla dess rätter permanent?'))return;
-  const {data:cats}=await db.from('menu_categories').select('id').eq('menu_id',id);
-  if(cats?.length)await db.from('menu_items').delete().in('category_id',cats.map(c=>c.id));
-  await db.from('menu_categories').delete().eq('menu_id',id);
-  await db.from('menus').delete().eq('id',id);
-  if(activeMenuId===id)activeMenuId=null;
-  renderMenu();
-}
-
-async function copyMenu(id){
-  const src=menus.find(m=>m.id===id);
-  if(!src)return;
-  const newName=prompt('Namn på kopian:',src.name+' (kopia)');
-  if(!newName)return;
-  const {data:newMenu,error}=await db.from('menus').insert({restaurant_id:rest.id,name:newName}).select().single();
-  if(error){alert('Fel: '+error.message);return;}
-  const {data:srcCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',id).order('sort_order');
-  for(const cat of srcCats||[]){
-    const {data:newCat}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:newMenu.id,label:cat.label,sort_order:cat.sort_order}).select().single();
-    for(const item of cat.menu_items||[]){
-      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description,price:item.price,sort_order:item.sort_order,active:true});
-    }
-  }
-  activeMenuId=newMenu.id;
-  renderMenu();
-}
-
-async function copyItemToMenu(itemId,itemName){
-  const otherMenus=menus.filter(m=>m.id!==activeMenuId);
-  if(!otherMenus.length){alert('Skapa en annan meny först.');return;}
-  const opts=otherMenus.map((m,i)=>(i+1)+'. '+m.name).join('\n');
-  const choice=prompt('Kopiera "'+itemName+'" till vilken meny?\n\n'+opts+'\n\nAnge siffra:');
-  if(!choice)return;
-  const idx=parseInt(choice)-1;
-  if(isNaN(idx)||idx<0||idx>=otherMenus.length){alert('Ogiltigt val.');return;}
-  const targetMenu=otherMenus[idx];
-  const {data:tCats}=await db.from('menu_categories').select('*').eq('menu_id',targetMenu.id).order('sort_order').limit(1);
-  let targetCatId;
-  if(tCats?.length){targetCatId=tCats[0].id;}
-  else{
-    const {data:nc}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:targetMenu.id,label:'Rätter',sort_order:1}).select().single();
-    targetCatId=nc.id;
-  }
-  const {data:item}=await db.from('menu_items').select('*').eq('id',itemId).single();
-  await db.from('menu_items').insert({category_id:targetCatId,restaurant_id:rest.id,name:item.name,description:item.description,price:item.price,sort_order:0,active:true});
-  alert('"'+itemName+'" kopierades till '+targetMenu.name+'!');
-}
-
-
-function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function escJs(s){if(!s)return'';return String(s).replace(/'/g,"\\'");}
-function closeEdit(id){var el=document.getElementById(id);if(el)el.style.display='none';}
-function closeAI(btn){var p=btn.parentElement;while(p&&!p.id.startsWith('ai_'))p=p.parentElement;if(p)p.style.display='none';}
-
 </script>
 </body>
 </html>
