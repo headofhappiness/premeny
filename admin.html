@@ -580,7 +580,13 @@ function renderBCard(b){
         </div>
         ${reminderHtml}
       </div>
-      <span class="pill ${closed?'pc':'po'}" style="flex-shrink:0">${closed?'Stängd':'Öppen'}</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <span class="pill ${closed?'pc':'po'}">${closed?'Stängd':'Öppen'}</span>
+        <div style="display:flex;gap:5px">
+          <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();archiveBooking('${b.id}')">Arkivera</button>
+          <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delBooking('${b.id}',event)">Ta bort</button>
+        </div>
+      </div>
     </div>`;
 
   if(isOpen){
@@ -644,7 +650,6 @@ function renderBCard(b){
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera sammanfattning</button>
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportPDF('${b.id}')">📄 Ladda ner PDF</button>
-      <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
     </div></div>`;
   }
   html+=`</div>`;
@@ -837,6 +842,11 @@ async function createBooking(){
   renderBookings();
 }
 
+async function archiveBooking(id){
+  if(!confirm('Arkivera bokningen? Den syns i Arkiv-fliken.'))return;
+  await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
+  renderBookings();
+}
 async function delBooking(id,ev){
   ev.stopPropagation();
   if(!confirm('Ta bort bokningen? Den sparas i Arkiv och kan återställas.'))return;
