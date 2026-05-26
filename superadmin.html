@@ -116,7 +116,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <div class="r2">
       <div class="ff"><label>Plan</label>
         <select id="nr-plan">
-          <option value="early_bird">Early Bird – 299 kr/mån</option>
+          <option value="early_bird">Early Bird – 349 kr/mån</option>
           <option value="small">Small – 499 kr/mån</option>
           <option value="medium">Medium – 799 kr/mån</option>
           <option value="large">Large – 1199 kr/mån</option>
@@ -138,22 +138,32 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
       <div class="ff"><label>Adress</label><input type="text" id="nr-address" placeholder="Storgatan 1, 123 45 Stad"></div>
       <div class="ff"><label>Webbplats</label><input type="text" id="nr-website" placeholder="www.restaurangen.se"></div>
     </div>
-    <div class="card-label" style="margin-top:.25rem">Adminkonto</div>
-    <div class="r2">
-      <div class="ff"><label>Admin e-post *</label><input type="email" id="nr-admin-email" placeholder="personal@restaurangen.se"></div>
-      <div class="ff"><label>Temporärt lösenord *</label>
-        <div style="display:flex;gap:6px">
-          <input type="text" id="nr-admin-pass" placeholder="Minst 8 tecken">
-          <button class="btn bg" style="padding:8px 12px;flex-shrink:0;font-size:12px" onclick="genPass()">Generera</button>
+    <div class="card-label" style="margin-top:.25rem">Logotyp</div>
+    <div class="ff">
+      <div style="display:flex;align-items:center;gap:1rem">
+        <div id="nr-logo-preview" style="width:64px;height:64px;border-radius:8px;border:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+          <span style="font-size:11px;color:var(--muted)">Ingen</span>
+        </div>
+        <div>
+          <input type="file" id="nr-logo-file" accept="image/*" style="display:none" onchange="previewNrLogo(this)">
+          <button class="btn bg" style="font-size:12px" onclick="document.getElementById('nr-logo-file').click()">Välj logotyp</button>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">PNG, JPG eller SVG. Valfritt.</div>
         </div>
       </div>
     </div>
+    <div class="card-label" style="margin-top:.25rem">PreMeny-kontaktperson</div>
+    <div class="r2">
+      <div class="ff"><label>Namn</label><input type="text" id="nr-contact-name" placeholder="T.ex. Lisa Andersson"></div>
+      <div class="ff"><label>Telefon</label><input type="tel" id="nr-contact-phone" placeholder="+46 70 123 45 67"></div>
+    </div>
+    <div class="card-label" style="margin-top:.25rem">Adminkonto</div>
+    <div class="ff"><label>Admin e-post *</label><input type="email" id="nr-admin-email" placeholder="personal@restaurangen.se"></div>
     <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.2);border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#6a5030;line-height:1.6;margin-bottom:1rem">
-      ℹ Restaurangen skapas direkt. Adminkontot behöver skapas manuellt i Supabase Auth — instruktioner visas efter.
+      ℹ Ett inbjudningsmejl skickas automatiskt till adminens e-post. De sätter sitt eget lösenord via länken i mejlet.
     </div>
     <div id="nr-msg" style="display:none" class="msg"></div>
     <div style="display:flex;gap:8px">
-      <button class="btn bp" onclick="createRestaurant()" id="nr-btn">Skapa restaurang</button>
+      <button class="btn bp" onclick="createRestaurant()" id="nr-btn">Skapa &amp; skicka inbjudan</button>
       <button class="btn bg" onclick="closeModalDirect()">Avbryt</button>
     </div>
   </div>
@@ -386,28 +396,38 @@ document.addEventListener('input',function(e){
   if(e.target.id==='nr-color')document.getElementById('nr-color-text').value=e.target.value;
 });
 
-function genPass(){
-  const chars='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
-  let p='';for(let i=0;i<12;i++)p+=chars[Math.floor(Math.random()*chars.length)];
-  document.getElementById('nr-admin-pass').value=p;
+function previewNrLogo(input){
+  if(!input.files||!input.files[0])return;
+  const r=new FileReader();
+  r.onload=e=>document.getElementById('nr-logo-preview').innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain">';
+  r.readAsDataURL(input.files[0]);
 }
 
 async function createRestaurant(){
   const name=document.getElementById('nr-name').value.trim();
   const slug=document.getElementById('nr-slug').value.trim().toLowerCase();
   const adminEmail=document.getElementById('nr-admin-email').value.trim();
-  const adminPass=document.getElementById('nr-admin-pass').value;
   const msgEl=document.getElementById('nr-msg');
 
-  if(!name||!slug||!adminEmail||!adminPass){
-    msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Fyll i alla obligatoriska fält (markerade med *).';return;
+  if(!name||!slug||!adminEmail){
+    msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Fyll i namn, slug och admin e-post (markerade med *).';return;
   }
-  if(adminPass.length<8){msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Lösenordet måste vara minst 8 tecken.';return;}
 
   const btn=document.getElementById('nr-btn');
   btn.disabled=true;btn.textContent='Skapar...';msgEl.style.display='none';
 
   try{
+    // 1. Ladda upp logotyp om vald
+    let logoUrl=null;
+    const logoFile=document.getElementById('nr-logo-file').files[0];
+    if(logoFile){
+      const ext=logoFile.name.split('.').pop();
+      const path=slug+'/logo.'+ext;
+      const {error:upErr}=await db.storage.from('logos').upload(path,logoFile,{upsert:true});
+      if(!upErr){const {data:pub}=db.storage.from('logos').getPublicUrl(path);logoUrl=pub.publicUrl+'?t='+Date.now();}
+    }
+
+    // 2. Skapa restaurang
     const {data:rest,error:e1}=await db.from('restaurants').insert({
       name,slug,
       accent_color:document.getElementById('nr-color').value,
@@ -416,31 +436,43 @@ async function createRestaurant(){
       contact_email:document.getElementById('nr-email').value.trim()||null,
       address:document.getElementById('nr-address').value.trim()||null,
       website:document.getElementById('nr-website').value.trim()||null,
+      contact_person_name:document.getElementById('nr-contact-name').value.trim()||null,
+      contact_person_phone:document.getElementById('nr-contact-phone').value.trim()||null,
+      logo_url:logoUrl,
       active:true
     }).select().single();
     if(e1)throw new Error('Kunde inte skapa restaurang: '+e1.message);
 
+    // 3. Skicka inbjudningsmejl via Edge Function
+    btn.textContent='Skickar inbjudan...';
+    const {data:{session}}=await db.auth.getSession();
+    const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/create-admin-user',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({email:adminEmail,restaurantId:rest.id,restaurantName:name})
+    });
+    const result=await resp.json();
+
     msgEl.style.display='block';
-    msgEl.className='msg mok';
-    msgEl.innerHTML=`✓ <strong>${name}</strong> skapades!<br><br>
-    <strong>Nästa steg — skapa adminkonto i Supabase:</strong><br>
-    1. Authentication → Users → Add user<br>
-    &nbsp;&nbsp;&nbsp;E-post: <code style="background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px">${adminEmail}</code><br>
-    &nbsp;&nbsp;&nbsp;Lösenord: <code style="background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px">${adminPass}</code><br><br>
-    2. SQL Editor → kör:<br>
-    <code style="background:rgba(0,0,0,.06);padding:6px 10px;border-radius:6px;font-size:11px;display:block;margin-top:6px;line-height:1.8;word-break:break-all">INSERT INTO restaurant_admins (restaurant_id, user_id)<br>SELECT '${rest.id}', id FROM auth.users WHERE email = '${adminEmail}';</code>`;
+    if(result.ok){
+      msgEl.className='msg mok';
+      msgEl.innerHTML='✓ <strong>'+name+'</strong> skapades och inbjudan skickades till <strong>'+adminEmail+'</strong>!<br><span style="font-size:12px;color:#3a6020">Restaurangen kan logga in via länken i mejlet och sätta sitt lösenord.</span>';
+    } else {
+      msgEl.className='msg merr';
+      msgEl.innerHTML='Restaurangen skapades men inbjudan misslyckades: '+result.error+'<br><br>Gå till Supabase → Authentication → Users → Invite user och bjud in <strong>'+adminEmail+'</strong> manuellt.';
+    }
     loadRestaurants();loadStats();
   }catch(err){
     msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Fel: '+err.message;
   }
-  btn.disabled=false;btn.textContent='Skapa restaurang';
+  btn.disabled=false;btn.textContent='Skapa & skicka inbjudan';
 }
 
 // ── REDIGERA RESTAURANG ──────────────────────────────────────────────
 async function openEditRest(id){
   const {data:r}=await db.from('restaurants').select('*').eq('id',id).single();
   if(!r)return;
-  const planOpts={early_bird:'Early Bird – 299 kr/mån',small:'Small – 499 kr/mån',medium:'Medium – 799 kr/mån',large:'Large – 1199 kr/mån'};
+  const planOpts={early_bird:'Early Bird – 349 kr/mån',small:'Small – 499 kr/mån',medium:'Medium – 799 kr/mån',large:'Large – 1199 kr/mån'};
   document.getElementById('editRestContent').innerHTML=`
     <div class="r2">
       <div class="ff"><label>Namn</label><input type="text" id="er-name" value="${r.name}"></div>
