@@ -421,28 +421,40 @@ async function forgotPassword(){
   if(error){m.className='msg merr';m.textContent='Fel: '+error.message;}
   else{m.className='msg mok';m.textContent='✓ Återställningslänk skickad till '+email;}
 }
-async function sendConfirmation(id){
-  const b=allBookings.find(x=>x.id===id);
-  if(!b){alert('Bokning hittades inte.');return;}
-  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-  const d=new Date(b.event_date);
-  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-  const gLink=location.origin+'/guest.html?r='+rest.slug+'&b='+b.id;
-  const subject=encodeURIComponent('Bekräftelse: '+b.name+' – '+ds);
-  const bodyText='Hej '+b.contact_name+'!\n\nHär är bekräftelsen för '+b.name+' den '+ds+(b.event_time?' kl '+b.event_time.slice(0,5):'')+
-    (b.expected_guests?'\nAntal gäster: '+b.expected_guests:'')+
-    '\n\nGäster beställer via denna länk:\n'+gLink+
-    '\n\nSista beställningsdag: '+(b.deadline||'–')+
-    '\n\nMed vänliga hälsningar,\n'+rest.name;
-  if(b.contact_email){
-    window.location.href='mailto:'+b.contact_email+'?subject='+subject+'&body='+encodeURIComponent(bodyText);
-    const timeStr=new Date().toLocaleString('sv-SE');
-    const log=(b.summary_sent_log||'')+timeStr+' bekräftelse via mejl till '+b.contact_email+'\n';
-    await db.from('bookings').update({summary_sent_log:log,summary_sent_at:new Date().toISOString()}).eq('id',id);
+async function callSendEmail(type,bookingId){
+  const b=allBookings.find(x=>x.id===bookingId)||null;
+  if(!b){alert('Bokning hittades inte.');return false;}
+  if(!b.contact_email){alert('Ingen e-postadress registrerad för kontaktpersonen.');return false;}
+  const gLink='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
+  const {data:{session}}=await db.auth.getSession();
+  const btn=event?.target;
+  const origTxt=btn?.textContent||'';
+  if(btn){btn.disabled=true;btn.textContent='Skickar...';}
+  try{
+    const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({type,booking:b,restaurant:rest,guestLink:gLink})
+    });
+    const result=await resp.json();
+    if(!result.ok)throw new Error(result.error||'Okänt fel');
+    // Logga
+    const now=new Date();
+    const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    const label=type==='confirmation'?'bekräftelse':'gästlänk';
+    const log=(b.summary_sent_log||'')+ts+' '+label+' via Resend till '+b.contact_email+'\n';
+    await db.from('bookings').update({summary_sent_log:log,summary_sent_at:now.toISOString()}).eq('id',bookingId);
     await renderBookings();
-  } else {
-    alert('Ingen e-postadress registrerad för kontaktpersonen.');
+    alert('✓ Mejl skickat till '+b.contact_email+'!');
+    return true;
+  }catch(err){
+    alert('Fel: '+err.message);return false;
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=origTxt;}
   }
+}
+async function sendConfirmation(id){
+  await callSendEmail('confirmation',id);
 }
 async function doLogout(){await db.auth.signOut();location.reload();}
 
@@ -890,21 +902,31 @@ async function sendSummary(id,ch){
   if(al.length){text+='Kommentarer & allergier:\n';al.forEach(a=>text+='  '+a+'\n');}
   // Öppna mejl eller SMS
   if(ch==='email'){
-    window.open('mailto:'+dest+'?subject='+encodeURIComponent('Sammanställning – '+b.name+' '+ds)+'&body='+encodeURIComponent(text));
+    // Skicka via Resend Edge Function (guestlink-typ)
+    const allB=allBookings.find(x=>x.id===id)||b;
+    const gLink='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
+    const {data:{session}}=await db.auth.getSession();
+    try{
+      const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body:JSON.stringify({type:'guestlink',booking:b,restaurant:rest,guestLink:gLink})
+      });
+      const result=await resp.json();
+      if(!result.ok)throw new Error(result.error||'Okänt fel');
+      const now=new Date();
+      const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+      const log=(b.summary_sent_log||'')+ts+' gästlänk via Resend till '+b.contact_email+'\n';
+      await db.from('bookings').update({summary_sent_at:now.toISOString(),summary_sent_log:log}).eq('id',id);
+      await renderBookings();
+      alert('✓ Mejl med beställningslänk skickat till '+b.contact_email+'!');
+    }catch(err){alert('Fel: '+err.message);}
   } else {
-    window.open('sms:'+dest+'?body='+encodeURIComponent('Sammanst. '+b.name+' '+ds+': '+(orders?.length||0)+' best. Kontakta oss för detaljer.'));
-  }
-  // Bekräfta att det skickades och logga
-  const chLabel=ch==='email'?'mejlet':'SMS:et';
-  if(confirm('Bekräfta: Skickades '+chLabel+' till '+dest+'?\n\nKlicka OK för att markera som skickad i systemet.')) {
+    window.open('sms:'+dest+'?body='+encodeURIComponent('Förbeställ din mat inför '+b.name+' den '+ds+' – '+('https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id)));
     const now=new Date();
-    const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    const logEntry=timeStr+' via '+(ch==='email'?'mejl':'SMS')+' till '+dest+'\n';
-    const prevLog=b.summary_sent_log||'';
-    await db.from('bookings').update({
-      summary_sent_at:now.toISOString(),
-      summary_sent_log:prevLog+logEntry
-    }).eq('id',id);
+    const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    const log=(b.summary_sent_log||'')+ts+' gästlänk via SMS till '+dest+'\n';
+    await db.from('bookings').update({summary_sent_at:now.toISOString(),summary_sent_log:log}).eq('id',id);
     reRender(id);
   }
 }
