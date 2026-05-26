@@ -328,18 +328,32 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
     <!-- ARKIV -->
     <div id="pane-archive" style="display:none">
-      <h3 style="margin-bottom:.25rem">Arkiverade bokningar</h3>
+      <h3 style="margin-bottom:.25rem">Arkiv</h3>
       <div class="gold-line"></div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Bokningar vars datum passerat arkiveras automatiskt. Klicka för att se kökslistan.</p>
-      <div style="position:relative;margin-bottom:.75rem">
-      <input type="text" id="archiveSearch" placeholder="Sök i arkiverade bokningar..." 
-        oninput="filterArchive()"
-        style="padding-left:36px;background:var(--surface)">
-      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">🔍</span>
-      <button id="clearArchiveSearch" onclick="clearArchiveSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0">✕</button>
-    </div>
-    <div id="archiveSearchInfo" style="display:none;font-size:12px;color:var(--muted);margin-bottom:.5rem"></div>
-    <div id="archiveList"></div>
+      <!-- Arkiv-flikar -->
+      <div style="display:flex;gap:6px;margin-bottom:1.25rem">
+        <button class="btn bp" id="arc-tab-bookings" style="font-size:13px;padding:7px 16px;border-radius:100px" onclick="switchArchiveTab('bookings')">Bokningar</button>
+        <button class="btn bg" id="arc-tab-menus" style="font-size:13px;padding:7px 16px;border-radius:100px" onclick="switchArchiveTab('menus')">Menyer</button>
+      </div>
+
+      <!-- Bokningar -->
+      <div id="arc-pane-bookings">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Bokningar vars datum passerat arkiveras automatiskt.</p>
+        <div style="position:relative;margin-bottom:.75rem">
+          <input type="text" id="archiveSearch" placeholder="Sök i arkiverade bokningar..."
+            oninput="filterArchive()" style="padding-left:36px;background:var(--surface)">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">🔍</span>
+          <button id="clearArchiveSearch" onclick="clearArchiveSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0">✕</button>
+        </div>
+        <div id="archiveSearchInfo" style="display:none;font-size:12px;color:var(--muted);margin-bottom:.5rem"></div>
+        <div id="archiveList"></div>
+      </div>
+
+      <!-- Menyer -->
+      <div id="arc-pane-menus" style="display:none">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Arkiverade menyer kan återställas eller raderas permanent.</p>
+        <div id="archiveMenuList"></div>
+      </div>
     </div>
 
     <!-- INSTÄLLNINGAR -->
@@ -1226,12 +1240,58 @@ async function renderCalResults(){
 // ARKIV
 let allArchived=[];
 
+let arcTab='bookings';
+function switchArchiveTab(tab){
+  arcTab=tab;
+  document.getElementById('arc-pane-bookings').style.display=tab==='bookings'?'block':'none';
+  document.getElementById('arc-pane-menus').style.display=tab==='menus'?'block':'none';
+  document.getElementById('arc-tab-bookings').className='btn '+(tab==='bookings'?'bp':'bg');
+  document.getElementById('arc-tab-bookings').style.cssText='font-size:13px;padding:7px 16px;border-radius:100px';
+  document.getElementById('arc-tab-menus').className='btn '+(tab==='menus'?'bp':'bg');
+  document.getElementById('arc-tab-menus').style.cssText='font-size:13px;padding:7px 16px;border-radius:100px';
+  if(tab==='menus')renderArchivedMenus();
+}
 async function renderArchive(){
   if(!rest)return;
   const today=new Date().toISOString().split('T')[0];
   const {data:bs}=await db.from('bookings').select('*, orders(id)').eq('restaurant_id',rest.id).lt('event_date',today).order('event_date',{ascending:false});
   allArchived=bs||[];
   renderArchiveList(allArchived);
+}
+async function archiveMenu(id){
+  if(!confirm('Arkivera menyn? Den kan återställas från Arkiv.'))return;
+  await db.from('menus').update({archived:true}).eq('id',id);
+  await renderMenu();
+}
+async function renderArchivedMenus(){
+  const el=document.getElementById('archiveMenuList');
+  el.innerHTML='<span class="spinner"></span>';
+  const {data:ms}=await db.from('menus').select('*').eq('restaurant_id',rest.id).eq('archived',true).order('created_at',{ascending:false});
+  if(!ms?.length){el.innerHTML='<div class="empty">Inga arkiverade menyer.</div>';return;}
+  el.innerHTML=ms.map(m=>`
+    <div class="bcard" style="margin-bottom:.75rem">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="bname">${escHtml(m.name)}</div>
+          ${m.description?`<div class="bmeta">${escHtml(m.description)}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn bg" style="font-size:12px" onclick="restoreMenu('${m.id}')">Återställ</button>
+          <button class="btn bd" style="font-size:12px" onclick="deleteMenuPermanent('${m.id}')">Radera</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+async function restoreMenu(id){
+  await db.from('menus').update({archived:false}).eq('id',id);
+  renderArchivedMenus();
+  await renderMenu();
+}
+async function deleteMenuPermanent(id){
+  if(!confirm('Radera menyn permanent? Det går inte att ångra.'))return;
+  await db.from('menu_categories').delete().eq('menu_id',id);
+  await db.from('menus').delete().eq('id',id);
+  renderArchivedMenus();
 }
 
 function renderArchiveList(bookings){
@@ -1496,6 +1556,7 @@ async function renderMenu(){
         <div style="display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap">
           <button class="btn bg" style="font-size:12px" onclick="event.stopPropagation();toggleNC()">+ Ny rubrik</button>
           <button class="btn bg" style="font-size:12px" onclick="event.stopPropagation();copyMenu('${m.id}')">Kopiera meny</button>
+          <button class="btn bg" style="font-size:12px" onclick="event.stopPropagation();archiveMenu('${m.id}')">Arkivera meny</button>
           <button class="btn bd" style="font-size:12px" onclick="event.stopPropagation();deleteMenu('${m.id}')">Ta bort meny</button>
         </div>
         <div id="mcontent_${m.id}"><div style="font-size:13px;color:var(--muted)">Laddar...</div></div>
