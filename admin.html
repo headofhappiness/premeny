@@ -1228,7 +1228,8 @@ async function toggleArc(id){
 // MENY
 async function loadCats(){
   const {data:menuData}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
-  menus=menuData||[];
+  menus=(menuData||[]).filter(m=>!m.archived);
+  if(menus.length&&!activeMenuId)activeMenuId=menus[0].id;
   if(activeMenuId){
     const {data}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',activeMenuId).order('sort_order');
     cats=(data||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)}));
