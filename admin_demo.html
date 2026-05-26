@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<link rel="icon" type="image/png" href="PM_logo.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Demo – PreMeny</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--bs:#d4ccc0;--gold:#b8955a;--dark:#1a1712;--text:#1a1712;--muted:#5a5248;--red:#c0392b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
+.logo{font-family:"Playfair Display",serif;font-size:1.15rem;color:var(--dark)}.logo span{color:var(--gold)}
+.demo-badge{background:rgba(184,149,90,.12);border:1px solid rgba(184,149,90,.3);border-radius:100px;padding:3px 12px;font-size:11px;color:var(--gold);font-weight:500;letter-spacing:.05em}
+.page{max-width:780px;margin:0 auto;padding:2rem 1.25rem 5rem}
+h1{font-family:"Playfair Display",serif;font-size:1.9rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
+h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:var(--dark)}
+.gold-line{width:32px;height:1px;background:var(--gold);margin:.5rem 0 1.25rem;opacity:.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:14px;font-weight:500;cursor:default;border:1px solid transparent;white-space:nowrap}
+.bp{background:var(--dark);color:#fff}.bo{background:var(--gold);color:#fff}.bg{background:transparent;border-color:var(--border);color:var(--muted)}.bd{background:transparent;border-color:#e8d0d0;color:#a05050}
+.tabs{display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{background:transparent;border:1px solid var(--border);border-radius:100px;padding:9px 16px;font-family:"Outfit",sans-serif;font-size:15px;color:var(--muted);cursor:pointer;transition:all .2s}
+.tab:hover{border-color:var(--dark);color:var(--dark)}.tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.bcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem;transition:border-color .2s}
+.bcard:hover{border-color:var(--bs);cursor:pointer}.bcard.open{border-color:var(--gold)}
+.bhead{display:flex;justify-content:space-between;align-items:flex-start}
+.bname{font-family:"Playfair Display",serif;font-size:1.15rem;color:var(--dark)}
+.bmeta{font-size:14px;color:var(--muted);margin-top:3px}
+.pill{border-radius:100px;padding:5px 12px;font-size:13px;font-weight:500}
+.po{background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.25);color:var(--gold)}
+.pc{background:#fdf2f2;border:1px solid #e8c0c0;color:#a05050}
+.bdetail{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;display:none}
+.bcard.open .bdetail{display:block}
+.info-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;font-size:14px;margin-bottom:.75rem}
+.prog-wrap{flex:1;background:var(--border);border-radius:100px;height:6px;overflow:hidden}
+.prog-fill{height:100%;background:var(--gold);border-radius:100px}
+.menu-item-row{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}
+.menu-item-row:last-child{border-bottom:none}
+.menu-item-name{font-size:15px;font-weight:500;color:var(--dark)}
+.menu-item-desc{font-size:13px;color:var(--muted);margin-top:2px}
+.menu-item-price{font-size:14px;color:var(--gold);margin-left:auto;flex-shrink:0;padding-left:12px}
+.pane{display:none}.pane.active{display:block}
+.kitchen-cat{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem}
+.kitchen-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:15px}
+.kitchen-row:last-child{border-bottom:none}
+.bar-wrap{display:flex;align-items:center;gap:8px}
+.bar-bg{width:80px;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:var(--gold);border-radius:3px}
+/* Demo overlay */
+.demo-banner{background:rgba(184,149,90,.08);border-bottom:1px solid rgba(184,149,90,.2);padding:.6rem 1.5rem;text-align:center;font-size:13px;color:var(--gold)}
+.demo-banner a{color:var(--gold);font-weight:500}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  🎯 Detta är en demo av PreMeny — <a href="https://headofhappiness.github.io/premeny/brunsbo_demo.html?booking=b1" target="_blank">Se hur det ser ut för dina gäster →</a>
+</div>
+
+<nav class="nav">
+  <div style="display:flex;align-items:center;gap:10px">
+    <img src="PM_logo.png" style="width:30px;height:30px;border-radius:50%">
+    <div class="logo">Pre<span>Meny</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:14px;color:var(--muted)">Din Restaurang AB</span>
+    <div class="demo-badge">DEMO</div>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Admin</h1>
+  <div class="gold-line"></div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('bookings',this)">Bokningar</button>
+    <button class="tab" onclick="showTab('cal',this)">Dagsöversikt</button>
+    <button class="tab" onclick="showTab('menus',this)">Menyer</button>
+    <button class="tab" onclick="showTab('settings',this)">⚙ Inställningar</button>
+  </div>
+
+  <!-- BOKNINGAR -->
+  <div id="pane-bookings" class="pane active">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div>
+        <h3>Aktiva bokningar</h3>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">Påminnelser skickas automatiskt.</div>
+      </div>
+      <button class="btn bp" style="font-size:13px;padding:9px 16px">+ Ny bokning</button>
+    </div>
+
+    <!-- Bokning 1 - öppen -->
+    <div class="bcard open">
+      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="bname">Familjen Lindström</div>
+            <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
+          </div>
+          <div class="bmeta">27 jun 2026 kl 18:00 · Sista beställning: 22 jun</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:.6rem">
+            <div style="font-size:13px;color:var(--muted)">18 av 24 beställt</div>
+            <div class="prog-wrap"><div class="prog-fill" style="width:75%"></div></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <span class="pill po">Öppen</span>
+          <div style="display:flex;gap:5px">
+            <button class="btn bg" style="font-size:11px;padding:4px 10px">Arkivera</button>
+            <button class="btn bd" style="font-size:11px;padding:4px 10px">Ta bort</button>
+          </div>
+        </div>
+      </div>
+      <div class="bdetail">
+        <div class="info-box">
+          <strong>Sällskapets kontaktperson:</strong> Anna Lindström · anna@lindstrom.se · +46 70 123 45 67
+        </div>
+        <div class="info-box" style="margin-bottom:.75rem">👤 Bokningsansvarig: Maria</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:.4rem">GÄSTLÄNK</div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem 1rem;font-size:13px;color:var(--muted);font-family:monospace;margin-bottom:.75rem">https://premeny.se/guest.html?r=dinrestaurang&b=abc123</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem">
+          <button class="btn bo" style="font-size:12px;padding:7px 14px">✉ Skicka bekräftelse</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px">✉ Skicka länk via mejl</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px">💬 Skicka länk via SMS</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px">Kopiera länk</button>
+        </div>
+        <div style="background:#f2f8ec;border:1px solid #c8e0a8;border-radius:8px;padding:.7rem 1rem;font-size:13px;color:#3a6020;margin-bottom:.75rem">
+          ✓ 2026-06-15 kl 09:22 bekräftelse skickad till anna@lindstrom.se
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:.75rem;border-bottom:1px solid var(--border);padding-bottom:.75rem">
+          <button class="btn bp" style="font-size:12px;padding:7px 14px;background:var(--dark)">Sammanfattning</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px">Fyll i sällskap</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px">Gästlista</button>
+        </div>
+        <div class="kitchen-cat">HUVUDRÄTTER</div>
+        <div class="kitchen-row"><span>Smörstekt torskrygg</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:55%"></div></div><strong>10</strong></div></div>
+        <div class="kitchen-row"><span>Entrecote</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:33%"></div></div><strong>6</strong></div></div>
+        <div class="kitchen-row"><span>Vegetarisk pasta</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:11%"></div></div><strong>2</strong></div></div>
+        <div class="kitchen-cat">FÖRRÄTTER</div>
+        <div class="kitchen-row"><span>Toast Skagen</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:44%"></div></div><strong>8</strong></div></div>
+        <div class="kitchen-row"><span>Gubbröra med kavring</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:28%"></div></div><strong>5</strong></div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:1rem">
+          <button class="btn bg" style="font-size:12px">Kopiera sammanfattning</button>
+          <button class="btn bg" style="font-size:12px">🖨 Skriv ut</button>
+          <button class="btn bg" style="font-size:12px">📄 Ladda ner PDF</button>
+          <button class="btn bd" style="font-size:12px">Ta bort bokning</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bokning 2 -->
+    <div class="bcard">
+      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="bname">Konferens Volvo</div>
+            <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
+          </div>
+          <div class="bmeta">4 jul 2026 kl 12:00 · Sista beställning: 1 jul</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:.6rem">
+            <div style="font-size:13px;color:var(--muted)">8 av 30 beställt</div>
+            <div class="prog-wrap"><div class="prog-fill" style="width:27%"></div></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <span class="pill po">Öppen</span>
+          <div style="display:flex;gap:5px">
+            <button class="btn bg" style="font-size:11px;padding:4px 10px">Arkivera</button>
+            <button class="btn bd" style="font-size:11px;padding:4px 10px">Ta bort</button>
+          </div>
+        </div>
+      </div>
+      <div class="bdetail">
+        <div class="info-box"><strong>Kontaktperson:</strong> Erik Svensson · erik.svensson@volvo.com</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn bo" style="font-size:12px;padding:7px 14px">✉ Skicka bekräftelse</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px">✉ Skicka länk via mejl</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px">Kopiera länk</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bokning 3 stängd -->
+    <div class="bcard">
+      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="bname">Studentmiddag HB</div>
+            <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
+          </div>
+          <div class="bmeta">12 jul 2026 kl 19:00 · Sista beställning passerat</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:.6rem">
+            <div style="font-size:13px;color:var(--muted)">42 av 42 beställt ✓</div>
+            <div class="prog-wrap"><div class="prog-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <span class="pill pc">Stängd</span>
+          <div style="display:flex;gap:5px">
+            <button class="btn bg" style="font-size:11px;padding:4px 10px">Arkivera</button>
+            <button class="btn bd" style="font-size:11px;padding:4px 10px">Ta bort</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAGSÖVERSIKT -->
+  <div id="pane-cal" class="pane">
+    <h3 style="margin-bottom:.5rem">Dagsöversikt</h3>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:1rem">Välj datum för att se sammanställning per dag.</div>
+    <div class="card" style="text-align:center;padding:2rem;color:var(--muted);font-size:14px">
+      📅 Kalendervy — välj datum för att se beställningar per dag, kökslista och gästlista.
+    </div>
+  </div>
+
+  <!-- MENYER -->
+  <div id="pane-menus" class="pane">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <h3>Menyer</h3>
+      <button class="btn bp" style="font-size:13px;padding:9px 16px">+ Ny meny</button>
+    </div>
+
+    <div class="bcard open">
+      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="bname">À la carte</div>
+          <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
+        </div>
+      </div>
+      <div class="bdetail">
+        <div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap">
+          <button class="btn bg" style="font-size:12px">+ Ny rubrik</button>
+          <button class="btn bg" style="font-size:12px">Kopiera meny</button>
+          <button class="btn bg" style="font-size:12px">Arkivera meny</button>
+          <button class="btn bd" style="font-size:12px">Ta bort meny</button>
+        </div>
+
+        <div style="margin-bottom:1.5rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)">Förrätter</div>
+            <button class="btn bg" style="font-size:11px;padding:4px 10px">+ Lägg till rätt</button>
+          </div>
+          <div class="card" style="padding:.75rem">
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Toast Skagen</div><div class="menu-item-desc">Toast bröd med räkröra, majonnäs, citron och röd rom</div></div><div class="menu-item-price">105 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Gubbröra med kavring</div><div class="menu-item-desc">Klassisk gubbröra gjord på matjessill, ägg, gräslök och rödlök</div></div><div class="menu-item-price">89 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetariska vårrullar</div><div class="menu-item-desc">Serveras med kål- och morotssallad, lime och sesamfrön</div></div><div class="menu-item-price">75 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)">Huvudrätter</div>
+            <button class="btn bg" style="font-size:11px;padding:4px 10px">+ Lägg till rätt</button>
+          </div>
+          <div class="card" style="padding:.75rem">
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Smörstekt torskrygg</div><div class="menu-item-desc">Räkor, ägg, pepparrot, citron, skirat smör och kokt potatis</div></div><div class="menu-item-price">239 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Entrecote</div><div class="menu-item-desc">Med bearnaisesås, pommes frites och sallad</div></div><div class="menu-item-price">289 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetarisk pasta</div><div class="menu-item-desc">Penne med pesto, parmesan och rostade pinjenötter</div></div><div class="menu-item-price">165 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bcard">
+      <div class="bhead">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="bname">Julbord 2026</div>
+          <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTÄLLNINGAR -->
+  <div id="pane-settings" class="pane">
+    <h3 style="margin-bottom:.5rem">Inställningar</h3>
+    <div class="gold-line"></div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">Restauranginformation</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.75rem">
+        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Telefon</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px">+46 35 123 45 67</div></div>
+        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">E-post</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px">info@dinrestaurang.se</div></div>
+        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Adress</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px">Storgatan 1, 123 45 Stad</div></div>
+        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Webbplats</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px">www.dinrestaurang.se</div></div>
+      </div>
+      <button class="btn bp" style="font-size:13px">Spara inställningar</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -191,6 +191,29 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
   </div>
 </div>
 
+<!-- VÄLKOMSTMEJL MODAL -->
+<div id="welcomeModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeWelcomeModal()">
+  <div class="modal" style="max-width:480px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+      <h3>Skicka välkomstmejl</h3>
+      <button class="btn bg" style="padding:5px 12px;font-size:12px" onclick="closeWelcomeModal()">✕</button>
+    </div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:1.25rem;line-height:1.7">Mejlet innehåller inloggningsuppgifter och två demo-länkar — en för adminvyn och en för gästvyn.</p>
+    <div class="ff"><label>Admin e-post</label><input type="email" id="wm-email" placeholder="admin@restaurangen.se"></div>
+    <div class="ff"><label>Tillfälligt lösenord</label>
+      <div style="display:flex;gap:6px">
+        <input type="text" id="wm-pass" placeholder="Minst 8 tecken">
+        <button class="btn bg" style="padding:8px 12px;flex-shrink:0;font-size:12px" onclick="genWelcomePass()">Generera</button>
+      </div>
+    </div>
+    <div id="wm-msg" style="display:none" class="msg"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bp" onclick="sendWelcomeEmail()" id="wm-btn">✉ Skicka välkomstmejl</button>
+      <button class="btn bg" onclick="closeWelcomeModal()">Avbryt</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
@@ -305,6 +328,8 @@ async function loadRestaurants(){
       <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
         <span class="plan-badge ${planClass[r.plan]||'plan-early'}">${planLabels[r.plan]||r.plan}</span>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openStats('${r.id}','${r.name.replace(/'/g,"\\'")}')">📊 Statistik</button>
+        
+        <button class="btn bo" style="font-size:11px;padding:4px 10px" onclick="openWelcomeModal('${r.id}','${r.name.replace(/'/g,\"\\'\")}')">✉ Välkomstmejl</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openEditRest('${r.id}')">Redigera</button>
         <button class="btn ${r.active?'bd':'bg'}" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',${r.active})">${r.active?'Inaktivera':'Aktivera'}</button>
       </div>
@@ -524,6 +549,54 @@ async function toggleActive(id,current){
   if(!confirm((current?'Inaktivera':'Aktivera')+' restaurangen?'))return;
   await db.from('restaurants').update({active:!current}).eq('id',id);
   loadRestaurants();loadStats();
+}
+
+// ── VÄLKOMSTMEJL ─────────────────────────────────────────────────────
+let _welcomeRestId = null;
+let _welcomeRestName = null;
+
+function openWelcomeModal(id, name, email){
+  _welcomeRestId = id;
+  _welcomeRestName = name;
+  document.getElementById('wm-email').value = email || '';
+  document.getElementById('wm-pass').value = '';
+  document.getElementById('wm-msg').style.display = 'none';
+  genWelcomePass();
+  document.getElementById('welcomeModal').style.display = 'flex';
+}
+function closeWelcomeModal(){ document.getElementById('welcomeModal').style.display='none'; }
+function genWelcomePass(){
+  const chars='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+  let p='';for(let i=0;i<12;i++)p+=chars[Math.floor(Math.random()*chars.length)];
+  document.getElementById('wm-pass').value=p;
+}
+async function sendWelcomeEmail(){
+  const email = document.getElementById('wm-email').value.trim();
+  const pass = document.getElementById('wm-pass').value.trim();
+  const msg = document.getElementById('wm-msg');
+  if(!email||!pass){ msg.style.display='block';msg.className='msg merr';msg.textContent='Fyll i e-post och lösenord.';return; }
+  const btn = document.getElementById('wm-btn');
+  btn.disabled=true; btn.textContent='Skickar...'; msg.style.display='none';
+  try{
+    const {data:{session}} = await db.auth.getSession();
+    const resp = await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body: JSON.stringify({
+        type:'welcome',
+        booking:{ adminEmail:email, tempPassword:pass, restaurantName:_welcomeRestName },
+        restaurant:{ name:'PreMeny', contact_email:'lisa@headofhappiness.se' },
+        guestLink:'https://premeny.se/admin.html'
+      })
+    });
+    const result = await resp.json();
+    if(!result.ok) throw new Error(result.error||'Okänt fel');
+    msg.style.display='block'; msg.className='msg mok';
+    msg.innerHTML='✓ Välkomstmejl skickat till <strong>'+email+'</strong>!';
+  }catch(err){
+    msg.style.display='block'; msg.className='msg merr'; msg.textContent='Fel: '+err.message;
+  }
+  btn.disabled=false; btn.textContent='✉ Skicka välkomstmejl';
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────
