@@ -190,6 +190,12 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           <div class="ff"><label>Telefon</label><input type="tel" id="nb-phone" placeholder="+46 70 123 45 67"></div>
         </div>
         <div class="r2">
+          <div class="ff"><label>Meny</label>
+            <select id="nb-menu">
+              <option value="">Välj meny...</option>
+            </select>
+          </div>
+          <div class="ff"></div>
           <div class="ff"><label>Påminnelse</label>
             <select id="nb-reminder">
               <option value="0">Ingen påminnelse</option>
@@ -258,7 +264,25 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
     <!-- MENY -->
     <div id="pane-menu" style="display:none">
-      <div class="fb"><h3>Uppdatera meny</h3><button class="btn bp" onclick="toggleNC()">+ Ny rubrik</button></div>
+      <div class="fb"><h3>Uppdatera meny</h3>
+        <div style="display:flex;gap:6px">
+          <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
+          <button class="btn bp" onclick="toggleNC()" id="btn-ny-rubrik" style="display:none">+ Ny rubrik</button>
+        </div>
+      </div>
+
+      <!-- Meny-väljare -->
+      <div id="menu-selector" style="margin-bottom:1rem;display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
+
+      <!-- Ny meny-formulär -->
+      <div id="newMenuForm" style="display:none" class="card">
+        <div class="ff"><label>Menyns namn</label><input type="text" id="nm-name" placeholder="T.ex. À la carte, Julbord, Bröllopsmeny..."></div>
+        <div class="fg">
+          <button class="btn bp" onclick="createMenu()">Skapa meny</button>
+          <button class="btn bg" onclick="document.getElementById('newMenuForm').style.display='none'">Avbryt</button>
+        </div>
+      </div>
+
       <div id="newCatForm" style="display:none" class="card">
         <div class="card-label">Ny menyrubrik</div>
         <div class="ff"><label>Namn</label><input type="text" id="nc-name" placeholder="T.ex. Förrätter, Varmrätt, Dessert..."></div>
@@ -370,7 +394,7 @@ const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
 const SKEY='sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
 const {createClient}=supabase;
 const db=createClient(SURL,SKEY);
-let rest=null,cats=[],openB={},dtabs={};
+let rest=null,cats=[],menus=[],activeMenuId=null,openB={},dtabs={};
 let calY=new Date().getFullYear(),calM=new Date().getMonth(),calDates={},calSel=new Set();
 
 // AUTH
@@ -795,6 +819,7 @@ async function createBooking(){
     contact_name:document.getElementById('nb-contact').value.trim()||null,
     contact_email:document.getElementById('nb-email').value.trim()||null,
     contact_phone:document.getElementById('nb-phone').value.trim()||null,
+    menu_id:document.getElementById('nb-menu').value||null,
     reminder_days:parseInt(document.getElementById('nb-reminder').value)||0,
     reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
     internal_comment:document.getElementById('nb-comment').value.trim()||null,
@@ -1202,14 +1227,37 @@ async function toggleArc(id){
 
 // MENY
 async function loadCats(){
-  const {data}=await db.from('menu_categories').select('*, menu_items(*)').eq('restaurant_id',rest.id).order('sort_order');
-  cats=(data||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)}));
+  const {data:menuData}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
+  menus=menuData||[];
+  if(menus.length&&!activeMenuId)activeMenuId=menus[0].id;
+  if(activeMenuId){
+    const {data}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',activeMenuId).order('sort_order');
+    cats=(data||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)}));
+  } else {
+    cats=[];
+  }
 }
 
 async function renderMenu(){
   await loadCats();
+
+  // Render menu selector
+  const sel=document.getElementById('menu-selector');
+  if(menus.length){
+    sel.innerHTML=menus.map(m=>
+      `<button class="btn ${m.id===activeMenuId?'bp':'bg'}" style="font-size:12px;padding:6px 14px" onclick="switchMenu('${m.id}')">${m.name}</button>`+
+      `<button onclick="copyMenu('${m.id}')" title="Kopiera meny" style="background:none;border:none;font-size:14px;cursor:pointer;color:var(--muted);padding:0 2px">⧉</button>`+
+      `<button onclick="deleteMenu('${m.id}')" title="Ta bort meny" style="background:none;border:none;font-size:14px;cursor:pointer;color:#c0a0a0;padding:0 2px">✕</button>`
+    ).join('');
+    document.getElementById('btn-ny-rubrik').style.display='inline-flex';
+  } else {
+    sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Skapa din första meny för att komma igång.</div>';
+    document.getElementById('btn-ny-rubrik').style.display='none';
+  }
+
   const ed=document.getElementById('menuEditor');
-  if(!cats.length){ed.innerHTML='<div class="empty">Inga menyrubrikerna. Klicka "+ Ny rubrik".</div>';return;}
+  if(!activeMenuId){ed.innerHTML='';return;}
+  if(!cats.length){ed.innerHTML='<div class="empty">Inga rätter ännu. Klicka "+ Ny rubrik" för att lägga till kategorier.</div>';return;}
   ed.innerHTML=cats.map(cat=>`
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
@@ -1258,10 +1306,46 @@ async function renderMenu(){
     </div>`).join('');
 }
 
+function showNewMenuForm(){document.getElementById('newMenuForm').style.display='block';}
+async function createMenu(){
+  const name=document.getElementById('nm-name').value.trim();
+  if(!name)return;
+  const {data:m}=await db.from('menus').insert({restaurant_id:rest.id,name}).select().single();
+  activeMenuId=m.id;
+  document.getElementById('nm-name').value='';
+  document.getElementById('newMenuForm').style.display='none';
+  renderMenu();
+}
+async function switchMenu(id){activeMenuId=id;renderMenu();}
+async function deleteMenu(id){
+  if(!confirm('Ta bort denna meny och alla dess rätter?'))return;
+  await db.from('menu_items').delete().in('category_id',(await db.from('menu_categories').select('id').eq('menu_id',id)).data?.map(c=>c.id)||[]);
+  await db.from('menu_categories').delete().eq('menu_id',id);
+  await db.from('menus').delete().eq('id',id);
+  if(activeMenuId===id)activeMenuId=null;
+  renderMenu();
+}
+async function copyMenu(id){
+  const src=menus.find(m=>m.id===id);
+  if(!src)return;
+  const newName=prompt('Namn på kopian:',src.name+' (kopia)');
+  if(!newName)return;
+  const {data:newMenu}=await db.from('menus').insert({restaurant_id:rest.id,name:newName}).select().single();
+  const {data:srcCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',id).order('sort_order');
+  for(const cat of srcCats||[]){
+    const {data:newCat}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:newMenu.id,label:cat.label,sort_order:cat.sort_order}).select().single();
+    for(const item of cat.menu_items||[]){
+      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description,price:item.price,sort_order:item.sort_order,active:true});
+    }
+  }
+  activeMenuId=newMenu.id;
+  renderMenu();
+}
 function showAI(id){document.getElementById('ai_'+id).style.display='block';}
 async function addItem(cid){
   const name=document.getElementById('ain_'+cid).value.trim();if(!name)return;
-  await db.from('menu_items').insert({category_id:cid,restaurant_id:rest.id,name,description:document.getElementById('aid_'+cid).value.trim(),price:parseInt(document.getElementById('aip_'+cid).value)||0});
+  const so=cats.find(c=>c.id===cid)?.menu_items?.length||0;
+  await db.from('menu_items').insert({category_id:cid,restaurant_id:rest.id,name,description:document.getElementById('aid_'+cid).value.trim(),price:parseInt(document.getElementById('aip_'+cid).value)||0,sort_order:so,active:true});
   renderMenu();
 }
 function editItem(id){
