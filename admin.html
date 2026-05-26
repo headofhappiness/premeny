@@ -265,10 +265,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <!-- MENY -->
     <div id="pane-menu" style="display:none">
       <div class="fb"><h3>Menyer</h3>
-        <div style="display:flex;gap:6px">
-          <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
-          <button class="btn bp" onclick="toggleNC()" id="btn-ny-rubrik" style="display:none">+ Ny rubrik</button>
-        </div>
+        <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
       </div>
 
       <!-- Meny-väljare -->
@@ -291,7 +288,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         <div class="ff"><label>Namn</label><input type="text" id="nc-name" placeholder="T.ex. Förrätter, Varmrätt, Dessert..."></div>
         <div class="fg"><button class="btn bp" onclick="addCat()">Skapa</button><button class="btn bg" onclick="toggleNC()">Avbryt</button></div>
       </div>
-      <div id="menuEditor" style="margin-top:1rem"></div>
+      <div id="menuEditor" style="margin-top:0"></div>
 
       <!-- AI MENYIMPORT -->
       <div class="card" style="margin-top:1.5rem;background:rgba(184,149,90,.04);border:1px solid rgba(184,149,90,.18)">
@@ -1243,49 +1240,54 @@ async function loadCats(){
 
 async function renderMenu(){
   await loadCats();
-
-  // Render menu selector
   const sel=document.getElementById('menu-selector');
-  if(menus.length){
-    // Build menu cards
-    let menuHtml='';
-    for(const m of menus){
-      const {data:mCats}=await db.from('menu_categories').select('id,label').eq('menu_id',m.id).order('sort_order');
-      const catIds=(mCats||[]).map(c=>c.id);
-      const {count}=catIds.length?await db.from('menu_items').select('*',{count:'exact',head:true}).in('category_id',catIds):{count:0};
-      const isActive=m.id===activeMenuId;
-      menuHtml+=`<div class="card" style="margin-bottom:.5rem;border-color:${isActive?'var(--gold)':'var(--border)'}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div style="flex:1">
-            <div style="font-size:15px;font-weight:500;color:var(--dark)">${m.name}${isActive?'<span style="font-size:11px;color:var(--gold);margin-left:8px;font-weight:400">● Aktiv</span>':''}</div>
-            ${m.description?`<div style="font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5">${m.description}</div>`:''}
-            <div style="font-size:12px;color:var(--muted);margin-top:4px">${(mCats||[]).length} kategorier · ${count||0} rätter</div>
-          </div>
-          <div style="display:flex;gap:6px;flex-shrink:0;margin-left:1rem">
-            ${!isActive?`<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="switchMenu('${m.id}')">Redigera</button>`:''}
-            <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyMenu('${m.id}')">Kopiera</button>
-            <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteMenu('${m.id}')">Ta bort</button>
-          </div>
-        </div>
-        <div style="margin-top:.75rem">
-          <button onclick="toggleMenuPreview('${m.id}')" style="background:none;border:none;font-size:12px;color:var(--gold);cursor:pointer;padding:0;font-family:inherit">Se hela menyn ›</button>
-          <div id="menu-preview-${m.id}" style="display:none;margin-top:.75rem">
-            ${(mCats||[]).map(cat=>`<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.5rem 0 .2rem">${cat.label}</div>`).join('')}
-          </div>
-        </div>
-      </div>`;
-    }
-    sel.innerHTML=menuHtml;
-    document.getElementById('btn-ny-rubrik').style.display='inline-flex';
-  } else {
+  const ed=document.getElementById('menuEditor');
+
+  if(!menus.length){
     sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Skapa din första meny för att komma igång.</div>';
-    document.getElementById('btn-ny-rubrik').style.display='none';
+    ed.innerHTML='';
+    return;
   }
 
-  const ed=document.getElementById('menuEditor');
+  // Build menu cards
+  let menuHtml='';
+  for(const m of menus){
+    const {data:mCats}=await db.from('menu_categories').select('id,label').eq('menu_id',m.id).order('sort_order');
+    const catIds=(mCats||[]).map(cat=>cat.id);
+    const {count}=catIds.length?await db.from('menu_items').select('*',{count:'exact',head:true}).in('category_id',catIds):{count:0};
+    const isActive=m.id===activeMenuId;
+    menuHtml+=`<div class="card" style="margin-bottom:.5rem;border-color:${isActive?'var(--gold)':'var(--border)'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:500;color:var(--dark)">${m.name}${isActive?'<span style="font-size:11px;color:var(--gold);margin-left:8px;font-weight:400">● Aktiv</span>':''}</div>
+          ${m.description?`<div style="font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5">${m.description}</div>`:''}
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">${(mCats||[]).length} kategorier · ${count||0} rätter</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;margin-left:1rem">
+          <button class="btn ${isActive?'bp':'bg'}" style="font-size:11px;padding:4px 10px" onclick="switchMenu('${m.id}')">${isActive?'Redigerar':'Redigera'}</button>
+          <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyMenu('${m.id}')">Kopiera</button>
+          <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteMenu('${m.id}')">Ta bort</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  sel.innerHTML=menuHtml;
+
+  // Show active menu editor below cards
   if(!activeMenuId){ed.innerHTML='';return;}
-  if(!cats.length){ed.innerHTML='<div class="empty">Inga rätter ännu. Klicka "+ Ny rubrik" för att lägga till kategorier.</div>';return;}
-  ed.innerHTML=cats.map(cat=>`
+  if(!cats.length){
+    ed.innerHTML=`<div style="margin-top:1rem;display:flex;gap:8px">
+      <button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button>
+    </div><div class="empty" style="margin-top:.75rem">Inga rätter ännu. Lägg till en rubrik för att börja.</div>`;
+    return;
+  }
+
+  ed.innerHTML=`<div style="margin-top:1rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+      <div style="font-size:13px;color:var(--muted);font-weight:500">${menus.find(m=>m.id===activeMenuId)?.name||''}</div>
+      <button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button>
+    </div>
+    ${cats.map(cat=>`
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
         <div class="card-label" style="margin:0">${cat.label}</div>
@@ -1301,9 +1303,10 @@ async function renderMenu(){
               <div style="font-size:14px;font-weight:400;color:var(--dark)">${item.name}</div>
               ${item.description?`<div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">${item.description}</div>`:''}
             </div>
-            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
               <span style="font-size:13px;color:var(--gold);font-weight:500">${item.price?item.price+' kr':''}</span>
               <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="editItem('${item.id}')">Redigera</button>
+              <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyItemToMenu('${item.id}','${item.name}')">+ Kopiera till meny</button>
               <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delItem('${item.id}')">Ta bort</button>
             </div>
           </div>
@@ -1330,239 +1333,8 @@ async function renderMenu(){
           <button class="btn bg" style="font-size:12px" onclick="document.getElementById('ai_${cat.id}').style.display='none'">Avbryt</button>
         </div>
       </div>
-    </div>`).join('');
+    </div>`).join('')}
+  </div>`;
 }
 
-function showNewMenuForm(){document.getElementById('newMenuForm').style.display='block';}
-async function createMenu(){
-  const name=document.getElementById('nm-name').value.trim();
-  if(!name){alert('Ange ett namn för menyn.');return;}
-  const desc=document.getElementById('nm-desc').value.trim();
-  const {data:m,error}=await db.from('menus').insert({restaurant_id:rest.id,name,description:desc}).select().single();
-  if(error){alert('Kunde inte skapa meny: '+error.message);return;}
-  activeMenuId=m.id;
-  document.getElementById('nm-name').value='';
-  document.getElementById('nm-desc').value='';
-  document.getElementById('newMenuForm').style.display='none';
-  renderMenu();
-}
-async function switchMenu(id){activeMenuId=id;renderMenu();}
-async function toggleMenuPreview(id){
-  const el=document.getElementById('menu-preview-'+id);
-  if(el.style.display!=='none'){el.style.display='none';return;}
-  el.innerHTML='<span style="font-size:12px;color:var(--muted)">Laddar...</span>';
-  el.style.display='block';
-  const {data:mCats}=await db.from('menu_categories').select('*, menu_items(name,price,active)').eq('menu_id',id).order('sort_order');
-  el.innerHTML=(mCats||[]).map(cat=>`
-    <div style="margin-bottom:.5rem">
-      <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${cat.label}</div>
-      ${(cat.menu_items||[]).filter(i=>i.active).map(item=>
-        `<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px solid var(--border)">
-          <span>${item.name}</span>
-          <span style="color:var(--gold)">${item.price?item.price+' kr':''}</span>
-        </div>`
-      ).join('')}
-    </div>`).join('') || '<div style="font-size:13px;color:var(--muted)">Inga rätter ännu.</div>';
-}
-async function deleteMenu(id){
-  const choice=confirm('Klicka OK för att arkivera menyn (dölj men behåll data)\nKlicka Avbryt för att avbryta.');
-  if(!choice)return;
-  const hardDelete=confirm('Vill du ta bort menyn permanent? Annars arkiveras den.');
-  if(hardDelete){
-    await db.from('menu_items').delete().in('category_id',(await db.from('menu_categories').select('id').eq('menu_id',id)).data?.map(c=>c.id)||[]);
-    await db.from('menu_categories').delete().eq('menu_id',id);
-    await db.from('menus').delete().eq('id',id);
-    if(activeMenuId===id)activeMenuId=null;
-  } else {
-    await db.from('menus').update({archived:true}).eq('id',id);
-    if(activeMenuId===id)activeMenuId=null;
-  }
-  renderMenu();
-}
-async function copyMenu(id){
-  const src=menus.find(m=>m.id===id);
-  if(!src)return;
-  const newName=prompt('Namn på kopian:',src.name+' (kopia)');
-  if(!newName)return;
-  const {data:newMenu}=await db.from('menus').insert({restaurant_id:rest.id,name:newName}).select().single();
-  const {data:srcCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',id).order('sort_order');
-  for(const cat of srcCats||[]){
-    const {data:newCat}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:newMenu.id,label:cat.label,sort_order:cat.sort_order}).select().single();
-    for(const item of cat.menu_items||[]){
-      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description,price:item.price,sort_order:item.sort_order,active:true});
-    }
-  }
-  activeMenuId=newMenu.id;
-  renderMenu();
-}
-function showAI(id){document.getElementById('ai_'+id).style.display='block';}
-async function addItem(cid){
-  const name=document.getElementById('ain_'+cid).value.trim();if(!name)return;
-  const so=cats.find(c=>c.id===cid)?.menu_items?.length||0;
-  await db.from('menu_items').insert({category_id:cid,restaurant_id:rest.id,name,description:document.getElementById('aid_'+cid).value.trim(),price:parseInt(document.getElementById('aip_'+cid).value)||0,sort_order:so,active:true});
-  renderMenu();
-}
-function editItem(id){
-  const el=document.getElementById('iedit_'+id);
-  el.style.display=el.style.display==='none'?'block':'none';
-}
-async function saveItem(id){
-  const name=document.getElementById('ien_'+id).value.trim();
-  const desc=document.getElementById('ied_'+id).value.trim();
-  const price=parseInt(document.getElementById('iep_'+id).value)||0;
-  if(!name)return;
-  await db.from('menu_items').update({name,description:desc,price}).eq('id',id);
-  renderMenu();
-}
-async function delItem(id){if(!confirm('Ta bort rätten?'))return;await db.from('menu_items').delete().eq('id',id);renderMenu();}
-function toggleNC(){const f=document.getElementById('newCatForm');f.style.display=f.style.display==='none'?'block':'none';}
-async function addCat(){
-  const name=document.getElementById('nc-name').value.trim();if(!name)return;
-  const mo=Math.max(0,...cats.map(c=>c.sort_order||0));
-  await db.from('menu_categories').insert({restaurant_id:rest.id,label:name,sort_order:mo+1});
-  document.getElementById('nc-name').value='';document.getElementById('newCatForm').style.display='none';renderMenu();
-}
-async function delCat(id){
-  const cat=cats.find(c=>c.id===id);
-  if(cat?.menu_items?.length>0){alert('Ta bort alla rätter i rubriken först.');return;}
-  if(!confirm('Ta bort rubriken?'))return;
-  await db.from('menu_categories').delete().eq('id',id);renderMenu();
-}
 
-// INSTÄLLNINGAR
-async function loadSettings(){
-  if(!rest)return;
-  document.getElementById('set-phone').value=rest.phone||'';
-  document.getElementById('set-email').value=rest.contact_email||'';
-  document.getElementById('set-address').value=rest.address||'';
-  document.getElementById('set-website').value=rest.website||'';
-  if(rest.logo_url){
-    document.getElementById('logo-preview').innerHTML=`<img src="${rest.logo_url}" style="width:100%;height:100%;object-fit:contain">`;
-  }
-
-}
-
-function previewLogo(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{document.getElementById('logo-preview').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:contain">`;};
-  reader.readAsDataURL(file);
-}
-
-async function saveSettings(){
-  const phone=document.getElementById('set-phone').value.trim();
-  const email=document.getElementById('set-email').value.trim();
-  const address=document.getElementById('set-address').value.trim();
-  const website=document.getElementById('set-website').value.trim();
-  
-  let logo_url=rest.logo_url||null;
-  const logoFile=document.getElementById('set-logo').files[0];
-  if(logoFile){
-    const ext=logoFile.name.split('.').pop();
-    const path=rest.id+'/logo.'+ext;
-    const {error:upErr}=await db.storage.from('logos').upload(path,logoFile,{upsert:true});
-    if(upErr){showMsg('set-msg','merr','Logga: '+upErr.message);return;}
-    const {data:urlData}=db.storage.from('logos').getPublicUrl(path);
-    logo_url=urlData.publicUrl;
-    const navLogo=document.getElementById('nav-logo');
-    navLogo.src=logo_url;
-    document.getElementById('nav-logo-wrap').style.display='block';
-  }
-  
-  const {error}=await db.from('restaurants').update({phone,contact_email:email,address,website,logo_url}).eq('id',rest.id);
-  if(error){showMsg('set-msg','merr','Fel: '+error.message);return;}
-  rest={...rest,phone,contact_email:email,address,website,logo_url};
-  showMsg('set-msg','mok','✓ Inställningar sparade!');
-}
-
-// HELPERS
-function showMsg(id,cls,text){const el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=text;setTimeout(()=>el.style.display='none',4000);}
-
-// IMPORT-FLIK
-function switchImportTab(tab){
-  document.getElementById('import-text-wrap').style.display=tab==='text'?'block':'none';
-  document.getElementById('import-image-wrap').style.display=tab==='image'?'block':'none';
-  document.getElementById('import-tab-text').style.background=tab==='text'?'var(--dark)':'transparent';
-  document.getElementById('import-tab-text').style.color=tab==='text'?'#fff':'var(--muted)';
-  document.getElementById('import-tab-image').style.background=tab==='image'?'var(--dark)':'transparent';
-  document.getElementById('import-tab-image').style.color=tab==='image'?'#fff':'var(--muted)';
-}
-document.addEventListener('change',function(e){
-  if(e.target.id==='menu-import-image'){
-    var file=e.target.files[0];if(!file)return;
-    var reader=new FileReader();
-    reader.onload=function(ev){document.getElementById('menu-img-preview-img').src=ev.target.result;document.getElementById('menu-img-preview').style.display='block';};
-    reader.readAsDataURL(file);
-  }
-});
-var importedCategories=null;
-async function importMenu(){
-  var warn=document.getElementById('import-warning');warn.style.display='none';
-  var isText=document.getElementById('import-tab-text').style.background!=='transparent'&&document.getElementById('import-text-wrap').style.display!=='none';
-  var messages=[];
-  if(isText){
-    var text=document.getElementById('menu-import-text').value.trim();
-    if(!text){warn.textContent='Klistra in menytext först.';warn.style.display='block';return;}
-    messages=[{role:'user',content:'Här är restaurangens meny:\n\n'+text+'\n\nTolka menyn och returnera ENDAST ett JSON-objekt (inga backticks, ingen annan text) med strukturen:\n{"categories":[{"key":"unik_nyckel","label":"Rubriken","items":[{"id":"x1","name":"Namn","description":"Beskrivning","price":0}]}]}'}];
-  } else {
-    var fileInput=document.getElementById('menu-import-image');
-    if(!fileInput.files[0]){warn.textContent='Välj en bild först.';warn.style.display='block';return;}
-    var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(e){res(e.target.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(fileInput.files[0]);});
-    messages=[{role:'user',content:[{type:'image',source:{type:'base64',media_type:fileInput.files[0].type,data:b64}},{type:'text',text:'Tolka menyn i bilden och returnera ENDAST ett JSON-objekt utan backticks. Struktur: {"categories":[{"key":"unik_nyckel","label":"Rubrik","items":[{"id":"x1","name":"Namn","description":"Beskrivning","price":0}]}]}'}]}];
-  }
-  document.getElementById('import-btn').disabled=true;
-  document.getElementById('import-loading').style.display='block';
-  document.getElementById('import-result').style.display='none';
-  try{
-    var resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduZHphbG1rYnNmaGNscG9pZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NDAxODcsImV4cCI6MjA5NTAxNjE4N30.Om9UOmTFR8CZZKu5qyiu1YImGdVxzI3KtlgukUV3Q-s'},body:JSON.stringify({messages:messages})});
-    var data=await resp.json();
-    if(data.error||!data.content){throw new Error(data.error?.message||'API-fel: '+JSON.stringify(data).slice(0,100));}
-    var txt=data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
-    var clean=txt.replace(/```json|```/g,'').trim();
-    var parsed=JSON.parse(clean);
-    if(!parsed.categories||!Array.isArray(parsed.categories))throw new Error('Fel format');
-    importedCategories=parsed.categories;
-    var html='';
-    parsed.categories.forEach(function(cat){
-      html+='<div style="margin-bottom:1rem"><div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">'+cat.label+'</div>';
-      cat.items.forEach(function(item){
-        html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><div><div style="color:var(--dark)">'+item.name+'</div>'+(item.description?'<div style="font-size:11px;color:var(--muted)">'+item.description+'</div>':'')+'</div>'+(item.price?'<div style="color:var(--gold);font-weight:500;white-space:nowrap;padding-left:8px">'+item.price+' kr</div>':'')+'</div>';
-      });
-      html+='</div>';
-    });
-    document.getElementById('import-preview-content').innerHTML=html;
-    document.getElementById('import-result').style.display='block';
-  }catch(e){warn.textContent='Fel: '+e.message+' | Resp: '+(typeof data!=='undefined'?JSON.stringify(data).slice(0,200):'ingen respons');warn.style.display='block';}
-  finally{document.getElementById('import-btn').disabled=false;document.getElementById('import-loading').style.display='none';}
-}
-async function confirmImport(){
-  if(!importedCategories)return;
-  try{
-    for(const cat of importedCategories){
-      const mo=Math.max(0,...cats.map(c=>c.sort_order||0));
-      const {data:newCat,error:ce}=await db.from('menu_categories').insert({restaurant_id:rest.id,label:cat.label,sort_order:mo+1}).select().single();
-      if(ce)throw new Error(ce.message);
-      for(let i=0;i<cat.items.length;i++){
-        const item=cat.items[i];
-        await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description||'',price:parseInt(item.price)||0,sort_order:i,active:true});
-      }
-    }
-    importedCategories=null;
-    document.getElementById('import-result').style.display='none';
-    document.getElementById('menu-import-text').value='';
-    document.getElementById('menu-img-preview').style.display='none';
-    showMsg('import-warning','mok','✓ Menyn är importerad!');
-    document.getElementById('import-warning').style.display='block';
-    renderMenu();
-  }catch(e){
-    document.getElementById('import-warning').textContent='Fel vid sparning: '+e.message;
-    document.getElementById('import-warning').style.display='block';
-  }
-}
-function cancelImport(){importedCategories=null;document.getElementById('import-result').style.display='none';}
-
-// INIT
-db.auth.getSession().then(({data:{session}})=>{if(session)initAdmin();});
-</script>
-</body>
-</html>
