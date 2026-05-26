@@ -151,7 +151,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <div class="tabs">
       <button class="tab active" id="tab-bookings" onclick="showTab('bookings')">Bokningar</button>
       <button class="tab" id="tab-calendar" onclick="showTab('calendar')">Dagsöversikt</button>
-      <button class="tab" id="tab-menu" onclick="showTab('menu')">Uppdatera meny</button>
+      <button class="tab" id="tab-menu" onclick="showTab('menu')">Menyer</button>
       <button class="tab" id="tab-archive" onclick="showTab('archive')">Arkiv</button>
       <button class="tab" id="tab-settings" onclick="showTab('settings')">⚙ Inställningar</button>
     </div>
@@ -264,7 +264,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
     <!-- MENY -->
     <div id="pane-menu" style="display:none">
-      <div class="fb"><h3>Uppdatera meny</h3>
+      <div class="fb"><h3>Menyer</h3>
         <div style="display:flex;gap:6px">
           <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
           <button class="btn bp" onclick="toggleNC()" id="btn-ny-rubrik" style="display:none">+ Ny rubrik</button>
@@ -277,6 +277,9 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <!-- Ny meny-formulär -->
       <div id="newMenuForm" style="display:none" class="card">
         <div class="ff"><label>Menyns namn</label><input type="text" id="nm-name" placeholder="T.ex. À la carte, Julbord, Bröllopsmeny..."></div>
+        <div class="ff"><label>Intern beskrivning <span style="font-size:11px;color:var(--muted)">(syns bara för dig)</span></label>
+          <textarea id="nm-desc" style="min-height:55px" placeholder="T.ex. Används vid bröllop, max 30 gäster, 2 förrätter..."></textarea>
+        </div>
         <div class="fg">
           <button class="btn bp" onclick="createMenu()">Skapa meny</button>
           <button class="btn bg" onclick="document.getElementById('newMenuForm').style.display='none'">Avbryt</button>
@@ -1244,11 +1247,35 @@ async function renderMenu(){
   // Render menu selector
   const sel=document.getElementById('menu-selector');
   if(menus.length){
-    sel.innerHTML=menus.map(m=>
-      `<button class="btn ${m.id===activeMenuId?'bp':'bg'}" style="font-size:12px;padding:6px 14px" onclick="switchMenu('${m.id}')">${m.name}</button>`+
-      `<button onclick="copyMenu('${m.id}')" title="Kopiera meny" style="background:none;border:none;font-size:14px;cursor:pointer;color:var(--muted);padding:0 2px">⧉</button>`+
-      `<button onclick="deleteMenu('${m.id}')" title="Ta bort meny" style="background:none;border:none;font-size:14px;cursor:pointer;color:#c0a0a0;padding:0 2px">✕</button>`
-    ).join('');
+    // Build menu cards
+    let menuHtml='';
+    for(const m of menus){
+      const {data:mCats}=await db.from('menu_categories').select('id,label').eq('menu_id',m.id).order('sort_order');
+      const catIds=(mCats||[]).map(c=>c.id);
+      const {count}=catIds.length?await db.from('menu_items').select('*',{count:'exact',head:true}).in('category_id',catIds):{count:0};
+      const isActive=m.id===activeMenuId;
+      menuHtml+=`<div class="card" style="margin-bottom:.5rem;border-color:${isActive?'var(--gold)':'var(--border)'}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:500;color:var(--dark)">${m.name}${isActive?'<span style="font-size:11px;color:var(--gold);margin-left:8px;font-weight:400">● Aktiv</span>':''}</div>
+            ${m.description?`<div style="font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5">${m.description}</div>`:''}
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">${(mCats||[]).length} kategorier · ${count||0} rätter</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;margin-left:1rem">
+            ${!isActive?`<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="switchMenu('${m.id}')">Redigera</button>`:''}
+            <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyMenu('${m.id}')">Kopiera</button>
+            <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteMenu('${m.id}')">Ta bort</button>
+          </div>
+        </div>
+        <div style="margin-top:.75rem">
+          <button onclick="toggleMenuPreview('${m.id}')" style="background:none;border:none;font-size:12px;color:var(--gold);cursor:pointer;padding:0;font-family:inherit">Se hela menyn ›</button>
+          <div id="menu-preview-${m.id}" style="display:none;margin-top:.75rem">
+            ${(mCats||[]).map(cat=>`<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.5rem 0 .2rem">${cat.label}</div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    }
+    sel.innerHTML=menuHtml;
     document.getElementById('btn-ny-rubrik').style.display='inline-flex';
   } else {
     sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Skapa din första meny för att komma igång.</div>';
@@ -1309,20 +1336,47 @@ async function renderMenu(){
 function showNewMenuForm(){document.getElementById('newMenuForm').style.display='block';}
 async function createMenu(){
   const name=document.getElementById('nm-name').value.trim();
-  if(!name)return;
-  const {data:m}=await db.from('menus').insert({restaurant_id:rest.id,name}).select().single();
+  if(!name){alert('Ange ett namn för menyn.');return;}
+  const desc=document.getElementById('nm-desc').value.trim();
+  const {data:m,error}=await db.from('menus').insert({restaurant_id:rest.id,name,description:desc}).select().single();
+  if(error){alert('Kunde inte skapa meny: '+error.message);return;}
   activeMenuId=m.id;
   document.getElementById('nm-name').value='';
+  document.getElementById('nm-desc').value='';
   document.getElementById('newMenuForm').style.display='none';
   renderMenu();
 }
 async function switchMenu(id){activeMenuId=id;renderMenu();}
+async function toggleMenuPreview(id){
+  const el=document.getElementById('menu-preview-'+id);
+  if(el.style.display!=='none'){el.style.display='none';return;}
+  el.innerHTML='<span style="font-size:12px;color:var(--muted)">Laddar...</span>';
+  el.style.display='block';
+  const {data:mCats}=await db.from('menu_categories').select('*, menu_items(name,price,active)').eq('menu_id',id).order('sort_order');
+  el.innerHTML=(mCats||[]).map(cat=>`
+    <div style="margin-bottom:.5rem">
+      <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${cat.label}</div>
+      ${(cat.menu_items||[]).filter(i=>i.active).map(item=>
+        `<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px solid var(--border)">
+          <span>${item.name}</span>
+          <span style="color:var(--gold)">${item.price?item.price+' kr':''}</span>
+        </div>`
+      ).join('')}
+    </div>`).join('') || '<div style="font-size:13px;color:var(--muted)">Inga rätter ännu.</div>';
+}
 async function deleteMenu(id){
-  if(!confirm('Ta bort denna meny och alla dess rätter?'))return;
-  await db.from('menu_items').delete().in('category_id',(await db.from('menu_categories').select('id').eq('menu_id',id)).data?.map(c=>c.id)||[]);
-  await db.from('menu_categories').delete().eq('menu_id',id);
-  await db.from('menus').delete().eq('id',id);
-  if(activeMenuId===id)activeMenuId=null;
+  const choice=confirm('Klicka OK för att arkivera menyn (dölj men behåll data)\nKlicka Avbryt för att avbryta.');
+  if(!choice)return;
+  const hardDelete=confirm('Vill du ta bort menyn permanent? Annars arkiveras den.');
+  if(hardDelete){
+    await db.from('menu_items').delete().in('category_id',(await db.from('menu_categories').select('id').eq('menu_id',id)).data?.map(c=>c.id)||[]);
+    await db.from('menu_categories').delete().eq('menu_id',id);
+    await db.from('menus').delete().eq('id',id);
+    if(activeMenuId===id)activeMenuId=null;
+  } else {
+    await db.from('menus').update({archived:true}).eq('id',id);
+    if(activeMenuId===id)activeMenuId=null;
+  }
   renderMenu();
 }
 async function copyMenu(id){

@@ -192,7 +192,20 @@ async function init(){
       document.getElementById('submitBtn').textContent='Beställning stängd';
     }
 
-    const {data:cats}=await db.from('menu_categories').select('*, menu_items(*)').eq('restaurant_id',rest.id).order('sort_order');
+    // Load menu - use booking's specific menu if set, otherwise restaurant's first menu
+    let catsQuery;
+    if(book.menu_id){
+      catsQuery=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',book.menu_id).order('sort_order');
+    } else {
+      // Fallback: load first menu or all categories for restaurant
+      const {data:firstMenu}=await db.from('menus').select('id').eq('restaurant_id',rest.id).order('created_at').limit(1).single();
+      if(firstMenu){
+        catsQuery=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',firstMenu.id).order('sort_order');
+      } else {
+        catsQuery=await db.from('menu_categories').select('*, menu_items(*)').eq('restaurant_id',rest.id).order('sort_order');
+      }
+    }
+    const {data:cats}=catsQuery;
     categories=(cats||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)})).filter(c=>c.menu_items.length>0);
     categories.forEach(c=>{gSel[c.id]=null;gComments[c.id]='';});
     buildMenu();
