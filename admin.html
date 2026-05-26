@@ -1475,18 +1475,11 @@ async function renderMenu(){
     return;
   }
 
-  // Render accordion cards, one per menu
+  // Render accordion cards — inga extra DB-anrop, snabb laddning
   let html='';
   for(let mi=0;mi<menus.length;mi++){
     const m=menus[mi];
     const isOpen=activeMenuId===m.id;
-    // Count categories + items for subtitle
-    const {data:mCats}=await db.from('menu_categories').select('id,label').eq('menu_id',m.id).order('sort_order');
-    const catCount=(mCats||[]).length;
-    const catIds=(mCats||[]).map(c=>c.id);
-    const {count:itemCount}=catIds.length
-      ? await db.from('menu_items').select('*',{count:'exact',head:true}).in('category_id',catIds).eq('active',true)
-      : {count:0};
     const desc=m.description?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${escHtml(m.description)}</div>`:'';
 
     html+=`<div class="bcard${isOpen?' open':''}" id="mc_${m.id}">
@@ -1497,7 +1490,6 @@ async function renderMenu(){
             <span style="font-size:12px;color:var(--gold);font-weight:400">Se mer ›</span>
           </div>
           ${desc}
-          <div class="bmeta">${catCount} kategorier · ${itemCount||0} rätter</div>
         </div>
       </div>
       <div class="bdetail" id="mdet_${m.id}">
