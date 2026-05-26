@@ -922,12 +922,23 @@ async function sendSummary(id,ch){
       alert('✓ Mejl med beställningslänk skickat till '+b.contact_email+'!');
     }catch(err){alert('Fel: '+err.message);}
   } else {
-    window.open('sms:'+dest+'?body='+encodeURIComponent('Förbeställ din mat inför '+b.name+' den '+ds+' – '+('https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id)));
-    const now=new Date();
-    const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    const log=(b.summary_sent_log||'')+ts+' gästlänk via SMS till '+dest+'\n';
-    await db.from('bookings').update({summary_sent_at:now.toISOString(),summary_sent_log:log}).eq('id',id);
-    reRender(id);
+    const gLinkSms='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
+    const {data:{session}}=await db.auth.getSession();
+    try{
+      const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-sms',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body:JSON.stringify({booking:b,restaurant:rest,guestLink:gLinkSms})
+      });
+      const result=await resp.json();
+      if(!result.ok)throw new Error(result.error||'Okänt fel');
+      const now=new Date();
+      const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+      const log=(b.summary_sent_log||'')+ts+' gästlänk via SMS till '+dest+'\n';
+      await db.from('bookings').update({summary_sent_at:now.toISOString(),summary_sent_log:log}).eq('id',id);
+      await renderBookings();
+      alert('✓ SMS skickat till '+dest+'!');
+    }catch(err){alert('Fel: '+err.message);}
   }
 }
 
