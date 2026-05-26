@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-<link rel="icon" type="image/png" href="PM_logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Förbeställ din mat – PreMeny</title>
@@ -238,9 +237,9 @@ function buildMenu(){
             </div>
             ${item.price?`<div class="meal-price">${item.price} kr</div>`:''}
           </div>
-          <div class="meal-comment-wrap" id="cmtwrap_${cat.id}">
-            <label>Kommentar / allergi för denna rätt (valfritt)</label>
-            <textarea placeholder="" onchange="gComments['${cat.id}']=this.value">${gComments[cat.id]||''}</textarea>
+          <div class="meal-comment-wrap" id="cmtwrap_${item.id}">
+            <label>Allergier / specialkost för denna rätt (valfritt)</label>
+            <textarea placeholder="T.ex. glutenintolerant, ingen lök..." onchange="gComments['${item.id}']=this.value">${gComments[item.id]||''}</textarea>
           </div>
         </div>`).join('')}
     </div>`).join('');
@@ -268,7 +267,7 @@ async function checkExisting(){
     categories.forEach(cat=>{
       const oi=(ex.order_items||[]).find(o=>o.category_id===cat.id);
       gSel[cat.id]=oi?oi.menu_item_id:null;
-      gComments[cat.id]=oi?(oi.comment||''):'';
+      if(oi)gComments[oi.menu_item_id]=oi.comment||'';
     });
     buildMenu();
   }else{
@@ -288,8 +287,8 @@ async function submitOrder(){
   btn.disabled=true;btn.textContent='Sparar...';
   try{
     categories.forEach(cat=>{
-      const ta=document.querySelector('#cmtwrap_'+cat.id+' textarea');
-      if(ta)gComments[cat.id]=ta.value;
+      const ta=document.querySelector('#cmtwrap_'+selId+' textarea');
+      if(ta)gComments[selId]=ta.value;
     });
     let orderId=existingOrderId;
     if(orderId){
@@ -299,13 +298,13 @@ async function submitOrder(){
       const {data:o}=await db.from('orders').insert({booking_id:BID,restaurant_id:restaurant.id,guest_name:name}).select().single();
       orderId=o.id;
     }
-    const items=categories.filter(c=>gSel[c.id]).map(c=>({order_id:orderId,menu_item_id:gSel[c.id],category_id:c.id,comment:gComments[c.id]||''}));
+    const items=categories.filter(c=>gSel[c.id]).map(c=>({order_id:orderId,menu_item_id:gSel[c.id],category_id:c.id,comment:gComments[gSel[c.id]]||''}));
     if(items.length)await db.from('order_items').insert(items);
     let summary='';
     categories.forEach(cat=>{
       if(gSel[cat.id]){
         const item=cat.menu_items.find(i=>i.id===gSel[cat.id]);
-        if(item)summary+=`<div class="summary-row"><div><div>${item.name}</div>${gComments[cat.id]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${gComments[cat.id]}</div>`:''}</div>${item.price?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
+        if(item)summary+=`<div class="summary-row"><div><div>${item.name}</div>${gComments[gSel[cat.id]]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${gComments[gSel[cat.id]]}</div>`:''}</div>${item.price?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
       }
     });
     document.getElementById('confirmSummary').innerHTML=summary;

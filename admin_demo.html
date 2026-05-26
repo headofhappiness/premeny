@@ -24,8 +24,8 @@ h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:
 .tab{background:transparent;border:1px solid var(--border);border-radius:100px;padding:9px 16px;font-family:"Outfit",sans-serif;font-size:15px;color:var(--muted);cursor:pointer;transition:all .2s}
 .tab:hover{border-color:var(--dark);color:var(--dark)}.tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
 .bcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem;transition:border-color .2s}
-.bcard:hover{border-color:var(--bs);cursor:pointer}.bcard.open{border-color:var(--gold)}
-.bhead{display:flex;justify-content:space-between;align-items:flex-start}
+.bcard:hover{border-color:var(--bs)}.bcard.open{border-color:var(--gold)}
+.bhead{display:flex;justify-content:space-between;align-items:flex-start;cursor:pointer}
 .bname{font-family:"Playfair Display",serif;font-size:1.15rem;color:var(--dark)}
 .bmeta{font-size:14px;color:var(--muted);margin-top:3px}
 .pill{border-radius:100px;padding:5px 12px;font-size:13px;font-weight:500}
@@ -48,15 +48,32 @@ h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:
 .bar-wrap{display:flex;align-items:center;gap:8px}
 .bar-bg{width:80px;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;background:var(--gold);border-radius:3px}
-/* Demo overlay */
+/* Kalender */
+.cal-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;max-width:440px}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.cal-nav{background:none;border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.cal-nav:hover{border-color:var(--gold);color:var(--gold)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{font-size:11px;color:var(--muted);text-align:center;padding:4px 0;font-weight:500}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:14px;cursor:pointer;position:relative;transition:all .15s;border:1px solid transparent}
+.cal-day:hover{background:var(--surface2);border-color:var(--border)}
+.cal-day.has-booking{font-weight:500;color:var(--dark)}
+.cal-day.has-booking::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.cal-day.selected{background:var(--gold);color:#fff;border-color:var(--gold)}
+.cal-day.selected::after{background:#fff}
+.cal-day.today{border-color:var(--gold);color:var(--gold)}
+.cal-day.other-month{color:var(--bs)}
+.cal-results{animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .demo-banner{background:rgba(184,149,90,.08);border-bottom:1px solid rgba(184,149,90,.2);padding:.6rem 1.5rem;text-align:center;font-size:13px;color:var(--gold)}
 .demo-banner a{color:var(--gold);font-weight:500}
+@media(max-width:600px){.page{padding:1.5rem 1rem 4rem}}
 </style>
 </head>
 <body>
 
 <div class="demo-banner">
-  🎯 Detta är en demo av PreMeny — <a href="https://headofhappiness.github.io/premeny/brunsbo_demo.html?booking=b1" target="_blank">Se hur det ser ut för dina gäster →</a>
+  🎯 Detta är en demo av PreMeny &nbsp;·&nbsp; <a href="https://headofhappiness.github.io/premeny/brunsbo_demo.html?booking=b1" target="_blank">Se hur det ser ut för dina gäster →</a>
 </div>
 
 <nav class="nav">
@@ -65,7 +82,7 @@ h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:
     <div class="logo">Pre<span>Meny</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <span style="font-size:14px;color:var(--muted)">Din Restaurang AB</span>
+    <span style="font-size:14px;color:var(--muted)">Din Restaurang</span>
     <div class="demo-badge">DEMO</div>
   </div>
 </nav>
@@ -81,17 +98,14 @@ h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:
     <button class="tab" onclick="showTab('settings',this)">⚙ Inställningar</button>
   </div>
 
-  <!-- BOKNINGAR -->
+  <!-- ═══════════════════════════════════════════ BOKNINGAR -->
   <div id="pane-bookings" class="pane active">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-      <div>
-        <h3>Aktiva bokningar</h3>
-        <div style="font-size:13px;color:var(--muted);margin-top:2px">Påminnelser skickas automatiskt.</div>
-      </div>
-      <button class="btn bp" style="font-size:13px;padding:9px 16px">+ Ny bokning</button>
+      <h3>Aktiva bokningar</h3>
+      <button class="btn bp" style="font-size:13px;padding:9px 16px" onclick="demoAlert()">+ Ny bokning</button>
     </div>
 
-    <!-- Bokning 1 - öppen -->
+    <!-- Bokning 1 -->
     <div class="bcard open">
       <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
         <div style="flex:1">
@@ -114,43 +128,80 @@ h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:
         </div>
       </div>
       <div class="bdetail">
-        <div class="info-box">
-          <strong>Sällskapets kontaktperson:</strong> Anna Lindström · anna@lindstrom.se · +46 70 123 45 67
-        </div>
-        <div class="info-box" style="margin-bottom:.75rem">👤 Bokningsansvarig: Maria</div>
+        <div class="info-box"><strong>Kontaktperson:</strong> Anna Lindström · anna@lindstrom.se · +46 70 123 45 67</div>
+        <div class="info-box">👤 Bokningsansvarig: Maria</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:.4rem">GÄSTLÄNK</div>
         <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem 1rem;font-size:13px;color:var(--muted);font-family:monospace;margin-bottom:.75rem">https://premeny.se/guest.html?r=dinrestaurang&b=abc123</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem">
-          <button class="btn bo" style="font-size:12px;padding:7px 14px">✉ Skicka bekräftelse</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px">✉ Skicka länk via mejl</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px">💬 Skicka länk via SMS</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px">Kopiera länk</button>
+          <button class="btn bo" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka bekräftelse</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka länk via mejl</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">💬 Skicka länk via SMS</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">Kopiera länk</button>
         </div>
-        <div style="background:#f2f8ec;border:1px solid #c8e0a8;border-radius:8px;padding:.7rem 1rem;font-size:13px;color:#3a6020;margin-bottom:.75rem">
-          ✓ 2026-06-15 kl 09:22 bekräftelse skickad till anna@lindstrom.se
-        </div>
+        <div style="background:#f2f8ec;border:1px solid #c8e0a8;border-radius:8px;padding:.7rem 1rem;font-size:13px;color:#3a6020;margin-bottom:.75rem">✓ 2026-06-15 kl 09:22 bekräftelse skickad till anna@lindstrom.se</div>
         <div style="display:flex;gap:6px;margin-bottom:.75rem;border-bottom:1px solid var(--border);padding-bottom:.75rem">
-          <button class="btn bp" style="font-size:12px;padding:7px 14px;background:var(--dark)">Sammanfattning</button>
+          <button class="btn bp" style="font-size:12px;padding:7px 14px">Sammanfattning</button>
           <button class="btn bg" style="font-size:12px;padding:7px 14px">Fyll i sällskap</button>
           <button class="btn bg" style="font-size:12px;padding:7px 14px">Gästlista</button>
         </div>
-        <div class="kitchen-cat">HUVUDRÄTTER</div>
+        <div class="kitchen-cat">HUVUDRÄTTER À LA CARTE</div>
         <div class="kitchen-row"><span>Smörstekt torskrygg</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:55%"></div></div><strong>10</strong></div></div>
         <div class="kitchen-row"><span>Entrecote</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:33%"></div></div><strong>6</strong></div></div>
         <div class="kitchen-row"><span>Vegetarisk pasta</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:11%"></div></div><strong>2</strong></div></div>
-        <div class="kitchen-cat">FÖRRÄTTER</div>
+        <div class="kitchen-cat">FÖRRÄTTER À LA CARTE</div>
         <div class="kitchen-row"><span>Toast Skagen</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:44%"></div></div><strong>8</strong></div></div>
         <div class="kitchen-row"><span>Gubbröra med kavring</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:28%"></div></div><strong>5</strong></div></div>
+        <div class="kitchen-cat">EFTERRÄTTER À LA CARTE</div>
+        <div class="kitchen-row"><span>Chokladfondant</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:60%"></div></div><strong>11</strong></div></div>
+        <div class="kitchen-row"><span>Crème brûlée</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:28%"></div></div><strong>5</strong></div></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:1rem">
-          <button class="btn bg" style="font-size:12px">Kopiera sammanfattning</button>
-          <button class="btn bg" style="font-size:12px">🖨 Skriv ut</button>
-          <button class="btn bg" style="font-size:12px">📄 Ladda ner PDF</button>
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Kopiera sammanfattning</button>
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">🖨 Skriv ut</button>
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">📄 Ladda ner PDF</button>
           <button class="btn bd" style="font-size:12px">Ta bort bokning</button>
         </div>
       </div>
     </div>
 
-    <!-- Bokning 2 -->
+    <!-- Bokning 2 - Bröllop samma helg -->
+    <div class="bcard">
+      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="bname">Bröllop Persson–Holm</div>
+            <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
+          </div>
+          <div class="bmeta">28 jun 2026 kl 17:00 · Sista beställning: 23 jun</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:.6rem">
+            <div style="font-size:13px;color:var(--muted)">52 av 60 beställt</div>
+            <div class="prog-wrap"><div class="prog-fill" style="width:87%"></div></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <span class="pill po">Öppen</span>
+          <div style="display:flex;gap:5px">
+            <button class="btn bg" style="font-size:11px;padding:4px 10px">Arkivera</button>
+            <button class="btn bd" style="font-size:11px;padding:4px 10px">Ta bort</button>
+          </div>
+        </div>
+      </div>
+      <div class="bdetail">
+        <div class="info-box"><strong>Kontaktperson:</strong> Sara Persson · sara.persson@gmail.com · +46 73 456 78 90</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem">
+          <button class="btn bo" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka bekräftelse</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka länk via mejl</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">💬 Skicka länk via SMS</button>
+        </div>
+        <div class="kitchen-cat">HUVUDRÄTTER À LA CARTE</div>
+        <div class="kitchen-row"><span>Smörstekt torskrygg</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:50%"></div></div><strong>26</strong></div></div>
+        <div class="kitchen-row"><span>Entrecote</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:35%"></div></div><strong>18</strong></div></div>
+        <div class="kitchen-row"><span>Vegetarisk pasta</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:15%"></div></div><strong>8</strong></div></div>
+        <div class="kitchen-cat">EFTERRÄTTER</div>
+        <div class="kitchen-row"><span>Bröllopstårta</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:100%"></div></div><strong>52</strong></div></div>
+      </div>
+    </div>
+
+    <!-- Bokning 3 - Konferens Volvo -->
     <div class="bcard">
       <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
         <div style="flex:1">
@@ -174,25 +225,33 @@ h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:
       </div>
       <div class="bdetail">
         <div class="info-box"><strong>Kontaktperson:</strong> Erik Svensson · erik.svensson@volvo.com</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn bo" style="font-size:12px;padding:7px 14px">✉ Skicka bekräftelse</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px">✉ Skicka länk via mejl</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px">Kopiera länk</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem">
+          <button class="btn bo" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka bekräftelse</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka länk via mejl</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">💬 Skicka länk via SMS</button>
+        </div>
+        <div class="kitchen-cat">LUNCHMENY</div>
+        <div class="kitchen-row"><span>Dagens soppa</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:37%"></div></div><strong>3</strong></div></div>
+        <div class="kitchen-row"><span>Lax med citronsmör</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:50%"></div></div><strong>4</strong></div></div>
+        <div class="kitchen-row"><span>Kycklingwrap</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:12%"></div></div><strong>1</strong></div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:1rem">
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Kopiera sammanfattning</button>
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">🖨 Skriv ut</button>
         </div>
       </div>
     </div>
 
-    <!-- Bokning 3 stängd -->
+    <!-- Bokning 4 - Konferens Ericsson -->
     <div class="bcard">
       <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
         <div style="flex:1">
           <div style="display:flex;align-items:center;gap:8px">
-            <div class="bname">Studentmiddag HB</div>
+            <div class="bname">Konferens Ericsson</div>
             <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
           </div>
-          <div class="bmeta">12 jul 2026 kl 19:00 · Sista beställning passerat</div>
+          <div class="bmeta">4 jul 2026 kl 18:30 · Sista beställning: 2 jul</div>
           <div style="display:flex;align-items:center;gap:10px;margin-top:.6rem">
-            <div style="font-size:13px;color:var(--muted)">42 av 42 beställt ✓</div>
+            <div style="font-size:13px;color:var(--muted)">22 av 22 beställt ✓</div>
             <div class="prog-wrap"><div class="prog-fill" style="width:100%"></div></div>
           </div>
         </div>
@@ -205,24 +264,38 @@ h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- DAGSÖVERSIKT -->
+  <!-- ═══════════════════════════════════════════ DAGSÖVERSIKT -->
   <div id="pane-cal" class="pane">
-    <h3 style="margin-bottom:.5rem">Dagsöversikt</h3>
-    <div style="font-size:14px;color:var(--muted);margin-bottom:1rem">Välj datum för att se sammanställning per dag.</div>
-    <div class="card" style="text-align:center;padding:2rem;color:var(--muted);font-size:14px">
-      📅 Kalendervy — välj datum för att se beställningar per dag, kökslista och gästlista.
+    <h3 style="margin-bottom:.25rem">Dagsöversikt</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:1.25rem">Klicka på ett datum för att se sammanställning. Prickar visar dagar med bokningar.</p>
+
+    <div class="cal-wrap">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">←</button>
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--dark)" id="calTitle"></div>
+        <button class="cal-nav" onclick="changeMonth(1)">→</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div style="display:flex;gap:8px;margin-top:1rem;align-items:center;flex-wrap:wrap">
+        <button class="btn bg" style="font-size:12px;padding:5px 14px" onclick="clearCalSel()">Rensa val</button>
+        <span id="calSelInfo" style="font-size:13px;color:var(--muted)">Inget datum valt</span>
+      </div>
     </div>
+
+    <div id="calResults"></div>
   </div>
 
-  <!-- MENYER -->
+  <!-- ═══════════════════════════════════════════ MENYER -->
   <div id="pane-menus" class="pane">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
       <h3>Menyer</h3>
-      <button class="btn bp" style="font-size:13px;padding:9px 16px">+ Ny meny</button>
+      <button class="btn bp" style="font-size:13px;padding:9px 16px" onclick="demoAlert()">+ Ny meny</button>
     </div>
 
+    <!-- À la carte -->
     <div class="bcard open">
       <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
         <div style="display:flex;align-items:center;gap:8px">
@@ -232,73 +305,337 @@ h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:
       </div>
       <div class="bdetail">
         <div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap">
-          <button class="btn bg" style="font-size:12px">+ Ny rubrik</button>
-          <button class="btn bg" style="font-size:12px">Kopiera meny</button>
-          <button class="btn bg" style="font-size:12px">Arkivera meny</button>
-          <button class="btn bd" style="font-size:12px">Ta bort meny</button>
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">+ Ny rubrik</button>
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Kopiera meny</button>
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Arkivera meny</button>
         </div>
-
         <div style="margin-bottom:1.5rem">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
             <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)">Förrätter</div>
-            <button class="btn bg" style="font-size:11px;padding:4px 10px">+ Lägg till rätt</button>
+            <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="demoAlert()">+ Lägg till rätt</button>
           </div>
           <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Toast Skagen</div><div class="menu-item-desc">Toast bröd med räkröra, majonnäs, citron och röd rom</div></div><div class="menu-item-price">105 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Gubbröra med kavring</div><div class="menu-item-desc">Klassisk gubbröra gjord på matjessill, ägg, gräslök och rödlök</div></div><div class="menu-item-price">89 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetariska vårrullar</div><div class="menu-item-desc">Serveras med kål- och morotssallad, lime och sesamfrön</div></div><div class="menu-item-price">75 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Toast Skagen</div><div class="menu-item-desc">Räkröra, majonnäs, citron och röd rom på rostat bröd</div></div><div class="menu-item-price">105 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Gubbröra med kavring</div><div class="menu-item-desc">Matjessill, ägg, gräslök och rödlök på kavring</div></div><div class="menu-item-price">89 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetariska vårrullar</div><div class="menu-item-desc">Kål, morot, lime och sesamfrön med sweet chili</div></div><div class="menu-item-price">75 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
           </div>
         </div>
-
-        <div>
+        <div style="margin-bottom:1.5rem">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
             <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)">Huvudrätter</div>
-            <button class="btn bg" style="font-size:11px;padding:4px 10px">+ Lägg till rätt</button>
+            <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="demoAlert()">+ Lägg till rätt</button>
           </div>
           <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Smörstekt torskrygg</div><div class="menu-item-desc">Räkor, ägg, pepparrot, citron, skirat smör och kokt potatis</div></div><div class="menu-item-price">239 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Entrecote</div><div class="menu-item-desc">Med bearnaisesås, pommes frites och sallad</div></div><div class="menu-item-price">289 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetarisk pasta</div><div class="menu-item-desc">Penne med pesto, parmesan och rostade pinjenötter</div></div><div class="menu-item-price">165 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button><button class="btn bd" style="font-size:11px;padding:4px 8px">Ta bort</button></div>
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Smörstekt torskrygg</div><div class="menu-item-desc">Räkor, ägg, pepparrot, citron, skirat smör och kokt potatis</div></div><div class="menu-item-price">239 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Entrecote</div><div class="menu-item-desc">Bearnaisesås, pommes frites och säsongens sallad</div></div><div class="menu-item-price">289 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetarisk pasta</div><div class="menu-item-desc">Penne med pesto, parmesan och rostade pinjenötter</div></div><div class="menu-item-price">165 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)">Efterrätter</div>
+            <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="demoAlert()">+ Lägg till rätt</button>
+          </div>
+          <div class="card" style="padding:.75rem">
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Chokladfondant</div><div class="menu-item-desc">Varm chokladkaka med flytande kärna, vaniljglass och bär</div></div><div class="menu-item-price">95 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Crème brûlée</div><div class="menu-item-desc">Klassisk crème brûlée med karamelliserat socker och färska bär</div></div><div class="menu-item-price">89 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Osttallrik</div><div class="menu-item-desc">Tre svenska ostar med kex, vindruvor och fikonmarmelad</div></div><div class="menu-item-price">115 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Lunchmeny -->
     <div class="bcard">
-      <div class="bhead">
+      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="bname">Lunchmeny</div>
+          <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
+        </div>
+      </div>
+      <div class="bdetail">
+        <div style="display:flex;gap:6px;margin-bottom:1rem">
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">+ Ny rubrik</button>
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Arkivera meny</button>
+        </div>
+        <div style="margin-bottom:1.5rem">
+          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Soppor</div>
+          <div class="card" style="padding:.75rem">
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Dagens soppa</div><div class="menu-item-desc">Serveras med bröd och smör. Fråga personalen om dagens sort</div></div><div class="menu-item-price">95 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Hummerbisque</div><div class="menu-item-desc">Krämig hummerbuljong med grädde, konjak och rostad baguette</div></div><div class="menu-item-price">145 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+          </div>
+        </div>
+        <div style="margin-bottom:1.5rem">
+          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Varmrätter</div>
+          <div class="card" style="padding:.75rem">
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Lax med citronsmör</div><div class="menu-item-desc">Ugnsrostad lax med citronsåssmör, haricots verts och kokt potatis</div></div><div class="menu-item-price">155 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Kycklingwrap</div><div class="menu-item-desc">Grillad kyckling, avokado, sallad och chilidressing i tortillabröd</div></div><div class="menu-item-price">135 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetarisk quiche</div><div class="menu-item-desc">Ostig paj med spenat, tomat och rödlök. Serveras med sallad</div></div><div class="menu-item-price">125 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Julbord 2026 -->
+    <div class="bcard">
+      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
         <div style="display:flex;align-items:center;gap:8px">
           <div class="bname">Julbord 2026</div>
           <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
         </div>
       </div>
+      <div class="bdetail">
+        <div style="display:flex;gap:6px;margin-bottom:1rem">
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">+ Ny rubrik</button>
+          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Arkivera meny</button>
+        </div>
+        <div style="margin-bottom:1.5rem">
+          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Julbordet — Kallt</div>
+          <div class="card" style="padding:.75rem">
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Gravad lax</div><div class="menu-item-desc">Hemgravad lax med hovmästarsås och dill</div></div><div class="menu-item-price">–</div></div>
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Julskinka</div><div class="menu-item-desc">Traditionell julskinka med senap och ströbröd</div></div><div class="menu-item-price">–</div></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Sillbuffé</div><div class="menu-item-desc">Fyra sorters sill med tillbehör</div></div><div class="menu-item-price">–</div></div>
+          </div>
+        </div>
+        <div style="margin-bottom:1.5rem">
+          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Julbordet — Varmt</div>
+          <div class="card" style="padding:.75rem">
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Prinskorv & revbensspjäll</div><div class="menu-item-desc">Klassiska julkorvar och långlagade revbensspjäll</div></div><div class="menu-item-price">–</div></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Janssons frestelse</div><div class="menu-item-desc">Krämig ansjovisgratin med potatis och lök</div></div><div class="menu-item-price">–</div></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Dessert</div>
+          <div class="card" style="padding:.75rem">
+            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Ris à la Malta</div><div class="menu-item-desc">Med hallonsås och mandel</div></div><div class="menu-item-price">–</div></div>
+            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Pepparkaksglass</div><div class="menu-item-desc">Hemgjord glass med pepparkakskross och lingon</div></div><div class="menu-item-price">–</div></div>
+          </div>
+        </div>
+        <div style="margin-top:.75rem;font-size:13px;color:var(--muted)">Pris: 495 kr/person · Barn under 12 år 195 kr</div>
+      </div>
     </div>
   </div>
 
-  <!-- INSTÄLLNINGAR -->
+  <!-- ═══════════════════════════════════════════ INSTÄLLNINGAR -->
   <div id="pane-settings" class="pane">
     <h3 style="margin-bottom:.5rem">Inställningar</h3>
     <div class="gold-line"></div>
     <div class="card">
       <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">Restauranginformation</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.75rem">
-        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Telefon</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px">+46 35 123 45 67</div></div>
-        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">E-post</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px">info@dinrestaurang.se</div></div>
-        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Adress</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px">Storgatan 1, 123 45 Stad</div></div>
-        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Webbplats</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px">www.dinrestaurang.se</div></div>
+        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Telefon</div><input type="text" value="+46 35 123 45 67" readonly></div>
+        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">E-post</div><input type="text" value="info@dinrestaurang.se" readonly></div>
+        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Adress</div><input type="text" value="Storgatan 1, 123 45 Stad" readonly></div>
+        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Webbplats</div><input type="text" value="www.dinrestaurang.se" readonly></div>
       </div>
-      <button class="btn bp" style="font-size:13px">Spara inställningar</button>
+      <button class="btn bp" style="font-size:13px" onclick="demoAlert()">Spara inställningar</button>
     </div>
   </div>
 
 </div>
 
 <script>
+// ── Tab navigation ───────────────────────────────────────────────────
 function showTab(id, btn) {
   document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('pane-' + id).classList.add('active');
   btn.classList.add('active');
+  if(id === 'cal') renderCal();
 }
+
+function demoAlert(){
+  const msg = document.createElement('div');
+  msg.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1a1712;color:#fff;padding:10px 20px;border-radius:100px;font-size:14px;z-index:999;animation:fadeIn .2s ease';
+  msg.textContent = '✓ I din riktiga admin sparas detta direkt!';
+  document.body.appendChild(msg);
+  setTimeout(() => msg.remove(), 2500);
+}
+
+// ── Kalender ─────────────────────────────────────────────────────────
+const BOOKINGS = [
+  { name:'Familjen Lindström', date:'2026-06-27', time:'18:00', orders:18, total:24,
+    cats:[
+      {label:'HUVUDRÄTTER À LA CARTE', items:[['Smörstekt torskrygg',10],['Entrecote',6],['Vegetarisk pasta',2]]},
+      {label:'FÖRRÄTTER À LA CARTE', items:[['Toast Skagen',8],['Gubbröra med kavring',5]]},
+      {label:'EFTERRÄTTER', items:[['Chokladfondant',11],['Crème brûlée',5]]}
+    ]
+  },
+  { name:'Bröllop Persson–Holm', date:'2026-06-28', time:'17:00', orders:52, total:60,
+    cats:[
+      {label:'HUVUDRÄTTER', items:[['Smörstekt torskrygg',26],['Entrecote',18],['Vegetarisk pasta',8]]},
+      {label:'EFTERRÄTTER', items:[['Bröllopstårta',52]]}
+    ]
+  },
+  { name:'Konferens Volvo', date:'2026-07-04', time:'12:00', orders:8, total:30,
+    cats:[
+      {label:'LUNCHMENY', items:[['Dagens soppa',3],['Lax med citronsmör',4],['Kycklingwrap',1]]}
+    ]
+  },
+  { name:'Konferens Ericsson', date:'2026-07-04', time:'18:30', orders:22, total:22,
+    cats:[
+      {label:'HUVUDRÄTTER À LA CARTE', items:[['Smörstekt torskrygg',12],['Entrecote',8],['Vegetarisk pasta',2]]},
+      {label:'EFTERRÄTTER', items:[['Chokladfondant',14],['Crème brûlée',8]]}
+    ]
+  }
+];
+
+let calYear = 2026, calMonth = 5, calSel = new Set();
+const svMonths = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+const svDow = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
+
+function renderCal(){
+  document.getElementById('calTitle').textContent = svMonths[calMonth] + ' ' + calYear;
+  const grid = document.getElementById('calGrid');
+  const bookingDates = new Set(BOOKINGS.map(b => b.date));
+
+  let html = svDow.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  const first = new Date(calYear, calMonth, 1);
+  let startDow = first.getDay(); // 0=sun
+  startDow = startDow === 0 ? 6 : startDow - 1; // make monday=0
+
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+  const today = new Date();
+  const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
+  // Prev month
+  for(let i = startDow - 1; i >= 0; i--){
+    html += `<div class="cal-day other-month">${daysInPrev - i}</div>`;
+  }
+
+  for(let d = 1; d <= daysInMonth; d++){
+    const dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const isToday = dateStr === todayStr;
+    const hasBk = bookingDates.has(dateStr);
+    const isSel = calSel.has(dateStr);
+    let cls = 'cal-day';
+    if(isToday) cls += ' today';
+    if(hasBk) cls += ' has-booking';
+    if(isSel) cls += ' selected';
+    html += `<div class="${cls}" onclick="toggleCalDay('${dateStr}')">${d}</div>`;
+  }
+
+  grid.innerHTML = html;
+  updateCalResults();
+}
+
+function toggleCalDay(dateStr){
+  if(calSel.has(dateStr)) calSel.delete(dateStr);
+  else calSel.add(dateStr);
+  renderCal();
+}
+
+function clearCalSel(){ calSel.clear(); renderCal(); }
+
+function changeMonth(dir){
+  calMonth += dir;
+  if(calMonth > 11){ calMonth = 0; calYear++; }
+  if(calMonth < 0){ calMonth = 11; calYear--; }
+  renderCal();
+}
+
+function updateCalResults(){
+  const infoEl = document.getElementById('calSelInfo');
+  const resultsEl = document.getElementById('calResults');
+
+  if(calSel.size === 0){
+    infoEl.textContent = 'Inget datum valt';
+    resultsEl.innerHTML = '';
+    return;
+  }
+
+  infoEl.textContent = calSel.size + ' datum valt';
+
+  const selDates = [...calSel].sort();
+  const selBookings = BOOKINGS.filter(b => selDates.includes(b.date));
+
+  if(selBookings.length === 0){
+    resultsEl.innerHTML = '<div class="card" style="color:var(--muted);font-size:14px;text-align:center;padding:1.5rem">Inga bokningar på valda datum.</div>';
+    return;
+  }
+
+  // Sammanslå alla beställningar
+  const catMap = {};
+  selBookings.forEach(b => {
+    b.cats.forEach(cat => {
+      if(!catMap[cat.label]) catMap[cat.label] = {};
+      cat.items.forEach(([name, count]) => {
+        catMap[cat.label][name] = (catMap[cat.label][name] || 0) + count;
+      });
+    });
+  });
+
+  const totalOrders = selBookings.reduce((s,b) => s + b.orders, 0);
+  const totalGuests = selBookings.reduce((s,b) => s + b.total, 0);
+  const notOrdered = totalGuests - totalOrders;
+
+  const svMo = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const dateLabel = selDates.map(d => {
+    const dt = new Date(d + 'T12:00:00');
+    return dt.getDate() + ' ' + svMo[dt.getMonth()];
+  }).join(', ');
+
+  // Sällskapslista med status
+  const sallskapRows = selBookings.map(b => {
+    const dt = new Date(b.date + 'T12:00:00');
+    const sc = b.orders===b.total ? '#3a7d44' : b.orders>0 ? 'var(--gold)' : 'var(--muted)';
+    return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span style="color:var(--muted)">${dt.getDate()} ${svMo[dt.getMonth()]}: <span style="color:var(--dark)">${b.name}</span> kl ${b.time}</span>
+      <span style="color:${sc};font-weight:500;flex-shrink:0;margin-left:8px">${b.orders}/${b.total}</span>
+    </div>`;
+  }).join('');
+
+  // Status-kort
+  const statusHtml = \`<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+    <div style="flex:1;min-width:110px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:10px;padding:.7rem 1rem;text-align:center">
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#3a7d44">\${totalOrders}</div>
+      <div style="font-size:11px;color:#3a7d44;margin-top:2px">✓ Har beställt</div>
+    </div>
+    <div style="flex:1;min-width:110px;background:#fdf7f0;border:1px solid #e8d4b0;border-radius:10px;padding:.7rem 1rem;text-align:center">
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold)">\${notOrdered}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Har inte beställt</div>
+    </div>
+    <div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;text-align:center">
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--dark)">\${totalGuests}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Gäster totalt</div>
+    </div>
+  </div>\`;
+
+  // Kökslista
+  const maxCount = Math.max(...Object.values(catMap).flatMap(c => Object.values(c)));
+  let kitchenHtml = '';
+  Object.entries(catMap).forEach(([cat, items]) => {
+    kitchenHtml += `<div class="kitchen-cat">${cat}</div>`;
+    Object.entries(items).sort((a,b) => b[1]-a[1]).forEach(([name, count]) => {
+      const pct = Math.round(count/maxCount*100);
+      kitchenHtml += `<div class="kitchen-row"><span>${name}</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div><strong>${count} st</strong></div></div>`;
+    });
+  });
+
+  resultsEl.innerHTML = `
+    <div class="card cal-results">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem">${dateLabel.toUpperCase()}</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--dark)">${selBookings.length} sällskap · ${totalGuests} gäster</div>
+          <div style="margin-top:.5rem">${sallskapRows}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="demoAlert()">📋 Kopiera</button>
+          <button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="demoAlert()">🖨 Skriv ut</button>
+        </div>
+      </div>
+      ${statusHtml}
+      ${kitchenHtml}
+    </div>`;
+}
+
+// Auto-render cal when tab loads
+document.addEventListener('DOMContentLoaded', function(){
+  // Pre-select June 27 so there's something to show
+});
 </script>
 </body>
 </html>
