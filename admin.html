@@ -1298,7 +1298,7 @@ function renderArchiveList(bookings){
   const list=document.getElementById('archiveList');
   if(!bookings.length){list.innerHTML='<div class="empty">Inga arkiverade bokningar ännu.</div>';return;}
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-  list.innerHTML=bs.map(b=>{
+  list.innerHTML=bookings.map(b=>{
     const d=new Date(b.event_date);
     return `<div class="bcard">
       <div class="bhead" onclick="toggleArc('${b.id}')">
