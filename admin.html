@@ -45,6 +45,12 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 .pa{background:var(--surface2);border:1px solid var(--bs);color:var(--muted)}
 .bdetail{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;display:none}
 .bcard.open .bdetail{display:block}
+.menu-item-row{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}
+.menu-item-row:last-child{border-bottom:none}
+.menu-item-info{flex:1}
+.menu-item-name{font-size:14px;font-weight:500;color:var(--dark)}
+.menu-item-desc{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+.menu-item-price{font-size:13px;color:var(--gold);font-weight:500;white-space:nowrap;margin-top:2px;flex-shrink:0}
 .linkbox{font-size:12px;color:var(--gold);font-family:monospace;word-break:break-all;padding:8px 12px;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:6px;margin:.5rem 0}
 .trow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
 .trow:last-child{border-bottom:none}
@@ -833,8 +839,9 @@ async function createBooking(){
 
 async function delBooking(id,ev){
   ev.stopPropagation();
-  if(!confirm('Ta bort bokning och alla beställningar?'))return;
-  await db.from('bookings').delete().eq('id',id);renderBookings();
+  if(!confirm('Ta bort bokningen? Den sparas i Arkiv och kan återställas.'))return;
+  await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
+  renderBookings();
 }
 
 // PÅMINNELSE
@@ -1070,10 +1077,8 @@ function renderCal(){
 function toggleCalDay(ds){calSel.has(ds)?calSel.delete(ds):calSel.add(ds);renderCal();}
 function calClear(){calSel.clear();renderCal();}
 async function delBookingFromCal(id){
-  if(!confirm('Ta bort bokningen?'))return;
-  await db.from('order_items').delete().in('order_id',(await db.from('orders').select('id').eq('booking_id',id)).data?.map(o=>o.id)||[]);
-  await db.from('orders').delete().eq('booking_id',id);
-  await db.from('bookings').delete().eq('id',id);
+  if(!confirm('Ta bort bokningen? Den kan återställas från Arkiv.'))return;
+  await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
   await initCalendar();
   await renderBookings();
 }
@@ -1228,7 +1233,7 @@ async function toggleArc(id){
 // MENY
 async function loadCats(){
   const {data:menuData}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
-  menus=(menuData||[]).filter(m=>!m.archived);
+  menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
   if(menus.length&&!activeMenuId)activeMenuId=menus[0].id;
   if(activeMenuId){
     const {data}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',activeMenuId).order('sort_order');
@@ -1297,41 +1302,47 @@ async function editMenuInline(menuId){
   if(el.style.display!=='none'){el.style.display='none';return;}
   el.style.display='block';
 
+  if(!cats.length){
+    el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">'
+      +'<span style="font-size:13px;font-weight:500;color:var(--dark)">Redigera rätter</span>'
+      +'<button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button>'
+    +'</div><div class="empty">Inga rätter. Lägg till en rubrik.</div>';
+    return;
+  }
+
   let edHtml='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">'
     +'<span style="font-size:13px;font-weight:500;color:var(--dark)">Redigera rätter</span>'
     +'<button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button>'
   +'</div>';
 
-  if(!cats.length){
-    el.innerHTML=edHtml+'<div class="empty">Inga rätter. Lägg till en rubrik.</div>';
-    return;
-  }
-
   for(let ci=0;ci<cats.length;ci++){
     const cat=cats[ci];
-    edHtml+='<div class="card">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">'
+    edHtml+='<div style="margin-bottom:1.75rem">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">'
         +'<div class="card-label" style="margin:0">'+escHtml(cat.label)+'</div>'
-        +'<div class="fg">'
+        +'<div style="display:flex;gap:6px">'
           +'<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="showAI(window._catIds['+ci+'])">+ Lägg till rätt</button>'
-          +'<button class="btn bd" style="font-size:10px;padding:3px 8px" onclick="delCat(window._catIds['+ci+'])">Ta bort rubrik</button>'
+          +'<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delCat(window._catIds['+ci+'])">Ta bort rubrik</button>'
         +'</div>'
-      +'</div>';
+      +'</div>'
+      +'<div class="card">';
 
     if(!(cat.menu_items||[]).length){
-      edHtml+='<div style="font-size:13px;color:var(--muted);padding:8px 0">Inga rätter ännu.</div>';
+      edHtml+='<div style="font-size:12px;color:var(--muted);padding:.75rem">Inga rätter ännu.</div>';
     }
 
     for(let ii=0;ii<(cat.menu_items||[]).length;ii++){
       const item=cat.menu_items[ii];
-      const desc=item.description?'<div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4">'+escHtml(item.description)+'</div>':'';
-      edHtml+='<div id="irow_'+item.id+'" style="display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)">'
-        +'<div style="flex:1"><div style="font-size:13px;color:var(--dark)">'+escHtml(item.name)+'</div>'+desc+'</div>'
-        +'<div style="font-size:12px;color:var(--gold);white-space:nowrap;margin-top:2px">'+(item.price?item.price+' kr':'')+'</div>'
+      edHtml+='<div class="menu-item-row">'
+        +'<div class="menu-item-info">'
+          +'<div class="menu-item-name">'+escHtml(item.name)+'</div>'
+          +(item.description?'<div class="menu-item-desc">'+escHtml(item.description)+'</div>':'')
+        +'</div>'
+        +'<div class="menu-item-price">'+(item.price?item.price+' kr':'')+'</div>'
         +'<button class="btn bg" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="editItem('+JSON.stringify(item.id)+')">Redigera</button>'
         +'<button class="btn bd" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="delItem('+JSON.stringify(item.id)+')">Ta bort</button>'
       +'</div>'
-      +'<div id="iedit_'+item.id+'" style="display:none;margin-top:10px;background:var(--surface2);border-radius:8px;padding:12px">'
+      +'<div id="iedit_'+item.id+'" style="display:none;background:var(--surface2);border-radius:8px;padding:12px;margin:4px 0">'
         +'<div class="r2">'
           +'<div class="ff"><label>Namn</label><input type="text" id="ien_'+item.id+'" value="'+escAttr(item.name)+'"></div>'
           +'<div class="ff"><label>Pris (kr)</label><input type="number" id="iep_'+item.id+'" value="'+(item.price||0)+'"></div>'
@@ -1344,7 +1355,7 @@ async function editMenuInline(menuId){
       +'</div>';
     }
 
-    edHtml+='<div id="ai_'+cat.id+'" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)">'
+    edHtml+='<div id="ai_'+cat.id+'" style="display:none;padding-top:.75rem;border-top:1px solid var(--border)">'
       +'<div class="r2">'
         +'<div class="ff"><label>Namn</label><input type="text" id="ain_'+cat.id+'" placeholder="Rättens namn"></div>'
         +'<div class="ff"><label>Pris (kr)</label><input type="number" id="aip_'+cat.id+'" placeholder="150"></div>'
@@ -1354,6 +1365,7 @@ async function editMenuInline(menuId){
         +'<button class="btn bp" style="font-size:12px" onclick="addItem(window._catIds['+ci+'])">Lägg till</button>'
         +'<button class="btn bg" style="font-size:12px" onclick="closeAI(this)">Avbryt</button>'
       +'</div>'
+    +'</div>'
     +'</div></div>';
   }
 
@@ -1371,11 +1383,8 @@ function closeAI(btn){var p=btn.parentElement;while(p&&p.id&&!p.id.startsWith('a
 async function switchMenu(id){activeMenuId=id;await renderMenu();}
 
 async function deleteMenu(id){
-  if(!confirm('Ta bort menyn permanent?'))return;
-  const {data:cats}=await db.from('menu_categories').select('id').eq('menu_id',id);
-  if(cats&&cats.length)await db.from('menu_items').delete().in('category_id',cats.map(c=>c.id));
-  await db.from('menu_categories').delete().eq('menu_id',id);
-  await db.from('menus').delete().eq('id',id);
+  if(!confirm('Ta bort menyn? Den kan återställas vid behov.'))return;
+  await db.from('menus').update({deleted_at:new Date().toISOString()}).eq('id',id);
   if(activeMenuId===id)activeMenuId=null;
   renderMenu();
 }
