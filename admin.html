@@ -1361,6 +1361,71 @@ async function renderMenu(){
   edHtml+='</div>';
   ed.innerHTML=edHtml;
 }
+
+// HELPER FUNCTIONS
+function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function closeEdit(id){var el=document.getElementById(id);if(el)el.style.display='none';}
+function closeAI(btn){var p=btn.parentElement;while(p&&p.id&&!p.id.startsWith('ai_'))p=p.parentElement;if(p)p.style.display='none';}
+
+// MENU MANAGEMENT
+async function switchMenu(id){activeMenuId=id;await renderMenu();}
+
+async function deleteMenu(id){
+  if(!confirm('Ta bort menyn permanent?'))return;
+  const {data:cats}=await db.from('menu_categories').select('id').eq('menu_id',id);
+  if(cats&&cats.length)await db.from('menu_items').delete().in('category_id',cats.map(c=>c.id));
+  await db.from('menu_categories').delete().eq('menu_id',id);
+  await db.from('menus').delete().eq('id',id);
+  if(activeMenuId===id)activeMenuId=null;
+  renderMenu();
+}
+
+async function copyMenu(id){
+  const src=menus.find(m=>m.id===id);
+  if(!src)return;
+  const newName=prompt('Namn på kopian:',src.name+' (kopia)');
+  if(!newName)return;
+  const {data:newMenu,error}=await db.from('menus').insert({restaurant_id:rest.id,name:newName}).select().single();
+  if(error){alert('Fel: '+error.message);return;}
+  const {data:srcCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',id).order('sort_order');
+  for(const cat of srcCats||[]){
+    const {data:newCat}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:newMenu.id,label:cat.label,sort_order:cat.sort_order}).select().single();
+    for(const item of cat.menu_items||[]){
+      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description,price:item.price,sort_order:item.sort_order,active:true});
+    }
+  }
+  activeMenuId=newMenu.id;
+  renderMenu();
+}
+
+function toggleMenuCard(mi){
+  const m=menus[mi];if(!m)return;
+  const el=document.getElementById('mc_'+m.id);
+  if(!el)return;
+  const isOpen=el.classList.contains('open');
+  menus.forEach(mn=>{const e=document.getElementById('mc_'+mn.id);if(e)e.classList.remove('open');});
+  if(!isOpen){el.classList.add('open');loadMenuPreview(m.id);}
+}
+
+async function loadMenuPreview(menuId){
+  const el=document.getElementById('mc-items-'+menuId);
+  if(!el)return;
+  const {data:mCats}=await db.from('menu_categories').select('*, menu_items(name,price,active)').eq('menu_id',menuId).order('sort_order');
+  if(!mCats||!mCats.length){el.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga rätter ännu.</div>';return;}
+  let html='';
+  mCats.forEach(function(cat){
+    html+='<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.5rem 0 .25rem">'+escHtml(cat.label)+'</div>';
+    (cat.menu_items||[]).filter(function(i){return i.active;}).forEach(function(item){
+      html+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px solid var(--border)">'
+        +'<span>'+escHtml(item.name)+'</span>'
+        +'<span style="color:var(--gold)">'+(item.price?item.price+' kr':'')+'</span>'
+      +'</div>';
+    });
+  });
+  el.innerHTML=html;
+}
+
 </script>
 </body>
 </html>
