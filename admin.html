@@ -565,12 +565,12 @@ function renderBCard(b){
           <span style="font-size:12px;color:var(--gold);font-weight:400;letter-spacing:.02em">Se mer ›</span>
         </div>
         <div class="bmeta" style="margin-top:4px">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''}</div>
-        ${b.deadline?`<div style="font-size:12px;color:var(--muted);margin-top:2px">Sista beställning: ${new Date(b.deadline+'T12:00:00').getDate()} ${months[new Date(b.deadline+'T12:00:00').getMonth()]} ${new Date(b.deadline+'T12:00:00').getFullYear()}</div>`:''}
+        ${b.deadline?('<div style="font-size:12px;color:var(--muted);margin-top:2px">Sista beställning: '+new Date(b.deadline+'T12:00:00').getDate()+' '+months[new Date(b.deadline+'T12:00:00').getMonth()]+' '+new Date(b.deadline+'T12:00:00').getFullYear()+'</div>'):''}
         <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
           <div style="font-size:12px;color:${b.expected_guests&&n>b.expected_guests?'#b05a00':'var(--muted)'}">
             ${b.expected_guests?(n>b.expected_guests?n+' beställda ('+b.expected_guests+' förväntade)':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
           </div>
-          ${b.expected_guests?`<div style="height:3px;background:var(--border);border-radius:2px;width:120px;flex-shrink:0"><div style="height:100%;width:${Math.min(100,pct)}%;background:${pct>100?'#b05a00':'var(--gold)'};border-radius:2px;transition:width .3s"></div></div>`:''}
+          ${b.expected_guests?('<div style="height:3px;background:var(--border);border-radius:2px;width:120px;flex-shrink:0"><div style="height:100%;width:'+Math.min(100,pct)+'%;background:'+(pct>100?'#b05a00':'var(--gold)')+';border-radius:2px;transition:width .3s"></div></div>'):''}
         </div>
         ${reminderHtml}
       </div>
@@ -1249,29 +1249,33 @@ async function renderMenu(){
     return;
   }
 
+  // Store menu ids globally for onclick access
+  window._menuIds=menus.map(m=>m.id);
+  window._catIds=(cats||[]).map(c=>c.id);
+
   let menuHtml='';
-  for(const m of menus){
+  for(let mi=0;mi<menus.length;mi++){
+    const m=menus[mi];
     const {data:mCats}=await db.from('menu_categories').select('id,label').eq('menu_id',m.id).order('sort_order');
     const catIds=(mCats||[]).map(cat=>cat.id);
     const {count}=catIds.length?await db.from('menu_items').select('*',{count:'exact',head:true}).in('category_id',catIds):{count:0};
     const isActive=m.id===activeMenuId;
     const borderColor=isActive?'var(--gold)':'var(--border)';
-    const activeBadge=isActive?'<span style="font-size:11px;color:var(--gold);margin-left:8px;font-weight:400">● Aktiv</span>':'';
-    const descHtml=m.description?('<div style="font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5">'+m.description+'</div>'):'';
-    const editBtn=isActive?
-      '<button class="btn bp" style="font-size:11px;padding:4px 10px" onclick="switchMenu(''+m.id+'')">Redigerar</button>':
-      '<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="switchMenu(''+m.id+'')">Redigera</button>';
+    const activeBadge=isActive?'<span style="font-size:11px;color:var(--gold);margin-left:8px;font-weight:400">&#9679; Aktiv</span>':'';
+    const descHtml=m.description?'<div style="font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5">'+escHtml(m.description)+'</div>':'';
+    const editBtnClass=isActive?'bp':'bg';
+    const editBtnLabel=isActive?'Redigerar':'Redigera';
     menuHtml+='<div class="card" style="margin-bottom:.5rem;border-color:'+borderColor+'">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
         '<div style="flex:1">'+
-          '<div style="font-size:15px;font-weight:500;color:var(--dark)">'+m.name+activeBadge+'</div>'+
+          '<div style="font-size:15px;font-weight:500;color:var(--dark)">'+escHtml(m.name)+activeBadge+'</div>'+
           descHtml+
-          '<div style="font-size:12px;color:var(--muted);margin-top:4px">'+(mCats||[]).length+' kategorier · '+(count||0)+' rätter</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-top:4px">'+(mCats||[]).length+' kategorier &middot; '+(count||0)+' rätter</div>'+
         '</div>'+
         '<div style="display:flex;gap:6px;flex-shrink:0;margin-left:1rem">'+
-          editBtn+
-          '<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyMenu(''+m.id+'')">Kopiera</button>'+
-          '<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteMenu(''+m.id+'')">Ta bort</button>'+
+          '<button class="btn '+editBtnClass+'" style="font-size:11px;padding:4px 10px" onclick="switchMenu(window._menuIds['+mi+'])">'+editBtnLabel+'</button>'+
+          '<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyMenu(window._menuIds['+mi+'])">Kopiera</button>'+
+          '<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteMenu(window._menuIds['+mi+'])">Ta bort</button>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -1287,46 +1291,53 @@ async function renderMenu(){
   const activeMenuName=menus.find(m=>m.id===activeMenuId)?.name||'';
   let edHtml='<div style="margin-top:1rem">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">'+
-      '<div style="font-size:13px;color:var(--muted);font-weight:500">'+activeMenuName+'</div>'+
+      '<div style="font-size:13px;color:var(--muted);font-weight:500">'+escHtml(activeMenuName)+'</div>'+
       '<button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button>'+
     '</div>';
 
-  cats.forEach(cat=>{
+  for(let ci=0;ci<cats.length;ci++){
+    const cat=cats[ci];
+    window._catIds=window._catIds||[];
+    window._catIds[ci]=cat.id;
     edHtml+='<div class="card">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">'+
-        '<div class="card-label" style="margin:0">'+cat.label+'</div>'+
+        '<div class="card-label" style="margin:0">'+escHtml(cat.label)+'</div>'+
         '<div class="fg">'+
-          '<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="showAI(''+cat.id+'')">+ Lägg till rätt</button>'+
-          '<button class="btn bd" style="font-size:10px;padding:3px 8px" onclick="delCat(''+cat.id+'')">Ta bort rubrik</button>'+
+          '<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="showAI(window._catIds['+ci+'])">+ Lägg till rätt</button>'+
+          '<button class="btn bd" style="font-size:10px;padding:3px 8px" onclick="delCat(window._catIds['+ci+'])">Ta bort rubrik</button>'+
         '</div>'+
       '</div>';
 
-    (cat.menu_items||[]).forEach(item=>{
-      const descHtml=item.description?('<div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">'+item.description+'</div>'):'';
-      const priceHtml=item.price?(item.price+' kr'):'';
+    for(let ii=0;ii<(cat.menu_items||[]).length;ii++){
+      const item=cat.menu_items[ii];
+      window._itemIds=window._itemIds||{};
+      window._itemIds[ci+'_'+ii]=item.id;
+      const ikey=ci+'_'+ii;
+      const descHtml=item.description?'<div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">'+escHtml(item.description)+'</div>':'';
+      const priceHtml=item.price?item.price+' kr':'';
       edHtml+='<div id="irow_'+item.id+'" style="padding:10px 0;border-bottom:1px solid var(--border)">'+
         '<div style="display:flex;align-items:flex-start;gap:8px">'+
-          '<div style="flex:1"><div style="font-size:14px;font-weight:400;color:var(--dark)">'+item.name+'</div>'+descHtml+'</div>'+
+          '<div style="flex:1"><div style="font-size:14px;color:var(--dark)">'+escHtml(item.name)+'</div>'+descHtml+'</div>'+
           '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">'+
             '<span style="font-size:13px;color:var(--gold);font-weight:500">'+priceHtml+'</span>'+
-            '<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="editItem(''+item.id+'')">Redigera</button>'+
-            '<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyItemToMenu(''+item.id+'',''+item.name.replace(/'/g,"\'")+'')"  >+ Kopiera till meny</button>'+
-            '<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delItem(''+item.id+'')">Ta bort</button>'+
+            '<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="editItem(window._itemIds.'+JSON.stringify(ikey)+')">Redigera</button>'+
+            '<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyItemToMenu(window._itemIds.'+JSON.stringify(ikey)+','+JSON.stringify(item.name)+')">+ Kopiera till meny</button>'+
+            '<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delItem(window._itemIds.'+JSON.stringify(ikey)+')">Ta bort</button>'+
           '</div>'+
         '</div>'+
         '<div id="iedit_'+item.id+'" style="display:none;margin-top:10px;background:var(--surface2);border-radius:8px;padding:12px">'+
           '<div class="r2">'+
-            '<div class="ff"><label>Namn</label><input type="text" id="ien_'+item.id+'" value="'+item.name.replace(/"/g,'&quot;')+'"></div>'+
+            '<div class="ff"><label>Namn</label><input type="text" id="ien_'+item.id+'" value="'+escAttr(item.name)+'"></div>'+
             '<div class="ff"><label>Pris (kr)</label><input type="number" id="iep_'+item.id+'" value="'+(item.price||0)+'"></div>'+
           '</div>'+
-          '<div class="ff"><label>Beskrivning</label><textarea id="ied_'+item.id+'" style="min-height:55px">'+( item.description||'')+'</textarea></div>'+
+          '<div class="ff"><label>Beskrivning</label><textarea id="ied_'+item.id+'" style="min-height:55px">'+escHtml(item.description||'')+'</textarea></div>'+
           '<div class="fg">'+
-            '<button class="btn bp" style="font-size:12px" onclick="saveItem(''+item.id+'')">Spara</button>'+
-            '<button class="btn bg" style="font-size:12px" onclick="document.getElementById('iedit_'+item.id+'').style.display='none'">Avbryt</button>'+
+            '<button class="btn bp" style="font-size:12px" onclick="saveItem(window._itemIds.'+JSON.stringify(ikey)+')">Spara</button>'+
+            '<button class="btn bg" style="font-size:12px" onclick="document.getElementById(\'iedit_'+item.id+'\').style.display=\'none\'">Avbryt</button>'+
           '</div>'+
         '</div>'+
       '</div>';
-    });
+    }
 
     edHtml+='<div id="ai_'+cat.id+'" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)">'+
       '<div class="r2">'+
@@ -1335,14 +1346,20 @@ async function renderMenu(){
       '</div>'+
       '<div class="ff"><label>Beskrivning</label><textarea id="aid_'+cat.id+'" style="min-height:55px" placeholder="Ingredienser, tillagning..."></textarea></div>'+
       '<div class="fg">'+
-        '<button class="btn bp" style="font-size:12px" onclick="addItem(''+cat.id+'')">Lägg till</button>'+
-        '<button class="btn bg" style="font-size:12px" onclick="document.getElementById('ai_'+cat.id+'').style.display='none'">Avbryt</button>'+
+        '<button class="btn bp" style="font-size:12px" onclick="addItem(window._catIds['+ci+'])">Lägg till</button>'+
+        '<button class="btn bg" style="font-size:12px" onclick="closeAI(this)">Avbryt</button>'+
       '</div>'+
     '</div></div>';
-  });
+  }
 
   edHtml+='</div>';
   ed.innerHTML=edHtml;
 }
+
+function escHtml(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''}
+function escAttr(s){return s?String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'):''}
+function escJs(s){return s?String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"):''}
+function closeEdit(id){document.getElementById(id).style.display='none';}
+function closeAI(btn){btn.closest('[id^="ai_"]').style.display='none';}
 
 
