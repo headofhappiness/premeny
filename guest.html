@@ -148,7 +148,12 @@ const BID=params.get('b');
 let restaurant=null,booking=null,categories=[],gSel={},gComments={},existingOrderId=null,isClosed=false;
 
 async function init(){
-  if(!SLUG||!BID){showError('Ogiltig länk.');return;}
+  if(!SLUG||!BID){
+    document.getElementById('loadingState').style.display='none';
+    document.getElementById('errorState').innerHTML='<div style="text-align:center;padding:3rem 1.5rem"><div style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--dark);margin-bottom:.5rem">Välkommen till PreMeny</div><div style="width:32px;height:1px;background:var(--gold);margin:.5rem auto 1rem;opacity:.7"></div><p style="font-size:15px;color:var(--muted);line-height:1.7;max-width:400px;margin:0 auto 1.5rem">Den här sidan används för att förbeställa mat inför ett sällskap. Du behöver en personlig länk från din restaurang eller kontaktperson.</p><a href="https://premeny.se" style="display:inline-block;background:var(--dark);color:#fff;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:500;text-decoration:none">Läs mer om PreMeny</a></div>';
+    document.getElementById('errorState').style.display='block';
+    return;
+  }
   try{
     const {data:rest,error:e1}=await db.from('restaurants').select('*').eq('slug',SLUG).single();
     if(e1||!rest){showError('Restaurangen hittades inte.');return;}
