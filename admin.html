@@ -1271,7 +1271,7 @@ async function toggleArc(id){
 async function loadCats(){
   const {data:menuData}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
   menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
-  if(menus.length&&!activeMenuId)activeMenuId=menus[0].id;
+  // Menyer är ihopfällda som standard — activeMenuId sätts bara när användaren klickar
   if(activeMenuId){
     const {data}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',activeMenuId).order('sort_order');
     cats=(data||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)}));
@@ -1502,7 +1502,7 @@ async function renderMenu(){
   sel.innerHTML=html;
 
   // Load content for open menu
-  if(activeMenuId) loadMenuItems(activeMenuId);
+  // Ingen meny öppnas automatiskt
 }
 
 async function toggleMC(id){
@@ -1513,7 +1513,7 @@ async function toggleMC(id){
     const el=document.getElementById('mc_'+m.id);
     if(el)el.classList.toggle('open',m.id===activeMenuId);
   });
-  if(activeMenuId) loadMenuItems(activeMenuId);
+  // Ingen meny öppnas automatiskt
 }
 
 async function loadMenuItems(menuId){
