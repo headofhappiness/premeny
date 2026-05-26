@@ -13,7 +13,7 @@ body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
 .logo{font-family:"Playfair Display",serif;font-size:1.15rem;font-style:italic;color:var(--dark)}.logo span{color:var(--gold)}
 .sa-badge{background:rgba(184,149,90,.12);border:1px solid rgba(184,149,90,.3);border-radius:100px;padding:2px 10px;font-size:11px;color:var(--gold);font-weight:500;letter-spacing:.05em}
-.page{max-width:900px;margin:0 auto;padding:2rem 1.25rem 5rem}
+.page{max-width:960px;margin:0 auto;padding:2rem 1.25rem 5rem}
 h1{font-family:"Playfair Display",serif;font-size:1.9rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
 h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:var(--dark)}
 .gold-line{width:32px;height:1px;background:var(--gold);margin:.5rem 0 1.25rem;opacity:.7}
@@ -29,32 +29,33 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 .bp{background:var(--dark);color:#fff}.bp:hover{background:#2d2820}
 .bg{background:transparent;border-color:var(--border);color:var(--muted)}.bg:hover{border-color:var(--dark);color:var(--dark)}
 .bd{background:transparent;border-color:#e8d0d0;color:#a05050}.bd:hover{border-color:var(--red);color:var(--red)}
-.bfull{width:100%;justify-content:center;padding:13px}
+.bfull{width:100%;justify-content:center}
 .msg{padding:11px 16px;border-radius:8px;font-size:13px;margin:.75rem 0;border:1px solid}
 .mok{background:#f2f8ec;color:#3a6020;border-color:#c8e0a8}
 .merr{background:#fdf2f2;color:#8a2020;border-color:#e8c0c0}
-.rest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:1rem}
+.minfo{background:#f0f8ff;color:#1a4090;border-color:#b8d0f8}
+.rest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-top:1rem}
 .rest-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;transition:border-color .2s}
 .rest-card:hover{border-color:var(--gold)}
-.rest-name{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark);margin-bottom:.25rem}
+.rest-name{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark);margin-bottom:.2rem}
 .rest-slug{font-size:12px;color:var(--muted);font-family:monospace;margin-bottom:.75rem}
-.rest-info{font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:.75rem}
 .plan-badge{border-radius:100px;padding:3px 10px;font-size:11px;font-weight:500}
 .plan-early{background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.25);color:var(--gold)}
 .plan-small{background:#eef6e8;border:1px solid #c8e0a8;color:#3a6020}
 .plan-medium{background:#e8f0fc;border:1px solid #b8d0f8;color:#1a4090}
 .plan-large{background:#f0e8fc;border:1px solid #d0b8f8;color:#5a1a90}
-.active-dot{width:8px;height:8px;border-radius:50%;background:#3a7d44;display:inline-block;margin-right:5px}
-.inactive-dot{width:8px;height:8px;border-radius:50%;background:#c0392b;display:inline-block;margin-right:5px}
 .login-wrap{max-width:380px;margin:4rem auto;padding:2.5rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;box-shadow:0 4px 32px rgba(0,0,0,.06)}
 .spinner{width:14px;height:14px;border:2px solid rgba(184,149,90,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem;text-align:center}
 .stat-n{font-family:"Playfair Display",serif;font-size:2.2rem;color:var(--dark);font-weight:400}
-.stat-l{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:.03em}
+.stat-l{font-size:12px;color:var(--muted);margin-top:4px}
 .modal-overlay{position:fixed;inset:0;background:rgba(26,23,18,.5);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 48px rgba(0,0,0,.12)}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 48px rgba(0,0,0,.12)}
+.month-bar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px}
+.month-bar-bg{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.month-bar-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s}
 @media(max-width:600px){.r2,.r3{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr 1fr}.page{padding:1.5rem 1rem 4rem}}
 </style>
 </head>
@@ -64,11 +65,12 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 <div id="loginPage">
   <div class="login-wrap">
     <div style="font-family:'Playfair Display',serif;font-size:2.2rem;font-style:italic;color:var(--dark);margin-bottom:.25rem">Pre<span style="color:var(--gold)">Meny</span></div>
-    <div class="sa-badge" style="display:inline-block;margin:.25rem 0 1.25rem">SuperAdmin</div>
+    <div class="sa-badge" style="display:inline-block;margin:.25rem 0 1.5rem">SuperAdmin</div>
     <div id="loginMsg" style="display:none" class="msg merr"></div>
-    <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="superadmin@premeny.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <div class="ff"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="btn bp bfull" style="padding:13px" onclick="doLogin()">Logga in</button>
+    <div class="ff" style="text-align:left"><label>E-post</label><input type="email" id="loginEmail" placeholder="superadmin@premeny.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="ff" style="text-align:left"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn bp bfull" style="padding:13px;margin-bottom:.75rem" onclick="doLogin()">Logga in</button>
+    <button onclick="forgotPassword()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif">Glömt lösenord?</button>
   </div>
 </div>
 
@@ -76,6 +78,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 <div id="adminPage" style="display:none">
   <nav class="nav">
     <div style="display:flex;align-items:center;gap:10px">
+      <img src="PM_logo.png" style="width:28px;height:28px;border-radius:50%">
       <div class="logo">Pre<span>Meny</span></div>
       <div class="sa-badge">SuperAdmin</div>
     </div>
@@ -86,24 +89,21 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <h1>Översikt</h1>
     <div class="gold-line"></div>
 
-    <!-- STATISTIK -->
     <div class="stat-row" id="statRow">
       <div class="stat"><div class="spinner"></div></div>
     </div>
 
-    <!-- NY RESTAURANG -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
       <h3>Restauranger</h3>
-      <button class="btn bp" onclick="openNewRest()">+ Lägg till restaurang</button>
+      <button class="btn bp" style="font-size:12px" onclick="openNewRest()">+ Lägg till restaurang</button>
     </div>
-
     <div id="restGrid" class="rest-grid"></div>
   </div>
 </div>
 
 <!-- NY RESTAURANG MODAL -->
-<div id="newRestModal" class="modal-overlay" style="display:none" onclick="closeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
+<div id="newRestModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModalDirect()">
+  <div class="modal">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
       <h3>Lägg till ny restaurang</h3>
       <button class="btn bg" style="padding:5px 12px;font-size:12px" onclick="closeModalDirect()">✕</button>
@@ -111,7 +111,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <div class="card-label">Grundinfo</div>
     <div class="r2">
       <div class="ff"><label>Restaurangens namn *</label><input type="text" id="nr-name" placeholder="T.ex. Brunsbo Gästgiveri"></div>
-      <div class="ff"><label>Slug (URL-namn) *</label><input type="text" id="nr-slug" placeholder="brunsbo" oninput="autoSlug(false)"></div>
+      <div class="ff"><label>Slug (URL-namn) *</label><input type="text" id="nr-slug" placeholder="brunsbo"></div>
     </div>
     <div class="r2">
       <div class="ff"><label>Plan</label>
@@ -129,7 +129,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
         </div>
       </div>
     </div>
-    <div class="card-label" style="margin-top:.5rem">Kontaktuppgifter</div>
+    <div class="card-label" style="margin-top:.25rem">Kontaktuppgifter</div>
     <div class="r2">
       <div class="ff"><label>Telefon</label><input type="tel" id="nr-phone" placeholder="+46 35 123 45 67"></div>
       <div class="ff"><label>E-post</label><input type="email" id="nr-email" placeholder="info@restaurangen.se"></div>
@@ -138,7 +138,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
       <div class="ff"><label>Adress</label><input type="text" id="nr-address" placeholder="Storgatan 1, 123 45 Stad"></div>
       <div class="ff"><label>Webbplats</label><input type="text" id="nr-website" placeholder="www.restaurangen.se"></div>
     </div>
-    <div class="card-label" style="margin-top:.5rem">Adminkonto</div>
+    <div class="card-label" style="margin-top:.25rem">Adminkonto</div>
     <div class="r2">
       <div class="ff"><label>Admin e-post *</label><input type="email" id="nr-admin-email" placeholder="personal@restaurangen.se"></div>
       <div class="ff"><label>Temporärt lösenord *</label>
@@ -149,7 +149,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
       </div>
     </div>
     <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.2);border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#6a5030;line-height:1.6;margin-bottom:1rem">
-      ℹ Adminens e-post och lösenord skapas i Supabase Auth. Skicka sedan inloggningsuppgifterna manuellt till restaurangen.
+      ℹ Restaurangen skapas direkt. Adminkontot behöver skapas manuellt i Supabase Auth — instruktioner visas efter.
     </div>
     <div id="nr-msg" style="display:none" class="msg"></div>
     <div style="display:flex;gap:8px">
@@ -159,9 +159,20 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
   </div>
 </div>
 
-<!-- EDIT RESTAURANG MODAL -->
-<div id="editRestModal" class="modal-overlay" style="display:none" onclick="closeEditModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
+<!-- STATISTIK MODAL -->
+<div id="statsModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeStatsModal()">
+  <div class="modal" style="max-width:640px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+      <h3 id="statsModalTitle">Statistik</h3>
+      <button class="btn bg" style="padding:5px 12px;font-size:12px" onclick="closeStatsModal()">✕</button>
+    </div>
+    <div id="statsModalContent"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editRestModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeEditModalDirect()">
+  <div class="modal">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
       <h3>Redigera restaurang</h3>
       <button class="btn bg" style="padding:5px 12px;font-size:12px" onclick="closeEditModalDirect()">✕</button>
@@ -176,22 +187,30 @@ const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
 const SKEY='sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
 const {createClient}=supabase;
 const db=createClient(SURL,SKEY);
-
-// SuperAdmin email – change this to your own
 const SUPERADMIN_EMAIL='superadmin@premeny.se';
 
+// ── AUTH ─────────────────────────────────────────────────────────────
 async function doLogin(){
   const email=document.getElementById('loginEmail').value.trim();
   const pass=document.getElementById('loginPass').value;
+  const m=document.getElementById('loginMsg');
   const {error}=await db.auth.signInWithPassword({email,password:pass});
-  if(error){const m=document.getElementById('loginMsg');m.style.display='block';m.textContent='Fel e-post eller lösenord.';return;}
-  // Verify superadmin
+  if(error){m.style.display='block';m.textContent='Fel e-post eller lösenord.';return;}
   const {data:{user}}=await db.auth.getUser();
   if(user.email!==SUPERADMIN_EMAIL){
     await db.auth.signOut();
-    const m=document.getElementById('loginMsg');m.style.display='block';m.textContent='Du har inte behörighet till superadmin.';return;
+    m.style.display='block';m.textContent='Du har inte behörighet till superadmin.';return;
   }
   initAdmin();
+}
+async function forgotPassword(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const m=document.getElementById('loginMsg');
+  if(!email){m.style.display='block';m.className='msg merr';m.textContent='Ange din e-postadress först.';return;}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/superadmin.html'});
+  m.style.display='block';
+  if(error){m.className='msg merr';m.textContent='Fel: '+error.message;}
+  else{m.className='msg minfo';m.textContent='✓ Återställningslänk skickad till '+email;}
 }
 async function doLogout(){await db.auth.signOut();location.reload();}
 
@@ -202,10 +221,13 @@ async function initAdmin(){
   loadRestaurants();
 }
 
+// ── GLOBAL STATS ─────────────────────────────────────────────────────
 async function loadStats(){
-  const {data:rests}=await db.from('restaurants').select('id,active,plan');
-  const {data:bookings}=await db.from('bookings').select('id');
-  const {data:orders}=await db.from('orders').select('id');
+  const [{data:rests},{data:bookings},{data:orders}]=await Promise.all([
+    db.from('restaurants').select('id,active,plan'),
+    db.from('bookings').select('id'),
+    db.from('orders').select('id')
+  ]);
   const total=rests?.length||0;
   const active=(rests||[]).filter(r=>r.active).length;
   document.getElementById('statRow').innerHTML=`
@@ -215,67 +237,159 @@ async function loadStats(){
     <div class="stat"><div class="stat-n">${orders?.length||0}</div><div class="stat-l">Beställningar totalt</div></div>`;
 }
 
+// ── RESTAURANG-LISTA ─────────────────────────────────────────────────
 async function loadRestaurants(){
   const {data:rests}=await db.from('restaurants').select('*').order('created_at',{ascending:false});
   const grid=document.getElementById('restGrid');
   if(!rests?.length){grid.innerHTML='<div style="color:var(--muted);font-size:14px;padding:1rem">Inga restauranger ännu.</div>';return;}
 
+  // Hämta bokningsantal per restaurang
+  const {data:bookings}=await db.from('bookings').select('restaurant_id,summary_sent_log');
+  const byCounts={};
+  const smsCounts={};
+  (bookings||[]).forEach(b=>{
+    byCounts[b.restaurant_id]=(byCounts[b.restaurant_id]||0)+1;
+    // Räkna SMS från log
+    const smsMatches=(b.summary_sent_log||'').match(/via SMS/g);
+    smsCounts[b.restaurant_id]=(smsCounts[b.restaurant_id]||0)+(smsMatches?.length||0);
+  });
+
   const planLabels={early_bird:'Early Bird',small:'Small',medium:'Medium',large:'Large'};
   const planClass={early_bird:'plan-early',small:'plan-small',medium:'plan-medium',large:'plan-large'};
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const now=new Date();
+  const thisMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+
+  // Bokningar denna månad per restaurang
+  const {data:thisMonthBk}=await db.from('bookings').select('restaurant_id').gte('event_date',thisMonth+'-01');
+  const thisMonthCounts={};
+  (thisMonthBk||[]).forEach(b=>{thisMonthCounts[b.restaurant_id]=(thisMonthCounts[b.restaurant_id]||0)+1;});
 
   grid.innerHTML=rests.map(r=>`
     <div class="rest-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">
-        <div>
-          <div style="width:12px;height:12px;border-radius:50%;background:${r.accent_color||'#b8955a'};display:inline-block;margin-right:6px;vertical-align:middle"></div>
-          <span class="rest-name" style="vertical-align:middle">${r.name}</span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${r.accent_color||'#b8955a'};flex-shrink:0"></div>
+          <div class="rest-name">${r.name}</div>
         </div>
-        <span class="${r.active?'active-dot':'inactive-dot'}"></span>
+        <span style="width:8px;height:8px;border-radius:50%;background:${r.active?'#3a7d44':'#c0392b'};display:inline-block;flex-shrink:0;margin-top:6px"></span>
       </div>
       <div class="rest-slug">premeny.se/${r.slug}</div>
-      <div class="rest-info">
-        ${r.phone?'📞 '+r.phone+'<br>':''}
-        ${r.contact_email?'✉ '+r.contact_email+'<br>':''}
-        ${r.address?'📍 '+r.address+'<br>':''}
-        Skapad: ${new Date(r.created_at).toLocaleDateString('sv-SE')}
+
+      <!-- Mini-statistik -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:.9rem">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem;text-align:center">
+          <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--dark)">${byCounts[r.id]||0}</div>
+          <div style="font-size:10px;color:var(--muted)">Bokningar</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem;text-align:center">
+          <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--dark)">${thisMonthCounts[r.id]||0}</div>
+          <div style="font-size:10px;color:var(--muted)">Denna mån</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem;text-align:center">
+          <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--dark)">${smsCounts[r.id]||0}</div>
+          <div style="font-size:10px;color:var(--muted)">SMS skickade</div>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
         <span class="plan-badge ${planClass[r.plan]||'plan-early'}">${planLabels[r.plan]||r.plan}</span>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openStats('${r.id}','${r.name.replace(/'/g,"\\'")}')">📊 Statistik</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openEditRest('${r.id}')">Redigera</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="window.open('/landing.html?r=${r.slug}','_blank')">Landningssida</button>
         <button class="btn ${r.active?'bd':'bg'}" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',${r.active})">${r.active?'Inaktivera':'Aktivera'}</button>
       </div>
     </div>`).join('');
 }
 
-async function toggleActive(id,current){
-  if(!confirm((current?'Inaktivera':'Aktivera')+' restaurangen?'))return;
-  await db.from('restaurants').update({active:!current}).eq('id',id);
-  loadRestaurants();loadStats();
-}
+// ── STATISTIK MODAL ──────────────────────────────────────────────────
+async function openStats(restId, restName){
+  document.getElementById('statsModalTitle').textContent=restName;
+  document.getElementById('statsModalContent').innerHTML='<div style="text-align:center;padding:2rem"><span class="spinner"></span></div>';
+  document.getElementById('statsModal').style.display='flex';
 
-// NY RESTAURANG
+  // Hämta alla bokningar för restaurangen
+  const {data:bookings}=await db.from('bookings').select('id,event_date,summary_sent_log,expected_guests').eq('restaurant_id',restId).order('event_date');
+  const {data:orders}=await db.from('orders').select('id,booking_id');
+
+  const totalBk=bookings?.length||0;
+  const totalOr=orders?.length||0;
+
+  // SMS-räkning
+  let totalSms=0;
+  let totalEmail=0;
+  (bookings||[]).forEach(b=>{
+    const log=b.summary_sent_log||'';
+    totalSms+=(log.match(/via SMS/g)||[]).length;
+    totalEmail+=(log.match(/via Resend|via mejl/g)||[]).length;
+  });
+
+  // Bokningar per månad (sista 6 månader)
+  const monthMap={};
+  (bookings||[]).forEach(b=>{
+    if(!b.event_date)return;
+    const key=b.event_date.slice(0,7); // YYYY-MM
+    monthMap[key]=(monthMap[key]||0)+1;
+  });
+  // Bygg sista 6 månader
+  const monthRows=[];
+  const svMonths=['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+  for(let i=5;i>=0;i--){
+    const d=new Date();d.setMonth(d.getMonth()-i);
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    const label=svMonths[d.getMonth()]+' '+d.getFullYear();
+    monthRows.push({key,label,count:monthMap[key]||0});
+  }
+  const maxMonth=Math.max(1,...monthRows.map(m=>m.count));
+
+  document.getElementById('statsModalContent').innerHTML=`
+    <!-- Totaler -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;text-align:center">
+        <div style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--dark)">${totalBk}</div>
+        <div style="font-size:11px;color:var(--muted)">Bokningar totalt</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;text-align:center">
+        <div style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--dark)">${totalOr}</div>
+        <div style="font-size:11px;color:var(--muted)">Beställningar</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;text-align:center">
+        <div style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--dark)">${totalSms}</div>
+        <div style="font-size:11px;color:var(--muted)">SMS skickade</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;text-align:center">
+        <div style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--dark)">${totalEmail}</div>
+        <div style="font-size:11px;color:var(--muted)">Mejl skickade</div>
+      </div>
+    </div>
+
+    <!-- Per månad -->
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">Bokningar per månad (sista 6 mån)</div>
+    ${monthRows.map(m=>`
+      <div class="month-bar-wrap">
+        <div style="width:80px;color:var(--muted);font-size:12px;flex-shrink:0">${m.label}</div>
+        <div class="month-bar-bg"><div class="month-bar-fill" style="width:${Math.round(m.count/maxMonth*100)}%"></div></div>
+        <div style="width:28px;text-align:right;font-size:13px;font-weight:500;color:var(--dark);flex-shrink:0">${m.count}</div>
+      </div>`).join('')}
+  `;
+}
+function closeStatsModal(){document.getElementById('statsModal').style.display='none';}
+
+// ── NY RESTAURANG ────────────────────────────────────────────────────
 function openNewRest(){document.getElementById('newRestModal').style.display='flex';}
-function closeModal(ev){if(ev.target===document.getElementById('newRestModal'))closeModalDirect();}
 function closeModalDirect(){document.getElementById('newRestModal').style.display='none';}
 
-function autoSlug(fromName){
-  if(fromName){
-    const name=document.getElementById('nr-name').value;
-    const slug=name.toLowerCase().replace(/[åä]/g,'a').replace(/ö/g,'o').replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+document.addEventListener('input',function(e){
+  if(e.target.id==='nr-name'){
+    const slug=e.target.value.toLowerCase().replace(/[åä]/g,'a').replace(/ö/g,'o').replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
     document.getElementById('nr-slug').value=slug;
   }
-}
-
-document.addEventListener('input',function(e){
-  if(e.target.id==='nr-name')autoSlug(true);
   if(e.target.id==='nr-color')document.getElementById('nr-color-text').value=e.target.value;
 });
 
 function genPass(){
   const chars='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
-  let pass='';for(let i=0;i<12;i++)pass+=chars[Math.floor(Math.random()*chars.length)];
-  document.getElementById('nr-admin-pass').value=pass;
+  let p='';for(let i=0;i<12;i++)p+=chars[Math.floor(Math.random()*chars.length)];
+  document.getElementById('nr-admin-pass').value=p;
 }
 
 async function createRestaurant(){
@@ -288,16 +402,12 @@ async function createRestaurant(){
   if(!name||!slug||!adminEmail||!adminPass){
     msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Fyll i alla obligatoriska fält (markerade med *).';return;
   }
-  if(adminPass.length<8){
-    msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Lösenordet måste vara minst 8 tecken.';return;
-  }
+  if(adminPass.length<8){msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Lösenordet måste vara minst 8 tecken.';return;}
 
   const btn=document.getElementById('nr-btn');
-  btn.disabled=true;btn.textContent='Skapar...';
-  msgEl.style.display='none';
+  btn.disabled=true;btn.textContent='Skapar...';msgEl.style.display='none';
 
   try{
-    // 1. Skapa restaurang
     const {data:rest,error:e1}=await db.from('restaurants').insert({
       name,slug,
       accent_color:document.getElementById('nr-color').value,
@@ -310,21 +420,15 @@ async function createRestaurant(){
     }).select().single();
     if(e1)throw new Error('Kunde inte skapa restaurang: '+e1.message);
 
-    // 2. Skapa adminkonto via Supabase Admin API
-    // OBS: Detta kräver service_role key – görs manuellt eller via backend
-    // För nu – visa instruktioner
     msgEl.style.display='block';
     msgEl.className='msg mok';
     msgEl.innerHTML=`✓ <strong>${name}</strong> skapades!<br><br>
-    Skapa adminkonto manuellt i Supabase:<br>
-    <code style="background:rgba(0,0,0,.06);padding:2px 6px;border-radius:4px;font-size:12px">Authentication → Users → Add user</code><br>
-    E-post: <strong>${adminEmail}</strong><br>
-    Lösenord: <strong>${adminPass}</strong><br><br>
-    Kör sedan i SQL Editor:<br>
-    <code style="background:rgba(0,0,0,.06);padding:4px 8px;border-radius:4px;font-size:11px;display:block;margin-top:4px;word-break:break-all">
-    INSERT INTO restaurant_admins (restaurant_id, user_id)<br>
-    SELECT '${rest.id}', id FROM auth.users WHERE email = '${adminEmail}';
-    </code>`;
+    <strong>Nästa steg — skapa adminkonto i Supabase:</strong><br>
+    1. Authentication → Users → Add user<br>
+    &nbsp;&nbsp;&nbsp;E-post: <code style="background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px">${adminEmail}</code><br>
+    &nbsp;&nbsp;&nbsp;Lösenord: <code style="background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px">${adminPass}</code><br><br>
+    2. SQL Editor → kör:<br>
+    <code style="background:rgba(0,0,0,.06);padding:6px 10px;border-radius:6px;font-size:11px;display:block;margin-top:6px;line-height:1.8;word-break:break-all">INSERT INTO restaurant_admins (restaurant_id, user_id)<br>SELECT '${rest.id}', id FROM auth.users WHERE email = '${adminEmail}';</code>`;
     loadRestaurants();loadStats();
   }catch(err){
     msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Fel: '+err.message;
@@ -332,21 +436,22 @@ async function createRestaurant(){
   btn.disabled=false;btn.textContent='Skapa restaurang';
 }
 
-// REDIGERA RESTAURANG
+// ── REDIGERA RESTAURANG ──────────────────────────────────────────────
 async function openEditRest(id){
   const {data:r}=await db.from('restaurants').select('*').eq('id',id).single();
   if(!r)return;
-  const planLabels={early_bird:'Early Bird – 299 kr/mån',small:'Small – 499 kr/mån',medium:'Medium – 799 kr/mån',large:'Large – 1199 kr/mån'};
+  const planOpts={early_bird:'Early Bird – 299 kr/mån',small:'Small – 499 kr/mån',medium:'Medium – 799 kr/mån',large:'Large – 1199 kr/mån'};
   document.getElementById('editRestContent').innerHTML=`
     <div class="r2">
       <div class="ff"><label>Namn</label><input type="text" id="er-name" value="${r.name}"></div>
       <div class="ff"><label>Slug</label><input type="text" id="er-slug" value="${r.slug}"></div>
     </div>
     <div class="r2">
-      <div class="ff"><label>Plan</label><select id="er-plan">
-        ${Object.entries(planLabels).map(([v,l])=>`<option value="${v}"${r.plan===v?' selected':''}>${l}</option>`).join('')}
-      </select></div>
-      <div class="ff"><label>Accentfärg</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="er-color" value="${r.accent_color||'#b8955a'}" style="width:44px;height:38px;padding:2px;border-radius:6px;cursor:pointer"><input type="text" id="er-color-text" value="${r.accent_color||'#b8955a'}" style="font-family:monospace;font-size:13px" oninput="document.getElementById('er-color').value=this.value"></div></div>
+      <div class="ff"><label>Plan</label><select id="er-plan">${Object.entries(planOpts).map(([v,l])=>`<option value="${v}"${r.plan===v?' selected':''}>${l}</option>`).join('')}</select></div>
+      <div class="ff"><label>Accentfärg</label><div style="display:flex;gap:8px;align-items:center">
+        <input type="color" id="er-color" value="${r.accent_color||'#b8955a'}" style="width:44px;height:38px;padding:2px;border-radius:6px;cursor:pointer;flex-shrink:0">
+        <input type="text" id="er-color-text" value="${r.accent_color||'#b8955a'}" style="font-family:monospace;font-size:13px" oninput="document.getElementById('er-color').value=this.value">
+      </div></div>
     </div>
     <div class="r2">
       <div class="ff"><label>Telefon</label><input type="tel" id="er-phone" value="${r.phone||''}"></div>
@@ -381,16 +486,18 @@ async function saveEditRest(id){
   msg.style.display='block';msg.className='msg mok';msg.textContent='✓ Sparat!';
   setTimeout(()=>{closeEditModalDirect();loadRestaurants();},1000);
 }
-
-function closeEditModal(ev){if(ev.target===document.getElementById('editRestModal'))closeEditModalDirect();}
 function closeEditModalDirect(){document.getElementById('editRestModal').style.display='none';}
 
-// INIT
+async function toggleActive(id,current){
+  if(!confirm((current?'Inaktivera':'Aktivera')+' restaurangen?'))return;
+  await db.from('restaurants').update({active:!current}).eq('id',id);
+  loadRestaurants();loadStats();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────
 db.auth.getSession().then(({data:{session}})=>{
-  if(session){
-    if(session.user.email===SUPERADMIN_EMAIL)initAdmin();
-    else{db.auth.signOut();}
-  }
+  if(session&&session.user.email===SUPERADMIN_EMAIL)initAdmin();
+  else if(session)db.auth.signOut();
 });
 </script>
 </body>
