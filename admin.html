@@ -1242,10 +1242,10 @@ async function renderMenu(){
   await loadCats();
   const sel=document.getElementById('menu-selector');
   const ed=document.getElementById('menuEditor');
+  ed.innerHTML='';
 
   if(!menus.length){
     sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Skapa din första meny för att komma igång.</div>';
-    ed.innerHTML='';
     return;
   }
 
@@ -1261,7 +1261,7 @@ async function renderMenu(){
     const isActive=m.id===activeMenuId;
     const desc=m.description?'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+escHtml(m.description)+'</div>':'';
 
-    html+='<div class="bcard'+(isActive?' open':'')+'" id="mc_'+m.id+'">'
+    html+='<div class="bcard" id="mc_'+m.id+'">'
       +'<div class="bhead" onclick="toggleMenuCard('+mi+')">'
         +'<div style="flex:1">'
           +'<div style="display:flex;align-items:center;gap:8px">'
@@ -1269,44 +1269,43 @@ async function renderMenu(){
             +'<span style="font-size:12px;color:var(--gold)">Se mer ›</span>'
           +'</div>'
           +desc
-          +'<div style="font-size:12px;color:var(--muted);margin-top:3px">'+(mCats||[]).length+' kategorier &middot; '+(count||0)+' rätter</div>'
+          +'<div style="font-size:12px;color:var(--muted);margin-top:3px">'+(mCats||[]).length+' kategorier &middot; '+(count||0)+' rätter'+(isActive?' &middot; <span style="color:var(--gold)">Aktiv</span>':'')+'</div>'
         +'</div>'
-        +(isActive?'<span class="pill po">Aktiv</span>':'')
       +'</div>'
       +'<div class="bdetail">'
-        // Action buttons
         +'<div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap">'
-          +'<button class="btn '+(isActive?'bp':'bg')+'" style="font-size:12px;padding:6px 14px" onclick="event.stopPropagation();switchMenu(window._menuIds['+mi+'])">'+(isActive?'Redigerar':'Redigera')+'</button>'
+          +'<button class="btn bg" style="font-size:12px;padding:6px 14px" onclick="event.stopPropagation();editMenuInline(window._menuIds['+mi+'])">✏️ Redigera rätter</button>'
           +'<button class="btn bg" style="font-size:12px;padding:6px 14px" onclick="event.stopPropagation();copyMenu(window._menuIds['+mi+'])">Kopiera meny</button>'
           +'<button class="btn bd" style="font-size:12px;padding:6px 14px" onclick="event.stopPropagation();deleteMenu(window._menuIds['+mi+'])">Ta bort</button>'
         +'</div>'
-        // Menu preview - Brunsbo style
         +'<div id="mc-items-'+m.id+'"><div style="font-size:13px;color:var(--muted)">Laddar...</div></div>'
+        +'<div id="mc-editor-'+m.id+'" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem"></div>'
       +'</div>'
     +'</div>';
   }
   sel.innerHTML=html;
+}
 
-  // Load preview for open menus
-  for(const m of menus){
-    const el=document.getElementById('mc_'+m.id);
-    if(el&&el.classList.contains('open'))loadMenuPreview(m.id);
-  }
+async function editMenuInline(menuId){
+  activeMenuId=menuId;
+  await loadCats();
+  window._catIds=cats.map(c=>c.id);
+  const el=document.getElementById('mc-editor-'+menuId);
+  if(!el)return;
 
-  // Editor below
-  if(!activeMenuId){ed.innerHTML='';return;}
+  // Toggle
+  if(el.style.display!=='none'){el.style.display='none';return;}
+  el.style.display='block';
+
+  let edHtml='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">'
+    +'<span style="font-size:13px;font-weight:500;color:var(--dark)">Redigera rätter</span>'
+    +'<button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button>'
+  +'</div>';
+
   if(!cats.length){
-    ed.innerHTML='<div style="margin-top:1rem;display:flex;gap:8px"><button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button></div>'
-      +'<div class="empty" style="margin-top:.75rem">Inga rätter. Lägg till en rubrik.</div>';
+    el.innerHTML=edHtml+'<div class="empty">Inga rätter. Lägg till en rubrik.</div>';
     return;
   }
-
-  const activeMenuName=menus.find(m=>m.id===activeMenuId)?.name||'';
-  let edHtml='<div style="margin-top:1rem">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:var(--surface2);border-radius:8px;margin-bottom:.75rem">'
-      +'<span style="font-size:13px;font-weight:500;color:var(--dark)">Redigerar: '+escHtml(activeMenuName)+'</span>'
-      +'<button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button>'
-    +'</div>';
 
   for(let ci=0;ci<cats.length;ci++){
     const cat=cats[ci];
@@ -1358,9 +1357,9 @@ async function renderMenu(){
     +'</div></div>';
   }
 
-  edHtml+='</div>';
-  ed.innerHTML=edHtml;
+  el.innerHTML=edHtml;
 }
+
 
 // HELPER FUNCTIONS
 function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
