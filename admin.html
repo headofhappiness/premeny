@@ -650,6 +650,7 @@ function renderBCard(b){
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera sammanfattning</button>
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportPDF('${b.id}')">📄 Ladda ner PDF</button>
+      <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
     </div></div>`;
   }
   html+=`</div>`;
@@ -1160,22 +1161,25 @@ async function renderCalResults(){
   // Sallskap info per date
   const byDate={};
   dates.forEach(d=>{byDate[d]=bs.filter(b=>b.event_date===d);});
-  const sallskapInfo=dates.map(d=>{
+  // Per-booking rows with delete
+  const sallskapRows=dates.flatMap(d=>{
     const dbs=byDate[d]||[];
-    if(!dbs.length)return'';
     const dt=new Date(d+'T12:00:00');
     const ds=dt.getDate()+' '+months[dt.getMonth()];
-    return ds+': '+dbs.map(b=>b.name+(b.event_time?' kl '+b.event_time.slice(0,5):'')).join(', ');
-  }).filter(Boolean).join(' · ');
+    return dbs.map(b=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)">
+      <span>${ds}: <span style="color:var(--dark)">${b.name}</span>${b.event_time?' kl '+b.event_time.slice(0,5):''}</span>
+      <button class="btn bd" style="font-size:10px;padding:2px 8px" onclick="delBookingFromCal('${b.id}')">Ta bort</button>
+    </div>`);
+  }).join('');
 
   let html=`<div class="card">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
-      <div>
+      <div style="flex:1">
         <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${dateLabels}</div>
         <div style="font-size:1.1rem;font-family:'Playfair Display',serif;color:var(--dark)">${allOrders.length} beställningar · ${totalBookings} sällskap</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">${sallskapInfo}</div>
+        <div style="margin-top:.5rem">${sallskapRows}</div>
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
+      <div style="display:flex;gap:6px;flex-shrink:0;margin-left:1rem">
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyCalKitchen()">📋 Kopiera</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="printCalKitchen()">🖨 Skriv ut</button>
       </div>
@@ -1509,7 +1513,7 @@ async function loadMenuItems(menuId){
     const cat=cats[ci];const catId=cat.id;
     html+=`<div style="margin-bottom:1.75rem">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-        <div class="card-label" style="margin:0">${escHtml(cat.label)}</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);font-weight:400">${escHtml(cat.label)}</div>
         <div style="display:flex;gap:6px">
           <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="showAI('${catId}')">+ Lägg till rätt</button>
           <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delCat('${catId}')">Ta bort rubrik</button>
