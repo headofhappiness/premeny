@@ -248,7 +248,7 @@ function buildMenu(){
           </div>
           <div class="meal-comment-wrap" id="cmtwrap_${item.id}">
             <label>Allergier / specialkost för denna rätt (valfritt)</label>
-            <textarea placeholder="T.ex. glutenintolerant, ingen lök, nötfri..." onchange="gComments['${item.id}']=this.value">${gComments[item.id]||''}</textarea>
+            <textarea placeholder="" onchange="gComments['${item.id}']=this.value">${gComments[item.id]||''}</textarea>
           </div>
         </div>`).join('')}
     </div>`).join('');

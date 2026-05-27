@@ -361,9 +361,10 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <div class="gold-line"></div>
       <div class="card">
         <div class="set-section">
-          <div class="card-label">Kontaktuppgifter (visas för gäster vid stängd beställning)</div>
+          <div class="card-label">Restauranginformation</div>
+          <div class="ff"><label>Restaurangens namn</label><input type="text" id="set-name" placeholder="T.ex. Brunsbo Gästgiveri"></div>
           <div class="r2">
-            <div class="ff"><label>Restaurangens telefon</label><input type="tel" id="set-phone" placeholder="+46 35 123 45 67"></div>
+            <div class="ff"><label>Telefon</label><input type="tel" id="set-phone" placeholder="+46 35 123 45 67"></div>
             <div class="ff"><label>E-post</label><input type="email" id="set-email" placeholder="info@restaurangen.se"></div>
           </div>
           <div class="ff"><label>Adress</label><input type="text" id="set-address" placeholder="Storgatan 1, 123 45 Stad"></div>
@@ -1591,6 +1592,7 @@ async function addCat(){
   await renderMenu();
 }
 async function saveSettings(){
+  var restName=document.getElementById('set-name')?document.getElementById('set-name').value.trim():rest.name;
   var phone=document.getElementById('set-phone').value.trim();
   var email=document.getElementById('set-email').value.trim();
   var address=document.getElementById('set-address').value.trim();
@@ -1604,7 +1606,7 @@ async function saveSettings(){
     var {error:upErr}=await db.storage.from('logos').upload(path,logoFile,{upsert:true});
     if(!upErr){var {data:pub}=db.storage.from('logos').getPublicUrl(path);logoUrl=pub.publicUrl+'?t='+Date.now();}
   }
-  var {error}=await db.from('restaurants').update({phone,contact_email:email,address,website,logo_url:logoUrl}).eq('id',rest.id);
+  var {error}=await db.from('restaurants').update({name:restName,phone,contact_email:email,address,website,logo_url:logoUrl}).eq('id',rest.id);
   if(msg){msg.style.display='block';}
   if(error){if(msg){msg.className='msg merr';msg.textContent='Fel: '+error.message;}}
   else{if(msg){msg.className='msg mok';msg.textContent='Sparat!';}rest=Object.assign({},rest,{phone,contact_email:email,address,website,logo_url:logoUrl});setTimeout(function(){if(msg)msg.style.display='none';},3000);}
@@ -1689,12 +1691,82 @@ function previewLogo(input){
 }
 async function loadSettings(){
   if(!rest)return;
+  var nm=document.getElementById('set-name');if(nm)nm.value=rest.name||'';
   var p=document.getElementById('set-phone');if(p)p.value=rest.phone||'';
   var e=document.getElementById('set-email');if(e)e.value=rest.contact_email||'';
   var a=document.getElementById('set-address');if(a)a.value=rest.address||'';
   var w=document.getElementById('set-website');if(w)w.value=rest.website||'';
   var prev=document.getElementById('logo-preview');
   if(prev&&rest.logo_url)prev.innerHTML='<img src="'+rest.logo_url+'" style="width:100%;height:100%;object-fit:contain">';
+}
+
+async function saveItem(id){
+  var name=document.getElementById('ien_'+id);
+  var price=document.getElementById('iep_'+id);
+  var desc=document.getElementById('ied_'+id);
+  if(!name||!name.value.trim())return;
+  var {error}=await db.from('menu_items').update({
+    name:name.value.trim(),
+    price:parseInt(price.value)||0,
+    description:desc.value.trim()
+  }).eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  await renderMenu();
+  if(activeMenuId)await loadMenuItems(activeMenuId);
+}
+async function delItem(id){
+  if(!confirm('Ta bort rätten?'))return;
+  await db.from('menu_items').update({active:false}).eq('id',id);
+  await renderMenu();
+  if(activeMenuId)await loadMenuItems(activeMenuId);
+}
+async function addItem(catId){
+  var n=document.getElementById('ain_'+catId);
+  var p=document.getElementById('aip_'+catId);
+  var d=document.getElementById('aid_'+catId);
+  if(!n||!n.value.trim())return;
+  var {error}=await db.from('menu_items').insert({
+    category_id:catId,restaurant_id:rest.id,
+    name:n.value.trim(),price:parseInt(p.value)||0,
+    description:d.value.trim(),sort_order:Date.now(),active:true
+  });
+  if(error){alert('Fel: '+error.message);return;}
+  n.value='';p.value='';d.value='';
+  await renderMenu();
+  if(activeMenuId)await loadMenuItems(activeMenuId);
+}
+async function delCat(catId){
+  if(!confirm('Ta bort rubriken och alla rätter under den?'))return;
+  await db.from('menu_items').delete().eq('category_id',catId);
+  await db.from('menu_categories').delete().eq('id',catId);
+  await renderMenu();
+  if(activeMenuId)await loadMenuItems(activeMenuId);
+}
+async function copyMenu(id){
+  var src=menus.find(m=>m.id===id);if(!src)return;
+  var {data:newMenu,error}=await db.from('menus').insert({restaurant_id:rest.id,name:src.name+' (kopia)',description:src.description||''}).select().single();
+  if(error||!newMenu){alert('Fel vid kopiering');return;}
+  var {data:srcCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',id).order('sort_order');
+  for(var i=0;i<(srcCats||[]).length;i++){
+    var cat=srcCats[i];
+    var {data:newCat}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:newMenu.id,label:cat.label,sort_order:cat.sort_order}).select().single();
+    if(!newCat)continue;
+    for(var j=0;j<(cat.menu_items||[]).length;j++){
+      var item=cat.menu_items[j];
+      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,price:item.price,description:item.description||'',sort_order:item.sort_order,active:true});
+    }
+  }
+  await renderMenu();
+}
+async function deleteMenu(id){
+  if(!confirm('Ta bort menyn permanent?'))return;
+  await db.from('menu_categories').select('id').eq('menu_id',id).then(async function({data:cs}){
+    for(var c of (cs||[])){await db.from('menu_items').delete().eq('category_id',c.id);}
+  });
+  await db.from('menu_categories').delete().eq('menu_id',id);
+  await db.from('menus').delete().eq('id',id);
+  activeMenuId=null;
+  await renderMenu();
 }
 </script>
 </body>
