@@ -969,7 +969,7 @@ async function printKitchen(id){
       if(allergies[k])ph+=allergies[k].map(a=>`<div class="alg">⚠ ${a}</div>`).join('');
     });
   });
-  ph+='</body></html>';
+  ph+='</'+'body></'+'html>';
   w.document.write(ph);w.document.close();w.print();
 }
 
@@ -1141,7 +1141,7 @@ function printCalKitchen(){
   const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
   const title=dates.length===1?dateLabels:dates.length+' datum: '+dateLabels;
   const w=window.open('','_blank');
-  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #e8d49a;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#b8955a}.alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#7a5c00}</style></head><body><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</body></html>');
+  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #e8d49a;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#b8955a}.alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#7a5c00}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
   w.document.close();w.print();
 }
 
@@ -1161,6 +1161,7 @@ async function renderCalResults(){
   const totalGuests=bs.reduce((s,b)=>s+(b.expected_guests||0),0);
   const totalOrdered=allOrders.length;
   const notOrdered=totalGuests>0?totalGuests-totalOrdered:null;
+  const extraOrdered=notOrdered!==null&&notOrdered<0?Math.abs(notOrdered):null;
 
   // Date labels
   const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
@@ -1187,8 +1188,8 @@ async function renderCalResults(){
       <div style="font-size:11px;color:#3a7d44;margin-top:2px">✓ Har beställt</div>
     </div>
     <div style="flex:1;min-width:110px;background:#fdf7f0;border:1px solid #e8d4b0;border-radius:10px;padding:.7rem 1rem;text-align:center">
-      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold)">${notOrdered}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">Har inte beställt</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:${extraOrdered?'#3a7d44':'var(--gold)'}">${extraOrdered?'+'+extraOrdered:notOrdered}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">${extraOrdered?'Fler än förväntat':'Har inte beställt'}</div>
     </div>
     <div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;text-align:center">
       <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--dark)">${totalGuests}</div>
@@ -1587,6 +1588,26 @@ async function sendOverCapacityWarning(b,n){
       })
     });
   }catch(e){console.warn('sendOverCapacityWarning:',e.message);}
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────────
+function previewLogo(input){
+  if(!input.files||!input.files[0])return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var prev=document.getElementById('logo-preview');
+    if(prev)prev.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain">';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+async function loadSettings(){
+  if(!rest)return;
+  var p=document.getElementById('set-phone');if(p)p.value=rest.phone||'';
+  var e=document.getElementById('set-email');if(e)e.value=rest.contact_email||'';
+  var a=document.getElementById('set-address');if(a)a.value=rest.address||'';
+  var w=document.getElementById('set-website');if(w)w.value=rest.website||'';
+  var prev=document.getElementById('logo-preview');
+  if(prev&&rest.logo_url)prev.innerHTML='<img src="'+rest.logo_url+'" style="width:100%;height:100%;object-fit:contain">';
 }
 </script>
 </body>
