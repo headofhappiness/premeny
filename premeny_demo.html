@@ -317,7 +317,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 </div>
 
 <script>
-const DEMO_PASSWORD="stadshotellet";
+var DEMO_PASSWORD="stadshotellet";
 var guestCmt={};
 function loadState(){
   try{
@@ -571,7 +571,7 @@ async function submitGuestOrder(){
   if(!hasAtLeastOne()){showGuestMsg("Välj minst en rätt.","err");return;}
   var booking=state.bookings.find(function(b){return b.id===guestBookingId;});
   if(!booking){showGuestMsg("Bokning hittades inte.","err");return;}
-  var allergy=
+  var allergy='';
   var choices={};
   state.categories.forEach(function(c){if(gSel[c.key]!==null&&gSel[c.key]!==undefined)choices[c.key]=gSel[c.key];});
   if(window._selectedDupId){booking.orders=booking.orders.filter(function(o){return o.id!==window._selectedDupId;});window._selectedDupId=null;}
