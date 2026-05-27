@@ -1188,7 +1188,7 @@ async function renderCalResults(){
       <div style="font-size:11px;color:#3a7d44;margin-top:2px">✓ Har beställt</div>
     </div>
     <div style="flex:1;min-width:110px;background:#fdf7f0;border:1px solid #e8d4b0;border-radius:10px;padding:.7rem 1rem;text-align:center">
-      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:${extraOrdered?'#3a7d44':'var(--gold)'}">${extraOrdered?'+'+extraOrdered:notOrdered}</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:${extraOrdered?'#c0392b':'var(--gold)'}">${extraOrdered?'+'+extraOrdered:notOrdered}</div>
       <div style="font-size:11px;color:var(--muted);margin-top:2px">${extraOrdered?'Fler än förväntat':'Har inte beställt'}</div>
     </div>
     <div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;text-align:center">
@@ -1342,14 +1342,21 @@ async function renderMenu(){
 }
 
 
-async function toggleMC(idOrEl){const id=typeof idOrEl==='string'?idOrEl:(idOrEl.dataset&&idOrEl.dataset.id)||idOrEl;
+let _menuLoading=false;
+async function toggleMC(id){
+  if(_menuLoading)return;
   const wasOpen=activeMenuId===id;
   activeMenuId=wasOpen?null:id;
   menus.forEach(function(m){
     const el=document.getElementById('mc_'+m.id);
     if(el)el.classList.toggle('open',m.id===activeMenuId);
   });
-  if(activeMenuId)loadMenuItems(activeMenuId);
+  if(activeMenuId){
+    var contentEl=document.getElementById('mcontent_'+activeMenuId);
+    if(contentEl)contentEl.innerHTML='<div style="font-size:13px;color:var(--muted);padding:.5rem 0"><span class="spinner"></span> Laddar...</div>';
+    _menuLoading=true;
+    try{await loadMenuItems(activeMenuId);}finally{_menuLoading=false;}
+  }
 }
 
 async function loadMenuItems(menuId){
