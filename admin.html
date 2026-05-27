@@ -11,7 +11,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
-.logo{font-family:"Playfair Display",serif;font-size:1.15rem;color:var(--dark)}.logo span{color:var(--gold)}
+.logo{font-family:"Outfit",sans-serif;font-weight:500;font-size:1.15rem;color:var(--dark)}.logo span{color:var(--gold)}
 .page{max-width:780px;margin:0 auto;padding:2rem 1.25rem 5rem}
 h1{font-family:"Playfair Display",serif;font-size:1.9rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
 h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:var(--dark)}
@@ -555,6 +555,10 @@ function renderBCard(b){
   // Påminnelsestatus
   let reminderHtml='';
   const allOk=b.expected_guests&&n>=b.expected_guests;
+  // Auto-warn if over capacity (only once - check via flag in booking)
+  if(b.expected_guests&&n>b.expected_guests&&!b.over_capacity_warned){
+    sendOverCapacityWarning(b,n);
+  }
   if(b.reminder_sent_at){
     const sentD=new Date(b.reminder_sent_at);
     reminderHtml=`<div style="font-size:12px;color:#6a5030;margin-top:4px">✉ Påminnelse skickad ${sentD.getDate()} ${months[sentD.getMonth()]} ${sentD.getFullYear()}</div>`;
@@ -574,8 +578,8 @@ function renderBCard(b){
         <div class="bmeta" style="margin-top:4px">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''}</div>
         ${b.deadline?('<div style="font-size:12px;color:var(--muted);margin-top:2px">Sista beställning: '+new Date(b.deadline+'T12:00:00').getDate()+' '+months[new Date(b.deadline+'T12:00:00').getMonth()]+' '+new Date(b.deadline+'T12:00:00').getFullYear()+'</div>'):''}
         <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
-          <div style="font-size:12px;color:${b.expected_guests&&n>b.expected_guests?'#b05a00':'var(--muted)'}">
-            ${b.expected_guests?(n>b.expected_guests?'✓ '+n+' beställda · <span style="color:#3a7d44;font-weight:500">'+( n-b.expected_guests)+' extra</span>':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
+          <div style="font-size:12px;color:${b.expected_guests&&n>b.expected_guests?'#c0392b':'var(--muted)'}">
+            ${b.expected_guests?(n>b.expected_guests?'⚠ '+n+' beställda · <span style="color:#c0392b;font-weight:600">'+( n-b.expected_guests)+' fler än väntat!</span>':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
           </div>
           ${b.expected_guests?('<div style="height:3px;background:var(--border);border-radius:2px;width:120px;flex-shrink:0"><div style="height:100%;width:'+Math.min(100,pct)+'%;background:'+(pct>100?'#b05a00':'var(--gold)')+';border-radius:2px;transition:width .3s"></div></div>'):''}
         </div>
@@ -612,6 +616,10 @@ function renderBCard(b){
 
     // Påminnelse status
     const allOk=b.expected_guests&&n>=b.expected_guests;
+  // Auto-warn if over capacity (only once - check via flag in booking)
+  if(b.expected_guests&&n>b.expected_guests&&!b.over_capacity_warned){
+    sendOverCapacityWarning(b,n);
+  }
     // Sammanställning skickad
     if(b.summary_sent_log){
       const lines=b.summary_sent_log.trim().split('\n').filter(Boolean);
@@ -931,7 +939,7 @@ async function printKitchen(id){
     const name=oi.menu_items?.name||'?';
     const k=cat+'||'+name;
     counts[k]=(counts[k]||0)+1;
-    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push(oi.comment.trim());}
+    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((o.guest_name||'Okänd')+': '+oi.comment.trim());}
   }));
   const byCat={};
   Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
@@ -953,7 +961,7 @@ async function printKitchen(id){
     ph+=`<div class="cat">${cat}</div>`;
     items.forEach(({name,n,k})=>{
       ph+=`<div class="row"><span>${name}</span><strong>${n} st</strong></div>`;
-      if(allergies[k])ph+=`<div class="alg">⚠ ${allergies[k].join(' · ')}</div>`;
+      if(allergies[k])ph+=allergies[k].map(a=>`<div class="alg">⚠ ${a}</div>`).join('');
     });
   });
   ph+='</body></html>';
