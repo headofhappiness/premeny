@@ -580,25 +580,25 @@ function updateCalResults(){
   // Sällskapslista med status
   const sallskapRows = selBookings.map(b => {
     const dt = new Date(b.date + 'T12:00:00');
-    const sc = b.orders===b.total ? '#3a7d44' : b.orders>0 ? 'var(--gold)' : 'var(--muted)';
+    const bsc = b.orders===b.total ? '#3a7d44' : b.orders>0 ? 'var(--gold)' : 'var(--muted)';
     return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:13px">
       <span style="color:var(--muted)">${dt.getDate()} ${svMo[dt.getMonth()]}: <span style="color:var(--dark)">${b.name}</span> kl ${b.time}</span>
-      <span style="color:${sc};font-weight:500;flex-shrink:0;margin-left:8px">${b.orders}/${b.total}</span>
+      <span style="color:${bsc};font-weight:500;flex-shrink:0;margin-left:8px">${b.orders}/${b.total}</span>
     </div>`;
   }).join('');
 
   // Status-kort
   const statusHtml = '<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">'
     + '<div style="flex:1;min-width:110px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:10px;padding:.7rem 1rem;text-align:center">'
-      + '<div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#3a7d44">'+totalOrders+'</div>'
+      + '<div style="font-size:1.5rem;color:#3a7d44;font-weight:400">'+totalOrders+'</div>'
       + '<div style="font-size:11px;color:#3a7d44;margin-top:2px">✓ Har beställt</div>'
     + '</div>'
     + '<div style="flex:1;min-width:110px;background:#fdf7f0;border:1px solid #e8d4b0;border-radius:10px;padding:.7rem 1rem;text-align:center">'
-      + '<div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold)">'+notOrdered+'</div>'
+      + '<div style="font-size:1.5rem;color:var(--gold);font-weight:400">'+notOrdered+'</div>'
       + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Har inte beställt</div>'
     + '</div>'
     + '<div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;text-align:center">'
-      + '<div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--dark)">'+totalGuests+'</div>'
+      + '<div style="font-size:1.5rem;color:var(--dark);font-weight:400">'+totalGuests+'</div>'
       + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Gäster totalt</div>'
     + '</div>'
   + '</div>';
@@ -618,7 +618,7 @@ function updateCalResults(){
     + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">'
       + '<div style="flex:1">'
         + '<div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem">'+dateLabel.toUpperCase()+'</div>'
-        + '<div style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--dark)">'+selBookings.length+' sällskap · '+totalGuests+' gäster</div>'
+        + '<div style="font-size:1.2rem;color:var(--dark);font-weight:400">'+selBookings.length+' sällskap · '+totalGuests+' gäster</div>'
         + '<div style="margin-top:.5rem">'+sallskapRows+'</div>'
       + '</div>'
       + '<div style="display:flex;gap:6px;flex-shrink:0">'

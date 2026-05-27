@@ -1297,22 +1297,15 @@ async function renderMenu(){
   const ed=document.getElementById('menuEditor');
   sel.innerHTML='<div style="font-size:13px;color:var(--muted)"><span class="spinner"></span> Laddar...</div>';
   ed.innerHTML='';
-
   const {data:menuData,error}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
   if(error){sel.innerHTML='<div style="color:red;font-size:13px">Fel: '+error.message+'</div>';return;}
   menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
   window._menuIds=menus.map(m=>m.id);
-
-  if(!menus.length){
-    sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga menyer ännu.</div>';
-    return;
-  }
-
-  let html='';
-  menus.forEach(function(m,mi){
-    const desc=m.description?'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+escHtml(m.description)+'</div>':'';
-    html+='<div class="bcard" id="mc_'+m.id+'">'
-      +'<div class="bhead" onclick="toggleMC(this.getAttribute('data-id'))" data-id="'+m.id+'">'
+  if(!menus.length){sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga menyer ännu.</div>';return;}
+  sel.innerHTML=menus.map(function(m){
+    var desc=m.description?'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+escHtml(m.description)+'</div>':'';
+    return '<div class="bcard" id="mc_'+m.id+'">'
+      +'<div class="bhead" onclick="toggleMC(this.parentElement.id.slice(3))">'
         +'<div style="flex:1">'
           +'<div style="display:flex;align-items:center;gap:8px">'
             +'<div class="bname">'+escHtml(m.name)+'</div>'
@@ -1322,18 +1315,27 @@ async function renderMenu(){
         +'</div>'
       +'</div>'
       +'<div class="bdetail" id="mdet_'+m.id+'">'
-        +'<div style="display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap">'
-          +'<button class="btn bg" style="font-size:12px" onclick="event.stopPropagation();activeMenuId=''+m.id+'';toggleNC()">+ Ny rubrik</button>'
-          +'<button class="btn bg" style="font-size:12px" onclick="event.stopPropagation();copyMenu(\\'"+m.id+"\\' )">Kopiera meny</button>'
-          +'<button class="btn bg" style="font-size:12px" onclick="event.stopPropagation();archiveMenu(\\'"+m.id+"\\' )">Arkivera meny</button>'
-          +'<button class="btn bd" style="font-size:12px" onclick="event.stopPropagation();deleteMenu(\\'"+m.id+"\\' )">Ta bort meny</button>'
-        +'</div>'
+        +'<div style="display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap" id="mbtns_'+m.id+'"></div>'
         +'<div id="mcontent_'+m.id+'"><div style="font-size:13px;color:var(--muted)">Laddar...</div></div>'
       +'</div>'
     +'</div>';
+  }).join('');
+  // Wire up menu buttons using addEventListener (no inline onclick with quotes)
+  menus.forEach(function(m){
+    var btnsEl=document.getElementById('mbtns_'+m.id);
+    if(!btnsEl)return;
+    var btnNy=document.createElement('button');btnNy.className='btn bg';btnNy.style.fontSize='12px';btnNy.textContent='+ Ny rubrik';
+    btnNy.addEventListener('click',function(e){e.stopPropagation();activeMenuId=m.id;toggleNC();});
+    var btnKopiera=document.createElement('button');btnKopiera.className='btn bg';btnKopiera.style.fontSize='12px';btnKopiera.textContent='Kopiera meny';
+    btnKopiera.addEventListener('click',function(e){e.stopPropagation();copyMenu(m.id);});
+    var btnArkivera=document.createElement('button');btnArkivera.className='btn bg';btnArkivera.style.fontSize='12px';btnArkivera.textContent='Arkivera meny';
+    btnArkivera.addEventListener('click',function(e){e.stopPropagation();archiveMenu(m.id);});
+    var btnDel=document.createElement('button');btnDel.className='btn bd';btnDel.style.fontSize='12px';btnDel.textContent='Ta bort meny';
+    btnDel.addEventListener('click',function(e){e.stopPropagation();deleteMenu(m.id);});
+    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
   });
-  sel.innerHTML=html;
 }
+
 
 async function toggleMC(idOrEl){const id=typeof idOrEl==='string'?idOrEl:(idOrEl.dataset&&idOrEl.dataset.id)||idOrEl;
   const wasOpen=activeMenuId===id;
@@ -1348,227 +1350,139 @@ async function toggleMC(idOrEl){const id=typeof idOrEl==='string'?idOrEl:(idOrEl
 async function loadMenuItems(menuId){
   await loadCats();
   window._catIds=cats.map(c=>c.id);
-  const el=document.getElementById('mcontent_'+menuId);
+  var el=document.getElementById('mcontent_'+menuId);
   if(!el)return;
   if(!cats.length){
-    el.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga rubriker. Klicka "+ Ny rubrik" för att komma igång.</div>';
+    el.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga rubriker. Klicka &quot;+ Ny rubrik&quot; för att komma igång.</div>';
     return;
   }
-  let html='';
-  for(let ci=0;ci<cats.length;ci++){
-    const cat=cats[ci];
-    html+='<div style="margin-bottom:1.75rem">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">'
-        +'<div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)">'+escHtml(cat.label)+'</div>'
-        +'<div style="display:flex;gap:6px">'
-          +'<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="showAI(\\'"+cat.id+"\\' )">+ Lägg till rätt</button>'
-          +'<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delCat(\\'"+cat.id+"\\' )">Ta bort rubrik</button>'
-        +'</div>'
-      +'</div>'
-      +'<div class="card">';
+  el.innerHTML='';
+  cats.forEach(function(cat){
+    // Category wrapper
+    var catDiv=document.createElement('div');
+    catDiv.style.marginBottom='1.75rem';
+    
+    // Category header
+    var catHead=document.createElement('div');
+    catHead.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem';
+    
+    var catLabel=document.createElement('div');
+    catLabel.style.cssText="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)";
+    catLabel.textContent=cat.label;
+    
+    var catBtns=document.createElement('div');
+    catBtns.style.display='flex';catBtns.style.gap='6px';
+    
+    var btnAdd=document.createElement('button');btnAdd.className='btn bg';btnAdd.style.cssText='font-size:11px;padding:4px 10px';btnAdd.textContent='+ Lägg till rätt';
+    btnAdd.addEventListener('click',function(){showAI(cat.id);});
+    
+    var btnDelCat=document.createElement('button');btnDelCat.className='btn bd';btnDelCat.style.cssText='font-size:11px;padding:4px 10px';btnDelCat.textContent='Ta bort rubrik';
+    btnDelCat.addEventListener('click',function(){delCat(cat.id);});
+    
+    catBtns.appendChild(btnAdd);catBtns.appendChild(btnDelCat);
+    catHead.appendChild(catLabel);catHead.appendChild(catBtns);
+    catDiv.appendChild(catHead);
+    
+    // Items card
+    var card=document.createElement('div');
+    card.className='card';
+    
     if(!(cat.menu_items||[]).length){
-      html+='<div style="font-size:13px;color:var(--muted);padding:.25rem 0">Inga rätter ännu.</div>';
+      var empty=document.createElement('div');
+      empty.style.cssText='font-size:13px;color:var(--muted);padding:.25rem 0';
+      empty.textContent='Inga rätter ännu.';
+      card.appendChild(empty);
     }
-    for(let ii=0;ii<(cat.menu_items||[]).length;ii++){
-      const item=cat.menu_items[ii];
-      html+='<div class="menu-item-row">'
-        +'<div class="menu-item-info">'
-          +'<div class="menu-item-name" style="font-weight:600">'+escHtml(item.name)+'</div>'
-          +(item.description?'<div class="menu-item-desc">'+escHtml(item.description)+'</div>':'')
-        +'</div>'
-        +'<div class="menu-item-price">'+(item.price?item.price+' kr':'')+'</div>'
-        +'<button class="btn bg" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="editItem(\\'"+item.id+"\\' )">Redigera</button>'
-        +'<button class="btn bd" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="delItem(\\'"+item.id+"\\' )">Ta bort</button>'
-      +'</div>'
-      +'<div id="iedit_'+item.id+'" style="display:none;background:var(--surface2);border-radius:8px;padding:12px;margin:4px 0">'
-        +'<div class="r2">'
-          +'<div class="ff"><label>Namn</label><input type="text" id="ien_'+item.id+'" value="'+escAttr(item.name)+'"></div>'
-          +'<div class="ff"><label>Pris (kr)</label><input type="number" id="iep_'+item.id+'" value="'+(item.price||0)+'"></div>'
+    
+    (cat.menu_items||[]).forEach(function(item){
+      // Item row
+      var row=document.createElement('div');
+      row.className='menu-item-row';
+      
+      var info=document.createElement('div');
+      info.className='menu-item-info';
+      var name=document.createElement('div');
+      name.className='menu-item-name';name.style.fontWeight='600';name.textContent=item.name;
+      info.appendChild(name);
+      if(item.description){
+        var desc=document.createElement('div');desc.className='menu-item-desc';desc.textContent=item.description;
+        info.appendChild(desc);
+      }
+      
+      var price=document.createElement('div');
+      price.className='menu-item-price';price.textContent=item.price?item.price+' kr':'';
+      
+      var btnEdit=document.createElement('button');btnEdit.className='btn bg';btnEdit.style.cssText='font-size:11px;padding:4px 8px;flex-shrink:0';btnEdit.textContent='Redigera';
+      btnEdit.addEventListener('click',function(){editItem(item.id);});
+      
+      var btnDel=document.createElement('button');btnDel.className='btn bd';btnDel.style.cssText='font-size:11px;padding:4px 8px;flex-shrink:0';btnDel.textContent='Ta bort';
+      btnDel.addEventListener('click',function(){delItem(item.id);});
+      
+      row.appendChild(info);row.appendChild(price);row.appendChild(btnEdit);row.appendChild(btnDel);
+      card.appendChild(row);
+      
+      // Edit form (hidden)
+      var editDiv=document.createElement('div');
+      editDiv.id='iedit_'+item.id;
+      editDiv.style.cssText='display:none;background:var(--surface2);border-radius:8px;padding:12px;margin:4px 0';
+      editDiv.innerHTML='<div class="r2">'
+        +'<div class="ff"><label>Namn</label><input type="text" id="ien_'+item.id+'" value="'+escAttr(item.name)+'"></div>'
+        +'<div class="ff"><label>Pris (kr)</label><input type="number" id="iep_'+item.id+'" value="'+(item.price||0)+'"></div>'
         +'</div>'
         +'<div class="ff"><label>Beskrivning</label><textarea id="ied_'+item.id+'" style="min-height:55px">'+escHtml(item.description||'')+'</textarea></div>'
-        +'<div class="fg">'
-          +'<button class="btn bp" style="font-size:12px" onclick="saveItem(\\'"+item.id+"\\' )">Spara</button>'
-          +'<button class="btn bg" style="font-size:12px" onclick="document.getElementById('iedit_'+item.id+'').style.display='none'">Avbryt</button>'
-        +'</div>'
-      +'</div>';
-    }
-    html+='<div id="ai_'+cat.id+'" style="display:none;padding-top:.75rem;border-top:1px solid var(--border)">'
-      +'<div class="r2">'
-        +'<div class="ff"><label>Namn</label><input type="text" id="ain_'+cat.id+'" placeholder="Rättens namn"></div>'
-        +'<div class="ff"><label>Pris (kr)</label><input type="number" id="aip_'+cat.id+'" placeholder="150"></div>'
+        +'<div class="fg"></div>';
+      
+      var fgDiv=editDiv.querySelector('.fg');
+      var btnSave=document.createElement('button');btnSave.className='btn bp';btnSave.style.fontSize='12px';btnSave.textContent='Spara';
+      btnSave.addEventListener('click',function(){saveItem(item.id);});
+      var btnCancel=document.createElement('button');btnCancel.className='btn bg';btnCancel.style.fontSize='12px';btnCancel.textContent='Avbryt';
+      btnCancel.addEventListener('click',function(){document.getElementById('iedit_'+item.id).style.display='none';});
+      fgDiv.appendChild(btnSave);fgDiv.appendChild(btnCancel);
+      
+      card.appendChild(editDiv);
+    });
+    
+    // Add item form (hidden)
+    var aiDiv=document.createElement('div');
+    aiDiv.id='ai_'+cat.id;
+    aiDiv.style.cssText='display:none;padding-top:.75rem;border-top:1px solid var(--border)';
+    aiDiv.innerHTML='<div class="r2">'
+      +'<div class="ff"><label>Namn</label><input type="text" id="ain_'+cat.id+'" placeholder="Rättens namn"></div>'
+      +'<div class="ff"><label>Pris (kr)</label><input type="number" id="aip_'+cat.id+'" placeholder="150"></div>'
       +'</div>'
       +'<div class="ff"><label>Beskrivning</label><textarea id="aid_'+cat.id+'" style="min-height:55px" placeholder="Ingredienser..."></textarea></div>'
-      +'<div class="fg">'
-        +'<button class="btn bp" style="font-size:12px" onclick="addItem(\\'"+cat.id+"\\' )">Lägg till</button>'
-        +'<button class="btn bg" style="font-size:12px" onclick="document.getElementById('ai_'+cat.id+'').style.display='none'">Avbryt</button>'
-      +'</div>'
-    +'</div></div></div>';
-  }
-  el.innerHTML=html;
-}
-
-
-async function editMenuInline(menuId){
-  activeMenuId=menuId;
-  await loadCats();
-  window._catIds=cats.map(c=>c.id);
-  const el=document.getElementById('mc-editor-'+menuId);
-  if(!el)return;
-
-  // Toggle
-  if(el.style.display!=='none'){el.style.display='none';return;}
-  el.style.display='block';
-
-  if(!cats.length){
-    el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">'
-      +'<span style="font-size:13px;font-weight:500;color:var(--dark)">Redigera rätter</span>'
-      +'<button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button>'
-    +'</div><div class="empty">Inga rätter. Lägg till en rubrik.</div>';
-    return;
-  }
-
-  let edHtml='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">'
-    +'<span style="font-size:13px;font-weight:500;color:var(--dark)">Redigera rätter</span>'
-    +'<button class="btn bg" style="font-size:12px" onclick="toggleNC()">+ Ny rubrik</button>'
-  +'</div>';
-
-  for(let ci=0;ci<cats.length;ci++){
-    const cat=cats[ci];
-    edHtml+='<div style="margin-bottom:1.75rem">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">'
-        +'<div class="card-label" style="margin:0">'+escHtml(cat.label)+'</div>'
-        +'<div style="display:flex;gap:6px">'
-          +'<button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="showAI(window._catIds['+ci+'])">+ Lägg till rätt</button>'
-          +'<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delCat(window._catIds['+ci+'])">Ta bort rubrik</button>'
-        +'</div>'
-      +'</div>'
-      +'<div class="card">';
-
-    if(!(cat.menu_items||[]).length){
-      edHtml+='<div style="font-size:12px;color:var(--muted);padding:.75rem">Inga rätter ännu.</div>';
-    }
-
-    for(let ii=0;ii<(cat.menu_items||[]).length;ii++){
-      const item=cat.menu_items[ii];
-      edHtml+='<div class="menu-item-row">'
-        +'<div class="menu-item-info">'
-          +'<div class="menu-item-name">'+escHtml(item.name)+'</div>'
-          +(item.description?'<div class="menu-item-desc">'+escHtml(item.description)+'</div>':'')
-        +'</div>'
-        +'<div class="menu-item-price">'+(item.price?item.price+' kr':'')+'</div>'
-        +'<button class="btn bg" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="editItem('+JSON.stringify(item.id)+')">Redigera</button>'
-        +'<button class="btn bd" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="delItem('+JSON.stringify(item.id)+')">Ta bort</button>'
-      +'</div>'
-      +'<div id="iedit_'+item.id+'" style="display:none;background:var(--surface2);border-radius:8px;padding:12px;margin:4px 0">'
-        +'<div class="r2">'
-          +'<div class="ff"><label>Namn</label><input type="text" id="ien_'+item.id+'" value="'+escAttr(item.name)+'"></div>'
-          +'<div class="ff"><label>Pris (kr)</label><input type="number" id="iep_'+item.id+'" value="'+(item.price||0)+'"></div>'
-        +'</div>'
-        +'<div class="ff"><label>Beskrivning</label><textarea id="ied_'+item.id+'" style="min-height:55px">'+escHtml(item.description||'')+'</textarea></div>'
-        +'<div class="fg">'
-          +'<button class="btn bp" style="font-size:12px" onclick="saveItem('+JSON.stringify(item.id)+')">Spara</button>'
-          +'<button class="btn bg" style="font-size:12px" data-id="iedit_'+item.id+'" onclick="closeEdit(this.dataset.id)">Avbryt</button>'
-        +'</div>'
-      +'</div>';
-    }
-
-    edHtml+='<div id="ai_'+cat.id+'" style="display:none;padding-top:.75rem;border-top:1px solid var(--border)">'
-      +'<div class="r2">'
-        +'<div class="ff"><label>Namn</label><input type="text" id="ain_'+cat.id+'" placeholder="Rättens namn"></div>'
-        +'<div class="ff"><label>Pris (kr)</label><input type="number" id="aip_'+cat.id+'" placeholder="150"></div>'
-      +'</div>'
-      +'<div class="ff"><label>Beskrivning</label><textarea id="aid_'+cat.id+'" style="min-height:55px" placeholder="Ingredienser, tillagning..."></textarea></div>'
-      +'<div class="fg">'
-        +'<button class="btn bp" style="font-size:12px" onclick="addItem(window._catIds['+ci+'])">Lägg till</button>'
-        +'<button class="btn bg" style="font-size:12px" onclick="closeAI(this)">Avbryt</button>'
-      +'</div>'
-    +'</div>'
-    +'</div></div>';
-  }
-
-  el.innerHTML=edHtml;
-}
-
-
-// HELPER FUNCTIONS
-function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function closeEdit(id){var el=document.getElementById(id);if(el)el.style.display='none';}
-function closeAI(btn){var p=btn.parentElement;while(p&&p.id&&!p.id.startsWith('ai_'))p=p.parentElement;if(p)p.style.display='none';}
-
-// MENU MANAGEMENT
-async function switchMenu(id){activeMenuId=id;await renderMenu();}
-
-async function deleteMenu(id){
-  if(!confirm('Ta bort menyn? Den kan återställas vid behov.'))return;
-  await db.from('menus').update({deleted_at:new Date().toISOString()}).eq('id',id);
-  if(activeMenuId===id)activeMenuId=null;
-  renderMenu();
-}
-
-async function copyMenu(id){
-  const src=menus.find(m=>m.id===id);
-  if(!src)return;
-  const newName=prompt('Namn på kopian:',src.name+' (kopia)');
-  if(!newName)return;
-  const {data:newMenu,error}=await db.from('menus').insert({restaurant_id:rest.id,name:newName}).select().single();
-  if(error){alert('Fel: '+error.message);return;}
-  const {data:srcCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',id).order('sort_order');
-  for(const cat of srcCats||[]){
-    const {data:newCat}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:newMenu.id,label:cat.label,sort_order:cat.sort_order}).select().single();
-    for(const item of cat.menu_items||[]){
-      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description,price:item.price,sort_order:item.sort_order,active:true});
-    }
-  }
-  activeMenuId=newMenu.id;
-  renderMenu();
-}
-
-function toggleMenuCard(mi){
-  const m=menus[mi];if(!m)return;
-  const el=document.getElementById('mc_'+m.id);
-  if(!el)return;
-  const isOpen=el.classList.contains('open');
-  menus.forEach(mn=>{const e=document.getElementById('mc_'+mn.id);if(e)e.classList.remove('open');});
-  if(!isOpen){el.classList.add('open');loadMenuPreview(m.id);}
-}
-
-async function loadMenuPreview(menuId){
-  const el=document.getElementById('mc-items-'+menuId);
-  if(!el)return;
-  const {data:mCats}=await db.from('menu_categories').select('*, menu_items(name,price,active)').eq('menu_id',menuId).order('sort_order');
-  if(!mCats||!mCats.length){el.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga rätter ännu.</div>';return;}
-  let html='';
-  mCats.forEach(function(cat){
-    html+='<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.5rem 0 .25rem">'+escHtml(cat.label)+'</div>';
-    (cat.menu_items||[]).filter(function(i){return i.active;}).forEach(function(item){
-      html+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px solid var(--border)">'
-        +'<span>'+escHtml(item.name)+'</span>'
-        +'<span style="color:var(--gold)">'+(item.price?item.price+' kr':'')+'</span>'
-      +'</div>';
-    });
+      +'<div class="fg"></div>';
+    var aiFg=aiDiv.querySelector('.fg');
+    var btnAiAdd=document.createElement('button');btnAiAdd.className='btn bp';btnAiAdd.style.fontSize='12px';btnAiAdd.textContent='Lägg till';
+    btnAiAdd.addEventListener('click',function(){addItem(cat.id);});
+    var btnAiCancel=document.createElement('button');btnAiCancel.className='btn bg';btnAiCancel.style.fontSize='12px';btnAiCancel.textContent='Avbryt';
+    btnAiCancel.addEventListener('click',function(){document.getElementById('ai_'+cat.id).style.display='none';});
+    aiFg.appendChild(btnAiAdd);aiFg.appendChild(btnAiCancel);
+    
+    card.appendChild(aiDiv);
+    catDiv.appendChild(card);
+    el.appendChild(catDiv);
   });
-  el.innerHTML=html;
 }
 
 
-// ─── MENY-FUNKTIONER ────────────────────────────────────────────────
+
+// ─── HULPFUNKTIONER MENY ─────────────────────────────────────────────
 function showNewMenuForm(){document.getElementById('newMenuForm').style.display='block';}
-function toggleNC(){const f=document.getElementById('newCatForm');f.style.display=f.style.display==='none'?'block':'none';}
-function showAI(catId){const el=document.getElementById('ai_'+catId);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-function editItem(id){const el=document.getElementById('iedit_'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function toggleNC(){var f=document.getElementById('newCatForm');if(f)f.style.display=f.style.display==='none'?'block':'none';}
+function showAI(catId){var el=document.getElementById('ai_'+catId);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function editItem(id){var el=document.getElementById('iedit_'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function switchImportTab(tab){
   document.getElementById('import-text-wrap').style.display=tab==='text'?'block':'none';
   document.getElementById('import-image-wrap').style.display=tab==='image'?'block':'none';
-  ['text','image'].forEach(t=>{const btn=document.getElementById('import-tab-'+t);btn.classList.toggle('bp',t===tab);btn.classList.toggle('bg',t!==tab);});
+  ['text','image'].forEach(function(t){var btn=document.getElementById('import-tab-'+t);if(btn){btn.classList.toggle('bp',t===tab);btn.classList.toggle('bg',t!==tab);}});
 }
-function cancelImport(){_importData=null;document.getElementById('import-result').style.display='none';}
-function closeQR(){document.getElementById('qrOverlay').style.display='none';}
-async function downloadQR(){const canvas=document.querySelector('#qrCanvas canvas');if(!canvas)return;const a=document.createElement('a');a.download='qr-premeny.png';a.href=canvas.toDataURL('image/png');a.click();}
-
+function cancelImport(){_importData=null;var r=document.getElementById('import-result');if(r)r.style.display='none';}
+function closeQR(){var el=document.getElementById('qrOverlay');if(el)el.style.display='none';}
+async function downloadQR(){var canvas=document.querySelector('#qrCanvas canvas');if(!canvas)return;var a=document.createElement('a');a.download='qr-premeny.png';a.href=canvas.toDataURL('image/png');a.click();}
 async function createMenu(){
-  const name=document.getElementById('nm-name').value.trim();if(!name)return;
-  const {data,error}=await db.from('menus').insert({restaurant_id:rest.id,name,description:document.getElementById('nm-desc').value.trim()}).select().single();
+  var name=document.getElementById('nm-name').value.trim();if(!name)return;
+  var {data,error}=await db.from('menus').insert({restaurant_id:rest.id,name,description:document.getElementById('nm-desc').value.trim()}).select().single();
   if(error){alert('Fel: '+error.message);return;}
   activeMenuId=data.id;
   document.getElementById('newMenuForm').style.display='none';
@@ -1576,82 +1490,53 @@ async function createMenu(){
   await renderMenu();
 }
 async function addCat(){
-  const name=document.getElementById('nc-name').value.trim();if(!name||!activeMenuId)return;
-  const maxSort=cats.length?Math.max(...cats.map(c=>c.sort_order||0)):0;
-  const {error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:name,sort_order:maxSort+1});
+  var name=document.getElementById('nc-name').value.trim();if(!name||!activeMenuId)return;
+  var maxSort=cats.length?Math.max(...cats.map(function(c){return c.sort_order||0;})):0;
+  var {error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:name,sort_order:maxSort+1});
   if(error){alert('Fel: '+error.message);return;}
   document.getElementById('nc-name').value='';
-  const f=document.getElementById('newCatForm');if(f)f.style.display='none';
-  await renderMenu();
-}
-async function delCat(id){
-  if(!confirm('Ta bort rubriken och alla dess rätter?'))return;
-  await db.from('menu_items').delete().eq('category_id',id);
-  await db.from('menu_categories').delete().eq('id',id);
-  await renderMenu();
-}
-async function saveItem(id){
-  const name=document.getElementById('ien_'+id).value.trim();
-  const price=parseInt(document.getElementById('iep_'+id).value)||0;
-  const desc=document.getElementById('ied_'+id).value.trim();
-  if(!name)return;
-  const {error}=await db.from('menu_items').update({name,price,description:desc}).eq('id',id);
-  if(error){alert('Fel: '+error.message);return;}
-  await renderMenu();
-}
-async function delItem(id){
-  if(!confirm('Ta bort rätten?'))return;
-  await db.from('menu_items').update({active:false}).eq('id',id);
-  await renderMenu();
-}
-async function addItem(catId){
-  const ain=document.getElementById('ain_'+catId);if(!ain)return;
-  const name=ain.value.trim();if(!name)return;
-  const price=parseInt(document.getElementById('aip_'+catId).value)||0;
-  const desc=document.getElementById('aid_'+catId).value.trim();
-  const {error}=await db.from('menu_items').insert({category_id:catId,restaurant_id:rest.id,name,price,description:desc,sort_order:Date.now(),active:true});
-  if(error){alert('Fel: '+error.message);return;}
+  var f=document.getElementById('newCatForm');if(f)f.style.display='none';
   await renderMenu();
 }
 async function saveSettings(){
-  const phone=document.getElementById('set-phone').value.trim();
-  const email=document.getElementById('set-email').value.trim();
-  const address=document.getElementById('set-address').value.trim();
-  const website=document.getElementById('set-website').value.trim();
-  const msg=document.getElementById('set-msg');
-  let logoUrl=rest.logo_url||null;
-  const logoFile=document.getElementById('set-logo').files[0];
+  var phone=document.getElementById('set-phone').value.trim();
+  var email=document.getElementById('set-email').value.trim();
+  var address=document.getElementById('set-address').value.trim();
+  var website=document.getElementById('set-website').value.trim();
+  var msg=document.getElementById('set-msg');
+  var logoUrl=rest.logo_url||null;
+  var logoFile=document.getElementById('set-logo').files[0];
   if(logoFile){
-    const ext=logoFile.name.split('.').pop();
-    const path=rest.id+'/logo.'+ext;
-    const {error:upErr}=await db.storage.from('logos').upload(path,logoFile,{upsert:true});
-    if(!upErr){const {data:pub}=db.storage.from('logos').getPublicUrl(path);logoUrl=pub.publicUrl+'?t='+Date.now();}
+    var ext=logoFile.name.split('.').pop();
+    var path=rest.id+'/logo.'+ext;
+    var {error:upErr}=await db.storage.from('logos').upload(path,logoFile,{upsert:true});
+    if(!upErr){var {data:pub}=db.storage.from('logos').getPublicUrl(path);logoUrl=pub.publicUrl+'?t='+Date.now();}
   }
-  const {error}=await db.from('restaurants').update({phone,contact_email:email,address,website,logo_url:logoUrl}).eq('id',rest.id);
-  msg.style.display='block';
-  if(error){msg.className='msg merr';msg.textContent='Fel: '+error.message;}
-  else{msg.className='msg mok';msg.textContent='✓ Sparat!';rest={...rest,phone,contact_email:email,address,website,logo_url:logoUrl};setTimeout(()=>msg.style.display='none',3000);}
+  var {error}=await db.from('restaurants').update({phone,contact_email:email,address,website,logo_url:logoUrl}).eq('id',rest.id);
+  if(msg){msg.style.display='block';}
+  if(error){if(msg){msg.className='msg merr';msg.textContent='Fel: '+error.message;}}
+  else{if(msg){msg.className='msg mok';msg.textContent='Sparat!';}rest=Object.assign({},rest,{phone,contact_email:email,address,website,logo_url:logoUrl});setTimeout(function(){if(msg)msg.style.display='none';},3000);}
 }
-let _importData=null;
+var _importData=null;
 async function importMenu(){
   if(!activeMenuId){alert('Välj en meny först.');return;}
-  const textVal=document.getElementById('menu-import-text').value.trim();
-  const imgFile=document.getElementById('menu-import-image').files[0];
-  if(!textVal&&!imgFile){return;}
+  var textVal=document.getElementById('menu-import-text').value.trim();
+  var imgFile=document.getElementById('menu-import-image').files[0];
+  if(!textVal&&!imgFile)return;
   document.getElementById('import-btn').disabled=true;
   document.getElementById('import-loading').style.display='block';
   try{
-    let body={text:textVal};
-    if(imgFile){const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej();r.readAsDataURL(imgFile);});body.image=b64;body.imageType=imgFile.type;}
-    const {data:{session}}=await db.auth.getSession();
-    const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});
-    const result=await resp.json();
+    var body={text:textVal};
+    if(imgFile){var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(imgFile);});body.image=b64;body.imageType=imgFile.type;}
+    var {data:{session}}=await db.auth.getSession();
+    var resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});
+    var result=await resp.json();
     if(!result.categories)throw new Error(result.error||'Ingen data');
     _importData=result.categories;
-    let ph='';
-    result.categories.forEach(cat=>{
+    var ph='';
+    result.categories.forEach(function(cat){
       ph+='<div style="margin-bottom:1rem"><div class="card-label">'+escHtml(cat.label)+'</div><div class="card" style="padding:.5rem">';
-      (cat.items||[]).forEach(item=>{ph+='<div class="menu-item-row"><div class="menu-item-info"><div class="menu-item-name">'+escHtml(item.name)+'</div>'+(item.description?'<div class="menu-item-desc">'+escHtml(item.description)+'</div>':'')+'</div><div class="menu-item-price">'+(item.price?item.price+' kr':'')+'</div></div>';});
+      (cat.items||[]).forEach(function(item){ph+='<div class="menu-item-row"><div class="menu-item-info"><div class="menu-item-name">'+escHtml(item.name)+'</div>'+(item.description?'<div class="menu-item-desc">'+escHtml(item.description)+'</div>':'')+'</div><div class="menu-item-price">'+(item.price?item.price+' kr':'')+'</div></div>';});
       ph+='</div></div>';
     });
     document.getElementById('import-preview-content').innerHTML=ph;
@@ -1662,18 +1547,20 @@ async function importMenu(){
 }
 async function confirmImport(){
   if(!_importData||!activeMenuId)return;
-  for(const cat of _importData){
-    const maxSort=cats.length?Math.max(...cats.map(c=>c.sort_order||0)):0;
-    const {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:cat.label,sort_order:maxSort+1}).select().single();
+  for(var i=0;i<_importData.length;i++){
+    var cat=_importData[i];
+    var maxSort=cats.length?Math.max(...cats.map(function(c){return c.sort_order||0;})):0;
+    var {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:cat.label,sort_order:maxSort+1}).select().single();
     if(error||!newCat)continue;
-    for(let i=0;i<(cat.items||[]).length;i++){
-      const item=cat.items[i];
-      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description||'',price:parseInt(item.price)||0,sort_order:i,active:true});
+    for(var j=0;j<(cat.items||[]).length;j++){
+      var item=cat.items[j];
+      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description||'',price:parseInt(item.price)||0,sort_order:j,active:true});
     }
   }
-  _importData=null;document.getElementById('import-result').style.display='none';
+  _importData=null;var r=document.getElementById('import-result');if(r)r.style.display='none';
   await renderMenu();
 }
+
 </script>
 </body>
 </html>
