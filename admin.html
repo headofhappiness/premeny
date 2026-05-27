@@ -425,25 +425,26 @@ async function forgotPassword(){
 async function sendConfirmation(id){
   const b=allBookings.find(x=>x.id===id);
   if(!b){alert('Bokning hittades inte.');return;}
-  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-  const d=new Date(b.event_date);
-  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-  const gLink=location.origin+'/guest.html?r='+rest.slug+'&b='+b.id;
-  const subject=encodeURIComponent('Bekräftelse: '+b.name+' – '+ds);
-  const bodyText='Hej '+b.contact_name+'!\n\nHär är bekräftelsen för '+b.name+' den '+ds+(b.event_time?' kl '+b.event_time.slice(0,5):'')+
-    (b.expected_guests?'\nAntal gäster: '+b.expected_guests:'')+
-    '\n\nGäster beställer via denna länk:\n'+gLink+
-    '\n\nSista beställningsdag: '+(b.deadline||'–')+
-    '\n\nMed vänliga hälsningar,\n'+rest.name;
-  if(b.contact_email){
-    window.location.href='mailto:'+b.contact_email+'?subject='+subject+'&body='+encodeURIComponent(bodyText);
-    const timeStr=new Date().toLocaleString('sv-SE');
-    const log=(b.summary_sent_log||'')+timeStr+' bekräftelse via mejl till '+b.contact_email+'\n';
-    await db.from('bookings').update({summary_sent_log:log,summary_sent_at:new Date().toISOString()}).eq('id',id);
+  if(!b.contact_email){alert('Ingen e-postadress registrerad för kontaktpersonen.');return;}
+  const gLink='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
+  const btn=event?.target;const origTxt=btn?.textContent||'';
+  if(btn){btn.disabled=true;btn.textContent='Skickar...';}
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({type:'confirmation',booking:b,restaurant:rest,guestLink:gLink})
+    });
+    const result=await resp.json();
+    if(!result.ok)throw new Error(result.error||'Okänt fel');
+    const now=new Date();
+    const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    const log=(b.summary_sent_log||'')+ts+' bekräftelse via Resend till '+b.contact_email+'\n';
+    await db.from('bookings').update({summary_sent_log:log,summary_sent_at:now.toISOString()}).eq('id',id);
     await renderBookings();
-  } else {
-    alert('Ingen e-postadress registrerad för kontaktpersonen.');
-  }
+    alert('✓ Bekräftelsemejl skickat till '+b.contact_email+'!');
+  }catch(err){alert('Fel: '+err.message);}
+  if(btn){btn.disabled=false;btn.textContent=origTxt;}
 }
 async function doLogout(){await db.auth.signOut();location.reload();}
 
