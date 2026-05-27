@@ -480,7 +480,7 @@ const BOOKINGS = [
   }
 ];
 
-let calYear = 2026, calMonth = 5, calSel = new Set();
+const _now = new Date(); let calYear = _now.getFullYear(), calMonth = _now.getMonth(), calSel = new Set();
 const svMonths = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
 const svDow = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
 
