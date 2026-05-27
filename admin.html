@@ -1312,7 +1312,7 @@ async function renderMenu(){
   menus.forEach(function(m,mi){
     const desc=m.description?'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+escHtml(m.description)+'</div>':'';
     html+='<div class="bcard" id="mc_'+m.id+'">'
-      +'<div class="bhead" data-id='"+m.id+"' onclick="toggleMC(this.dataset.id)">'
+      +'<div class="bhead" onclick="toggleMC(this.getAttribute('data-id'))" data-id="'+m.id+'">'
         +'<div style="flex:1">'
           +'<div style="display:flex;align-items:center;gap:8px">'
             +'<div class="bname">'+escHtml(m.name)+'</div>'

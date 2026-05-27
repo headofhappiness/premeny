@@ -614,22 +614,21 @@ function updateCalResults(){
     });
   });
 
-  resultsEl.innerHTML = `
-    <div class="card cal-results">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
-        <div style="flex:1">
-          <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem">${dateLabel.toUpperCase()}</div>
-          <div style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--dark)">${selBookings.length} sällskap · ${totalGuests} gäster</div>
-          <div style="margin-top:.5rem">${sallskapRows}</div>
-        </div>
-        <div style="display:flex;gap:6px;flex-shrink:0">
-          <button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="demoAlert()">📋 Kopiera</button>
-          <button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="demoAlert()">🖨 Skriv ut</button>
-        </div>
-      </div>
-      ${statusHtml}
-      ${kitchenHtml}
-    </div>`;
+  resultsEl.innerHTML = '<div class="card cal-results">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">'
+      + '<div style="flex:1">'
+        + '<div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem">'+dateLabel.toUpperCase()+'</div>'
+        + '<div style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--dark)">'+selBookings.length+' sällskap · '+totalGuests+' gäster</div>'
+        + '<div style="margin-top:.5rem">'+sallskapRows+'</div>'
+      + '</div>'
+      + '<div style="display:flex;gap:6px;flex-shrink:0">'
+        + '<button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="demoAlert()">📋 Kopiera</button>'
+        + '<button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="demoAlert()">🖨 Skriv ut</button>'
+      + '</div>'
+    + '</div>'
+    + statusHtml
+    + kitchenHtml
+  + '</div>';
 }
 
 // Auto-render cal when tab loads
