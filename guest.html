@@ -47,6 +47,7 @@ textarea{min-height:75px}
 .meal.selected .meal-comment-wrap{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .meal-comment-wrap label{font-size:15px;color:var(--muted);margin-bottom:5px;display:block}
+.meal-comment-wrap textarea::placeholder{color:#a09080;opacity:1}
 .meal-comment-wrap textarea{font-size:16px;min-height:60px;padding:10px 12px;border-radius:8px}
 .msg{padding:13px 16px;border-radius:10px;font-size:16px;margin-bottom:1rem;border:1px solid;line-height:1.6}
 .msg.ok{background:#f2f8ec;color:#3a6020;border-color:#c8e0a8}
@@ -72,7 +73,8 @@ textarea{min-height:75px}
   .meal-desc{font-size:17px}
   .meal-top{padding:16px 18px;min-height:50px}
   .btn, .btn-primary, .btn-outline{font-size:17px;min-height:50px;padding:14px 22px}
-  .meal-comment-wrap textarea{font-size:17px}
+  .meal-comment-wrap textarea::placeholder{color:#a09080;opacity:1}
+.meal-comment-wrap textarea{font-size:17px}
   .meal-comment-wrap{padding:0 12px 12px 44px}
   .page p{font-size:17px !important}
   .booking-info{font-size:17px !important}
@@ -86,7 +88,7 @@ textarea{min-height:75px}
 <body>
 <nav class="nav">
   <div id="rest-logo-wrap" style="display:none"><img id="rest-logo-img" style="height:40px;width:auto;object-fit:contain"></div>
-  <div id="rest-logo-placeholder" class="nav-logo">Pre<span>Meny</span></div>
+  <div id="rest-logo-placeholder" class="nav-logo" id="rest-name-fallback"></div>
   <div class="nav-rest" id="navRest"></div>
 </nav>
 
@@ -150,7 +152,7 @@ let restaurant=null,booking=null,categories=[],gSel={},gComments={},existingOrde
 async function init(){
   if(!SLUG||!BID){
     document.getElementById('loadingState').style.display='none';
-    document.getElementById('errorState').innerHTML='<div style="text-align:center;padding:3rem 1.5rem"><div style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--dark);margin-bottom:.5rem">Välkommen till PreMeny</div><div style="width:32px;height:1px;background:var(--gold);margin:.5rem auto 1rem;opacity:.7"></div><p style="font-size:15px;color:var(--muted);line-height:1.7;max-width:400px;margin:0 auto 1.5rem">Den här sidan används för att förbeställa mat inför ett sällskap. Du behöver en personlig länk från din restaurang eller kontaktperson.</p><a href="https://premeny.se" style="display:inline-block;background:var(--dark);color:#fff;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:500;text-decoration:none">Läs mer om PreMeny</a></div>';
+    document.getElementById('errorState').innerHTML='<div style="text-align:center;padding:3rem 1.5rem"><div style="font-size:1.8rem;color:var(--dark);margin-bottom:.5rem;font-weight:400">Välkommen till PreMeny</div><div style="width:32px;height:1px;background:var(--gold);margin:.5rem auto 1rem;opacity:.7"></div><p style="font-size:15px;color:var(--muted);line-height:1.7;max-width:400px;margin:0 auto 1.5rem">Den här sidan används för att förbeställa mat inför ett sällskap. Du behöver en personlig länk från din restaurang eller kontaktperson.</p><a href="https://premeny.se" style="display:inline-block;background:var(--dark);color:#fff;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:500;text-decoration:none">Läs mer om PreMeny</a></div>';
     document.getElementById('errorState').style.display='block';
     return;
   }
@@ -164,6 +166,8 @@ async function init(){
       document.getElementById('rest-logo-img').src=rest.logo_url;
       document.getElementById('rest-logo-wrap').style.display='block';
       document.getElementById('rest-logo-placeholder').style.display='none';
+    } else {
+      document.getElementById('rest-logo-placeholder').textContent=rest.name;
     }
     document.title=rest.name+' – Förbeställning';
 
@@ -244,7 +248,7 @@ function buildMenu(){
           </div>
           <div class="meal-comment-wrap" id="cmtwrap_${item.id}">
             <label>Allergier / specialkost för denna rätt (valfritt)</label>
-            <textarea placeholder="T.ex. glutenintolerant, ingen lök..." onchange="gComments['${item.id}']=this.value">${gComments[item.id]||''}</textarea>
+            <textarea placeholder="T.ex. glutenintolerant, ingen lök, nötfri..." onchange="gComments['${item.id}']=this.value">${gComments[item.id]||''}</textarea>
           </div>
         </div>`).join('')}
     </div>`).join('');
