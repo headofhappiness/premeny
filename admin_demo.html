@@ -588,20 +588,20 @@ function updateCalResults(){
   }).join('');
 
   // Status-kort
-  const statusHtml = \`<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
-    <div style="flex:1;min-width:110px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:10px;padding:.7rem 1rem;text-align:center">
-      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#3a7d44">\${totalOrders}</div>
-      <div style="font-size:11px;color:#3a7d44;margin-top:2px">✓ Har beställt</div>
-    </div>
-    <div style="flex:1;min-width:110px;background:#fdf7f0;border:1px solid #e8d4b0;border-radius:10px;padding:.7rem 1rem;text-align:center">
-      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold)">\${notOrdered}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">Har inte beställt</div>
-    </div>
-    <div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;text-align:center">
-      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--dark)">\${totalGuests}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">Gäster totalt</div>
-    </div>
-  </div>\`;
+  const statusHtml = '<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">'
+    + '<div style="flex:1;min-width:110px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:10px;padding:.7rem 1rem;text-align:center">'
+      + '<div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#3a7d44">'+totalOrders+'</div>'
+      + '<div style="font-size:11px;color:#3a7d44;margin-top:2px">✓ Har beställt</div>'
+    + '</div>'
+    + '<div style="flex:1;min-width:110px;background:#fdf7f0;border:1px solid #e8d4b0;border-radius:10px;padding:.7rem 1rem;text-align:center">'
+      + '<div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold)">'+notOrdered+'</div>'
+      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Har inte beställt</div>'
+    + '</div>'
+    + '<div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;text-align:center">'
+      + '<div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--dark)">'+totalGuests+'</div>'
+      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Gäster totalt</div>'
+    + '</div>'
+  + '</div>';
 
   // Kökslista
   const maxCount = Math.max(...Object.values(catMap).flatMap(c => Object.values(c)));
