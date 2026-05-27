@@ -11,7 +11,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:15px}
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
-.logo{font-family:"Playfair Display",serif;font-size:1.15rem;font-style:italic;color:var(--dark)}.logo span{color:var(--gold)}
+.logo{font-family:"Outfit",sans-serif;font-size:1.15rem;font-weight:500;color:var(--dark)}.logo span{color:var(--gold)}
 .sa-badge{background:rgba(184,149,90,.12);border:1px solid rgba(184,149,90,.3);border-radius:100px;padding:2px 10px;font-size:11px;color:var(--gold);font-weight:500;letter-spacing:.05em}
 .page{max-width:960px;margin:0 auto;padding:2rem 1.25rem 5rem}
 h1{font-family:"Playfair Display",serif;font-size:1.9rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
@@ -93,11 +93,41 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
       <div class="stat"><div class="spinner"></div></div>
     </div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
-      <h3>Restauranger</h3>
-      <button class="btn bp" style="font-size:12px" onclick="openNewRest()">+ Lägg till restaurang</button>
+    <div style="display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center">
+      <button class="btn bp" id="rtab-active" style="font-size:13px;padding:7px 16px;border-radius:100px" onclick="switchRestTab('active')">Aktiva kunder</button>
+      <button class="btn bg" id="rtab-archived" style="font-size:13px;padding:7px 16px;border-radius:100px" onclick="switchRestTab('archived')">Arkiv</button>
+      <button class="btn bg" id="rtab-guide" style="font-size:13px;padding:7px 16px;border-radius:100px" onclick="switchRestTab('guide')">📋 Ny kund – guide</button>
+      <button class="btn bp" style="font-size:12px;margin-left:auto" onclick="openNewRest()">+ Lägg till restaurang</button>
     </div>
-    <div id="restGrid" class="rest-grid"></div>
+
+    <!-- Aktiva -->
+    <div id="rpane-active">
+      <div id="restGrid" class="rest-grid"></div>
+    </div>
+
+    <!-- Arkiv -->
+    <div id="rpane-archived" style="display:none">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Inaktiverade kunder — kan återaktiveras när som helst.</p>
+      <div id="restGridArchived" class="rest-grid"></div>
+    </div>
+
+    <!-- Guide -->
+    <div id="rpane-guide" style="display:none">
+      <div class="card" style="max-width:640px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem">Checklista — lägg till ny kund</div>
+        <div style="font-size:14px;line-height:2.4;color:var(--text)">
+          <div style="display:flex;gap:.75rem;border-bottom:1px solid var(--border);padding:.25rem 0"><span style="color:var(--gold);font-weight:600;flex-shrink:0">1.</span><span>Klicka <strong>+ Lägg till restaurang</strong> och fyll i namn, slug, plan och kontaktuppgifter</span></div>
+          <div style="display:flex;gap:.75rem;border-bottom:1px solid var(--border);padding:.25rem 0"><span style="color:var(--gold);font-weight:600;flex-shrink:0">2.</span><span>Fyll i admin-e-post och klicka <strong>Skapa &amp; skicka inbjudan</strong> — inbjudningsmejl skickas automatiskt</span></div>
+          <div style="display:flex;gap:.75rem;border-bottom:1px solid var(--border);padding:.25rem 0"><span style="color:var(--gold);font-weight:600;flex-shrink:0">3.</span><span>Gå till <strong>Supabase → Authentication → Users</strong> och skapa kontot manuellt med e-post + tillfälligt lösenord</span></div>
+          <div style="display:flex;gap:.75rem;border-bottom:1px solid var(--border);padding:.25rem 0"><span style="color:var(--gold);font-weight:600;flex-shrink:0">4.</span><span>Kör SQL för att koppla användaren:<br>
+            <code style="background:var(--surface2);padding:4px 8px;border-radius:6px;font-size:11px;display:block;margin-top:4px;line-height:1.8">INSERT INTO restaurant_admins (restaurant_id, user_id)<br>SELECT '[rest-id]', id FROM auth.users WHERE email = '[admin-email]';</code>
+          </span></div>
+          <div style="display:flex;gap:.75rem;border-bottom:1px solid var(--border);padding:.25rem 0"><span style="color:var(--gold);font-weight:600;flex-shrink:0">5.</span><span>Klicka <strong>✉ Välkomstmejl</strong> på restaurangkortet — ange e-post och ett blomnamn som lösenord (t.ex. <em>Lavendel2026</em>)</span></div>
+          <div style="display:flex;gap:.75rem;border-bottom:1px solid var(--border);padding:.25rem 0"><span style="color:var(--gold);font-weight:600;flex-shrink:0">6.</span><span>Kunden loggar in på <strong>premeny.se/admin.html</strong>, laddar upp sin logga och lägger in sin meny</span></div>
+          <div style="display:flex;gap:.75rem;padding:.25rem 0"><span style="color:var(--gold);font-weight:600;flex-shrink:0">7.</span><span>Fakturering sköts manuellt via Fortnox/Billogram varje månad</span></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -331,7 +361,8 @@ async function loadRestaurants(){
         
         <button class="btn bo" style="font-size:11px;padding:4px 10px" onclick="openWelcomeModal(this)" data-id="${r.id}" data-name="${r.name}" data-email="${r.contact_email||''}">✉ Välkomstmejl</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openEditRest('${r.id}')">Redigera</button>
-        <button class="btn ${r.active?'bd':'bg'}" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',${r.active})">${r.active?'Inaktivera':'Aktivera'}</button>
+        <button class="btn ${r.active?'bd':'bg'}" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',${r.active})">${r.active?'Arkivera':'Återaktivera'}</button>
+        <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteRestPermanent(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">Radera</button>
       </div>
     </div>`).join('');
 }
@@ -546,9 +577,47 @@ async function saveEditRest(id){
 function closeEditModalDirect(){document.getElementById('editRestModal').style.display='none';}
 
 async function toggleActive(id,current){
-  if(!confirm((current?'Inaktivera':'Aktivera')+' restaurangen?'))return;
+  if(!confirm((current?'Arkivera':'Återaktivera')+' restaurangen?'))return;
   await db.from('restaurants').update({active:!current}).eq('id',id);
   loadRestaurants();loadStats();
+}
+
+function switchRestTab(tab){
+  ['active','archived','guide'].forEach(t=>{
+    document.getElementById('rpane-'+t).style.display=t===tab?'block':'none';
+    const btn=document.getElementById('rtab-'+t);
+    if(btn){btn.className='btn '+(t===tab?'bp':'bg');btn.style.cssText='font-size:13px;padding:7px 16px;border-radius:100px';}
+  });
+  if(tab==='archived')loadArchivedRestaurants();
+}
+
+async function loadArchivedRestaurants(){
+  const grid=document.getElementById('restGridArchived');
+  grid.innerHTML='<div style="font-size:13px;color:var(--muted)">Laddar...</div>';
+  const {data:rests}=await db.from('restaurants').select('*').eq('active',false).order('created_at',{ascending:false});
+  if(!rests?.length){grid.innerHTML='<div style="font-size:14px;color:var(--muted);padding:1rem">Inga arkiverade kunder.</div>';return;}
+  const planLabels={early_bird:'Early Bird',small:'Small',medium:'Medium',large:'Large'};
+  const planClass={early_bird:'plan-early',small:'plan-small',medium:'plan-medium',large:'plan-large'};
+  grid.innerHTML=rests.map(r=>`
+    <div class="rest-card" style="opacity:.7">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
+        <div class="rest-name">${r.name}</div>
+        <span style="width:8px;height:8px;border-radius:50%;background:#c0392b;display:inline-block;margin-top:6px"></span>
+      </div>
+      <div class="rest-slug">premeny.se/${r.slug}</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:.75rem">
+        <span class="plan-badge ${planClass[r.plan]||'plan-early'}">${planLabels[r.plan]||r.plan}</span>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',false)">Återaktivera</button>
+        <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteRestPermanent('${r.id}','${r.name.replace(/'/g,"\'")}')">Radera permanent</button>
+      </div>
+    </div>`).join('');
+}
+
+async function deleteRestPermanent(id, name){
+  if(!confirm('Radera '+name+' permanent? All data raderas och kan inte återställas.'))return;
+  await db.from('restaurant_admins').delete().eq('restaurant_id',id);
+  await db.from('restaurants').delete().eq('id',id);
+  loadArchivedRestaurants();loadStats();
 }
 
 // ── VÄLKOMSTMEJL ─────────────────────────────────────────────────────
