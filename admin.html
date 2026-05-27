@@ -329,18 +329,30 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
     <!-- ARKIV -->
     <div id="pane-archive" style="display:none">
-      <h3 style="margin-bottom:.25rem">Arkiverade bokningar</h3>
+      <h3 style="margin-bottom:.25rem">Arkiv</h3>
       <div class="gold-line"></div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Bokningar vars datum passerat arkiveras automatiskt. Klicka för att se kökslistan.</p>
-      <div style="position:relative;margin-bottom:.75rem">
-      <input type="text" id="archiveSearch" placeholder="Sök i arkiverade bokningar..." 
-        oninput="filterArchive()"
-        style="padding-left:36px;background:var(--surface)">
-      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">🔍</span>
-      <button id="clearArchiveSearch" onclick="clearArchiveSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0">✕</button>
-    </div>
-    <div id="archiveSearchInfo" style="display:none;font-size:12px;color:var(--muted);margin-bottom:.5rem"></div>
-    <div id="archiveList"></div>
+      <div style="display:flex;gap:6px;margin-bottom:1.25rem">
+        <button class="tab active" id="arc-tab-bookings" onclick="switchArchiveTab('bookings')">Bokningar</button>
+        <button class="tab" id="arc-tab-menus" onclick="switchArchiveTab('menus')">Menyer</button>
+      </div>
+
+      <!-- Bokningar -->
+      <div id="arc-pane-bookings">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Bokningar vars datum passerat arkiveras automatiskt.</p>
+        <div style="position:relative;margin-bottom:.75rem">
+          <input type="text" id="archiveSearch" placeholder="Sök i arkiverade bokningar..." oninput="filterArchive()" style="padding-left:36px;background:var(--surface)">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">🔍</span>
+          <button id="clearArchiveSearch" onclick="clearArchiveSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0">✕</button>
+        </div>
+        <div id="archiveSearchInfo" style="display:none;font-size:12px;color:var(--muted);margin-bottom:.5rem"></div>
+        <div id="archiveList"></div>
+      </div>
+
+      <!-- Menyer -->
+      <div id="arc-pane-menus" style="display:none">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Arkiverade menyer kan återställas eller raderas permanent.</p>
+        <div id="archiveMenuList"></div>
+      </div>
     </div>
 
     <!-- INSTÄLLNINGAR -->
@@ -1219,6 +1231,57 @@ async function renderCalResults(){
 // ARKIV
 let allArchived=[];
 
+function switchArchiveTab(tab){
+  document.getElementById('arc-pane-bookings').style.display=tab==='bookings'?'block':'none';
+  document.getElementById('arc-pane-menus').style.display=tab==='menus'?'block':'none';
+  var bBtn=document.getElementById('arc-tab-bookings');
+  var mBtn=document.getElementById('arc-tab-menus');
+  if(bBtn){bBtn.classList.toggle('active',tab==='bookings');}
+  if(mBtn){mBtn.classList.toggle('active',tab==='menus');}
+  if(tab==='menus')renderArchivedMenus();
+}
+
+async function renderArchivedMenus(){
+  var el=document.getElementById('archiveMenuList');
+  if(!el)return;
+  el.innerHTML='<span class="spinner"></span>';
+  var {data:ms}=await db.from('menus').select('*').eq('restaurant_id',rest.id).eq('archived',true).order('created_at',{ascending:false});
+  if(!ms||!ms.length){el.innerHTML='<div class="empty">Inga arkiverade menyer.</div>';return;}
+  el.innerHTML=ms.map(function(m){
+    return '<div class="bcard" style="margin-bottom:.75rem">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+        +'<div><div class="bname">'+escHtml(m.name)+'</div>'+(m.description?'<div class="bmeta">'+escHtml(m.description)+'</div>':'')+'</div>'
+        +'<div style="display:flex;gap:6px" id="ambtns_'+m.id+'"></div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+  ms.forEach(function(m){
+    var btns=document.getElementById('ambtns_'+m.id);
+    if(!btns)return;
+    var r=document.createElement('button');r.className='btn bg';r.style.fontSize='12px';r.textContent='Återställ';
+    r.addEventListener('click',function(){restoreMenu(m.id);});
+    var d=document.createElement('button');d.className='btn bd';d.style.fontSize='12px';d.textContent='Radera';
+    d.addEventListener('click',function(){deleteMenuPermanent(m.id);});
+    btns.appendChild(r);btns.appendChild(d);
+  });
+}
+
+async function restoreMenu(id){
+  await db.from('menus').update({archived:false}).eq('id',id);
+  renderArchivedMenus();renderMenu();
+}
+async function deleteMenuPermanent(id){
+  if(!confirm('Radera menyn permanent? Det går inte att ångra.'))return;
+  await db.from('menu_categories').delete().eq('menu_id',id);
+  await db.from('menus').delete().eq('id',id);
+  renderArchivedMenus();
+}
+async function archiveMenu(id){
+  if(!confirm('Arkivera menyn? Den kan återställas från Arkiv.'))return;
+  await db.from('menus').update({archived:true}).eq('id',id);
+  await renderMenu();
+}
+
 async function renderArchive(){
   if(!rest)return;
   const today=new Date().toISOString().split('T')[0];
@@ -1279,8 +1342,25 @@ async function toggleArc(id){
   const el=document.getElementById('arc_'+id);if(!el)return;
   if(el.style.display==='none'){
     el.style.display='block';el.innerHTML='<span class="spinner"></span>';
+    const b=allArchived.find(x=>x.id===id);
     const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-    el.innerHTML=orders?.length?renderKitchen(orders):'<div style="font-size:13px;color:var(--muted)">Inga beställningar.</div>';
+    const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    let html='';
+    // Bokningsinfo
+    if(b){
+      if(b.contact_name||b.contact_email||b.contact_phone){
+        html+='<div class="info-box" style="margin-bottom:.75rem"><strong>Kontaktperson:</strong> '+(b.contact_name||'')
+          +(b.contact_email?' · <a href="mailto:'+b.contact_email+'" style="color:var(--gold)">'+b.contact_email+'</a>':'')
+          +(b.contact_phone?' · <a href="tel:'+b.contact_phone+'" style="color:var(--gold)">'+b.contact_phone+'</a>':'')
+          +'</div>';
+      }
+      if(b.expected_guests){
+        html+='<div style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Förväntade gäster: '+b.expected_guests+' · Beställningar: '+(orders?.length||0)+'</div>';
+      }
+    }
+    // Kökslista eller tom
+    html+=orders?.length?renderKitchen(orders):'<div style="font-size:13px;color:var(--muted);padding:.5rem 0">Inga beställningar registrerades.</div>';
+    el.innerHTML=html;
   }else el.style.display='none';
 }
 
