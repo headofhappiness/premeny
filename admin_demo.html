@@ -9,7 +9,7 @@
 <style>
 :root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--bs:#d4ccc0;--gold:#b8955a;--dark:#1a1712;--text:#1a1712;--muted:#5a5248;--red:#c0392b}
 *{box-sizing:border-box;margin:0;padding:0}
-.demo-banner{background:linear-gradient(135deg,rgba(184,149,90,.15),rgba(184,149,90,.08));border-bottom:2px solid rgba(184,149,90,.3);padding:.7rem 1.5rem;text-align:center;font-size:13px;color:#6a5030;position:sticky;top:0;z-index:20}
+.demo-banner{background:linear-gradient(135deg,rgba(124,111,205,.12),rgba(124,111,205,.06));border-bottom:2px solid rgba(124,111,205,.3);padding:.7rem 1.5rem;text-align:center;font-size:13px;color:#4a3d8a}
 .demo-banner a{color:var(--gold);font-weight:500;text-decoration:none}
 .demo-banner a:hover{text-decoration:underline}
 .demo-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 24px;border-radius:100px;font-size:14px;z-index:1000;display:none;box-shadow:0 4px 24px rgba(0,0,0,.2);animation:slideUp .2s ease}
@@ -133,17 +133,11 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 <body>
 
 <div class="demo-banner">
-  🎯 <strong>Demo</strong> — Utforska PreMeny utan att logga in &nbsp;·&nbsp; 
-  <a href="https://premeny.se/guest.html?r=demo&b=demo" target="_blank">Se hur det ser ut för dina gäster →</a>
-  &nbsp;·&nbsp; <a href="https://premeny.se" target="_blank">Skapa ett konto</a>
+  🎯 <strong>Demo</strong> — Utforska PreMeny utan att logga in &nbsp;·&nbsp; <a href="https://premeny.se" style="color:#7c6fcd;font-weight:500;text-decoration:none" target="_blank">Skapa ett konto →</a>
 </div>
 <div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
 
-<div class="demo-banner">
-  🎯 <strong>Demo</strong> — Utforska PreMeny utan att logga in &nbsp;·&nbsp; 
-  <a href="https://premeny.se/guest.html?r=demo&b=demo" target="_blank">Se hur det ser ut för dina gäster →</a>
-  &nbsp;·&nbsp; <a href="https://premeny.se" target="_blank">Skapa ett konto</a>
-</div>
+
 <div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
 <div id="loginPage" style="display:none">
   <div class="login-wrap">
@@ -528,7 +522,9 @@ async function autoInitDemo(){
   }
   rest=r;
   document.getElementById('restName').textContent=r.name+' (Demo)';
-  document.documentElement.style.setProperty('--gold',r.accent_color||'#7c6fcd');
+  // I demo: behåll --gold för loggan, sätt --accent för UI-färger
+  document.documentElement.style.setProperty('--gold','#b8955a'); // Loggan alltid guld
+  document.documentElement.style.setProperty('--demo-accent',r.accent_color||'#7c6fcd');
   await loadCats();
   const {data:menuList}=await db.from('menus').select('*').eq('restaurant_id',rest.id).eq('archived',false).order('created_at');
   const nbMenu=document.getElementById('nb-menu');
