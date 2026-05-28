@@ -515,14 +515,12 @@ async function doLogout(){await db.auth.signOut();location.reload();}
 // ── DEMO AUTO-INIT ──────────────────────────────────────────────────
 async function autoInitDemo(){
   // Hämta demo-restaurang
-  const {data:r,error:rErr}=await db.from('restaurants').select('*').eq('slug',DEMO_SLUG).single();
-  console.log('autoInitDemo: r=',r,'error=',rErr);
+  const {data:r}=await db.from('restaurants').select('*').eq('slug',DEMO_SLUG).single();
   if(!r){
-    document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte ('+( rErr?.message||'okänt')+').</div>';
+    document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte. Kontakta premeny.se</div>';
     return;
   }
   rest=r;
-  console.log('rest satt till:', rest.id, rest.name);
   document.getElementById('restName').textContent=r.name+' (Demo)';
   // I demo: behåll --gold för loggan, sätt --accent för UI-färger
   document.documentElement.style.setProperty('--gold','#b8955a'); // Loggan alltid guld
@@ -580,7 +578,7 @@ function showTab(tab){
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
   });
   if(tab==='calendar')initCalendar();
-  if(tab==='menu')renderMenu();
+  if(tab==='menu')renderMenu(true);
   if(tab==='archive')renderArchive();
   if(tab==='settings')loadSettings();
 }
@@ -1727,16 +1725,13 @@ async function loadCats(){
 }
 
 async function renderMenu(keepOpen){
-  console.log('renderMenu: rest=', rest?.id, 'keepOpen=', keepOpen);
   const sel=document.getElementById('menu-selector');
   const ed=document.getElementById('menuEditor');
   sel.innerHTML='<div style="font-size:13px;color:var(--muted)"><span class="spinner"></span> Laddar...</div>';
   ed.innerHTML='';
   const {data:menuData,error}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
-  console.log('renderMenu data:', menuData, 'error:', error);
   if(error){sel.innerHTML='<div style="color:red;font-size:13px">Fel: '+error.message+'</div>';return;}
   menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
-  console.log('menus efter filter:', menus.length, menus);
   window._menuIds=menus.map(m=>m.id);
   if(!menus.length){sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga menyer ännu.</div>';return;}
   sel.innerHTML=menus.map(function(m){
@@ -1758,6 +1753,7 @@ async function renderMenu(keepOpen){
     +'</div>';
   }).join('');
   // Återöppna aktiv meny om den fanns
+  _menuLoading=false; // Återställ loading-flaggan
   if(keepOpen&&activeMenuId&&menus.find(m=>m.id===activeMenuId)){
     var elOpen=document.getElementById('mc_'+activeMenuId);
     if(elOpen)elOpen.classList.add('open');
