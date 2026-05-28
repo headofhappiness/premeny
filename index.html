@@ -30,8 +30,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.25rem 2rem;display
 .nav-links{display:flex;gap:2rem;align-items:center}
 .nav-links a{font-size:14px;color:var(--muted);text-decoration:none;letter-spacing:.02em;transition:color .2s}
 .nav-links a:hover{color:var(--dark)}
-.btn-nav{background:var(--dark);color:#fff;padding:9px 22px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:13px;font-weight:500;text-decoration:none;transition:all .2s;letter-spacing:.02em}
-.btn-nav:hover{background:var(--gold);color:#fff}
+.btn-nav{background:var(--gold);color:#fff;padding:9px 22px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s;letter-spacing:.02em;border:2px solid var(--gold)}
+.btn-nav:hover{background:var(--dark);border-color:var(--dark);color:#fff}
 
 /* ── HERO ── */
 .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 2rem 4rem;position:relative;overflow:hidden}
@@ -240,7 +240,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
     <a href="#how">Så fungerar det</a>
     <a href="#features">Funktioner</a>
     <a href="#pricing">Pris</a>
-    <a href="#demo" class="btn-nav" style="background:transparent;border:1px solid var(--border);color:var(--dark);margin-right:4px">Se demo</a>
+    <a href="https://premeny.se/admin.html" class="btn-nav" style="background:transparent;border:2px solid var(--border);color:var(--dark);font-weight:500;margin-right:4px">Logga in</a>
     <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn-nav">Boka demo</a>
   </div>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Meny">
@@ -252,7 +252,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
   <a href="#how" onclick="toggleMenu()">Så fungerar det</a>
   <a href="#features" onclick="toggleMenu()">Funktioner</a>
   <a href="#pricing" onclick="toggleMenu()">Pris</a>
-  <a href="#demo" onclick="toggleMenu()">Se demo</a>
+  <a href="https://premeny.se/admin.html" onclick="toggleMenu()">Logga in</a>
   <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn-nav">Boka demo</a>
 </div>
 
@@ -372,7 +372,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
       <div class="feature-card">
         <div class="feature-icon">📱</div>
         <div class="feature-title">Mobilanpassad</div>
-        <div class="feature-desc">Gästformuläret är optimerat för mobil – stort, tydligt och enkelt att använda. Admin fungerar bäst på dator.</div>
+        <div class="feature-desc">Gästformuläret är optimerat för mobil – stort, tydligt och enkelt att använda. Admingränssnittet fungerar också på mobil.</div>
       </div>
     </div>
   </div>
