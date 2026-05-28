@@ -515,12 +515,14 @@ async function doLogout(){await db.auth.signOut();location.reload();}
 // ── DEMO AUTO-INIT ──────────────────────────────────────────────────
 async function autoInitDemo(){
   // Hämta demo-restaurang
-  const {data:r}=await db.from('restaurants').select('*').eq('slug',DEMO_SLUG).single();
+  const {data:r,error:rErr}=await db.from('restaurants').select('*').eq('slug',DEMO_SLUG).single();
+  console.log('autoInitDemo: r=',r,'error=',rErr);
   if(!r){
-    document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte. Kontakta premeny.se</div>';
+    document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte ('+( rErr?.message||'okänt')+').</div>';
     return;
   }
   rest=r;
+  console.log('rest satt till:', rest.id, rest.name);
   document.getElementById('restName').textContent=r.name+' (Demo)';
   // I demo: behåll --gold för loggan, sätt --accent för UI-färger
   document.documentElement.style.setProperty('--gold','#b8955a'); // Loggan alltid guld
@@ -1725,6 +1727,7 @@ async function loadCats(){
 }
 
 async function renderMenu(keepOpen){
+  console.log('renderMenu: rest=', rest?.id, 'keepOpen=', keepOpen);
   const sel=document.getElementById('menu-selector');
   const ed=document.getElementById('menuEditor');
   sel.innerHTML='<div style="font-size:13px;color:var(--muted)"><span class="spinner"></span> Laddar...</div>';
