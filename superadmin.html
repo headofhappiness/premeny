@@ -192,7 +192,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <div class="card-label" style="margin-top:.25rem">Adminkonto</div>
     <div class="ff"><label>Admin-inloggning e-post *</label><input type="email" id="nr-admin-email" placeholder="personal@restaurangen.se"><div style="font-size:11px;color:var(--muted);margin-top:4px">Används för att logga in på admin-panelen</div></div>
     <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.2);border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#6a5030;line-height:1.6;margin-bottom:1rem">
-      ℹ Ett inbjudningsmejl skickas automatiskt till adminens e-post. De sätter sitt eget lösenord via länken i mejlet.
+      ℹ Efter att du skapat restaurangen — skapa kontot i Supabase och klicka sedan <strong>✉ Välkomstmejl</strong> på kortet för att skicka inloggningsuppgifter manuellt.
     </div>
     <div id="nr-msg" style="display:none" class="msg"></div>
     <div style="display:flex;gap:8px">
@@ -241,10 +241,25 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
       <div style="font-size:11px;color:var(--muted);margin-top:4px">Skapa kontot i Supabase med samma lösenord, eller be kunden byta direkt via Glömt lösenord.</div>
     </div>
     <div id="wm-msg" style="display:none" class="msg"></div>
-    <div style="display:flex;gap:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn bp" onclick="sendWelcomeEmail()" id="wm-btn">✉ Skicka välkomstmejl</button>
+      <button class="btn bg" onclick="previewWelcomeEmail()">👁 Förhandsgranska</button>
       <button class="btn bg" onclick="closeWelcomeModal()">Avbryt</button>
     </div>
+  </div>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div id="previewModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)document.getElementById('previewModal').style.display='none'">
+  <div class="modal" style="max-width:680px;padding:0;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--border)">
+      <h3 style="font-size:1rem">Förhandsgranskning — Välkomstmejl</h3>
+      <button class="btn bg" style="padding:5px 12px;font-size:12px" onclick="document.getElementById('previewModal').style.display='none'">✕</button>
+    </div>
+    <div style="padding:.75rem 1.25rem;background:var(--surface2);border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)">
+      Till: <strong id="preview-to"></strong> &nbsp;·&nbsp; Ämne: <strong id="preview-subject"></strong>
+    </div>
+    <iframe id="previewFrame" style="width:100%;height:520px;border:none;display:block"></iframe>
   </div>
 </div>
 
@@ -345,7 +360,7 @@ async function loadRestaurants(){
         </div>
         <span style="width:8px;height:8px;border-radius:50%;background:${r.active?'#3a7d44':'#c0392b'};display:inline-block;flex-shrink:0;margin-top:6px"></span>
       </div>
-      <div class="rest-slug">premeny.se/${r.slug}</div>
+      <div class="rest-slug">Slug: ${r.slug} &nbsp;·&nbsp; <span style="color:var(--gold)">premeny.se/guest.html?r=${r.slug}</span></div>
 
       <!-- Mini-statistik -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:.9rem">
@@ -661,6 +676,58 @@ function openWelcomeModal(btn){
   document.getElementById('welcomeModal').style.display = 'flex';
 }
 function closeWelcomeModal(){ document.getElementById('welcomeModal').style.display='none'; }
+
+function previewWelcomeEmail(){
+  const email=document.getElementById('wm-email').value.trim()||'admin@restaurangen.se';
+  const pass=document.getElementById('wm-pass').value.trim()||'Blomma2026';
+  const name=_welcomeRestName||'Restaurangnamnet';
+  const gold='#b8955a';const dark='#1a1712';const muted='#8a8070';const bg='#faf8f4';const border='#e8e2d8';const text='#2d2a24';
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:20px;background:#f0ebe2;font-family:'Helvetica Neue',Arial,sans-serif">
+  <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid ${border}">
+    <div style="background:${dark};padding:1.75rem 2rem;display:flex;align-items:center;gap:12px">
+      <div style="font-family:Georgia,serif;font-size:1.6rem;color:#fff;letter-spacing:.02em">Pre<span style="color:${gold}">Meny</span></div>
+    </div>
+    <div style="padding:2rem 2rem 0">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${gold};margin-bottom:.4rem">Välkommen!</div>
+      <h1 style="font-family:Georgia,serif;font-size:1.7rem;font-weight:400;color:${dark};margin:0 0 .2rem">${name}</h1>
+      <div style="width:28px;height:1px;background:${gold};margin:.6rem 0 1.5rem;opacity:.7"></div>
+      <p style="font-size:15px;line-height:1.8;margin:0 0 1.5rem">
+        Hej!<br><br>
+        Välkommen till PreMeny – förbeställning av mat gjord enkel. Ditt konto är nu aktiverat och redo att använda.
+      </p>
+    </div>
+    <div style="margin:0 2rem 1.5rem;background:${bg};border:1px solid ${border};border-radius:12px;padding:1.25rem 1.5rem;font-size:14px;line-height:2.2">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:${gold};margin-bottom:.5rem">Dina inloggningsuppgifter</div>
+      <div><span style="color:${muted}">E-post:</span>&nbsp;&nbsp;<strong>${email}</strong></div>
+      <div><span style="color:${muted}">Lösenord:</span>&nbsp;&nbsp;<strong style="font-family:monospace">${pass}</strong></div>
+      <div><span style="color:${muted}">Admin-länk:</span>&nbsp;&nbsp;<a href="https://premeny.se/admin.html" style="color:${gold}">premeny.se/admin.html</a></div>
+    </div>
+    <div style="padding:0 2rem 2rem">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:${gold};margin-bottom:.75rem">Kom igång på 3 steg</div>
+      <div style="font-size:14px;color:${text};line-height:2;background:${bg};border-radius:8px;padding:.75rem 1rem">
+        1️⃣&nbsp; Logga in och ladda upp er logotyp under <strong>Inställningar</strong><br>
+        2️⃣&nbsp; Gå igenom er meny som vi lagt in åt er — lägg till eller justera rätter<br>
+        3️⃣&nbsp; Skapa er första bokning och skicka länken till era gäster — klart!
+      </div>
+      <div style="font-size:13px;color:${muted};margin-top:.75rem;line-height:1.7">
+        Vi på PreMeny finns här om ni behöver hjälp med att komma igång. Hör av er!
+      </div>
+    </div>
+    <div style="padding:0 2rem 2rem;font-size:13px;color:${muted};line-height:1.8">
+      Frågor? Kontakta oss på <a href="mailto:lisa@headofhappiness.se" style="color:${gold};text-decoration:none">lisa@headofhappiness.se</a>
+    </div>
+    <div style="border-top:1px solid ${border};padding:1.25rem 2rem;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-family:Georgia,serif;font-size:1.1rem;color:${dark}">Pre<span style="color:${gold}">Meny</span></div>
+      <div style="font-size:12px;color:${muted}"><a href="https://premeny.se" style="color:${muted};text-decoration:none">premeny.se</a></div>
+    </div>
+  </div></body></html>`;
+  
+  document.getElementById('preview-to').textContent=email;
+  document.getElementById('preview-subject').textContent='Välkommen till PreMeny – '+name;
+  const frame=document.getElementById('previewFrame');
+  frame.srcdoc=html;
+  document.getElementById('previewModal').style.display='flex';
+}
 function genWelcomePass(){
   const blommor=['Tulpan','Lavendel','Jasmin','Rosmarin','Lilja','Dahlia','Iris','Mimosa','Verbena','Freesia','Anemone','Clematis','Magnolia','Petunia','Begonia'];
   const blomma=blommor[Math.floor(Math.random()*blommor.length)];
