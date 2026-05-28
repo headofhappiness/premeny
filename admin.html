@@ -636,7 +636,6 @@ function renderBCard(b){
           <div style="font-size:15px;font-weight:400;color:${b.expected_guests&&n>b.expected_guests?'#c0392b':'var(--muted)'}">
             ${b.expected_guests?(n>b.expected_guests?'⚠ '+n+' beställda · <span style="color:#c0392b;font-weight:600">'+( n-b.expected_guests)+' fler än väntat!</span>':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
           </div>
-          ${b.expected_guests?('<div style="height:3px;background:var(--border);border-radius:2px;width:120px;flex-shrink:0"><div style="height:100%;width:'+Math.min(100,pct)+'%;background:'+(pct>100?'#b05a00':'var(--gold)')+';border-radius:2px;transition:width .3s"></div></div>'):''}
         </div>
         ${reminderHtml}
       </div>
