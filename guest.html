@@ -216,7 +216,7 @@ async function init(){
     }
     const {data:cats}=catsQuery;
     categories=(cats||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)})).filter(c=>c.menu_items.length>0);
-    categories.forEach(c=>{gSel[c.id]=null;gComments[c.id]='';});
+    categories.forEach(c=>{gSel[c.id]=null;c.menu_items.forEach(i=>{gComments[i.id]='';});});
     buildMenu();
     document.getElementById('loadingState').style.display='none';
     document.getElementById('mainContent').style.display='block';
@@ -281,7 +281,7 @@ async function checkExisting(){
     buildMenu();
   }else{
     existingOrderId=null;notice.style.display='none';
-    categories.forEach(c=>{gSel[c.id]=null;gComments[c.id]='';});
+    categories.forEach(c=>{gSel[c.id]=null;c.menu_items.forEach(i=>{gComments[i.id]='';});});
     buildMenu();
   }
 }
@@ -297,6 +297,7 @@ async function submitOrder(){
   try{
     categories.forEach(cat=>{
       const selId=gSel[cat.id];
+      if(selId===null)return; // Hoppa över = ingen kommentar att spara
       const ta=document.querySelector('#cmtwrap_'+selId+' textarea');
       if(ta)gComments[selId]=ta.value;
     });
