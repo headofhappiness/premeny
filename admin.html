@@ -906,22 +906,35 @@ async function sendSummary(id,ch){
   if(al.length){text+='Kommentarer & allergier:\n';al.forEach(a=>text+='  '+a+'\n');}
   // Öppna mejl eller SMS
   if(ch==='email'){
-    window.open('mailto:'+dest+'?subject='+encodeURIComponent('Sammanställning – '+b.name+' '+ds)+'&body='+encodeURIComponent(text));
-  } else {
-    window.open('sms:'+dest+'?body='+encodeURIComponent('Sammanst. '+b.name+' '+ds+': '+(orders?.length||0)+' best. Kontakta oss för detaljer.'));
-  }
-  // Bekräfta att det skickades och logga
-  const chLabel=ch==='email'?'mejlet':'SMS:et';
-  if(confirm('Bekräfta: Skickades '+chLabel+' till '+dest+'?\n\nKlicka OK för att markera som skickad i systemet.')) {
+    const {data:{session}}=await db.auth.getSession();
+    const guestLink='https://premeny.se/guest.html?r='+rest.id+'&b='+b.id;
+    const res=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({type:'guestlink',booking:b,restaurant:rest,guestLink})
+    });
+    const json=await res.json();
+    if(!json.ok){alert('Fel: '+(json.error||'okänt'));return;}
     const now=new Date();
     const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    const logEntry=timeStr+' via '+(ch==='email'?'mejl':'SMS')+' till '+dest+'\n';
-    const prevLog=b.summary_sent_log||'';
     await db.from('bookings').update({
       summary_sent_at:now.toISOString(),
-      summary_sent_log:prevLog+logEntry
+      summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via mejl till '+dest+'\n'
     }).eq('id',id);
+    alert('✓ Gästlänk skickad till '+dest+'!');
     reRender(id);
+    return;
+  } else {
+    window.open('sms:'+dest+'?body='+encodeURIComponent('Sammanst. '+b.name+' '+ds+': '+(orders?.length||0)+' best. Kontakta oss för detaljer.'));
+    if(confirm('Bekräfta: Skickades SMS:et till '+dest+'?\n\nKlicka OK för att markera som skickad.')) {
+      const now=new Date();
+      const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+      await db.from('bookings').update({
+        summary_sent_at:now.toISOString(),
+        summary_sent_log:(b.summary_sent_log||'')+timeStr+' via SMS till '+dest+'\n'
+      }).eq('id',id);
+      reRender(id);
+    }
   }
 }
 
