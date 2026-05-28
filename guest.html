@@ -116,6 +116,7 @@ textarea{min-height:75px}
       </div>
       <div id="existingNotice" style="display:none" class="msg ok"></div>
       <div id="courseWrap"></div>
+      <div id="guestMsgBottom" style="display:none" class="msg err"></div>
       <button class="btn btn-primary" id="submitBtn" onclick="submitOrder()">Skicka beställning</button>
       <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:.75rem;line-height:1.6">Vill du ändra? Öppna länken igen och skriv ditt namn.</p>
     </div>
@@ -290,8 +291,15 @@ async function submitOrder(){
   if(isClosed)return;
   const name=document.getElementById('guestName').value.trim();
   const msg=document.getElementById('guestMsg');
-  if(!name){msg.style.display='block';msg.className='msg err';msg.textContent='Ange ditt namn.';return;}
-  if(!categories.some(c=>gSel[c.id]!==null)){msg.style.display='block';msg.className='msg err';msg.textContent='Välj minst en rätt.';return;}
+  const msgBottom=document.getElementById('guestMsgBottom');
+  function showErr(txt){
+    msg.style.display='block';msg.className='msg err';msg.textContent=txt;
+    if(msgBottom){msgBottom.style.display='block';msgBottom.textContent=txt;}
+    msg.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  if(!name){showErr('Ange ditt namn.');document.getElementById('guestName').focus();return;}
+  if(!categories.some(c=>gSel[c.id]!==null)){showErr('Välj minst en rätt.');return;}
+  if(msgBottom)msgBottom.style.display='none';
   const btn=document.getElementById('submitBtn');
   btn.disabled=true;btn.textContent='Sparar...';
   try{
@@ -333,7 +341,20 @@ async function submitOrder(){
   }
 }
 
-function editOrder(){document.getElementById('doneWrap').style.display='none';document.getElementById('formWrap').style.display='block';}
+function editOrder(){
+  document.getElementById('doneWrap').style.display='none';
+  document.getElementById('formWrap').style.display='block';
+  // Återställ knappen
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=false;btn.textContent='Skicka beställning';
+  // Dölj felmeddelanden
+  const msg=document.getElementById('guestMsg');
+  const msgB=document.getElementById('guestMsgBottom');
+  if(msg)msg.style.display='none';
+  if(msgB)msgB.style.display='none';
+  // Scrolla upp till toppen av formuläret
+  document.getElementById('formWrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
 function showError(m){document.getElementById('loadingState').style.display='none';const el=document.getElementById('errorState');el.style.display='block';el.textContent=m;}
 init();
 </script>
