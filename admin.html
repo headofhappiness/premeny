@@ -521,11 +521,7 @@ async function initAdmin(){
   rest=r;
   document.getElementById('restName').textContent=r.name;
   document.documentElement.style.setProperty('--gold',r.accent_color||'#b8955a');
-  if(r.logo_url){
-    const navLogo=document.getElementById('nav-logo');
-    navLogo.src=r.logo_url;
-    document.getElementById('nav-logo-wrap').style.display='block';
-  }
+  // Logo visas ej i navbar
   document.getElementById('loginPage').style.display='none';
   document.getElementById('adminPage').style.display='block';
   await loadCats();
