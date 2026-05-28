@@ -705,10 +705,15 @@ function renderBCard(b){
     </div>
     <div id="det_${b.id}"></div>
     <div class="fg" style="margin-top:1rem;flex-wrap:wrap">
-      <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera sammanfattning</button>
-      <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>
-      <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
-      <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportPDF('${b.id}')">📄 Ladda ner PDF</button>
+      ${dtab==='guests'?
+        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportGuestPDF('${b.id}')">📄 Ladda ner PDF</button>`
+      :
+        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportPDF('${b.id}')">📄 Ladda ner PDF</button>`
+      }
       <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
     </div></div>`;
   }
@@ -964,19 +969,25 @@ async function sendSummary(id,ch){
     reRender(id);
     return;
   } else {
-    const smsText='Hej! Här är länken till er förbeställning för '+b.name+' den '+ds+':\nhttps://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
-    const now=new Date();
-    const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    await db.from('bookings').update({
-      summary_sent_at:now.toISOString(),
-      summary_sent_log:(b.summary_sent_log||'')+timeStr+' SMS till '+dest+' (se Skicka länk via SMS)\n'
-    }).eq('id',id);
-    navigator.clipboard.writeText(smsText).then(()=>{
-      alert('📱 SMS-text kopierad!\n\nKlistra in i din SMS-app och skicka till '+dest+'.');
-    }).catch(()=>{
-      alert('📱 Skicka detta SMS till '+dest+':\n\n'+smsText);
-    });
-    reRender(id);
+    const gLinkSms='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
+    const {data:{session}}=await db.auth.getSession();
+    try{
+      const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-sms',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body:JSON.stringify({booking:b,restaurant:rest,guestLink:gLinkSms})
+      });
+      const result=await resp.json();
+      if(!result.ok)throw new Error(result.error||'Okänt fel');
+      const now=new Date();
+      const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+      await db.from('bookings').update({
+        summary_sent_at:now.toISOString(),
+        summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via SMS till '+dest+'\n'
+      }).eq('id',id);
+      reRender(id);
+      alert('✓ SMS skickat till '+dest+'!');
+    }catch(err){alert('Fel: '+err.message);}
   }
 }
 
@@ -1165,6 +1176,86 @@ async function exportPDF(id){
 
   const filename='kokslista-'+b.name.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase()+'-'+b.event_date+'.pdf';
   doc.save(filename);
+}
+
+
+async function printGuestList(id){
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date+'T12:00:00');
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  const w=window.open('','_blank');
+  let ph=`<html><head><title>Gästlista – ${b.name}</title><style>
+    body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
+    h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
+    .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
+    .row{padding:8px 0;border-bottom:1px solid #eee;font-size:13px}
+    .row:last-child{border-bottom:none}
+    .num{color:#b8955a;font-weight:600;margin-right:8px}
+    .dishes{color:#666;font-size:12px;margin-top:2px}
+    .allergy{color:#8a7020;font-size:11px;margin-top:2px}
+    @media print{body{padding:.75rem}}
+  </style></head><body>`;
+  ph+=`<h1>Gästlista – ${b.name}</h1>`;
+  ph+=`<div class="meta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orders?.length||0}${b.expected_guests?' av '+b.expected_guests:''} gäster · Skrivet ut: ${new Date().toLocaleString('sv-SE')}</div>`;
+  (orders||[]).forEach((o,i)=>{
+    const dishes=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
+    const allergy=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
+    ph+=`<div class="row"><span class="num">${i+1}.</span><strong>${o.guest_name}</strong>`;
+    if(dishes)ph+=`<div class="dishes">${dishes}</div>`;
+    if(allergy)ph+=`<div class="allergy">⚠ ${allergy}</div>`;
+    ph+=`</div>`;
+  });
+  ph+='</'+'body></'+'html>';
+  w.document.write(ph);w.document.close();w.print();
+}
+
+async function exportGuestPDF(id){
+  if(!window.jspdf){alert('PDF-biblioteket laddas. Försök igen.');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date+'T12:00:00');
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  const margin=20;let y=margin;
+  const pageH=297,pageW=210,contentW=pageW-margin*2;
+  function checkPage(n){if(y+n>pageH-margin){doc.addPage();y=margin;}}
+
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(26,23,18);
+  doc.text('Gästlista',margin,y);y+=8;
+  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(100,100,100);
+  doc.text(b.name+' – '+ds+(b.event_time?' kl '+b.event_time.slice(0,5):''),margin,y);y+=5;
+  doc.text((orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+' gäster · Skrivet ut: '+new Date().toLocaleDateString('sv-SE'),margin,y);y+=8;
+  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.line(margin,y,pageW-margin,y);y+=8;
+
+  (orders||[]).forEach((o,i)=>{
+    const dishes=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
+    const allergy=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
+    checkPage(14);
+    doc.setFont('helvetica','normal');doc.setFontSize(12);doc.setTextColor(26,23,18);
+    doc.setFont('helvetica','bold');doc.setTextColor(184,149,90);
+    doc.text(String(i+1)+'.',margin,y);
+    doc.setFont('helvetica','bold');doc.setTextColor(26,23,18);
+    doc.text(o.guest_name||'',margin+8,y);
+    if(dishes){
+      doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(100,100,100);
+      const dl=doc.splitTextToSize(dishes,contentW-8);
+      y+=5;checkPage(6);doc.text(dl,margin+8,y);y+=dl.length*4;
+    }else{y+=6;}
+    if(allergy){
+      doc.setFontSize(9);doc.setTextColor(120,80,0);
+      checkPage(5);doc.text('⚠ '+allergy,margin+8,y);y+=5;
+    }
+    y+=3;
+  });
+
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+  doc.text('PreMeny – premeny.se',margin,pageH-10);
+  doc.save('gastlista-'+b.name.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase()+'-'+b.event_date+'.pdf');
 }
 
 // KALENDER
