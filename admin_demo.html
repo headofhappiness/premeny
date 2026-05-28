@@ -1733,8 +1733,10 @@ async function renderMenu(keepOpen){
   sel.innerHTML='<div style="font-size:13px;color:var(--muted)"><span class="spinner"></span> Laddar...</div>';
   ed.innerHTML='';
   const {data:menuData,error}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
+  console.log('renderMenu data:', menuData, 'error:', error);
   if(error){sel.innerHTML='<div style="color:red;font-size:13px">Fel: '+error.message+'</div>';return;}
   menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
+  console.log('menus efter filter:', menus.length, menus);
   window._menuIds=menus.map(m=>m.id);
   if(!menus.length){sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga menyer ännu.</div>';return;}
   sel.innerHTML=menus.map(function(m){
