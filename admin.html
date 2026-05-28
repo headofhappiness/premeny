@@ -1322,6 +1322,7 @@ async function renderCalResults(){
       <div style="display:flex;gap:6px;flex-shrink:0;margin-left:1rem">
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyCalKitchen()">📋 Kopiera</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="printCalKitchen()">🖨 Skriv ut</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="exportCalPDF()">📄 PDF</button>
       </div>
     </div>
     ${statusHtml}
@@ -1329,6 +1330,70 @@ async function renderCalResults(){
   </div>`;
 
   el.innerHTML=html;
+}
+
+async function exportCalPDF(){
+  if(!window.jspdf){alert('PDF-biblioteket laddas. Försök igen om ett ögonblick.');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const margin=20;let y=margin;
+  const pageH=297,pageW=210,contentW=pageW-margin*2;
+  function checkPage(n){if(y+n>pageH-margin){doc.addPage();y=margin;}}
+
+  const dates=[...calSel].sort();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
+
+  // Header
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(26,23,18);
+  doc.text('Kökslista',margin,y);y+=8;
+  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(100,100,100);
+  doc.text(dateLabels,margin,y);y+=5;
+  doc.text('Skrivet ut: '+new Date().toLocaleString('sv-SE'),margin,y);y+=8;
+  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.line(margin,y,pageW-margin,y);y+=8;
+
+  // Hämta alla bokningar för valda datum
+  const {data:bs}=await db.from('bookings').select('*, orders(*, order_items(*, menu_items(name, menu_categories(label))))').eq('restaurant_id',rest.id).in('event_date',dates);
+  const allOrders=(bs||[]).flatMap(b=>(b.orders||[]));
+
+  // Räkna per kategori och rätt
+  const counts={};const allergies={};
+  allOrders.forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const c=oi.menu_items?.menu_categories?.label||'?';
+    const n=oi.menu_items?.name||'?';
+    const k=c+'||'+n;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((o.guest_name||'Gäst')+': '+oi.comment.trim());}
+  }));
+  const byCat={};
+  Object.entries(counts).forEach(([k,cnt])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,cnt,k});});
+
+  Object.entries(byCat).forEach(([cat,items])=>{
+    checkPage(16);
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(184,149,90);
+    doc.text(cat.toUpperCase(),margin,y);y+=6;
+    doc.setTextColor(26,23,18);
+    items.forEach(({name,cnt,k})=>{
+      checkPage(10);
+      doc.setFont('helvetica','normal');doc.setFontSize(12);
+      doc.text(name,margin,y);
+      doc.setFont('helvetica','bold');
+      doc.text(String(cnt)+' st',pageW-margin,y,{align:'right'});
+      doc.setFont('helvetica','normal');
+      y+=7;
+      if(allergies[k]){
+        doc.setFontSize(9);doc.setTextColor(120,80,0);
+        allergies[k].forEach(a=>{checkPage(6);doc.text('  ⚠ '+a,margin+4,y);y+=5;});
+        doc.setTextColor(26,23,18);doc.setFontSize(12);
+      }
+    });
+    y+=4;
+  });
+
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+  doc.text('PreMeny – premeny.se',margin,pageH-10);
+  doc.save('kokslista-'+dates[0]+'.pdf');
 }
 
 // ARKIV
@@ -1471,10 +1536,23 @@ async function toggleArc(id){
         html+='<div style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Förväntade gäster: '+b.expected_guests+' · Beställningar: '+(orders?.length||0)+'</div>';
       }
     }
-    // Menyinfo
+    // Menyinfo med hela menyn
     if(b&&b.menu_id){
       const {data:menuInfo}=await db.from('menus').select('name').eq('id',b.menu_id).single();
-      if(menuInfo)html+='<div style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Meny: '+escHtml(menuInfo.name)+'</div>';
+      const {data:menuCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',b.menu_id).order('sort_order');
+      if(menuInfo){
+        html+='<div style="margin-bottom:.75rem">';
+        html+='<div style="font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem">Meny: '+escHtml(menuInfo.name)+'</div>';
+        (menuCats||[]).forEach(cat=>{
+          const items=(cat.menu_items||[]).filter(i=>i.active);
+          if(!items.length)return;
+          html+='<div style="font-size:12px;color:var(--muted);margin-bottom:.2rem;font-style:italic">'+escHtml(cat.label)+'</div>';
+          html+='<div style="font-size:13px;color:var(--dark);margin-bottom:.4rem;padding-left:.75rem">';
+          items.forEach(i=>{html+=escHtml(i.name)+(i.price?' <span style="color:var(--gold)">'+i.price+' kr</span>':'')+'<br>';});
+          html+='</div>';
+        });
+        html+='</div>';
+      }
     }
     // Kökslista eller tom
     html+=orders?.length?renderKitchen(orders):'<div style="font-size:13px;color:var(--muted);padding:.5rem 0">Inga beställningar registrerades.</div>';
