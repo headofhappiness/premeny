@@ -995,11 +995,13 @@ async function sendSummary(id,ch){
 // COPY / PRINT KITCHEN
 async function copyKitchen(id){
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()+(b.event_time?' kl '+b.event_time.slice(0,5):'');
-  let text=b.name+'\n'+ds+'\n'+'─'.repeat(32)+'\n\n';
+  const bestellningar=(orders||[]).length;
+  const gastInfo=b.expected_guests?bestellningar+' av '+b.expected_guests+' gäster har beställt':bestellningar+' beställningar';
+  let text=b.name+'\n'+ds+'\n'+gastInfo+'\n'+'─'.repeat(32)+'\n\n';
   const byCat={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
     const c=oi.menu_items?.menu_categories?.label||'?';
