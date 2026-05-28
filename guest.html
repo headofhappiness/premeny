@@ -296,6 +296,7 @@ async function submitOrder(){
   btn.disabled=true;btn.textContent='Sparar...';
   try{
     categories.forEach(cat=>{
+      const selId=gSel[cat.id];
       const ta=document.querySelector('#cmtwrap_'+selId+' textarea');
       if(ta)gComments[selId]=ta.value;
     });
