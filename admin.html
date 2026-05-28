@@ -11,7 +11,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
-.logo{font-family:"Outfit",sans-serif;font-weight:500;font-size:1.15rem;color:var(--dark)}.logo span{color:var(--gold)}
+.logo{font-family:"Playfair Display",serif;font-weight:400;font-size:1.4rem;letter-spacing:.02em;color:var(--dark);cursor:pointer}.logo span{color:var(--gold)}
 .page{max-width:780px;margin:0 auto;padding:2rem 1.25rem 5rem}
 h1{font-family:"Playfair Display",serif;font-size:1.9rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
 h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:var(--dark)}
@@ -298,9 +298,9 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         </div>
       </div>
 
-      <div id="newCatForm" style="display:none" class="card">
+      <div id="newCatForm" style="display:none;margin-bottom:1rem" class="card">
         <div class="card-label">Ny menyrubrik</div>
-        <div class="ff"><label>Namn</label><input type="text" id="nc-name" placeholder="T.ex. Förrätter, Varmrätt, Dessert..."></div>
+        <div class="ff"><label>Namn</label><input type="text" id="nc-name" placeholder="T.ex. Förrätter, Varmrätt, Dessert..." onkeydown="if(event.key==='Enter')addCat()"></div>
         <div class="fg"><button class="btn bp" onclick="addCat()">Skapa</button><button class="btn bg" onclick="toggleNC()">Avbryt</button></div>
       </div>
       <div id="menuEditor" style="margin-top:0"></div>
@@ -1289,6 +1289,14 @@ function renderCal(){
 
 function toggleCalDay(ds){calSel.has(ds)?calSel.delete(ds):calSel.add(ds);renderCal();}
 function calClear(){calSel.clear();renderCal();}
+async function archiveFromCal(id){
+  if(!confirm('Arkivera bokningen? Den kan återställas från Arkiv.'))return;
+  await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
+  await initCalendar();
+  await renderCalResults();
+  renderBookings();
+}
+
 async function delBookingFromCal(id){
   if(!confirm('Ta bort bokningen? Den kan återställas från Arkiv.'))return;
   await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
@@ -1381,9 +1389,10 @@ async function renderCalResults(){
     const ordered=(b.orders||[]).length;
     const total=b.expected_guests||0;
     const sc=total>0&&ordered>=total?'#3a7d44':ordered>0?'var(--gold)':'var(--muted)';
-    return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:13px">
-      <span style="color:var(--muted)">${ds}: <span style="color:var(--dark)">${b.name}</span>${b.event_time?' kl '+b.event_time.slice(0,5):''}</span>
-      <span style="color:${sc};font-weight:500;flex-shrink:0;margin-left:8px">${ordered}${total?' / '+total:''} beställt</span>
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;gap:8px">
+      <span style="color:var(--muted);flex:1">${ds}: <span style="color:var(--dark)">${b.name}</span>${b.event_time?' kl '+b.event_time.slice(0,5):''}</span>
+      <span style="color:${sc};font-weight:500;flex-shrink:0">${ordered}${total?' / '+total:''} beställt</span>
+      <button class="btn bd" style="font-size:10px;padding:3px 8px;flex-shrink:0" onclick="archiveFromCal('${b.id}')">Arkivera</button>
     </div>`;
   }).join('');
 
@@ -1706,13 +1715,15 @@ async function renderMenu(keepOpen){
     if(!btnsEl)return;
     var btnNy=document.createElement('button');btnNy.className='btn bg';btnNy.style.fontSize='12px';btnNy.textContent='+ Ny rubrik';
     btnNy.addEventListener('click',function(e){e.stopPropagation();activeMenuId=m.id;toggleNC();});
+    var btnRename=document.createElement('button');btnRename.className='btn bg';btnRename.style.fontSize='12px';btnRename.textContent='Byt namn';
+    btnRename.addEventListener('click',function(e){e.stopPropagation();renameMenu(m.id,m.name);});
     var btnKopiera=document.createElement('button');btnKopiera.className='btn bg';btnKopiera.style.fontSize='12px';btnKopiera.textContent='Kopiera meny';
     btnKopiera.addEventListener('click',function(e){e.stopPropagation();copyMenu(m.id);});
     var btnArkivera=document.createElement('button');btnArkivera.className='btn bg';btnArkivera.style.fontSize='12px';btnArkivera.textContent='Arkivera meny';
     btnArkivera.addEventListener('click',function(e){e.stopPropagation();archiveMenu(m.id);});
     var btnDel=document.createElement('button');btnDel.className='btn bd';btnDel.style.fontSize='12px';btnDel.textContent='Ta bort meny';
     btnDel.addEventListener('click',function(e){e.stopPropagation();deleteMenu(m.id);});
-    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
+    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
   });
 }
 
@@ -1856,7 +1867,17 @@ async function loadMenuItems(menuId){
 
 // ─── HULPFUNKTIONER MENY ─────────────────────────────────────────────
 function showNewMenuForm(){document.getElementById('newMenuForm').style.display='block';}
-function toggleNC(){var f=document.getElementById('newCatForm');if(f)f.style.display=f.style.display==='none'?'block':'none';}
+function toggleNC(){
+  var f=document.getElementById('newCatForm');
+  if(!f)return;
+  var isHidden=f.style.display==='none'||f.style.display==='';
+  f.style.display=isHidden?'block':'none';
+  if(isHidden){
+    f.scrollIntoView({behavior:'smooth',block:'nearest'});
+    var inp=document.getElementById('nc-name');
+    if(inp){inp.value='';inp.focus();}
+  }
+}
 function showAI(catId){var el=document.getElementById('ai_'+catId);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function editItem(id){var el=document.getElementById('iedit_'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function switchImportTab(tab){
@@ -1883,7 +1904,12 @@ async function addCat(){
   if(error){alert('Fel: '+error.message);return;}
   document.getElementById('nc-name').value='';
   var f=document.getElementById('newCatForm');if(f)f.style.display='none';
-  await renderMenu();
+  await renderMenu(true);
+  // Scrolla till menyinnehållet efter uppdatering
+  setTimeout(function(){
+    var el=document.getElementById('mcontent_'+activeMenuId);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },300);
 }
 async function saveSettings(){
   var restName=document.getElementById('set-name')?document.getElementById('set-name').value.trim():rest.name;
@@ -2032,6 +2058,15 @@ async function delCat(catId){
   await db.from('menu_categories').delete().eq('id',catId);
   await renderMenu(true);
 }
+async function renameMenu(id, currentName){
+  var newName=prompt('Nytt namn på menyn:',currentName);
+  if(!newName||!newName.trim()||newName.trim()===currentName)return;
+  var {error}=await db.from('menus').update({name:newName.trim()}).eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  activeMenuId=id; // Säkerställ att rätt meny är aktiv
+  await renderMenu(true);
+}
+
 async function copyMenu(id){
   var src=menus.find(m=>m.id===id);if(!src)return;
   var newName=prompt('Namn på den kopierade menyn:',src.name+' (kopia)');
