@@ -132,11 +132,19 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <div style="font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--dark);margin-bottom:.25rem">Pre<span style="color:var(--gold)">Meny</span></div>
     <p style="font-size:14px;color:var(--muted);margin:.25rem 0 1.5rem">Välkommen att hantera era förbeställningar.</p>
     <div id="loginMsg" style="display:none" class="msg merr"></div>
-    <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <div class="ff"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="btn bp bfull" style="padding:13px" onclick="doLogin()">Logga in</button>
-    <div style="margin-top:1rem;text-align:center">
-      <button onclick="forgotPassword()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline">Glömt lösenord?</button>
+    <div id="loginForm">
+      <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="ff"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn bp bfull" style="padding:13px" onclick="doLogin()">Logga in</button>
+      <div style="margin-top:1rem;text-align:center">
+        <button onclick="forgotPassword()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline">Glömt lösenord?</button>
+      </div>
+    </div>
+    <div id="resetForm" style="display:none">
+      <p style="font-size:14px;color:var(--muted);margin-bottom:1rem">Ange ditt nya lösenord.</p>
+      <div class="ff"><label>Nytt lösenord</label><input type="password" id="newPass1" placeholder="••••••••" onkeydown="if(event.key==='Enter')doResetPassword()"></div>
+      <div class="ff"><label>Upprepa lösenord</label><input type="password" id="newPass2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doResetPassword()"></div>
+      <button class="btn bp bfull" style="padding:13px" onclick="doResetPassword()">Spara nytt lösenord</button>
     </div>
   </div>
 </div>
@@ -429,6 +437,31 @@ async function doLogin(){
   if(error){const m=document.getElementById('loginMsg');m.style.display='block';m.textContent='Fel e-post eller lösenord.';return;}
   initAdmin();
 }
+// Kolla om användaren kommer från återställningslänk
+db.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('resetForm').style.display = 'block';
+    const m = document.getElementById('loginMsg');
+    m.style.display = 'block';
+    m.className = 'msg mok';
+    m.textContent = 'Ange ditt nya lösenord nedan.';
+  }
+});
+
+async function doResetPassword(){
+  const p1 = document.getElementById('newPass1').value;
+  const p2 = document.getElementById('newPass2').value;
+  const m = document.getElementById('loginMsg');
+  m.style.display = 'block';
+  if(!p1 || p1.length < 6){ m.className='msg merr'; m.textContent='Lösenordet måste vara minst 6 tecken.'; return; }
+  if(p1 !== p2){ m.className='msg merr'; m.textContent='Lösenorden matchar inte.'; return; }
+  const {error} = await db.auth.updateUser({password: p1});
+  if(error){ m.className='msg merr'; m.textContent='Fel: '+error.message; return; }
+  m.className='msg mok'; m.textContent='✓ Lösenordet är uppdaterat! Loggar in...';
+  setTimeout(() => { initAdmin(); }, 1500);
+}
+
 async function forgotPassword(){
   const email=document.getElementById('loginEmail').value.trim();
   if(!email){
@@ -907,7 +940,7 @@ async function sendSummary(id,ch){
   // Öppna mejl eller SMS
   if(ch==='email'){
     const {data:{session}}=await db.auth.getSession();
-    const guestLink='https://premeny.se/guest.html?r='+rest.id+'&b='+b.id;
+    const guestLink='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
     const res=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
