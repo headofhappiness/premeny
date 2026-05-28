@@ -4,637 +4,2167 @@
 <link rel="icon" type="image/png" href="PM_logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Demo – PreMeny</title>
+<title>Demo – PreMeny</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--bs:#d4ccc0;--gold:#b8955a;--dark:#1a1712;--text:#1a1712;--muted:#5a5248;--red:#c0392b}
 *{box-sizing:border-box;margin:0;padding:0}
+.demo-banner{background:linear-gradient(135deg,rgba(184,149,90,.15),rgba(184,149,90,.08));border-bottom:2px solid rgba(184,149,90,.3);padding:.7rem 1.5rem;text-align:center;font-size:13px;color:#6a5030;position:sticky;top:0;z-index:20}
+.demo-banner a{color:var(--gold);font-weight:500;text-decoration:none}
+.demo-banner a:hover{text-decoration:underline}
+.demo-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 24px;border-radius:100px;font-size:14px;z-index:1000;display:none;box-shadow:0 4px 24px rgba(0,0,0,.2);animation:slideUp .2s ease}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(10px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
 body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
-.logo{font-family:"Playfair Display",serif;font-size:1.15rem;color:var(--dark)}.logo span{color:var(--gold)}
-.demo-badge{background:rgba(184,149,90,.12);border:1px solid rgba(184,149,90,.3);border-radius:100px;padding:3px 12px;font-size:11px;color:var(--gold);font-weight:500;letter-spacing:.05em}
+.logo{font-family:"Playfair Display",serif;font-weight:400;font-size:1.4rem;letter-spacing:.02em;color:var(--dark);cursor:pointer}.logo span{color:var(--gold)}
 .page{max-width:780px;margin:0 auto;padding:2rem 1.25rem 5rem}
 h1{font-family:"Playfair Display",serif;font-size:1.9rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
 h3{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:400;color:var(--dark)}
 .gold-line{width:32px;height:1px;background:var(--gold);margin:.5rem 0 1.25rem;opacity:.7}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:14px;font-weight:500;cursor:default;border:1px solid transparent;white-space:nowrap}
-.bp{background:var(--dark);color:#fff}.bo{background:var(--gold);color:#fff}.bg{background:transparent;border-color:var(--border);color:var(--muted)}.bd{background:transparent;border-color:#e8d0d0;color:#a05050}
+.card-label{font-size:15px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
+input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:"Outfit",sans-serif;font-size:16px;color:var(--text);outline:none;transition:border-color .2s;resize:none;font-weight:300}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);background:var(--surface)}
+label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ff{margin-bottom:.75rem}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:12px 18px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;border:1px solid transparent;white-space:nowrap;min-height:44px}
+.bp{background:var(--dark);color:#fff;border-color:var(--dark)}.bp:hover{background:#2d2820}
+.bg{background:transparent;border-color:var(--border);color:var(--muted)}.bg:hover{border-color:var(--dark);color:var(--dark)}
+.bo{background:var(--gold);color:#fff;border-color:var(--gold)}.bo:hover{opacity:.9}
+.bd{background:transparent;border-color:#e8d0d0;color:#a05050}.bd:hover{border-color:var(--red);color:var(--red)}
+.bfull{width:100%;justify-content:center;padding:13px}
 .tabs{display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap}
-.tab{background:transparent;border:1px solid var(--border);border-radius:100px;padding:9px 16px;font-family:"Outfit",sans-serif;font-size:15px;color:var(--muted);cursor:pointer;transition:all .2s}
+.tab{background:transparent;border:1px solid var(--border);border-radius:100px;padding:9px 16px;font-family:"Outfit",sans-serif;font-size:15px;color:var(--muted);cursor:pointer;transition:all .2s;min-height:44px}
 .tab:hover{border-color:var(--dark);color:var(--dark)}.tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.dtab{background:transparent;border:1px solid var(--border);border-radius:100px;padding:8px 14px;font-family:"Outfit",sans-serif;font-size:15px;color:var(--muted);cursor:pointer;transition:all .2s;min-height:44px}
+.dtab:hover{border-color:var(--dark);color:var(--dark)}.dtab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
 .bcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem;transition:border-color .2s}
 .bcard:hover{border-color:var(--bs)}.bcard.open{border-color:var(--gold)}
 .bhead{display:flex;justify-content:space-between;align-items:flex-start;cursor:pointer}
 .bname{font-family:"Playfair Display",serif;font-size:1.15rem;color:var(--dark)}
-.bmeta{font-size:14px;color:var(--muted);margin-top:3px}
-.pill{border-radius:100px;padding:5px 12px;font-size:13px;font-weight:500}
+.bmeta{font-size:15px;color:var(--muted);margin-top:3px}
+.pill{border-radius:100px;padding:6px 12px;font-size:13px;font-weight:500}
 .po{background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.25);color:var(--gold)}
 .pc{background:#fdf2f2;border:1px solid #e8c0c0;color:#a05050}
+.pa{background:var(--surface2);border:1px solid var(--bs);color:var(--muted)}
 .bdetail{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;display:none}
 .bcard.open .bdetail{display:block}
-.info-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;font-size:14px;margin-bottom:.75rem}
-.prog-wrap{flex:1;background:var(--border);border-radius:100px;height:6px;overflow:hidden}
-.prog-fill{height:100%;background:var(--gold);border-radius:100px}
 .menu-item-row{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}
 .menu-item-row:last-child{border-bottom:none}
-.menu-item-name{font-size:15px;font-weight:500;color:var(--dark)}
-.menu-item-desc{font-size:13px;color:var(--muted);margin-top:2px}
-.menu-item-price{font-size:14px;color:var(--gold);margin-left:auto;flex-shrink:0;padding-left:12px}
-.pane{display:none}.pane.active{display:block}
-.kitchen-cat{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem}
-.kitchen-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:15px}
-.kitchen-row:last-child{border-bottom:none}
-.bar-wrap{display:flex;align-items:center;gap:8px}
-.bar-bg{width:80px;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
-.bar-fill{height:100%;background:var(--gold);border-radius:3px}
-/* Kalender */
-.cal-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;max-width:440px}
-.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
-.cal-nav{background:none;border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
-.cal-nav:hover{border-color:var(--gold);color:var(--gold)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-dow{font-size:11px;color:var(--muted);text-align:center;padding:4px 0;font-weight:500}
-.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:14px;cursor:pointer;position:relative;transition:all .15s;border:1px solid transparent}
+.menu-item-info{flex:1}
+.menu-item-name{font-size:14px;font-weight:500;color:var(--dark)}
+.menu-item-desc{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+.menu-item-price{font-size:13px;color:var(--gold);font-weight:500;white-space:nowrap;margin-top:2px;flex-shrink:0}
+.linkbox{font-size:12px;color:var(--gold);font-family:monospace;word-break:break-all;padding:8px 12px;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:6px;margin:.5rem 0}
+.trow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
+.trow:last-child{border-bottom:none}
+.tn{flex:1}.tbw{width:60px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.tb{height:100%;background:var(--gold);border-radius:2px}.tnr{font-weight:500;color:var(--gold);min-width:20px;text-align:right;font-size:13px}
+.chead{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 .4rem}
+.chead:first-child{margin-top:0}
+.abox{background:#fffbec;border:1px solid #e8d898;border-radius:10px;padding:1rem 1.1rem;margin-top:1rem}
+.ahead{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#8a7020;margin-bottom:.75rem}
+.aitem{font-size:13px;color:#4a3a10;padding:5px 0;border-bottom:1px solid #e8d898;line-height:1.6}
+.aitem:last-child{border-bottom:none}
+.grow{display:flex;align-items:flex-start;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.grow:last-child{border-bottom:none}
+.msg{padding:11px 16px;border-radius:8px;font-size:13px;margin-bottom:1rem;border:1px solid}
+.mok{background:#f2f8ec;color:#3a6020;border-color:#c8e0a8}
+.merr{background:#fdf2f2;color:#8a2020;border-color:#e8c0c0}
+.fb{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.fg{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:14px}
+.login-wrap{max-width:380px;margin:4rem auto;padding:2.5rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;box-shadow:0 4px 32px rgba(0,0,0,.06)}
+.spinner{width:14px;height:14px;border:2px solid rgba(184,149,90,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* BULK */
+.bulk-sec{background:rgba(184,149,90,.05);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem}
+.bulk-head{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
+.bulk-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(184,149,90,.12)}
+.bulk-row:last-child{border-bottom:none}
+.bulk-qty{width:65px;text-align:center;padding:7px 8px;font-size:15px;font-weight:500;flex-shrink:0}
+.bulk-cmt{padding:7px 10px;font-size:13px}
+
+/* QR MODAL */
+.qr-overlay{position:fixed;inset:0;background:rgba(26,23,18,.6);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem}
+.qr-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:360px;width:100%;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,.15)}
+
+/* CALENDAR */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.cal-m{font-family:"Playfair Display",serif;font-size:1rem;color:var(--dark)}
+.cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+.cal-dn{text-align:center;font-size:10px;color:var(--muted);font-weight:500;padding:2px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid transparent;transition:all .15s;position:relative;flex-direction:column;gap:1px}
 .cal-day:hover{background:var(--surface2);border-color:var(--border)}
-.cal-day.has-booking{font-weight:500;color:var(--dark)}
-.cal-day.has-booking::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold)}
-.cal-day.selected{background:var(--gold);color:#fff;border-color:var(--gold)}
-.cal-day.selected::after{background:#fff}
-.cal-day.today{border-color:var(--gold);color:var(--gold)}
-.cal-day.other-month{color:var(--bs)}
-.cal-results{animation:fadeIn .2s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.demo-banner{background:rgba(184,149,90,.08);border-bottom:1px solid rgba(184,149,90,.2);padding:.6rem 1.5rem;text-align:center;font-size:13px;color:var(--gold)}
-.demo-banner a{color:var(--gold);font-weight:500}
-@media(max-width:600px){.page{padding:1.5rem 1rem 4rem}}
+.cal-day.has{background:rgba(184,149,90,.12);border-color:rgba(184,149,90,.3);color:var(--dark);font-weight:500}
+.cal-day.sel{background:var(--gold);color:#fff;border-color:var(--gold)}
+.cal-day.other{opacity:.25;cursor:default}
+.cal-day.today{border-color:var(--gold)}
+.cal-dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.7}
+
+/* SETTINGS */
+.set-section{border-bottom:1px solid var(--border);padding-bottom:1.25rem;margin-bottom:1.25rem}
+.set-section:last-child{border-bottom:none;margin-bottom:0}
+
+@media(max-width:600px){
+  body{font-size:17px}
+  .r2,.r3{grid-template-columns:1fr}
+  .page{padding:1.5rem 1rem 4rem}
+  .bhead{flex-direction:column;gap:.5rem}
+  h1{font-size:22px}
+  h3{font-size:20px}
+  .card-label, label, .bmeta, .pill, .trow, .tnr, .aitem, .grow, .bulk-cmt, .empty, .cal-dn, .linkbox{font-size:14px}
+  .btn, .tab, .dtab{font-size:17px;min-height:50px;padding:12px 18px}
+  .tab, .dtab{padding:10px 16px}
+  .linkbox{font-size:14px}
+  .cal-day{font-size:14px;min-height:50px;padding:12px 0}
+  .msg{font-size:14px}
+  .login-wrap p{font-size:14px !important}
+  .nav-rest{font-size:14px !important}
+  .page p{font-size:17px !important}
+  input,textarea,select{font-size:16px}
+}
 </style>
 </head>
 <body>
 
 <div class="demo-banner">
-  🎯 Detta är en demo av PreMeny &nbsp;·&nbsp; <a href="https://premeny.se/premeny_demo.html" target="_blank">Se hur det ser ut för dina gäster →</a>
+  🎯 <strong>Demo</strong> — Utforska PreMeny utan att logga in &nbsp;·&nbsp; 
+  <a href="https://premeny.se/guest.html?r=demo&b=demo" target="_blank">Se hur det ser ut för dina gäster →</a>
+  &nbsp;·&nbsp; <a href="https://premeny.se" target="_blank">Skapa ett konto</a>
+</div>
+<div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
+
+<div class="demo-banner">
+  🎯 <strong>Demo</strong> — Utforska PreMeny utan att logga in &nbsp;·&nbsp; 
+  <a href="https://premeny.se/guest.html?r=demo&b=demo" target="_blank">Se hur det ser ut för dina gäster →</a>
+  &nbsp;·&nbsp; <a href="https://premeny.se" target="_blank">Skapa ett konto</a>
+</div>
+<div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
+<div id="loginPage" style="display:none">
+  <div class="login-wrap">
+    <div style="font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--dark);margin-bottom:.25rem">Pre<span style="color:var(--gold)">Meny</span></div>
+    <p style="font-size:14px;color:var(--muted);margin:.25rem 0 1.5rem">Välkommen att hantera era förbeställningar.</p>
+    <div id="loginMsg" style="display:none" class="msg merr"></div>
+    <div id="loginForm">
+      <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="ff"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn bp bfull" style="padding:13px" onclick="doLogin()">Logga in</button>
+      <div style="margin-top:1rem;text-align:center">
+        <button onclick="forgotPassword()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline">Glömt lösenord?</button>
+      </div>
+    </div>
+    <div id="resetForm" style="display:none">
+      <p style="font-size:14px;color:var(--muted);margin-bottom:1rem">Ange ditt nya lösenord.</p>
+      <div class="ff"><label>Nytt lösenord</label><input type="password" id="newPass1" placeholder="••••••••" onkeydown="if(event.key==='Enter')doResetPassword()"></div>
+      <div class="ff"><label>Upprepa lösenord</label><input type="password" id="newPass2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doResetPassword()"></div>
+      <button class="btn bp bfull" style="padding:13px" onclick="doResetPassword()">Spara nytt lösenord</button>
+    </div>
+  </div>
 </div>
 
-<nav class="nav">
-  <div style="display:flex;align-items:center;gap:10px">
-    <img src="PM_logo.png" style="width:30px;height:30px;border-radius:50%">
-    <div class="logo">Pre<span>Meny</span></div>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px">
-    <span style="font-size:14px;color:var(--muted)">Din Restaurang</span>
-    <div class="demo-badge">DEMO</div>
-  </div>
-</nav>
+<div id="adminPage">
+  <nav class="nav">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div id="nav-logo-wrap" style="display:none"></div>
+      <div class="logo">Pre<span>Meny</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:13px;color:var(--muted)" id="restName"></span>
+      <a href="https://premeny.se" class="btn bp" style="padding:6px 14px;font-size:12px;text-decoration:none">Skapa konto →</a>
+    </div>
+  </nav>
 
-<div class="page">
-  <h1>Admin</h1>
-  <div class="gold-line"></div>
-
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('bookings',this)">Bokningar</button>
-    <button class="tab" onclick="showTab('cal',this)">Dagsöversikt</button>
-    <button class="tab" onclick="showTab('menus',this)">Menyer</button>
-    <button class="tab" onclick="showTab('settings',this)">⚙ Inställningar</button>
-  </div>
-
-  <!-- ═══════════════════════════════════════════ BOKNINGAR -->
-  <div id="pane-bookings" class="pane active">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-      <h3>Aktiva bokningar</h3>
-      <button class="btn bp" style="font-size:13px;padding:9px 16px" onclick="demoAlert()">+ Ny bokning</button>
+  <div class="page">
+    <div class="fb"><div><h1>Demo</h1><div class="gold-line"></div></div></div>
+    <div class="tabs">
+      <button class="tab active" id="tab-bookings" onclick="showTab('bookings')">Bokningar</button>
+      <button class="tab" id="tab-calendar" onclick="showTab('calendar')">Dagsöversikt</button>
+      <button class="tab" id="tab-menu" onclick="showTab('menu')">Menyer</button>
+      <button class="tab" id="tab-archive" onclick="showTab('archive')">Arkiv</button>
+      <button class="tab" id="tab-settings" onclick="showTab('settings')">⚙ Inställningar</button>
     </div>
 
-    <!-- Bokning 1 -->
-    <div class="bcard open">
-      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="bname">Familjen Lindström</div>
-            <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
+    <!-- BOKNINGAR -->
+    <div id="pane-bookings">
+      <div class="fb"><h3>Aktiva bokningar</h3><button class="btn bp" onclick="toggleNB()">+ Ny bokning</button></div>
+      <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:13px;color:#6a5030;line-height:1.6">✉ Påminnelser skickas automatiskt – men aldrig om alla gäster redan svarat.</div>
+      <div id="newBookingForm" style="display:none" class="card">
+        <div class="card-label">Skapa ny bokning</div>
+        <div class="r2">
+          <div class="ff"><label>Sällskapets namn</label><input type="text" id="nb-name" placeholder="T.ex. Bröllop Karlsson"></div>
+          <div class="ff"><label>Datum</label><input type="date" id="nb-date"></div>
+        </div>
+        <div class="r3">
+          <div class="ff"><label>Klockslag</label><input type="time" id="nb-time" value="18:00"></div>
+          <div class="ff"><label>Typ av sittning</label>
+            <select id="nb-event-type">
+              <option value="Middag">Middag</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Brunch">Brunch</option>
+              <option value="Mingel">Mingel</option>
+              <option value="Frukost">Frukost</option>
+              <option value="Konferens">Konferens</option>
+              <option value="Bröllop">Bröllop</option>
+              <option value="Kalas">Kalas</option>
+              <option value="Annat">Annat</option>
+            </select>
           </div>
-          <div class="bmeta">27 jun 2026 kl 18:00 · Sista beställning: 22 jun</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:.6rem">
-            <div style="font-size:13px;color:var(--muted)">18 av 24 beställt</div>
-            <div class="prog-wrap"><div class="prog-fill" style="width:75%"></div></div>
+          <div class="ff"><label>Antal gäster (förväntat)</label><input type="number" id="nb-guests" placeholder="30" min="1"></div>
+          <div class="ff"><label>Sista beställningsdag</label><input type="date" id="nb-deadline"></div>
+        </div>
+        <div class="r3">
+          <div class="ff"><label>Kontaktpersonens namn</label><input type="text" id="nb-contact" placeholder="Anna Karlsson"></div>
+          <div class="ff"><label>E-post</label><input type="email" id="nb-email" placeholder="anna@email.se"></div>
+          <div class="ff"><label>Telefon</label><input type="tel" id="nb-phone" placeholder="+46 70 123 45 67"></div>
+        </div>
+        <div class="r2">
+          <div class="ff"><label>Meny</label>
+            <select id="nb-menu">
+              <option value="">Välj meny...</option>
+            </select>
+          </div>
+          <div class="ff"></div>
+          <div class="ff"><label>Påminnelse</label>
+            <select id="nb-reminder">
+              <option value="0">Ingen påminnelse</option>
+              <option value="1">1 dag innan sista beställningsdag</option>
+              <option value="2" selected>2 dagar innan sista beställningsdag</option>
+              <option value="3">3 dagar innan sista beställningsdag</option>
+              <option value="5">5 dagar innan sista beställningsdag</option>
+              <option value="7">1 vecka innan sista beställningsdag</option>
+              <option value="10">10 dagar innan sista beställningsdag</option>
+              <option value="14">2 veckor innan sista beställningsdag</option>
+            </select>
+          </div>
+          <div class="ff"><label>Påminnelse via</label>
+            <div style="display:flex;gap:1rem;margin-top:8px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:15px;color:var(--text);cursor:pointer">
+                <input type="checkbox" id="nb-remind-email" checked style="width:18px;height:18px;accent-color:var(--gold)"> Mejl
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:15px;color:var(--text);cursor:pointer">
+                <input type="checkbox" id="nb-remind-sms" style="width:18px;height:18px;accent-color:var(--gold)"> SMS
+              </label>
+            </div>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-          <span class="pill po">Öppen</span>
-          <div style="display:flex;gap:5px">
-            <button class="btn bg" style="font-size:11px;padding:4px 10px">Arkivera</button>
-            <button class="btn bd" style="font-size:11px;padding:4px 10px">Ta bort</button>
-          </div>
+        <div class="r2">
+          <div class="ff"><label>Bokningsansvarig (restaurangens personal)</label><input type="text" id="nb-responsible" placeholder="T.ex. Maria, Kalle..."></div>
+          <div class="ff"></div>
         </div>
+        <div class="ff"><label>Intern kommentar (visas ej för gäster)</label><textarea id="nb-comment" placeholder="T.ex. VIP-sällskap, kräver extra personal..."></textarea></div>
+        <div class="fg">
+          <button class="btn bp" onclick="createBooking()">Skapa bokning</button>
+          <button class="btn bg" onclick="toggleNB()">Avbryt</button>
+        </div>
+        <div id="nb-msg" style="display:none;margin-top:.75rem" class="msg"></div>
       </div>
-      <div class="bdetail">
-        <div class="info-box"><strong>Kontaktperson:</strong> Anna Lindström · anna@lindstrom.se · +46 70 123 45 67</div>
-        <div class="info-box">👤 Bokningsansvarig: Maria</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:.4rem">GÄSTLÄNK</div>
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem 1rem;font-size:13px;color:var(--muted);font-family:monospace;margin-bottom:.75rem">https://premeny.se/guest.html?r=dinrestaurang&b=abc123</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem">
-          <button class="btn bo" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka bekräftelse</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka länk via mejl</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">💬 Skicka länk via SMS</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">Kopiera länk</button>
-        </div>
-        <div style="background:#f2f8ec;border:1px solid #c8e0a8;border-radius:8px;padding:.7rem 1rem;font-size:13px;color:#3a6020;margin-bottom:.75rem">✓ 2026-06-15 kl 09:22 bekräftelse skickad till anna@lindstrom.se</div>
-        <div style="display:flex;gap:6px;margin-bottom:.75rem;border-bottom:1px solid var(--border);padding-bottom:.75rem">
-          <button class="btn bp" style="font-size:12px;padding:7px 14px">Sammanfattning</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px">Fyll i sällskap</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px">Gästlista</button>
-        </div>
-        <div class="kitchen-cat">HUVUDRÄTTER À LA CARTE</div>
-        <div class="kitchen-row"><span>Smörstekt torskrygg</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:55%"></div></div><strong>10</strong></div></div>
-        <div class="kitchen-row"><span>Entrecote</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:33%"></div></div><strong>6</strong></div></div>
-        <div class="kitchen-row"><span>Vegetarisk pasta</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:11%"></div></div><strong>2</strong></div></div>
-        <div class="kitchen-cat">FÖRRÄTTER À LA CARTE</div>
-        <div class="kitchen-row"><span>Toast Skagen</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:44%"></div></div><strong>8</strong></div></div>
-        <div class="kitchen-row"><span>Gubbröra med kavring</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:28%"></div></div><strong>5</strong></div></div>
-        <div class="kitchen-cat">EFTERRÄTTER À LA CARTE</div>
-        <div class="kitchen-row"><span>Chokladfondant</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:60%"></div></div><strong>11</strong></div></div>
-        <div class="kitchen-row"><span>Crème brûlée</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:28%"></div></div><strong>5</strong></div></div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:1rem">
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Kopiera sammanfattning</button>
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">🖨 Skriv ut</button>
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">📄 Ladda ner PDF</button>
-          <button class="btn bd" style="font-size:12px">Ta bort bokning</button>
-        </div>
-      </div>
+      <!-- SÖK -->
+    <div style="position:relative;margin-bottom:.75rem">
+      <input type="text" id="bookingSearch" placeholder="Sök på sällskap, kontaktperson, företag..." 
+        oninput="filterBookings()"
+        style="padding-left:36px;background:var(--surface)">
+      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">🔍</span>
+      <button id="clearSearch" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0">✕</button>
+    </div>
+    <div id="searchInfo" style="display:none;font-size:12px;color:var(--muted);margin-bottom:.5rem"></div>
+    <div id="bookingList" style="margin-top:.25rem"></div>
     </div>
 
-    <!-- Bokning 2 - Bröllop samma helg -->
-    <div class="bcard">
-      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="bname">Bröllop Persson–Holm</div>
-            <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
-          </div>
-          <div class="bmeta">28 jun 2026 kl 17:00 · Sista beställning: 23 jun</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:.6rem">
-            <div style="font-size:13px;color:var(--muted)">52 av 60 beställt</div>
-            <div class="prog-wrap"><div class="prog-fill" style="width:87%"></div></div>
-          </div>
+    <!-- KALENDER -->
+    <div id="pane-calendar" style="display:none">
+      <h3 style="margin-bottom:.25rem">Dagsöversikt</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Välj ett eller flera datum för att se beställningar och sammanställning.</p>
+      <div class="card" style="max-width:420px">
+        <div class="cal-nav">
+          <button class="btn bg" style="padding:6px 12px" onclick="calPrev()">←</button>
+          <div class="cal-m" id="calMonth"></div>
+          <button class="btn bg" style="padding:6px 12px" onclick="calNext()">→</button>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-          <span class="pill po">Öppen</span>
-          <div style="display:flex;gap:5px">
-            <button class="btn bg" style="font-size:11px;padding:4px 10px">Arkivera</button>
-            <button class="btn bd" style="font-size:11px;padding:4px 10px">Ta bort</button>
-          </div>
+        <div class="cal-hdr"><div class="cal-dn">Mån</div><div class="cal-dn">Tis</div><div class="cal-dn">Ons</div><div class="cal-dn">Tor</div><div class="cal-dn">Fre</div><div class="cal-dn">Lör</div><div class="cal-dn">Sön</div></div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div style="margin-top:.75rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="calClear()">Rensa val</button>
+          <span style="font-size:12px;color:var(--muted)" id="calSelInfo"></span>
         </div>
       </div>
-      <div class="bdetail">
-        <div class="info-box"><strong>Kontaktperson:</strong> Sara Persson · sara.persson@gmail.com · +46 73 456 78 90</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem">
-          <button class="btn bo" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka bekräftelse</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka länk via mejl</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">💬 Skicka länk via SMS</button>
-        </div>
-        <div class="kitchen-cat">HUVUDRÄTTER À LA CARTE</div>
-        <div class="kitchen-row"><span>Smörstekt torskrygg</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:50%"></div></div><strong>26</strong></div></div>
-        <div class="kitchen-row"><span>Entrecote</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:35%"></div></div><strong>18</strong></div></div>
-        <div class="kitchen-row"><span>Vegetarisk pasta</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:15%"></div></div><strong>8</strong></div></div>
-        <div class="kitchen-cat">EFTERRÄTTER</div>
-        <div class="kitchen-row"><span>Bröllopstårta</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:100%"></div></div><strong>52</strong></div></div>
-      </div>
+      <div id="calResults"></div>
     </div>
 
-    <!-- Bokning 3 - Konferens Volvo -->
-    <div class="bcard">
-      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="bname">Konferens Volvo</div>
-            <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
-          </div>
-          <div class="bmeta">4 jul 2026 kl 12:00 · Sista beställning: 1 jul</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:.6rem">
-            <div style="font-size:13px;color:var(--muted)">8 av 30 beställt</div>
-            <div class="prog-wrap"><div class="prog-fill" style="width:27%"></div></div>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-          <span class="pill po">Öppen</span>
-          <div style="display:flex;gap:5px">
-            <button class="btn bg" style="font-size:11px;padding:4px 10px">Arkivera</button>
-            <button class="btn bd" style="font-size:11px;padding:4px 10px">Ta bort</button>
-          </div>
-        </div>
+    <!-- MENY -->
+    <div id="pane-menu" style="display:none">
+      <div class="fb"><h3>Menyer</h3>
+        <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
       </div>
-      <div class="bdetail">
-        <div class="info-box"><strong>Kontaktperson:</strong> Erik Svensson · erik.svensson@volvo.com</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem">
-          <button class="btn bo" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka bekräftelse</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">✉ Skicka länk via mejl</button>
-          <button class="btn bg" style="font-size:12px;padding:7px 14px" onclick="demoAlert()">💬 Skicka länk via SMS</button>
-        </div>
-        <div class="kitchen-cat">LUNCHMENY</div>
-        <div class="kitchen-row"><span>Dagens soppa</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:37%"></div></div><strong>3</strong></div></div>
-        <div class="kitchen-row"><span>Lax med citronsmör</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:50%"></div></div><strong>4</strong></div></div>
-        <div class="kitchen-row"><span>Kycklingwrap</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:12%"></div></div><strong>1</strong></div></div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:1rem">
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Kopiera sammanfattning</button>
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">🖨 Skriv ut</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- Bokning 4 - Konferens Ericsson -->
-    <div class="bcard">
-      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="bname">Konferens Ericsson</div>
-            <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
-          </div>
-          <div class="bmeta">4 jul 2026 kl 18:30 · Sista beställning: 2 jul</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:.6rem">
-            <div style="font-size:13px;color:var(--muted)">22 av 22 beställt ✓</div>
-            <div class="prog-wrap"><div class="prog-fill" style="width:100%"></div></div>
-          </div>
+      <!-- Meny-väljare -->
+      <div id="menu-selector" style="margin-bottom:1rem;display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
+
+      <!-- Ny meny-formulär -->
+      <div id="newMenuForm" style="display:none" class="card">
+        <div class="ff"><label>Menyns namn</label><input type="text" id="nm-name" placeholder="T.ex. À la carte, Julbord, Bröllopsmeny..."></div>
+        <div class="ff"><label>Intern beskrivning <span style="font-size:11px;color:var(--muted)">(syns bara för dig)</span></label>
+          <textarea id="nm-desc" style="min-height:55px" placeholder="T.ex. Används vid bröllop, max 30 gäster, 2 förrätter..."></textarea>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-          <span class="pill pc">Stängd</span>
-          <div style="display:flex;gap:5px">
-            <button class="btn bg" style="font-size:11px;padding:4px 10px">Arkivera</button>
-            <button class="btn bd" style="font-size:11px;padding:4px 10px">Ta bort</button>
+        <div class="fg">
+          <button class="btn bp" onclick="createMenu()">Skapa meny</button>
+          <button class="btn bg" onclick="document.getElementById('newMenuForm').style.display='none'">Avbryt</button>
+        </div>
+      </div>
+
+      <div id="newCatForm" style="display:none;margin-bottom:1rem" class="card">
+        <div class="card-label">Ny menyrubrik</div>
+        <div class="ff"><label>Namn</label><input type="text" id="nc-name" placeholder="T.ex. Förrätter, Varmrätt, Dessert..." onkeydown="if(event.key==='Enter')addCat()"></div>
+        <div class="fg"><button class="btn bp" onclick="addCat()">Skapa</button><button class="btn bg" onclick="toggleNC()">Avbryt</button></div>
+      </div>
+      <div id="menuEditor" style="margin-top:0"></div>
+
+      <!-- AI MENYIMPORT -->
+      <div class="card" style="margin-top:1.5rem;background:rgba(184,149,90,.04);border:1px solid rgba(184,149,90,.18)">
+        <h3 style="margin-bottom:.25rem">Importera meny med AI</h3>
+        <div class="gold-line"></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Ladda upp en skärmdump från er hemsida eller klistra in text – AI:n tolkar menyn automatiskt och skapar rubriker och rätter.</p>
+        <div style="display:flex;gap:4px;margin-bottom:1rem">
+          <button class="btn bg" id="import-tab-text" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('text')">📝 Klistra in text</button>
+          <button class="btn bg" id="import-tab-image" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('image')">🖼 Ladda upp bild</button>
+        </div>
+        <div id="import-text-wrap">
+          <div class="ff"><label>Menytext</label><textarea id="menu-import-text" style="min-height:140px;font-size:13px" placeholder="Klistra in er meny här..."></textarea></div>
+        </div>
+        <div id="import-image-wrap" style="display:none">
+          <div class="ff"><label>Menybild (skärmdump)</label><input type="file" id="menu-import-image" accept="image/*" style="font-size:13px;color:var(--muted)"></div>
+          <div id="menu-img-preview" style="display:none;margin-top:.5rem"><img id="menu-img-preview-img" style="max-width:100%;border-radius:8px;border:1px solid var(--border)"></div>
+        </div>
+        <div id="import-warning" style="display:none;margin:.75rem 0" class="msg merr"></div>
+        <button class="btn bp" id="import-btn" onclick="importMenu()" style="margin-top:.5rem">✦ Importera meny</button>
+        <div id="import-loading" style="display:none;margin-top:1rem;font-size:13px;color:var(--muted)"><span class="spinner"></span> Tolkar menyn med AI...</div>
+        <div id="import-result" style="display:none;margin-top:1.25rem">
+          <div style="font-size:12px;font-weight:500;color:#3a6020;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:8px 12px;margin-bottom:.75rem">✓ Meny tolkad – granska och bekräfta nedan</div>
+          <div id="import-preview-content"></div>
+          <div style="display:flex;gap:8px;margin-top:1rem">
+            <button class="btn bp" onclick="confirmImport()">Lägg till i menyn</button>
+            <button class="btn bg" onclick="cancelImport()">Avbryt</button>
           </div>
         </div>
       </div>
     </div>
 
-  </div>
-
-  <!-- ═══════════════════════════════════════════ DAGSÖVERSIKT -->
-  <div id="pane-cal" class="pane">
-    <h3 style="margin-bottom:.25rem">Dagsöversikt</h3>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:1.25rem">Klicka på ett datum för att se sammanställning. Prickar visar dagar med bokningar.</p>
-
-    <div class="cal-wrap">
-      <div class="cal-header">
-        <button class="cal-nav" onclick="changeMonth(-1)">←</button>
-        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--dark)" id="calTitle"></div>
-        <button class="cal-nav" onclick="changeMonth(1)">→</button>
+    <!-- ARKIV -->
+    <div id="pane-archive" style="display:none">
+      <h3 style="margin-bottom:.25rem">Arkiv</h3>
+      <div class="gold-line"></div>
+      <div style="display:flex;gap:6px;margin-bottom:1.25rem">
+        <button class="tab active" id="arc-tab-bookings" onclick="switchArchiveTab('bookings')">Bokningar</button>
+        <button class="tab" id="arc-tab-menus" onclick="switchArchiveTab('menus')">Menyer</button>
       </div>
-      <div class="cal-grid" id="calGrid"></div>
-      <div style="display:flex;gap:8px;margin-top:1rem;align-items:center;flex-wrap:wrap">
-        <button class="btn bg" style="font-size:12px;padding:5px 14px" onclick="clearCalSel()">Rensa val</button>
-        <span id="calSelInfo" style="font-size:13px;color:var(--muted)">Inget datum valt</span>
+
+      <!-- Bokningar -->
+      <div id="arc-pane-bookings">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Bokningar vars datum passerat arkiveras automatiskt.</p>
+        <div style="position:relative;margin-bottom:.75rem">
+          <input type="text" id="archiveSearch" placeholder="Sök i arkiverade bokningar..." oninput="filterArchive()" style="padding-left:36px;background:var(--surface)">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">🔍</span>
+          <button id="clearArchiveSearch" onclick="clearArchiveSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0">✕</button>
+        </div>
+        <div id="archiveSearchInfo" style="display:none;font-size:12px;color:var(--muted);margin-bottom:.5rem"></div>
+        <div id="archiveList"></div>
       </div>
-    </div>
 
-    <div id="calResults"></div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════ MENYER -->
-  <div id="pane-menus" class="pane">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-      <h3>Menyer</h3>
-      <button class="btn bp" style="font-size:13px;padding:9px 16px" onclick="demoAlert()">+ Ny meny</button>
-    </div>
-
-    <!-- À la carte -->
-    <div class="bcard open">
-      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="bname">À la carte</div>
-          <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
-        </div>
-      </div>
-      <div class="bdetail">
-        <div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap">
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">+ Ny rubrik</button>
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Kopiera meny</button>
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Arkivera meny</button>
-        </div>
-        <div style="margin-bottom:1.5rem">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)">Förrätter</div>
-            <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="demoAlert()">+ Lägg till rätt</button>
-          </div>
-          <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Toast Skagen</div><div class="menu-item-desc">Räkröra, majonnäs, citron och röd rom på rostat bröd</div></div><div class="menu-item-price">105 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Gubbröra med kavring</div><div class="menu-item-desc">Matjessill, ägg, gräslök och rödlök på kavring</div></div><div class="menu-item-price">89 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetariska vårrullar</div><div class="menu-item-desc">Kål, morot, lime och sesamfrön med sweet chili</div></div><div class="menu-item-price">75 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-          </div>
-        </div>
-        <div style="margin-bottom:1.5rem">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)">Huvudrätter</div>
-            <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="demoAlert()">+ Lägg till rätt</button>
-          </div>
-          <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Smörstekt torskrygg</div><div class="menu-item-desc">Räkor, ägg, pepparrot, citron, skirat smör och kokt potatis</div></div><div class="menu-item-price">239 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Entrecote</div><div class="menu-item-desc">Bearnaisesås, pommes frites och säsongens sallad</div></div><div class="menu-item-price">289 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetarisk pasta</div><div class="menu-item-desc">Penne med pesto, parmesan och rostade pinjenötter</div></div><div class="menu-item-price">165 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-          </div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)">Efterrätter</div>
-            <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="demoAlert()">+ Lägg till rätt</button>
-          </div>
-          <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Chokladfondant</div><div class="menu-item-desc">Varm chokladkaka med flytande kärna, vaniljglass och bär</div></div><div class="menu-item-price">95 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Crème brûlée</div><div class="menu-item-desc">Klassisk crème brûlée med karamelliserat socker och färska bär</div></div><div class="menu-item-price">89 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Osttallrik</div><div class="menu-item-desc">Tre svenska ostar med kex, vindruvor och fikonmarmelad</div></div><div class="menu-item-price">115 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-          </div>
-        </div>
+      <!-- Menyer -->
+      <div id="arc-pane-menus" style="display:none">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Arkiverade menyer kan återställas eller raderas permanent.</p>
+        <div id="archiveMenuList"></div>
       </div>
     </div>
 
-    <!-- Lunchmeny -->
-    <div class="bcard">
-      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="bname">Lunchmeny</div>
-          <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
-        </div>
-      </div>
-      <div class="bdetail">
-        <div style="display:flex;gap:6px;margin-bottom:1rem">
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">+ Ny rubrik</button>
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Arkivera meny</button>
-        </div>
-        <div style="margin-bottom:1.5rem">
-          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Soppor</div>
-          <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Dagens soppa</div><div class="menu-item-desc">Serveras med bröd och smör. Fråga personalen om dagens sort</div></div><div class="menu-item-price">95 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Hummerbisque</div><div class="menu-item-desc">Krämig hummerbuljong med grädde, konjak och rostad baguette</div></div><div class="menu-item-price">145 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
+    <!-- INSTÄLLNINGAR -->
+    <div id="pane-settings" style="display:none">
+      <h3 style="margin-bottom:.25rem">Restauranginställningar</h3>
+      <div class="gold-line"></div>
+      <div class="card">
+        <div class="set-section">
+          <div class="card-label">Restauranginformation</div>
+          <div class="ff"><label>Restaurangens namn</label><input type="text" id="set-name" placeholder="T.ex. Brunsbo Gästgiveri"></div>
+          <div class="r2">
+            <div class="ff"><label>Telefon</label><input type="tel" id="set-phone" placeholder="+46 35 123 45 67"></div>
+            <div class="ff"><label>E-post</label><input type="email" id="set-email" placeholder="info@restaurangen.se"></div>
           </div>
+          <div class="ff"><label>Adress</label><input type="text" id="set-address" placeholder="Storgatan 1, 123 45 Stad"></div>
+          <div class="ff"><label>Webbplats</label><input type="text" id="set-website" placeholder="www.restaurangen.se"></div>
         </div>
-        <div style="margin-bottom:1.5rem">
-          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Varmrätter</div>
-          <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Lax med citronsmör</div><div class="menu-item-desc">Ugnsrostad lax med citronsåssmör, haricots verts och kokt potatis</div></div><div class="menu-item-price">155 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Kycklingwrap</div><div class="menu-item-desc">Grillad kyckling, avokado, sallad och chilidressing i tortillabröd</div></div><div class="menu-item-price">135 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Vegetarisk quiche</div><div class="menu-item-desc">Ostig paj med spenat, tomat och rödlök. Serveras med sallad</div></div><div class="menu-item-price">125 kr</div><button class="btn bg" style="font-size:11px;padding:4px 8px">Redigera</button></div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Julbord 2026 -->
-    <div class="bcard">
-      <div class="bhead" onclick="this.closest('.bcard').classList.toggle('open')">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="bname">Julbord 2026</div>
-          <span style="font-size:12px;color:var(--gold)">Se mer ›</span>
-        </div>
-      </div>
-      <div class="bdetail">
-        <div style="display:flex;gap:6px;margin-bottom:1rem">
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">+ Ny rubrik</button>
-          <button class="btn bg" style="font-size:12px" onclick="demoAlert()">Arkivera meny</button>
-        </div>
-        <div style="margin-bottom:1.5rem">
-          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Julbordet — Kallt</div>
-          <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Gravad lax</div><div class="menu-item-desc">Hemgravad lax med hovmästarsås och dill</div></div><div class="menu-item-price">–</div></div>
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Julskinka</div><div class="menu-item-desc">Traditionell julskinka med senap och ströbröd</div></div><div class="menu-item-price">–</div></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Sillbuffé</div><div class="menu-item-desc">Fyra sorters sill med tillbehör</div></div><div class="menu-item-price">–</div></div>
+        <div class="set-section">
+          <div class="card-label">Logotyp</div>
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+            <div id="logo-preview" style="width:80px;height:80px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+              <span style="font-size:12px;color:var(--muted)">Ingen logga</span>
+            </div>
+            <div>
+              <input type="file" id="set-logo" accept="image/*" style="display:none" onchange="previewLogo(this)">
+              <button class="btn bg" style="font-size:12px" onclick="document.getElementById('set-logo').click()">Välj bild</button>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px">PNG, JPG eller SVG. Max 2MB.</div>
+            </div>
           </div>
         </div>
-        <div style="margin-bottom:1.5rem">
-          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Julbordet — Varmt</div>
-          <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Prinskorv & revbensspjäll</div><div class="menu-item-desc">Klassiska julkorvar och långlagade revbensspjäll</div></div><div class="menu-item-price">–</div></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Janssons frestelse</div><div class="menu-item-desc">Krämig ansjovisgratin med potatis och lök</div></div><div class="menu-item-price">–</div></div>
-          </div>
-        </div>
-        <div>
-          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark);margin-bottom:.5rem">Dessert</div>
-          <div class="card" style="padding:.75rem">
-            <div class="menu-item-row"><div style="flex:1"><div class="menu-item-name">Ris à la Malta</div><div class="menu-item-desc">Med hallonsås och mandel</div></div><div class="menu-item-price">–</div></div>
-            <div class="menu-item-row" style="border-bottom:none"><div style="flex:1"><div class="menu-item-name">Pepparkaksglass</div><div class="menu-item-desc">Hemgjord glass med pepparkakskross och lingon</div></div><div class="menu-item-price">–</div></div>
-          </div>
-        </div>
-        <div style="margin-top:.75rem;font-size:13px;color:var(--muted)">Pris: 495 kr/person · Barn under 12 år 195 kr</div>
+
+        <button class="btn bp" onclick="saveSettings()">Spara inställningar</button>
+        <div id="set-msg" style="display:none;margin-top:.75rem" class="msg mok"></div>
       </div>
     </div>
   </div>
-
-  <!-- ═══════════════════════════════════════════ INSTÄLLNINGAR -->
-  <div id="pane-settings" class="pane">
-    <h3 style="margin-bottom:.5rem">Inställningar</h3>
-    <div class="gold-line"></div>
-    <div class="card">
-      <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">Restauranginformation</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.75rem">
-        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Telefon</div><input type="text" value="+46 35 123 45 67" readonly></div>
-        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">E-post</div><input type="text" value="info@dinrestaurang.se" readonly></div>
-        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Adress</div><input type="text" value="Storgatan 1, 123 45 Stad" readonly></div>
-        <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Webbplats</div><input type="text" value="www.dinrestaurang.se" readonly></div>
-      </div>
-      <button class="btn bp" style="font-size:13px" onclick="demoAlert()">Spara inställningar</button>
-    </div>
-  </div>
-
 </div>
 
+<!-- QR MODAL -->
+<div id="qrOverlay" class="qr-overlay" style="display:none" onclick="closeQR()">
+  <div class="qr-modal" onclick="event.stopPropagation()">
+    <h3 style="margin-bottom:.25rem" id="qrTitle">QR-kod</h3>
+    <p style="font-size:13px;color:var(--muted);margin:.25rem 0 1.25rem">Scanna för att komma till beställningssidan</p>
+    <div id="qrCanvas" style="display:flex;justify-content:center;margin-bottom:1rem"></div>
+    <p style="font-size:11px;color:var(--muted);word-break:break-all;margin-bottom:1rem" id="qrUrl"></p>
+    <div class="fg" style="justify-content:center">
+      <button class="btn bp" onclick="downloadQR()">Ladda ner PNG</button>
+      <button class="btn bg" onclick="closeQR()">Stäng</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>
-// ── Tab navigation ───────────────────────────────────────────────────
-function showTab(id, btn) {
-  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('pane-' + id).classList.add('active');
-  btn.classList.add('active');
-  if(id === 'cal') renderCal();
+// ─── HJÄLPFUNKTIONER ────────────────────────────────────────────────
+function showMsg(id,cls,txt){var el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=txt;}
+function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
+const SKEY='sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
+const {createClient}=supabase;
+const db=createClient(SURL,SKEY);
+const IS_DEMO=true;
+const DEMO_SLUG='demo';
+
+function demoBlock(){
+  const t=document.getElementById('demoToast');
+  t.style.display='block';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>{t.style.display='none';},2500);
+  return false;
+}
+let rest=null,cats=[],menus=[],activeMenuId=null,openB={},dtabs={};
+let calY=new Date().getFullYear(),calM=new Date().getMonth(),calDates={},calSel=new Set();
+
+// AUTH
+async function doLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  const {error}=await db.auth.signInWithPassword({email,password:pass});
+  if(error){const m=document.getElementById('loginMsg');m.style.display='block';m.textContent='Fel e-post eller lösenord.';return;}
+  initAdmin();
+}
+// Demo: ingen auth-hantering behövs
+
+async function doResetPassword(){
+  const p1 = document.getElementById('newPass1').value;
+  const p2 = document.getElementById('newPass2').value;
+  const m = document.getElementById('loginMsg');
+  m.style.display = 'block';
+  if(!p1 || p1.length < 6){ m.className='msg merr'; m.textContent='Lösenordet måste vara minst 6 tecken.'; return; }
+  if(p1 !== p2){ m.className='msg merr'; m.textContent='Lösenorden matchar inte.'; return; }
+  const {error} = await db.auth.updateUser({password: p1});
+  if(error){ m.className='msg merr'; m.textContent='Fel: '+error.message; return; }
+  m.className='msg mok'; m.textContent='✓ Lösenordet är uppdaterat! Loggar in...';
+  setTimeout(() => { initAdmin(); }, 1500);
 }
 
-function demoAlert(){
-  const msg = document.createElement('div');
-  msg.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1a1712;color:#fff;padding:10px 20px;border-radius:100px;font-size:14px;z-index:999;animation:fadeIn .2s ease';
-  msg.textContent = '✓ I din riktiga admin sparas detta direkt!';
-  document.body.appendChild(msg);
-  setTimeout(() => msg.remove(), 2500);
-}
-
-// ── Kalender ─────────────────────────────────────────────────────────
-const BOOKINGS = [
-  { name:'Familjen Lindström', date:'2026-06-27', time:'18:00', orders:18, total:24,
-    cats:[
-      {label:'HUVUDRÄTTER À LA CARTE', items:[['Smörstekt torskrygg',10],['Entrecote',6],['Vegetarisk pasta',2]]},
-      {label:'FÖRRÄTTER À LA CARTE', items:[['Toast Skagen',8],['Gubbröra med kavring',5]]},
-      {label:'EFTERRÄTTER', items:[['Chokladfondant',11],['Crème brûlée',5]]}
-    ]
-  },
-  { name:'Bröllop Persson–Holm', date:'2026-06-28', time:'17:00', orders:52, total:60,
-    cats:[
-      {label:'HUVUDRÄTTER', items:[['Smörstekt torskrygg',26],['Entrecote',18],['Vegetarisk pasta',8]]},
-      {label:'EFTERRÄTTER', items:[['Bröllopstårta',52]]}
-    ]
-  },
-  { name:'Konferens Volvo', date:'2026-07-04', time:'12:00', orders:8, total:30,
-    cats:[
-      {label:'LUNCHMENY', items:[['Dagens soppa',3],['Lax med citronsmör',4],['Kycklingwrap',1]]}
-    ]
-  },
-  { name:'Konferens Ericsson', date:'2026-07-04', time:'18:30', orders:22, total:22,
-    cats:[
-      {label:'HUVUDRÄTTER À LA CARTE', items:[['Smörstekt torskrygg',12],['Entrecote',8],['Vegetarisk pasta',2]]},
-      {label:'EFTERRÄTTER', items:[['Chokladfondant',14],['Crème brûlée',8]]}
-    ]
+async function forgotPassword(){
+  const email=document.getElementById('loginEmail').value.trim();
+  if(!email){
+    const m=document.getElementById('loginMsg');m.style.display='block';m.className='msg merr';m.textContent='Ange din e-postadress först.';return;
   }
-];
-
-const _now = new Date(); let calYear = _now.getFullYear(), calMonth = _now.getMonth(), calSel = new Set();
-const svMonths = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
-const svDow = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
-
-function renderCal(){
-  document.getElementById('calTitle').textContent = svMonths[calMonth] + ' ' + calYear;
-  const grid = document.getElementById('calGrid');
-  const bookingDates = new Set(BOOKINGS.map(b => b.date));
-
-  let html = svDow.map(d => `<div class="cal-dow">${d}</div>`).join('');
-
-  const first = new Date(calYear, calMonth, 1);
-  let startDow = first.getDay(); // 0=sun
-  startDow = startDow === 0 ? 6 : startDow - 1; // make monday=0
-
-  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
-  const today = new Date();
-  const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
-
-  // Prev month
-  for(let i = startDow - 1; i >= 0; i--){
-    html += `<div class="cal-day other-month">${daysInPrev - i}</div>`;
-  }
-
-  for(let d = 1; d <= daysInMonth; d++){
-    const dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    const isToday = dateStr === todayStr;
-    const hasBk = bookingDates.has(dateStr);
-    const isSel = calSel.has(dateStr);
-    let cls = 'cal-day';
-    if(isToday) cls += ' today';
-    if(hasBk) cls += ' has-booking';
-    if(isSel) cls += ' selected';
-    html += `<div class="${cls}" onclick="toggleCalDay('${dateStr}')">${d}</div>`;
-  }
-
-  grid.innerHTML = html;
-  updateCalResults();
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/admin.html'});
+  const m=document.getElementById('loginMsg');m.style.display='block';
+  if(error){m.className='msg merr';m.textContent='Fel: '+error.message;}
+  else{m.className='msg mok';m.textContent='✓ Återställningslänk skickad till '+email;}
 }
-
-function toggleCalDay(dateStr){
-  if(calSel.has(dateStr)) calSel.delete(dateStr);
-  else calSel.add(dateStr);
-  renderCal();
+async function sendConfirmation(id){
+  if(IS_DEMO)return demoBlock();
+  const b=allBookings.find(x=>x.id===id);
+  if(!b){alert('Bokning hittades inte.');return;}
+  if(!b.contact_email){alert('Ingen e-postadress registrerad för kontaktpersonen.');return;}
+  const gLink='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
+  const btn=event?.target;const origTxt=btn?.textContent||'';
+  if(btn){btn.disabled=true;btn.textContent='Skickar...';}
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({type:'confirmation',booking:b,restaurant:rest,guestLink:gLink})
+    });
+    const result=await resp.json();
+    if(!result.ok)throw new Error(result.error||'Okänt fel');
+    const now=new Date();
+    const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    const log=(b.summary_sent_log||'')+ts+' bekräftelse via Resend till '+b.contact_email+'\n';
+    await db.from('bookings').update({summary_sent_log:log,summary_sent_at:now.toISOString()}).eq('id',id);
+    await renderBookings();
+    alert('✓ Bekräftelsemejl skickat till '+b.contact_email+'!');
+  }catch(err){alert('Fel: '+err.message);}
+  if(btn){btn.disabled=false;btn.textContent=origTxt;}
 }
+async function doLogout(){await db.auth.signOut();location.reload();}
 
-function clearCalSel(){ calSel.clear(); renderCal(); }
-
-function changeMonth(dir){
-  calMonth += dir;
-  if(calMonth > 11){ calMonth = 0; calYear++; }
-  if(calMonth < 0){ calMonth = 11; calYear--; }
-  renderCal();
-}
-
-function updateCalResults(){
-  const infoEl = document.getElementById('calSelInfo');
-  const resultsEl = document.getElementById('calResults');
-
-  if(calSel.size === 0){
-    infoEl.textContent = 'Inget datum valt';
-    resultsEl.innerHTML = '';
+// ── DEMO AUTO-INIT ──────────────────────────────────────────────────
+async function autoInitDemo(){
+  // Hämta demo-restaurang
+  const {data:r}=await db.from('restaurants').select('*').eq('slug',DEMO_SLUG).single();
+  if(!r){
+    document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte. Kontakta premeny.se</div>';
     return;
   }
+  rest=r;
+  document.getElementById('restName').textContent=r.name+' (Demo)';
+  document.documentElement.style.setProperty('--gold',r.accent_color||'#7c6fcd');
+  await loadCats();
+  const {data:menuList}=await db.from('menus').select('*').eq('restaurant_id',rest.id).eq('archived',false).order('created_at');
+  const nbMenu=document.getElementById('nb-menu');
+  if(nbMenu){
+    nbMenu.innerHTML='<option value="">Välj meny...</option>';
+    (menuList||[]).forEach(m=>{var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});
+  }
+  renderBookings();
+}
 
-  infoEl.textContent = calSel.size + ' datum valt';
-
-  const selDates = [...calSel].sort();
-  const selBookings = BOOKINGS.filter(b => selDates.includes(b.date));
-
-  if(selBookings.length === 0){
-    resultsEl.innerHTML = '<div class="card" style="color:var(--muted);font-size:14px;text-align:center;padding:1.5rem">Inga bokningar på valda datum.</div>';
+async function initAdmin(){
+  const {data:{user}}=await db.auth.getUser();
+  if(!user)return;
+  const {data:ar,error:arErr}=await db.from('restaurant_admins').select('restaurant_id').eq('user_id',user.id).single();
+  if(arErr||!ar){
+    const msg=document.getElementById('loginMsg');
+    msg.style.display='block';
+    msg.textContent='Debug: user.id='+user.id+' fel='+(arErr?.message||'ingen rad hittad');
+    await db.auth.signOut();
     return;
   }
+  const {data:r,error:rErr}=await db.from('restaurants').select('*').eq('id',ar.restaurant_id).single();
+  if(rErr||!r){
+    const msg=document.getElementById('loginMsg');
+    msg.style.display='block';
+    msg.textContent='Restaurangfel: '+(rErr?.message||'okänt');
+    await db.auth.signOut();
+    return;
+  }
+  rest=r;
+  document.getElementById('restName').textContent=r.name;
+  document.documentElement.style.setProperty('--gold',r.accent_color||'#b8955a');
+  // Logo visas ej i navbar
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('adminPage').style.display='block';
+  await loadCats();
+  // Populera meny-listan i ny bokning
+  const {data:menuList}=await db.from('menus').select('*').eq('restaurant_id',rest.id).eq('archived',false).order('created_at');
+  const nbMenu=document.getElementById('nb-menu');
+  if(nbMenu){
+    nbMenu.innerHTML='<option value="">Välj meny...</option>';
+    (menuList||[]).forEach(m=>{var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});
+  }
+  renderBookings();
+}
 
-  // Sammanslå alla beställningar
-  const catMap = {};
-  selBookings.forEach(b => {
-    b.cats.forEach(cat => {
-      if(!catMap[cat.label]) catMap[cat.label] = {};
-      cat.items.forEach(([name, count]) => {
-        catMap[cat.label][name] = (catMap[cat.label][name] || 0) + count;
+// TABS
+function showTab(tab){
+  ['bookings','calendar','menu','archive','settings'].forEach(t=>{
+    document.getElementById('pane-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='calendar')initCalendar();
+  if(tab==='menu')renderMenu();
+  if(tab==='archive')renderArchive();
+  if(tab==='settings')loadSettings();
+}
+
+// BOOKINGS
+let allBookings=[];
+
+async function renderBookings(){
+  if(!rest)return;
+  const today=new Date().toISOString().split('T')[0];
+  const {data:bs}=await db.from('bookings').select('*, orders(id)').eq('restaurant_id',rest.id).gte('event_date',today).is('deleted_at',null).order('event_date');
+  allBookings=bs||[];
+  renderBookingList(allBookings);
+}
+
+function renderBookingList(bookings){
+  const list=document.getElementById('bookingList');
+  if(!bookings.length){
+    list.innerHTML='<div class="empty">Inga bokningar matchar sökningen.</div>';
+    return;
+  }
+  list.innerHTML=bookings.map(b=>renderBCard(b)).join('');
+}
+
+function filterBookings(){
+  const q=document.getElementById('bookingSearch').value.trim().toLowerCase();
+  const clearBtn=document.getElementById('clearSearch');
+  const info=document.getElementById('searchInfo');
+  clearBtn.style.display=q?'block':'none';
+  if(!q){
+    info.style.display='none';
+    renderBookingList(allBookings);
+    return;
+  }
+  const filtered=allBookings.filter(b=>
+    (b.name||'').toLowerCase().includes(q)||
+    (b.contact_name||'').toLowerCase().includes(q)||
+    (b.contact_email||'').toLowerCase().includes(q)||
+    (b.contact_phone||'').toLowerCase().includes(q)||
+    (b.internal_comment||'').toLowerCase().includes(q)
+  );
+  info.style.display='block';
+  info.textContent=filtered.length+' av '+allBookings.length+' bokningar';
+  renderBookingList(filtered);
+}
+
+function clearSearch(){
+  document.getElementById('bookingSearch').value='';
+  filterBookings();
+}
+
+function renderBCard(b){
+  const isOpen=!!openB[b.id];
+  const dtab=dtabs[b.id]||'tally';
+  const today=new Date();today.setHours(0,0,0,0);
+  const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
+  const closed=dl&&today>dl;
+  const n=(b.orders||[]).length;
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date);
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  const pct=b.expected_guests?Math.min(100,Math.round(n/b.expected_guests*100)):0;
+  const gLink=location.origin+'/guest.html?r='+rest.slug+'&b='+b.id;
+
+  // Påminnelsestatus
+  let reminderHtml='';
+  const allOk=b.expected_guests&&n>=b.expected_guests;
+  // Auto-warn if over capacity (only once - check via flag in booking)
+  if(b.expected_guests&&n>b.expected_guests&&!b.over_capacity_warned){
+    sendOverCapacityWarning(b,n);
+  }
+  if(b.reminder_sent_at){
+    const sentD=new Date(b.reminder_sent_at);
+    reminderHtml=`<div style="font-size:12px;color:#6a5030;margin-top:4px">✉ Påminnelse skickad ${sentD.getDate()} ${months[sentD.getMonth()]} ${sentD.getFullYear()}</div>`;
+  } else if(b.reminder_days&&!allOk){
+    reminderHtml=`<div style="font-size:12px;color:var(--muted);margin-top:4px">🔔 Påminnelse ${b.reminder_days} dagar före deadline</div>`;
+  } else if(allOk){
+    reminderHtml=`<div style="font-size:12px;color:#3a7d44;margin-top:4px">✓ Alla gäster har svarat</div>`;
+  }
+
+  let html=`<div class="bcard${isOpen?' open':''}" id="bc_${b.id}">
+    <div class="bhead" onclick="toggleB('${b.id}')">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="bname">${b.name}</div>
+          <span style="font-size:12px;color:var(--gold);font-weight:400;letter-spacing:.02em">Se mer ›</span>
+        </div>
+        <div class="bmeta" style="margin-top:4px">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''}</div>
+        ${b.deadline?('<div style="font-size:12px;color:var(--muted);margin-top:2px">Sista beställning: '+new Date(b.deadline+'T12:00:00').getDate()+' '+months[new Date(b.deadline+'T12:00:00').getMonth()]+' '+new Date(b.deadline+'T12:00:00').getFullYear()+'</div>'):''}
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
+          <div style="font-size:15px;font-weight:400;color:${b.expected_guests&&n>b.expected_guests?'#c0392b':'var(--muted)'}">
+            ${b.expected_guests?(n>b.expected_guests?'⚠ '+n+' beställda · <span style="color:#c0392b;font-weight:600">'+( n-b.expected_guests)+' fler än väntat!</span>':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
+          </div>
+        </div>
+        ${reminderHtml}
+      </div>
+      <span class="pill ${closed?'pc':'po'}" style="flex-shrink:0">${closed?'Stängd':'Öppen'}</span>
+    </div>`;
+
+  if(isOpen){
+    html+=`<div class="bdetail">`;
+    // Kontakt
+    if(b.contact_name||b.contact_email||b.contact_phone){
+      html+=`<div style="font-size:13px;color:var(--muted);margin-bottom:.75rem;line-height:1.9;background:var(--surface2);border-radius:8px;padding:.6rem .9rem">
+        <strong style="color:var(--text)">Sällskapets kontaktperson:</strong><br>
+        ${b.contact_name||''}${b.contact_email?` · <a href="mailto:${b.contact_email}" style="color:var(--gold)">${b.contact_email}</a>`:''}${b.contact_phone?` · <a href="tel:${b.contact_phone}" style="color:var(--gold)">${b.contact_phone}</a>`:''}
+      </div>`;
+    }
+    // Intern kommentar
+    if(b.responsible_staff||b.internal_comment){
+      let notes='';
+      if(b.responsible_staff)notes+=`<span style="margin-right:1rem">👤 <strong>Bokningsansvarig:</strong> ${b.responsible_staff}</span>`;
+      if(b.internal_comment)notes+=`<span>📝 ${b.internal_comment}</span>`;
+      html+=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;margin-bottom:.75rem;font-size:13px;color:var(--muted);line-height:1.7">${notes}</div>`;
+    }
+    // Länk + QR
+    html+=`<div style="font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase">Gästlänk</div>
+      <div class="linkbox">${gLink}</div>
+      <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap">
+        <button onclick="sendConfirmation('${b.id}')" class="btn bo" style="font-size:11px;padding:5px 12px">✉ Skicka bekräftelse till kontaktperson</button>
+        <button onclick="sendSummary('${b.id}','email')" class="btn bg" style="font-size:11px;padding:5px 12px">✉ Skicka länk via mejl</button>
+        ${b.contact_phone?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:''}
+        <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera länk</button>
+      </div>`;
+
+    // Påminnelse status
+    const allOk=b.expected_guests&&n>=b.expected_guests;
+  // Auto-warn if over capacity (only once - check via flag in booking)
+  if(b.expected_guests&&n>b.expected_guests&&!b.over_capacity_warned){
+    sendOverCapacityWarning(b,n);
+  }
+    // Sammanställning skickad
+    if(b.summary_sent_log){
+      const lines=b.summary_sent_log.trim().split('\n').filter(Boolean);
+      const last=lines[lines.length-1];
+      html+=`<div style="font-size:12px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:6px 10px;margin-bottom:.75rem;color:#3a6020;line-height:1.6">
+        ✓ <strong>Sammanställning skickad</strong><br>
+        ${lines.map(l=>'<span style="opacity:.85">'+l+'</span>').join('<br>')}
+      </div>`;
+    }
+    if(b.reminder_sent_at){
+      html+=`<div style="font-size:12px;color:#6a5030;margin-bottom:.75rem">✉ Påminnelse skickad: ${new Date(b.reminder_sent_at).toLocaleDateString('sv-SE')}</div>`;
+    } else if(!b.reminder_days){
+      html+=`<div style="font-size:12px;color:var(--muted);margin-bottom:.75rem">— Ingen påminnelse konfigurerad</div>`;
+    } else if(allOk){
+      html+=`<div style="font-size:12px;background:rgba(184,149,90,.08);border:1px solid rgba(184,149,90,.2);border-radius:6px;padding:5px 10px;margin-bottom:.75rem;color:#6a5030">✓ Alla ${n} gäster har svarat – ingen påminnelse behövs</div>`;
+    } else {
+      const miss=b.expected_guests?(b.expected_guests-n)+' av '+b.expected_guests+' saknas':n+' har svarat';
+      html+=`<div class="fg" style="margin-bottom:.75rem;flex-wrap:wrap">
+        <div style="font-size:12px;color:var(--muted)">✉ Påminnelse ${b.reminder_days} dagar före deadline · ${miss}</div>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="doReminder('${b.id}',event)">Skicka nu</button>
+      </div>`;
+    }
+
+    // Detaljflikar
+    html+=`<div class="fg" style="margin-bottom:1rem;flex-wrap:wrap">
+      ${[['tally','Kökslista'],['bulk','Fyll i för sällskap'],['guests','Gästlista']].map(([t,l])=>
+        `<button class="dtab${dtab===t?' active':''}" onclick="switchDtab('${b.id}','${t}')">${l}</button>`).join('')}
+    </div>
+    <div id="det_${b.id}"></div>
+    <div class="fg" style="margin-top:1rem;flex-wrap:wrap">
+      ${dtab==='guests'?
+        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportGuestPDF('${b.id}')">📄 Ladda ner PDF</button>`
+      :
+        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportPDF('${b.id}')">📄 Ladda ner PDF</button>`
+      }
+      <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
+    </div></div>`;
+  }
+  html+=`</div>`;
+  return html;
+}
+
+async function toggleB(id){
+  openB[id]=!openB[id];
+  if(!dtabs[id])dtabs[id]='tally';
+  await reRender(id);
+  if(openB[id])loadDet(id,dtabs[id]);
+}
+
+async function switchDtab(id,tab){
+  dtabs[id]=tab;
+  await reRender(id);
+  loadDet(id,tab);
+}
+
+async function reRender(id){
+  const el=document.getElementById('bc_'+id);
+  if(!el)return;
+  const {data:b}=await db.from('bookings').select('*, orders(id)').eq('id',id).single();
+  if(b)el.outerHTML=renderBCard(b);
+}
+
+async function loadDet(id,tab){
+  const el=document.getElementById('det_'+id);
+  if(!el)return;
+  el.innerHTML='<span class="spinner"></span>';
+  if(tab==='bulk'){el.innerHTML=await renderBulk(id);return;}
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name,price, menu_categories(label)))').eq('booking_id',id);
+  if(!orders?.length){el.innerHTML='<div style="font-size:13px;color:var(--muted);padding:4px 0">Inga beställningar ännu.</div>';return;}
+  if(tab==='tally')el.innerHTML=renderTally(orders);
+  else if(tab==='kitchen')el.innerHTML=renderKitchen(orders);
+  else if(tab==='guests')el.innerHTML=renderGuests(orders,id);
+}
+
+// BULK INMATNING
+async function renderBulk(bookingId){
+  let html=`<div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
+    <strong style="color:var(--text)">Fyll i för hela sällskapet</strong><br>
+    Ange antal rätter per alternativ. Varje enhet skapas som en separat beställning. Kommentar gäller alla av den rätten.
+  </div>`;
+  cats.forEach(cat=>{
+    html+=`<div class="bulk-sec"><div class="bulk-head">${cat.label}</div>`;
+    (cat.menu_items||[]).filter(i=>i.active).forEach(item=>{
+      html+=`<div class="bulk-row">
+        <div style="flex:1">
+          <div style="font-size:14px;color:var(--dark)">${item.name}</div>
+          ${item.description?`<div style="font-size:11px;color:var(--muted)">${item.description}</div>`:''}
+        </div>
+        ${item.price?`<div style="font-size:13px;color:var(--gold);font-weight:500;white-space:nowrap">${item.price} kr</div>`:''}
+        <input type="number" class="bulk-qty" id="bq_${bookingId}_${item.id}" min="0" max="999" value="0" placeholder="0">
+        <input type="text" class="bulk-cmt" id="bc_${bookingId}_${item.id}" placeholder="Kommentar/allergi (valfritt)" style="max-width:220px">
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`<div class="fg" style="margin-top:1rem">
+    <button class="btn bp" onclick="saveBulk('${bookingId}')">💾 Spara för sällskapet</button>
+  </div>
+  <div id="bmsg_${bookingId}" style="display:none;margin-top:.75rem" class="msg"></div>`;
+  return html;
+}
+
+async function saveBulk(bid){
+  let count=0;
+  try{
+    for(const cat of cats){
+      for(const item of (cat.menu_items||[]).filter(i=>i.active)){
+        const qty=parseInt(document.getElementById('bq_'+bid+'_'+item.id)?.value)||0;
+        const cmt=document.getElementById('bc_'+bid+'_'+item.id)?.value?.trim()||'';
+        if(qty>0){
+          for(let i=0;i<qty;i++){
+            const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:'Gäst '+(++count)+' (bokningsansvarig)'}).select().single();
+            await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:cmt});
+          }
+        }
+      }
+    }
+    const el=document.getElementById('bmsg_'+bid);
+    if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+count+' beställningar skapade.';setTimeout(()=>el.style.display='none',4000);}
+    reRender(bid);
+  }catch(err){
+    const el=document.getElementById('bmsg_'+bid);
+    if(el){el.style.display='block';el.className='msg merr';el.textContent='Fel: '+err.message;}
+  }
+}
+
+// TALLY / KITCHEN / GUESTS
+function renderTally(orders){
+  const counts={};
+  const allergies={};
+  orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const n=oi.menu_items?.name||'?',c=oi.menu_items?.menu_categories?.label||'?';
+    const k=c+'||'+n;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){
+      if(!allergies[k])allergies[k]=[];
+      allergies[k].push(o.guest_name+': '+oi.comment.trim());
+    }
+  }));
+  if(!Object.keys(counts).length)return'<div style="font-size:13px;color:var(--muted)">Inga val ännu.</div>';
+  const max=Math.max(...Object.values(counts));
+  const byCat={};
+  Object.entries(counts).forEach(([k,n])=>{const[c,name]=k.split('||');if(!byCat[c])byCat[c]=[];byCat[c].push({name,n,k});});
+  return Object.entries(byCat).map(([c,items])=>
+    `<div class="chead">${c}</div>`+items.map(({name,n,k})=>
+      `<div class="trow"><span class="tn">${name}</span><div class="tbw"><div class="tb" style="width:${Math.round(n/max*100)}%"></div></div><span class="tnr">${n}</span></div>`+
+      (allergies[k]?`<div style="margin:-2px 0 6px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:'')
+    ).join('')
+  ).join('');
+}
+
+function renderKitchen(orders){
+  const counts={};
+  const allergies={};
+  orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const cat=oi.menu_items?.menu_categories?.label||'?';
+    const name=oi.menu_items?.name||'?';
+    const k=cat+'||'+name;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){
+      if(!allergies[k])allergies[k]=[];
+      allergies[k].push(o.guest_name+': '+oi.comment.trim());
+    }
+  }));
+  if(!Object.keys(counts).length)return'<div style="font-size:13px;color:var(--muted)">Inga beställningar ännu.</div>';
+  const max=Math.max(...Object.values(counts));
+  const byCat={};
+  Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
+  return Object.entries(byCat).map(([cat,items])=>
+    `<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem">${cat}</div>`+
+    items.map(({name,n,k})=>
+      `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
+          <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
+          <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
+        </div>
+        ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
+      </div>`
+    ).join('')
+  ).join('');
+}
+
+function renderGuests(orders,bid){
+  return orders.map(o=>{
+    const ch=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(' · ');
+    const cm=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.menu_items?.name+': '+oi.comment).join(', ');
+    return `<div class="grow">
+      <div>
+        <div style="font-size:14px">${o.guest_name}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${ch}</div>
+        ${cm?`<div style="font-size:12px;color:#8a7020;margin-top:2px">⚠ ${cm}</div>`:''}
+      </div>
+      <button class="btn bd" style="font-size:11px;padding:4px 10px;flex-shrink:0;margin-left:8px" onclick="delOrder('${o.id}','${bid}')">Ta bort</button>
+    </div>`;
+  }).join('');
+}
+
+async function delOrder(oid,bid){if(!confirm('Ta bort?'))return;await db.from('orders').delete().eq('id',oid);loadDet(bid,dtabs[bid]||'guests');reRender(bid);}
+
+// NY BOKNING
+function toggleNB(){const f=document.getElementById('newBookingForm');f.style.display=f.style.display==='none'?'block':'none';}
+
+async function createBooking(){
+  if(IS_DEMO)return demoBlock();
+  const name=document.getElementById('nb-name').value.trim();
+  const date=document.getElementById('nb-date').value;
+  if(!name||!date){showMsg('nb-msg','merr','Namn och datum krävs.');return;}
+  const {error}=await db.from('bookings').insert({
+    restaurant_id:rest.id,name,event_date:date,
+    event_time:document.getElementById('nb-time').value||null,
+    event_type:document.getElementById('nb-event-type').value||null,
+    expected_guests:parseInt(document.getElementById('nb-guests').value)||null,
+    deadline:document.getElementById('nb-deadline').value||null,
+    contact_name:document.getElementById('nb-contact').value.trim()||null,
+    contact_email:document.getElementById('nb-email').value.trim()||null,
+    contact_phone:document.getElementById('nb-phone').value.trim()||null,
+    menu_id:document.getElementById('nb-menu').value||null,
+    reminder_days:parseInt(document.getElementById('nb-reminder').value)||0,
+    reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
+    internal_comment:document.getElementById('nb-comment').value.trim()||null,
+    responsible_staff:document.getElementById('nb-responsible').value.trim()||null
+  });
+  if(error){showMsg('nb-msg','merr','Fel: '+error.message);return;}
+  showMsg('nb-msg','mok','✓ Bokning skapad! Gå in i bokningen och skicka bekräftelse till kontaktpersonen samt länk till beställningssida för gästerna.');
+  setTimeout(()=>{document.getElementById('newBookingForm').style.display='none';},4000);
+  renderBookings();
+}
+
+async function delBooking(id,ev){
+  if(IS_DEMO)return demoBlock();
+  ev.stopPropagation();
+  if(!confirm('Ta bort bokningen? Den sparas i Arkiv och kan återställas.'))return;
+  await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
+  allBookings=allBookings.filter(b=>b.id!==id);
+  renderBookingList(allBookings);
+}
+
+// PÅMINNELSE
+async function doReminder(id,ev){
+  if(IS_DEMO)return demoBlock();
+  ev.stopPropagation();
+  const {data:b}=await db.from('bookings').select('*, orders(id)').eq('id',id).single();
+  if(b.expected_guests&&(b.orders||[]).length>=b.expected_guests){alert('Alla gäster har svarat!');return;}
+  const miss=b.expected_guests?(b.expected_guests-(b.orders||[]).length)+' av '+b.expected_guests+' saknas':'';
+  if(!confirm('Skicka påminnelse till '+b.contact_name+'?\n\n'+miss+'\n\n(Demo: markeras som skickad)'))return;
+  await db.from('bookings').update({reminder_sent_at:new Date().toISOString()}).eq('id',id);
+  reRender(id);
+}
+
+// SKICKA SAMMANSTÄLLNING
+async function sendSummary(id,ch){
+  if(IS_DEMO)return demoBlock();
+  const {data:b}=await db.from('bookings').select('*').eq('id',id).single();
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date);
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  const dest=ch==='email'?b.contact_email:b.contact_phone;
+  if(!dest){
+    alert(ch==='email'?'Ingen e-post registrerad för kontaktpersonen.':'Inget telefonnummer registrerat för kontaktpersonen.');
+    return;
+  }
+  let text=b.name+'\n'+ds+(b.event_type?' – '+b.event_type:'')+(b.event_time?' kl '+b.event_time.slice(0,5):'')+' | '+b.contact_name+'\n';
+  text+='Beställningar: '+(orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+'\n\n';
+  const byCat={};
+  (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const c=oi.menu_items?.menu_categories?.label||'?',n=oi.menu_items?.name||'?';
+    if(!byCat[c])byCat[c]={};byCat[c][n]=(byCat[c][n]||0)+1;
+  }));
+  Object.entries(byCat).forEach(([c,items])=>{text+=c+':\n';Object.entries(items).forEach(([n,cnt])=>text+='  '+n+' ×'+cnt+'\n');text+='\n';});
+  const al=[];(orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{if(oi.comment?.trim())al.push(o.guest_name+' – '+oi.menu_items?.name+': '+oi.comment);}));
+  if(al.length){text+='Kommentarer & allergier:\n';al.forEach(a=>text+='  '+a+'\n');}
+  // Öppna mejl eller SMS
+  if(ch==='email'){
+    const {data:{session}}=await db.auth.getSession();
+    const guestLink='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
+    const res=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({type:'guestlink',booking:b,restaurant:rest,guestLink})
+    });
+    const json=await res.json();
+    if(!json.ok){alert('Fel: '+(json.error||'okänt'));return;}
+    const now=new Date();
+    const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    await db.from('bookings').update({
+      summary_sent_at:now.toISOString(),
+      summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via mejl till '+dest+'\n'
+    }).eq('id',id);
+    alert('✓ Gästlänk skickad till '+dest+'!');
+    reRender(id);
+    return;
+  } else {
+    const gLinkSms='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
+    const {data:{session}}=await db.auth.getSession();
+    try{
+      const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-sms',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body:JSON.stringify({booking:b,restaurant:rest,guestLink:gLinkSms})
       });
+      const result=await resp.json();
+      if(!result.ok)throw new Error(result.error||'Okänt fel');
+      const now=new Date();
+      const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+      await db.from('bookings').update({
+        summary_sent_at:now.toISOString(),
+        summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via SMS till '+dest+'\n'
+      }).eq('id',id);
+      reRender(id);
+      alert('✓ SMS skickat till '+dest+'!');
+    }catch(err){alert('Fel: '+err.message);}
+  }
+}
+
+
+// COPY / PRINT KITCHEN
+async function copyKitchen(id){
+  if(IS_DEMO)return demoBlock();
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date+'T12:00:00');
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()+(b.event_time?' kl '+b.event_time.slice(0,5):'');
+  const bestellningar=(orders||[]).length;
+  const gastInfo=b.expected_guests?bestellningar+' av '+b.expected_guests+' gäster har beställt':bestellningar+' beställningar';
+  let text=b.name+'\n'+ds+'\n'+gastInfo+'\n'+'─'.repeat(32)+'\n\n';
+  const byCat={};
+  (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const c=oi.menu_items?.menu_categories?.label||'?';
+    const n=oi.menu_items?.name||'?';
+    if(!byCat[c])byCat[c]={};
+    byCat[c][n]=(byCat[c][n]||0)+1;
+  }));
+  Object.entries(byCat).forEach(([c,items])=>{
+    text+=c.toUpperCase()+'\n';
+    const maxLen=Math.max(...Object.keys(items).map(n=>n.length));
+    Object.entries(items).forEach(([n,cnt])=>{
+      const pad='.'.repeat(Math.max(2,maxLen-n.length+4));
+      text+='  '+n+' '+pad+' '+cnt+'\n';
+    });
+    text+='\n';
+  });
+  const al=[];
+  (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
+    if(oi.comment?.trim())al.push('  '+oi.menu_items?.name+': '+oi.comment+(o.guest_name?' ('+o.guest_name+')':''));
+  }));
+  if(al.length){
+    text+='KOMMENTARER & ALLERGIER\n';
+    al.forEach(a=>text+=a+'\n');
+  }
+  navigator.clipboard.writeText(text).then(()=>alert('\u2713 Sammanfattning kopierad!')).catch(()=>alert('Kunde inte kopiera.'));
+}
+
+async function copyGuestList(id){
+  if(IS_DEMO)return demoBlock();
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time').eq('id',id).single();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date+'T12:00:00');
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()+(b.event_time?' kl '+b.event_time.slice(0,5):'');
+  let text=b.name+' – Gästlista\n'+ds+'\n'+'─'.repeat(32)+'\n\n';
+  (orders||[]).forEach((o,i)=>{
+    const ratter=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
+    const komm=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
+    text+=(i+1)+'. '+o.guest_name+'\n';
+    if(ratter)text+='   '+ratter+'\n';
+    if(komm)text+='   ⚠ '+komm+'\n';
+    text+='\n';
+  });
+  navigator.clipboard.writeText(text).then(()=>alert('\u2713 Gästlista kopierad!')).catch(()=>alert('Kunde inte kopiera.'));
+}
+
+async function printKitchen(id){
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date+'T12:00:00');
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  
+  // Count per dish
+  const counts={};const allergies={};
+  (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const cat=oi.menu_items?.menu_categories?.label||'?';
+    const name=oi.menu_items?.name||'?';
+    const k=cat+'||'+name;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((o.guest_name||'Okänd')+': '+oi.comment.trim());}
+  }));
+  const byCat={};
+  Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
+
+  const w=window.open('','_blank');
+  let ph=`<html><head><title>${b.name}</title><style>
+    body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
+    h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
+    .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
+    .cat{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b8955a;margin:1.25rem 0 .4rem}
+    .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:13px}
+    .alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:5px 10px;font-size:11px;margin:2px 0 8px;color:#7a5c00}
+    @media print{body{padding:.75rem}}
+  </style></head><body>`;
+  ph+=`<h1>${b.name}</h1>`;
+  ph+=`<div class="meta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orders?.length||0}${b.expected_guests?' av '+b.expected_guests:''} beställningar · Skrivet ut: ${new Date().toLocaleString('sv-SE')}</div>`;
+  
+  Object.entries(byCat).forEach(([cat,items])=>{
+    ph+=`<div class="cat">${cat}</div>`;
+    items.forEach(({name,n,k})=>{
+      ph+=`<div class="row"><span>${name}</span><strong>${n} st</strong></div>`;
+      if(allergies[k])ph+=allergies[k].map(a=>`<div class="alg">⚠ ${a}</div>`).join('');
     });
   });
+  ph+='</'+'body></'+'html>';
+  w.document.write(ph);w.document.close();w.print();
+}
 
-  const totalOrders = selBookings.reduce((s,b) => s + b.orders, 0);
-  const totalGuests = selBookings.reduce((s,b) => s + b.total, 0);
-  const notOrdered = totalGuests - totalOrders;
+async function exportPDF(id){
+  if(IS_DEMO)return demoBlock();
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date);
+  const dateStr=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  const margin=20;let y=margin;
+  const pageH=297,pageW=210,contentW=pageW-margin*2;
 
-  const svMo = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-  const dateLabel = selDates.map(d => {
-    const dt = new Date(d + 'T12:00:00');
-    return dt.getDate() + ' ' + svMo[dt.getMonth()];
-  }).join(', ');
+  function checkPage(needed){if(y+needed>pageH-margin){doc.addPage();y=margin;}}
 
-  // Sällskapslista med status
-  const sallskapRows = selBookings.map(b => {
-    const dt = new Date(b.date + 'T12:00:00');
-    const bsc = b.orders===b.total ? '#3a7d44' : b.orders>0 ? 'var(--gold)' : 'var(--muted)';
-    return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:13px">
-      <span style="color:var(--muted)">${dt.getDate()} ${svMo[dt.getMonth()]}: <span style="color:var(--dark)">${b.name}</span> kl ${b.time}</span>
-      <span style="color:${bsc};font-weight:500;flex-shrink:0;margin-left:8px">${b.orders}/${b.total}</span>
+  // Header
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(20);
+  doc.setTextColor(26,23,18);
+  doc.text('Kökslista',margin,y);y+=8;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(12);
+  doc.setTextColor(100,100,100);
+  doc.text(b.name+' – '+dateStr+(b.event_time?' kl '+b.event_time.slice(0,5):''),margin,y);y+=5;
+  doc.text('Beställningar: '+(orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:''),margin,y);y+=5;
+  doc.text('Utskriven: '+new Date().toLocaleDateString('sv-SE')+' kl '+String(new Date().getHours()).padStart(2,'0')+':'+String(new Date().getMinutes()).padStart(2,'0'),margin,y);y+=8;
+
+  // Gold line
+  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.line(margin,y,pageW-margin,y);y+=8;
+
+  // Rätter per kategori - räkna antal, inga gästnamn
+  const pdfCounts={};const pdfAllergies={};
+  (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const c=oi.menu_items?.menu_categories?.label||'?',n=oi.menu_items?.name||'?';
+    const k=c+'||'+n;
+    pdfCounts[k]=(pdfCounts[k]||0)+1;
+    if(oi.comment?.trim()){if(!pdfAllergies[k])pdfAllergies[k]=[];pdfAllergies[k].push((o.guest_name||'Gäst')+': '+oi.comment.trim());}
+  }));
+  const pdfByCat={};
+  Object.entries(pdfCounts).forEach(([k,cnt])=>{const[cat,name]=k.split('||');if(!pdfByCat[cat])pdfByCat[cat]=[];pdfByCat[cat].push({name,cnt,k});});
+
+  Object.entries(pdfByCat).forEach(([cat,items])=>{
+    checkPage(16);
+    doc.setFont('helvetica','bold');doc.setFontSize(10);
+    doc.setTextColor(184,149,90);
+    doc.text(cat.toUpperCase(),margin,y);y+=6;
+    doc.setTextColor(26,23,18);
+
+    items.forEach(({name,cnt,k})=>{
+      checkPage(10);
+      doc.setFont('helvetica','normal');doc.setFontSize(12);
+      doc.text(name,margin,y);
+      doc.setFont('helvetica','bold');
+      doc.text(String(cnt)+' st',pageW-margin,y,{align:'right'});
+      doc.setFont('helvetica','normal');
+      y+=7;
+      if(pdfAllergies[k]){
+        doc.setFontSize(9);doc.setTextColor(120,80,0);
+        pdfAllergies[k].forEach(a=>{checkPage(6);doc.text('  ⚠ '+a,margin+4,y);y+=5;});
+        doc.setTextColor(26,23,18);doc.setFontSize(12);
+      }
+    });
+    y+=4;
+  });
+
+  // Allergier
+  const al=[];
+  (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{if(oi.comment?.trim())al.push(o.guest_name+' – '+oi.menu_items?.name+': '+oi.comment);}));
+  if(al.length){
+    checkPage(20);
+    doc.setDrawColor(200,180,80);doc.setFillColor(255,251,236);
+    doc.setLineWidth(0.3);
+    const alHeight=14+al.length*6;
+    doc.roundedRect(margin,y,contentW,alHeight,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(10);
+    doc.setTextColor(100,80,0);
+    doc.text('⚠ Kommentarer & Allergier',margin+4,y+7);y+=12;
+    doc.setFont('helvetica','normal');doc.setFontSize(9);
+    al.forEach(a=>{doc.text('• '+a,margin+4,y);y+=6;});
+    y+=4;
+  }
+
+  // Footer
+  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  doc.setTextColor(160,160,160);
+  doc.text('PreMeny – premeny.se',margin,pageH-10);
+
+  const filename='kokslista-'+b.name.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase()+'-'+b.event_date+'.pdf';
+  doc.save(filename);
+}
+
+
+async function printGuestList(id){
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date+'T12:00:00');
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  const w=window.open('','_blank');
+  let ph=`<html><head><title>Gästlista – ${b.name}</title><style>
+    body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
+    h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
+    .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
+    .row{padding:8px 0;border-bottom:1px solid #eee;font-size:13px}
+    .row:last-child{border-bottom:none}
+    .num{color:#b8955a;font-weight:600;margin-right:8px}
+    .dishes{color:#666;font-size:12px;margin-top:2px}
+    .allergy{color:#8a7020;font-size:11px;margin-top:2px}
+    @media print{body{padding:.75rem}}
+  </style></head><body>`;
+  ph+=`<h1>Gästlista – ${b.name}</h1>`;
+  ph+=`<div class="meta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orders?.length||0}${b.expected_guests?' av '+b.expected_guests:''} gäster · Skrivet ut: ${new Date().toLocaleString('sv-SE')}</div>`;
+  (orders||[]).forEach((o,i)=>{
+    const dishes=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
+    const allergy=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
+    ph+=`<div class="row"><span class="num">${i+1}.</span><strong>${o.guest_name}</strong>`;
+    if(dishes)ph+=`<div class="dishes">${dishes}</div>`;
+    if(allergy)ph+=`<div class="allergy">⚠ ${allergy}</div>`;
+    ph+=`</div>`;
+  });
+  ph+='</'+'body></'+'html>';
+  w.document.write(ph);w.document.close();w.print();
+}
+
+async function exportGuestPDF(id){
+  if(IS_DEMO)return demoBlock();
+  if(!window.jspdf){alert('PDF-biblioteket laddas. Försök igen.');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const d=new Date(b.event_date+'T12:00:00');
+  const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  const margin=20;let y=margin;
+  const pageH=297,pageW=210,contentW=pageW-margin*2;
+  function checkPage(n){if(y+n>pageH-margin){doc.addPage();y=margin;}}
+
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(26,23,18);
+  doc.text('Gästlista',margin,y);y+=8;
+  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(100,100,100);
+  doc.text(b.name+' – '+ds+(b.event_time?' kl '+b.event_time.slice(0,5):''),margin,y);y+=5;
+  doc.text((orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+' gäster · Skrivet ut: '+new Date().toLocaleDateString('sv-SE'),margin,y);y+=8;
+  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.line(margin,y,pageW-margin,y);y+=8;
+
+  (orders||[]).forEach((o,i)=>{
+    const dishes=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
+    const allergy=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
+    checkPage(14);
+    doc.setFont('helvetica','normal');doc.setFontSize(12);doc.setTextColor(26,23,18);
+    doc.setFont('helvetica','bold');doc.setTextColor(184,149,90);
+    doc.text(String(i+1)+'.',margin,y);
+    doc.setFont('helvetica','bold');doc.setTextColor(26,23,18);
+    doc.text(o.guest_name||'',margin+8,y);
+    if(dishes){
+      doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(100,100,100);
+      const dl=doc.splitTextToSize(dishes,contentW-8);
+      y+=5;checkPage(6);doc.text(dl,margin+8,y);y+=dl.length*4;
+    }else{y+=6;}
+    if(allergy){
+      doc.setFontSize(9);doc.setTextColor(120,80,0);
+      checkPage(5);doc.text('⚠ '+allergy,margin+8,y);y+=5;
+    }
+    y+=3;
+  });
+
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+  doc.text('PreMeny – premeny.se',margin,pageH-10);
+  doc.save('gastlista-'+b.name.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase()+'-'+b.event_date+'.pdf');
+}
+
+// KALENDER
+async function initCalendar(){
+  if(!rest)return;
+  const {data:bs}=await db.from('bookings').select('event_date,name').eq('restaurant_id',rest.id);
+  calDates={};(bs||[]).forEach(b=>{if(!calDates[b.event_date])calDates[b.event_date]=[];calDates[b.event_date].push(b.name);});
+  renderCal();
+}
+
+function renderCal(){
+  const ms=['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+  document.getElementById('calMonth').textContent=ms[calM]+' '+calY;
+  const grid=document.getElementById('calGrid');
+  const first=new Date(calY,calM,1);
+  let dow=first.getDay();dow=dow===0?6:dow-1;
+  const dim=new Date(calY,calM+1,0).getDate();
+  const today=new Date();
+  let html='';
+  for(let i=0;i<dow;i++)html+=`<div class="cal-day other"></div>`;
+  for(let day=1;day<=dim;day++){
+    const ds=calY+'-'+String(calM+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const has=!!calDates[ds],isToday=today.getFullYear()===calY&&today.getMonth()===calM&&today.getDate()===day,isSel=calSel.has(ds);
+    html+=`<div class="cal-day${has?' has':''}${isToday?' today':''}${isSel?' sel':''}" onclick="${has||true?`toggleCalDay('${ds}')`:''}" title="${has?calDates[ds].join(', '):''}">${day}${has?`<div class="cal-dot"></div>`:''}</div>`;
+  }
+  grid.innerHTML=html;
+  const info=calSel.size?[...calSel].sort().join(', '):'Inget datum valt';
+  document.getElementById('calSelInfo').textContent=calSel.size?calSel.size+' datum valt':'';
+  renderCalResults();
+}
+
+function toggleCalDay(ds){calSel.has(ds)?calSel.delete(ds):calSel.add(ds);renderCal();}
+function calClear(){calSel.clear();renderCal();}
+async function archiveFromCal(id){
+  if(IS_DEMO)return demoBlock();
+  if(!confirm('Arkivera bokningen? Den kan återställas från Arkiv.'))return;
+  await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
+  await initCalendar();
+  await renderCalResults();
+  renderBookings();
+}
+
+async function delBookingFromCal(id){
+  if(IS_DEMO)return demoBlock();
+  if(!confirm('Ta bort bokningen? Den kan återställas från Arkiv.'))return;
+  await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
+  await initCalendar();
+  await renderBookings();
+}
+function calPrev(){calM--;if(calM<0){calM=11;calY--;}renderCal();}
+function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCal();}
+
+function buildKitchenHtml(orders){
+  const counts={};const allergies={};
+  orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const cat=oi.menu_items?.menu_categories?.label||'Övrigt';
+    const name=oi.menu_items?.name||'?';
+    const k=cat+'||'+name;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push(o.guest_name+': '+oi.comment.trim());}
+  }));
+  if(!Object.keys(counts).length)return'<div style="font-size:13px;color:var(--muted)">Inga beställningar ännu.</div>';
+  const max=Math.max(...Object.values(counts));
+  const byCat={};
+  Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
+  return Object.entries(byCat).map(([cat,items])=>
+    `<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem">${cat}</div>`+
+    items.map(({name,n,k})=>
+      `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
+          <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
+          <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
+        </div>
+        ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
+      </div>`
+    ).join('')
+  ).join('');
+}
+
+function copyCalKitchen(){
+  const el=document.getElementById('cal_kitchen_all');
+  if(!el)return;
+  // Bygg ren text från DOM
+  let lines=[];
+  el.querySelectorAll('div').forEach(function(div){
+    var txt=div.innerText||div.textContent||'';
+    txt=txt.replace(/\n/g,' ').trim();
+    if(txt&&!txt.match(/^\s*$/))lines.push(txt);
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('✓ Kökslista kopierad!'));
+}
+
+function printCalKitchen(){
+  const el=document.getElementById('cal_kitchen_all');
+  if(!el)return;
+  const dates=[...calSel].sort();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
+  const title=dates.length===1?dateLabels:dates.length+' datum: '+dateLabels;
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #e8d49a;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#b8955a}.alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#7a5c00}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
+  w.document.close();w.print();
+}
+
+async function renderCalResults(){
+  const el=document.getElementById('calResults');
+  if(!calSel.size){el.innerHTML='';return;}
+  el.innerHTML='<span class="spinner"></span>';
+  const dates=[...calSel].sort();
+  const {data:bs}=await db.from('bookings').select('*, orders(*, order_items(*, menu_items(name, menu_categories(label))))').eq('restaurant_id',rest.id).in('event_date',dates);
+  if(!bs?.length){el.innerHTML='<div class="empty">Inga bokningar dessa datum.</div>';return;}
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+
+  // All orders across all selected dates
+  const allOrders=bs.flatMap(b=>b.orders||[]);
+  const totalBookings=bs.length;
+  // Totalt förväntade gäster + beställda
+  const totalGuests=bs.reduce((s,b)=>s+(b.expected_guests||0),0);
+  const totalOrdered=allOrders.length;
+  const notOrdered=totalGuests>0?totalGuests-totalOrdered:null;
+  const extraOrdered=notOrdered!==null&&notOrdered<0?Math.abs(notOrdered):null;
+
+  // Date labels
+  const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
+
+  // Sallskap info per date med status
+  const byDate={};
+  dates.forEach(d=>{byDate[d]=bs.filter(b=>b.event_date===d);});
+  const sallskapRows=bs.map(b=>{
+    const dt=new Date(b.event_date+'T12:00:00');
+    const ds=dt.getDate()+' '+months[dt.getMonth()];
+    const ordered=(b.orders||[]).length;
+    const total=b.expected_guests||0;
+    const sc=total>0&&ordered>=total?'#3a7d44':ordered>0?'var(--gold)':'var(--muted)';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;gap:8px">
+      <span style="color:var(--muted);flex:1">${ds}: <span style="color:var(--dark)">${b.name}</span>${b.event_time?' kl '+b.event_time.slice(0,5):''}</span>
+      <span style="color:${sc};font-weight:500;flex-shrink:0">${ordered}${total?' / '+total:''} beställt</span>
+      <button class="btn bd" style="font-size:10px;padding:3px 8px;flex-shrink:0" onclick="archiveFromCal('${b.id}')">Arkivera</button>
     </div>`;
   }).join('');
 
   // Status-kort
-  const statusHtml = '<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">'
-    + '<div style="flex:1;min-width:110px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:10px;padding:.7rem 1rem;text-align:center">'
-      + '<div style="font-size:1.5rem;color:#3a7d44;font-weight:400">'+totalOrders+'</div>'
-      + '<div style="font-size:11px;color:#3a7d44;margin-top:2px">✓ Har beställt</div>'
-    + '</div>'
-    + '<div style="flex:1;min-width:110px;background:#fdf7f0;border:1px solid #e8d4b0;border-radius:10px;padding:.7rem 1rem;text-align:center">'
-      + '<div style="font-size:1.5rem;color:var(--gold);font-weight:400">'+notOrdered+'</div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Har inte beställt</div>'
-    + '</div>'
-    + '<div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;text-align:center">'
-      + '<div style="font-size:1.5rem;color:var(--dark);font-weight:400">'+totalGuests+'</div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Gäster totalt</div>'
-    + '</div>'
-  + '</div>';
+  const statusHtml=totalGuests>0?`<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+    <div style="flex:1;min-width:110px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:10px;padding:.7rem 1rem;text-align:center">
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#3a7d44">${totalOrdered}</div>
+      <div style="font-size:11px;color:#3a7d44;margin-top:2px">✓ Har beställt</div>
+    </div>
+    <div style="flex:1;min-width:110px;background:#fdf7f0;border:1px solid #e8d4b0;border-radius:10px;padding:.7rem 1rem;text-align:center">
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:${extraOrdered?'#c0392b':'var(--gold)'}">${extraOrdered?'+'+extraOrdered:notOrdered}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">${extraOrdered?'Fler än förväntat':'Har inte beställt'}</div>
+    </div>
+    <div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;text-align:center">
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--dark)">${totalGuests}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Gäster totalt</div>
+    </div>
+  </div>`:'';
 
-  // Kökslista
-  const maxCount = Math.max(...Object.values(catMap).flatMap(c => Object.values(c)));
-  let kitchenHtml = '';
-  Object.entries(catMap).forEach(([cat, items]) => {
-    kitchenHtml += `<div class="kitchen-cat">${cat}</div>`;
-    Object.entries(items).sort((a,b) => b[1]-a[1]).forEach(([name, count]) => {
-      const pct = Math.round(count/maxCount*100);
-      kitchenHtml += `<div class="kitchen-row"><span>${name}</span><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div><strong>${count} st</strong></div></div>`;
-    });
-  });
+  let html=`<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem">${dateLabels}</div>
+        <div style="font-size:1.1rem;font-family:'Playfair Display',serif;color:var(--dark)">${totalBookings} sällskap · ${totalOrdered} beställningar</div>
+        <div style="margin-top:.5rem">${sallskapRows}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;margin-left:1rem">
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyCalKitchen()">📋 Kopiera</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="printCalKitchen()">🖨 Skriv ut</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="exportCalPDF()">📄 PDF</button>
+      </div>
+    </div>
+    ${statusHtml}
+    <div id="cal_kitchen_all">${buildKitchenHtml(allOrders)}</div>
+  </div>`;
 
-  resultsEl.innerHTML = '<div class="card cal-results">'
-    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">'
-      + '<div style="flex:1">'
-        + '<div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem">'+dateLabel.toUpperCase()+'</div>'
-        + '<div style="font-size:1.2rem;color:var(--dark);font-weight:400">'+selBookings.length+' sällskap · '+totalGuests+' gäster</div>'
-        + '<div style="margin-top:.5rem">'+sallskapRows+'</div>'
-      + '</div>'
-      + '<div style="display:flex;gap:6px;flex-shrink:0">'
-        + '<button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="demoAlert()">📋 Kopiera</button>'
-        + '<button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="demoAlert()">🖨 Skriv ut</button>'
-      + '</div>'
-    + '</div>'
-    + statusHtml
-    + kitchenHtml
-  + '</div>';
+  el.innerHTML=html;
 }
 
-// Auto-render cal when tab loads
-document.addEventListener('DOMContentLoaded', function(){
-  // Pre-select June 27 so there's something to show
-});
+async function exportCalPDF(){
+  if(IS_DEMO)return demoBlock();
+  if(!window.jspdf){alert('PDF-biblioteket laddas. Försök igen om ett ögonblick.');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const margin=20;let y=margin;
+  const pageH=297,pageW=210,contentW=pageW-margin*2;
+  function checkPage(n){if(y+n>pageH-margin){doc.addPage();y=margin;}}
+
+  const dates=[...calSel].sort();
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
+
+  // Header
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(26,23,18);
+  doc.text('Kökslista',margin,y);y+=8;
+  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(100,100,100);
+  doc.text(dateLabels,margin,y);y+=5;
+  doc.text('Skrivet ut: '+new Date().toLocaleString('sv-SE'),margin,y);y+=8;
+  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.line(margin,y,pageW-margin,y);y+=8;
+
+  // Hämta alla bokningar för valda datum
+  const {data:bs}=await db.from('bookings').select('*, orders(*, order_items(*, menu_items(name, menu_categories(label))))').eq('restaurant_id',rest.id).in('event_date',dates);
+  const allOrders=(bs||[]).flatMap(b=>(b.orders||[]));
+
+  // Räkna per kategori och rätt
+  const counts={};const allergies={};
+  allOrders.forEach(o=>(o.order_items||[]).forEach(oi=>{
+    const c=oi.menu_items?.menu_categories?.label||'?';
+    const n=oi.menu_items?.name||'?';
+    const k=c+'||'+n;
+    counts[k]=(counts[k]||0)+1;
+    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((o.guest_name||'Gäst')+': '+oi.comment.trim());}
+  }));
+  const byCat={};
+  Object.entries(counts).forEach(([k,cnt])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,cnt,k});});
+
+  Object.entries(byCat).forEach(([cat,items])=>{
+    checkPage(16);
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(184,149,90);
+    doc.text(cat.toUpperCase(),margin,y);y+=6;
+    doc.setTextColor(26,23,18);
+    items.forEach(({name,cnt,k})=>{
+      checkPage(10);
+      doc.setFont('helvetica','normal');doc.setFontSize(12);
+      doc.text(name,margin,y);
+      doc.setFont('helvetica','bold');
+      doc.text(String(cnt)+' st',pageW-margin,y,{align:'right'});
+      doc.setFont('helvetica','normal');
+      y+=7;
+      if(allergies[k]){
+        doc.setFontSize(9);doc.setTextColor(120,80,0);
+        allergies[k].forEach(a=>{checkPage(6);doc.text('  ⚠ '+a,margin+4,y);y+=5;});
+        doc.setTextColor(26,23,18);doc.setFontSize(12);
+      }
+    });
+    y+=4;
+  });
+
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+  doc.text('PreMeny – premeny.se',margin,pageH-10);
+  doc.save('kokslista-'+dates[0]+'.pdf');
+}
+
+// ARKIV
+let allArchived=[];
+
+function switchArchiveTab(tab){
+  document.getElementById('arc-pane-bookings').style.display=tab==='bookings'?'block':'none';
+  document.getElementById('arc-pane-menus').style.display=tab==='menus'?'block':'none';
+  var bBtn=document.getElementById('arc-tab-bookings');
+  var mBtn=document.getElementById('arc-tab-menus');
+  if(bBtn){bBtn.classList.toggle('active',tab==='bookings');}
+  if(mBtn){mBtn.classList.toggle('active',tab==='menus');}
+  if(tab==='menus')renderArchivedMenus();
+}
+
+async function renderArchivedMenus(){
+  var el=document.getElementById('archiveMenuList');
+  if(!el)return;
+  el.innerHTML='<span class="spinner"></span>';
+  var {data:ms}=await db.from('menus').select('*').eq('restaurant_id',rest.id).eq('archived',true).order('created_at',{ascending:false});
+  if(!ms||!ms.length){el.innerHTML='<div class="empty">Inga arkiverade menyer.</div>';return;}
+  el.innerHTML=ms.map(function(m){
+    return '<div class="bcard" style="margin-bottom:.75rem">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+        +'<div><div class="bname">'+escHtml(m.name)+'</div>'+(m.description?'<div class="bmeta">'+escHtml(m.description)+'</div>':'')+'</div>'
+        +'<div style="display:flex;gap:6px" id="ambtns_'+m.id+'"></div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+  ms.forEach(function(m){
+    var btns=document.getElementById('ambtns_'+m.id);
+    if(!btns)return;
+    var r=document.createElement('button');r.className='btn bg';r.style.fontSize='12px';r.textContent='Återställ';
+    r.addEventListener('click',function(){restoreMenu(m.id);});
+    var d=document.createElement('button');d.className='btn bd';d.style.fontSize='12px';d.textContent='Radera';
+    d.addEventListener('click',function(){deleteMenuPermanent(m.id);});
+    btns.appendChild(r);btns.appendChild(d);
+  });
+}
+
+async function restoreMenu(id){
+  await db.from('menus').update({archived:false}).eq('id',id);
+  renderArchivedMenus();renderMenu();
+}
+async function deleteMenuPermanent(id){
+  if(!confirm('Radera menyn permanent? Det går inte att ångra.'))return;
+  await db.from('menu_categories').delete().eq('menu_id',id);
+  await db.from('menus').delete().eq('id',id);
+  renderArchivedMenus();
+}
+async function archiveMenu(id){
+  if(IS_DEMO)return demoBlock();
+  if(!confirm('Arkivera menyn? Den kan återställas från Arkiv.'))return;
+  await db.from('menus').update({archived:true}).eq('id',id);
+  await renderMenu();
+}
+
+async function renderArchive(){
+  if(!rest)return;
+  const today=new Date().toISOString().split('T')[0];
+  // Hämta gamla bokningar OCH manuellt borttagna
+  const {data:old}=await db.from('bookings').select('*, orders(id)').eq('restaurant_id',rest.id).lt('event_date',today).is('deleted_at',null).order('event_date',{ascending:false});
+  const {data:deleted}=await db.from('bookings').select('*, orders(id)').eq('restaurant_id',rest.id).not('deleted_at','is',null).order('event_date',{ascending:false});
+  allArchived=[...(old||[]),...(deleted||[])];
+  renderArchiveList(allArchived);
+}
+
+function renderArchiveList(bookings){
+  const list=document.getElementById('archiveList');
+  if(!bookings.length){list.innerHTML='<div class="empty">Inga arkiverade bokningar ännu.</div>';return;}
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  list.innerHTML=bookings.map(b=>{
+    const d=new Date(b.event_date+'T12:00:00');
+    return `<div class="bcard" id="arc_card_${b.id}">
+      <div class="bhead" onclick="toggleArc('${b.id}')">
+        <div style="flex:1">
+          <div class="bname">${b.name}</div>
+          <div class="bmeta">${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} · ${(b.orders||[]).length} beställningar</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <span class="pill pa">Arkiverad</span>
+          <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();restoreBooking('${b.id}')">Återställ</button>
+          <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();deleteArchivedBooking('${b.id}')">Radera</button>
+        </div>
+      </div>
+      <div id="arc_${b.id}" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem"></div>
+    </div>`;
+  }).join('');
+}
+
+async function restoreBooking(id){
+  if(IS_DEMO)return demoBlock();
+  if(!confirm('Återställ bokningen till aktiva bokningar?'))return;
+  await db.from('bookings').update({deleted_at:null}).eq('id',id);
+  allArchived=allArchived.filter(b=>b.id!==id);
+  renderArchiveList(allArchived);
+  renderBookings();
+}
+async function deleteArchivedBooking(id){
+  if(IS_DEMO)return demoBlock();
+  if(!confirm('Radera bokningen permanent? Det går inte att ångra.'))return;
+  await db.from('orders').delete().eq('booking_id',id);
+  await db.from('bookings').delete().eq('id',id);
+  allArchived=allArchived.filter(b=>b.id!==id);
+  renderArchiveList(allArchived);
+}
+
+function filterArchive(){
+  const q=document.getElementById('archiveSearch').value.trim().toLowerCase();
+  const clearBtn=document.getElementById('clearArchiveSearch');
+  const info=document.getElementById('archiveSearchInfo');
+  clearBtn.style.display=q?'block':'none';
+  if(!q){info.style.display='none';renderArchiveList(allArchived);return;}
+  const filtered=allArchived.filter(b=>
+    (b.name||'').toLowerCase().includes(q)||
+    (b.contact_name||'').toLowerCase().includes(q)||
+    (b.contact_email||'').toLowerCase().includes(q)||
+    (b.contact_phone||'').toLowerCase().includes(q)
+  );
+  info.style.display='block';
+  info.textContent=filtered.length+' av '+allArchived.length+' bokningar';
+  renderArchiveList(filtered);
+}
+function clearArchiveSearch(){document.getElementById('archiveSearch').value='';filterArchive();}
+
+async function toggleArc(id){
+  const el=document.getElementById('arc_'+id);if(!el)return;
+  if(el.style.display==='none'){
+    el.style.display='block';el.innerHTML='<span class="spinner"></span>';
+    const b=allArchived.find(x=>x.id===id);
+    const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
+    const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    let html='';
+    // Bokningsinfo
+    if(b){
+      if(b.contact_name||b.contact_email||b.contact_phone){
+        html+='<div class="info-box" style="margin-bottom:.75rem"><strong>Kontaktperson:</strong> '+(b.contact_name||'')
+          +(b.contact_email?' · <a href="mailto:'+b.contact_email+'" style="color:var(--gold)">'+b.contact_email+'</a>':'')
+          +(b.contact_phone?' · <a href="tel:'+b.contact_phone+'" style="color:var(--gold)">'+b.contact_phone+'</a>':'')
+          +'</div>';
+      }
+      if(b.expected_guests){
+        html+='<div style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Förväntade gäster: '+b.expected_guests+' · Beställningar: '+(orders?.length||0)+'</div>';
+      }
+    }
+    // Menyinfo med hela menyn
+    if(b&&b.menu_id){
+      const {data:menuInfo}=await db.from('menus').select('name').eq('id',b.menu_id).single();
+      const {data:menuCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',b.menu_id).order('sort_order');
+      if(menuInfo){
+        html+='<div style="margin-bottom:.75rem">';
+        html+='<div style="font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem">Meny: '+escHtml(menuInfo.name)+'</div>';
+        (menuCats||[]).forEach(cat=>{
+          const items=(cat.menu_items||[]).filter(i=>i.active);
+          if(!items.length)return;
+          html+='<div style="font-size:12px;color:var(--muted);margin-bottom:.2rem;font-style:italic">'+escHtml(cat.label)+'</div>';
+          html+='<div style="font-size:13px;color:var(--dark);margin-bottom:.4rem;padding-left:.75rem">';
+          items.forEach(i=>{html+=escHtml(i.name)+(i.price?' <span style="color:var(--gold)">'+i.price+' kr</span>':'')+'<br>';});
+          html+='</div>';
+        });
+        html+='</div>';
+      }
+    }
+    // Kökslista eller tom
+    html+=orders?.length?renderKitchen(orders):'<div style="font-size:13px;color:var(--muted);padding:.5rem 0">Inga beställningar registrerades.</div>';
+    el.innerHTML=html;
+  }else el.style.display='none';
+}
+
+// MENY
+async function loadCats(){
+  const {data:menuData}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
+  menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
+  if(menus.length&&!activeMenuId)activeMenuId=menus[0].id;
+  if(activeMenuId){
+    const {data}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',activeMenuId).order('sort_order');
+    cats=(data||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)}));
+  } else {
+    cats=[];
+  }
+}
+
+async function renderMenu(keepOpen){
+  const sel=document.getElementById('menu-selector');
+  const ed=document.getElementById('menuEditor');
+  sel.innerHTML='<div style="font-size:13px;color:var(--muted)"><span class="spinner"></span> Laddar...</div>';
+  ed.innerHTML='';
+  const {data:menuData,error}=await db.from('menus').select('*').eq('restaurant_id',rest.id).order('created_at');
+  if(error){sel.innerHTML='<div style="color:red;font-size:13px">Fel: '+error.message+'</div>';return;}
+  menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
+  window._menuIds=menus.map(m=>m.id);
+  if(!menus.length){sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga menyer ännu.</div>';return;}
+  sel.innerHTML=menus.map(function(m){
+    var desc=m.description?'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+escHtml(m.description)+'</div>':'';
+    return '<div class="bcard" id="mc_'+m.id+'">'
+      +'<div class="bhead" onclick="toggleMC(this.parentElement.id.slice(3))">'
+        +'<div style="flex:1">'
+          +'<div style="display:flex;align-items:center;gap:8px">'
+            +'<div class="bname">'+escHtml(m.name)+'</div>'
+            +'<span style="font-size:12px;color:var(--gold)">Se mer ›</span>'
+          +'</div>'
+          +desc
+        +'</div>'
+      +'</div>'
+      +'<div class="bdetail" id="mdet_'+m.id+'">'
+        +'<div style="display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap" id="mbtns_'+m.id+'"></div>'
+        +'<div id="mcontent_'+m.id+'"><div style="font-size:13px;color:var(--muted)">Laddar...</div></div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+  // Återöppna aktiv meny om den fanns
+  if(keepOpen&&activeMenuId&&menus.find(m=>m.id===activeMenuId)){
+    var elOpen=document.getElementById('mc_'+activeMenuId);
+    if(elOpen)elOpen.classList.add('open');
+    var contentElOpen=document.getElementById('mcontent_'+activeMenuId);
+    if(contentElOpen)contentElOpen.innerHTML='<div style="font-size:13px;color:var(--muted);padding:.5rem 0"><span class="spinner"></span> Laddar...</div>';
+    loadMenuItems(activeMenuId);
+  }
+  // Wire up menu buttons using addEventListener (no inline onclick with quotes)
+  menus.forEach(function(m){
+    var btnsEl=document.getElementById('mbtns_'+m.id);
+    if(!btnsEl)return;
+    var btnNy=document.createElement('button');btnNy.className='btn bg';btnNy.style.fontSize='12px';btnNy.textContent='+ Ny rubrik';
+    btnNy.addEventListener('click',function(e){e.stopPropagation();activeMenuId=m.id;toggleNC();});
+    var btnRename=document.createElement('button');btnRename.className='btn bg';btnRename.style.fontSize='12px';btnRename.textContent='Byt namn';
+    btnRename.addEventListener('click',function(e){e.stopPropagation();renameMenu(m.id,m.name);});
+    var btnKopiera=document.createElement('button');btnKopiera.className='btn bg';btnKopiera.style.fontSize='12px';btnKopiera.textContent='Kopiera meny';
+    btnKopiera.addEventListener('click',function(e){e.stopPropagation();copyMenu(m.id);});
+    var btnArkivera=document.createElement('button');btnArkivera.className='btn bg';btnArkivera.style.fontSize='12px';btnArkivera.textContent='Arkivera meny';
+    btnArkivera.addEventListener('click',function(e){e.stopPropagation();archiveMenu(m.id);});
+    var btnDel=document.createElement('button');btnDel.className='btn bd';btnDel.style.fontSize='12px';btnDel.textContent='Ta bort meny';
+    btnDel.addEventListener('click',function(e){e.stopPropagation();deleteMenu(m.id);});
+    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
+  });
+}
+
+
+let _menuLoading=false;
+async function toggleMC(id){
+  if(_menuLoading)return;
+  const wasOpen=activeMenuId===id;
+  activeMenuId=wasOpen?null:id;
+  menus.forEach(function(m){
+    const el=document.getElementById('mc_'+m.id);
+    if(el)el.classList.toggle('open',m.id===activeMenuId);
+  });
+  if(activeMenuId){
+    var contentEl=document.getElementById('mcontent_'+activeMenuId);
+    if(contentEl)contentEl.innerHTML='<div style="font-size:13px;color:var(--muted);padding:.5rem 0"><span class="spinner"></span> Laddar...</div>';
+    _menuLoading=true;
+    try{await loadMenuItems(activeMenuId);}finally{_menuLoading=false;}
+  }
+}
+
+async function loadMenuItems(menuId){
+  await loadCats();
+  window._catIds=cats.map(c=>c.id);
+  var el=document.getElementById('mcontent_'+menuId);
+  if(!el)return;
+  if(!cats.length){
+    el.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga rubriker. Klicka &quot;+ Ny rubrik&quot; för att komma igång.</div>';
+    return;
+  }
+  el.innerHTML='';
+  cats.forEach(function(cat){
+    // Category wrapper
+    var catDiv=document.createElement('div');
+    catDiv.style.marginBottom='1.75rem';
+    
+    // Category header
+    var catHead=document.createElement('div');
+    catHead.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem';
+    
+    var catLabel=document.createElement('div');
+    catLabel.style.cssText="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)";
+    catLabel.textContent=cat.label;
+    
+    var catBtns=document.createElement('div');
+    catBtns.style.display='flex';catBtns.style.gap='6px';
+    
+    var btnAdd=document.createElement('button');btnAdd.className='btn bg';btnAdd.style.cssText='font-size:11px;padding:4px 10px';btnAdd.textContent='+ Lägg till rätt';
+    btnAdd.addEventListener('click',function(){showAI(cat.id);});
+    
+    var btnDelCat=document.createElement('button');btnDelCat.className='btn bd';btnDelCat.style.cssText='font-size:11px;padding:4px 10px';btnDelCat.textContent='Ta bort rubrik';
+    btnDelCat.addEventListener('click',function(){delCat(cat.id);});
+    
+    catBtns.appendChild(btnAdd);catBtns.appendChild(btnDelCat);
+    catHead.appendChild(catLabel);catHead.appendChild(catBtns);
+    catDiv.appendChild(catHead);
+    
+    // Items card
+    var card=document.createElement('div');
+    card.className='card';
+    
+    if(!(cat.menu_items||[]).length){
+      var empty=document.createElement('div');
+      empty.style.cssText='font-size:13px;color:var(--muted);padding:.25rem 0';
+      empty.textContent='Inga rätter ännu.';
+      card.appendChild(empty);
+    }
+    
+    (cat.menu_items||[]).forEach(function(item){
+      // Item row
+      var row=document.createElement('div');
+      row.className='menu-item-row';
+      
+      var info=document.createElement('div');
+      info.className='menu-item-info';
+      var name=document.createElement('div');
+      name.className='menu-item-name';name.style.fontWeight='600';name.textContent=item.name;
+      info.appendChild(name);
+      if(item.description){
+        var desc=document.createElement('div');desc.className='menu-item-desc';desc.textContent=item.description;
+        info.appendChild(desc);
+      }
+      
+      var price=document.createElement('div');
+      price.className='menu-item-price';price.textContent=item.price?item.price+' kr':'';
+      
+      var btnEdit=document.createElement('button');btnEdit.className='btn bg';btnEdit.style.cssText='font-size:11px;padding:4px 8px;flex-shrink:0';btnEdit.textContent='Redigera';
+      btnEdit.addEventListener('click',function(){editItem(item.id);});
+      
+      var btnDel=document.createElement('button');btnDel.className='btn bd';btnDel.style.cssText='font-size:11px;padding:4px 8px;flex-shrink:0';btnDel.textContent='Ta bort';
+      btnDel.addEventListener('click',function(){delItem(item.id);});
+      
+      row.appendChild(info);row.appendChild(price);row.appendChild(btnEdit);row.appendChild(btnDel);
+      card.appendChild(row);
+      
+      // Edit form (hidden)
+      var editDiv=document.createElement('div');
+      editDiv.id='iedit_'+item.id;
+      editDiv.style.cssText='display:none;background:var(--surface2);border-radius:8px;padding:12px;margin:4px 0';
+      editDiv.innerHTML='<div class="r2">'
+        +'<div class="ff"><label>Namn</label><input type="text" id="ien_'+item.id+'" value="'+escAttr(item.name)+'"></div>'
+        +'<div class="ff"><label>Pris (kr)</label><input type="number" id="iep_'+item.id+'" value="'+(item.price||0)+'"></div>'
+        +'</div>'
+        +'<div class="ff"><label>Beskrivning</label><textarea id="ied_'+item.id+'" style="min-height:55px">'+escHtml(item.description||'')+'</textarea></div>'
+        +'<div class="fg"></div>';
+      
+      var fgDiv=editDiv.querySelector('.fg');
+      var btnSave=document.createElement('button');btnSave.className='btn bp';btnSave.style.fontSize='12px';btnSave.textContent='Spara';
+      btnSave.addEventListener('click',function(){saveItem(item.id);});
+      var btnCancel=document.createElement('button');btnCancel.className='btn bg';btnCancel.style.fontSize='12px';btnCancel.textContent='Avbryt';
+      btnCancel.addEventListener('click',function(){document.getElementById('iedit_'+item.id).style.display='none';});
+      fgDiv.appendChild(btnSave);fgDiv.appendChild(btnCancel);
+      
+      card.appendChild(editDiv);
+    });
+    
+    // Add item form (hidden)
+    var aiDiv=document.createElement('div');
+    aiDiv.id='ai_'+cat.id;
+    aiDiv.style.cssText='display:none;padding-top:.75rem;border-top:1px solid var(--border)';
+    aiDiv.innerHTML='<div class="r2">'
+      +'<div class="ff"><label>Namn</label><input type="text" id="ain_'+cat.id+'" placeholder="Rättens namn"></div>'
+      +'<div class="ff"><label>Pris (kr)</label><input type="number" id="aip_'+cat.id+'" placeholder="150"></div>'
+      +'</div>'
+      +'<div class="ff"><label>Beskrivning</label><textarea id="aid_'+cat.id+'" style="min-height:55px" placeholder="Ingredienser..."></textarea></div>'
+      +'<div class="fg"></div>';
+    var aiFg=aiDiv.querySelector('.fg');
+    var btnAiAdd=document.createElement('button');btnAiAdd.className='btn bp';btnAiAdd.style.fontSize='12px';btnAiAdd.textContent='Lägg till';
+    btnAiAdd.addEventListener('click',function(){addItem(cat.id);});
+    var btnAiCancel=document.createElement('button');btnAiCancel.className='btn bg';btnAiCancel.style.fontSize='12px';btnAiCancel.textContent='Avbryt';
+    btnAiCancel.addEventListener('click',function(){document.getElementById('ai_'+cat.id).style.display='none';});
+    aiFg.appendChild(btnAiAdd);aiFg.appendChild(btnAiCancel);
+    
+    card.appendChild(aiDiv);
+    catDiv.appendChild(card);
+    el.appendChild(catDiv);
+  });
+}
+
+
+
+// ─── HULPFUNKTIONER MENY ─────────────────────────────────────────────
+function showNewMenuForm(){document.getElementById('newMenuForm').style.display='block';}
+function toggleNC(){
+  var f=document.getElementById('newCatForm');
+  if(!f)return;
+  var isHidden=f.style.display==='none'||f.style.display==='';
+  f.style.display=isHidden?'block':'none';
+  if(isHidden){
+    f.scrollIntoView({behavior:'smooth',block:'nearest'});
+    var inp=document.getElementById('nc-name');
+    if(inp){inp.value='';inp.focus();}
+  }
+}
+function showAI(catId){var el=document.getElementById('ai_'+catId);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function editItem(id){var el=document.getElementById('iedit_'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function switchImportTab(tab){
+  document.getElementById('import-text-wrap').style.display=tab==='text'?'block':'none';
+  document.getElementById('import-image-wrap').style.display=tab==='image'?'block':'none';
+  ['text','image'].forEach(function(t){var btn=document.getElementById('import-tab-'+t);if(btn){btn.classList.toggle('bp',t===tab);btn.classList.toggle('bg',t!==tab);}});
+}
+function cancelImport(){_importData=null;var r=document.getElementById('import-result');if(r)r.style.display='none';}
+function closeQR(){var el=document.getElementById('qrOverlay');if(el)el.style.display='none';}
+async function downloadQR(){
+  if(IS_DEMO)return demoBlock();var canvas=document.querySelector('#qrCanvas canvas');if(!canvas)return;var a=document.createElement('a');a.download='qr-premeny.png';a.href=canvas.toDataURL('image/png');a.click();}
+async function createMenu(){
+  if(IS_DEMO)return demoBlock();
+  var name=document.getElementById('nm-name').value.trim();if(!name)return;
+  var {data,error}=await db.from('menus').insert({restaurant_id:rest.id,name,description:document.getElementById('nm-desc').value.trim()}).select().single();
+  if(error){alert('Fel: '+error.message);return;}
+  activeMenuId=data.id;
+  document.getElementById('newMenuForm').style.display='none';
+  document.getElementById('nm-name').value='';document.getElementById('nm-desc').value='';
+  await renderMenu();
+}
+async function addCat(){
+  if(IS_DEMO)return demoBlock();
+  var name=document.getElementById('nc-name').value.trim();if(!name||!activeMenuId)return;
+  var maxSort=cats.length?Math.max(...cats.map(function(c){return c.sort_order||0;})):0;
+  var {error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:name,sort_order:maxSort+1});
+  if(error){alert('Fel: '+error.message);return;}
+  document.getElementById('nc-name').value='';
+  var f=document.getElementById('newCatForm');if(f)f.style.display='none';
+  await renderMenu(true);
+  // Scrolla till menyinnehållet efter uppdatering
+  setTimeout(function(){
+    var el=document.getElementById('mcontent_'+activeMenuId);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },300);
+}
+async function saveSettings(){
+  if(IS_DEMO)return demoBlock();
+  var restName=document.getElementById('set-name')?document.getElementById('set-name').value.trim():rest.name;
+  var phone=document.getElementById('set-phone').value.trim();
+  var email=document.getElementById('set-email').value.trim();
+  var address=document.getElementById('set-address').value.trim();
+  var website=document.getElementById('set-website').value.trim();
+  var msg=document.getElementById('set-msg');
+  var logoUrl=rest.logo_url||null;
+  var logoFile=document.getElementById('set-logo').files[0];
+  if(logoFile){
+    var ext=logoFile.name.split('.').pop();
+    var path=rest.id+'/logo.'+ext;
+    var {error:upErr}=await db.storage.from('logos').upload(path,logoFile,{upsert:true});
+    if(!upErr){var {data:pub}=db.storage.from('logos').getPublicUrl(path);logoUrl=pub.publicUrl+'?t='+Date.now();}
+  }
+  var {error}=await db.from('restaurants').update({name:restName,phone,contact_email:email,address,website,logo_url:logoUrl}).eq('id',rest.id);
+  if(msg){msg.style.display='block';}
+  if(error){if(msg){msg.className='msg merr';msg.textContent='Fel: '+error.message;}}
+  else{if(msg){msg.className='msg mok';msg.textContent='Sparat!';}rest=Object.assign({},rest,{phone,contact_email:email,address,website,logo_url:logoUrl});setTimeout(function(){if(msg)msg.style.display='none';},3000);}
+}
+var _importData=null;
+async function importMenu(){
+  if(IS_DEMO)return demoBlock();
+  if(!activeMenuId){alert('Välj en meny först.');return;}
+  var textVal=document.getElementById('menu-import-text').value.trim();
+  var imgFile=document.getElementById('menu-import-image').files[0];
+  if(!textVal&&!imgFile)return;
+  document.getElementById('import-btn').disabled=true;
+  document.getElementById('import-loading').style.display='block';
+  try{
+    var body={text:textVal};
+    if(imgFile){var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(imgFile);});body.image=b64;body.imageType=imgFile.type;}
+    var {data:{session}}=await db.auth.getSession();
+    var resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});
+    var result=await resp.json();
+    if(!result.categories)throw new Error(result.error||'Ingen data');
+    _importData=result.categories;
+    var ph='';
+    result.categories.forEach(function(cat){
+      ph+='<div style="margin-bottom:1rem"><div class="card-label">'+escHtml(cat.label)+'</div><div class="card" style="padding:.5rem">';
+      (cat.items||[]).forEach(function(item){ph+='<div class="menu-item-row"><div class="menu-item-info"><div class="menu-item-name">'+escHtml(item.name)+'</div>'+(item.description?'<div class="menu-item-desc">'+escHtml(item.description)+'</div>':'')+'</div><div class="menu-item-price">'+(item.price?item.price+' kr':'')+'</div></div>';});
+      ph+='</div></div>';
+    });
+    document.getElementById('import-preview-content').innerHTML=ph;
+    document.getElementById('import-result').style.display='block';
+  }catch(err){alert('Fel: '+err.message);}
+  document.getElementById('import-btn').disabled=false;
+  document.getElementById('import-loading').style.display='none';
+}
+async function confirmImport(){
+  if(!_importData||!activeMenuId)return;
+  for(var i=0;i<_importData.length;i++){
+    var cat=_importData[i];
+    var maxSort=cats.length?Math.max(...cats.map(function(c){return c.sort_order||0;})):0;
+    var {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:cat.label,sort_order:maxSort+1}).select().single();
+    if(error||!newCat)continue;
+    for(var j=0;j<(cat.items||[]).length;j++){
+      var item=cat.items[j];
+      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description||'',price:parseInt(item.price)||0,sort_order:j,active:true});
+    }
+  }
+  _importData=null;var r=document.getElementById('import-result');if(r)r.style.display='none';
+  await renderMenu();
+}
+
+
+async function sendOverCapacityWarning(b,n){
+  try{
+    await db.from('bookings').update({over_capacity_warned:true}).eq('id',b.id);
+    if(!rest||!rest.contact_email)return;
+    const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    const d=new Date(b.event_date+'T12:00:00');
+    const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+    const extra=n-b.expected_guests;
+    const {data:{session}}=await db.auth.getSession();
+    await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({
+        type:'overcapacity',
+        booking:Object.assign({},b,{contact_email:rest.contact_email}),
+        restaurant:rest,
+        guestLink:'https://premeny.se/admin.html',
+        extra:{count:extra,total:n,expected:b.expected_guests,dateStr:ds}
+      })
+    });
+  }catch(e){console.warn('sendOverCapacityWarning:',e.message);}
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────────
+function previewLogo(input){
+  if(!input.files||!input.files[0])return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var prev=document.getElementById('logo-preview');
+    if(prev)prev.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain">';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+async function loadSettings(){
+  if(!rest)return;
+  var nm=document.getElementById('set-name');if(nm)nm.value=rest.name||'';
+  var p=document.getElementById('set-phone');if(p)p.value=rest.phone||'';
+  var e=document.getElementById('set-email');if(e)e.value=rest.contact_email||'';
+  var a=document.getElementById('set-address');if(a)a.value=rest.address||'';
+  var w=document.getElementById('set-website');if(w)w.value=rest.website||'';
+  var prev=document.getElementById('logo-preview');
+  if(prev&&rest.logo_url)prev.innerHTML='<img src="'+rest.logo_url+'" style="width:100%;height:100%;object-fit:contain">';
+}
+
+async function saveItem(id){
+  if(IS_DEMO)return demoBlock();
+  var name=document.getElementById('ien_'+id);
+  var price=document.getElementById('iep_'+id);
+  var desc=document.getElementById('ied_'+id);
+  if(!name||!name.value.trim())return;
+  var {error}=await db.from('menu_items').update({
+    name:name.value.trim(),
+    price:parseInt(price.value)||0,
+    description:desc.value.trim()
+  }).eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  await renderMenu(true);
+}
+async function delItem(id){
+  if(IS_DEMO)return demoBlock();
+  if(!confirm('Ta bort rätten?'))return;
+  await db.from('menu_items').update({active:false}).eq('id',id);
+  await renderMenu(true);
+}
+async function addItem(catId){
+  if(IS_DEMO)return demoBlock();
+  var n=document.getElementById('ain_'+catId);
+  var p=document.getElementById('aip_'+catId);
+  var d=document.getElementById('aid_'+catId);
+  if(!n||!n.value.trim())return;
+  var {error}=await db.from('menu_items').insert({
+    category_id:catId,restaurant_id:rest.id,
+    name:n.value.trim(),price:parseInt(p.value)||0,
+    description:d.value.trim(),sort_order:Math.floor(Date.now()/1000),active:true
+  });
+  if(error){alert('Fel: '+error.message);return;}
+  n.value='';p.value='';d.value='';
+  await renderMenu(true);
+}
+async function delCat(catId){
+  if(IS_DEMO)return demoBlock();
+  if(!confirm('Ta bort rubriken och alla rätter under den?'))return;
+  await db.from('menu_items').delete().eq('category_id',catId);
+  await db.from('menu_categories').delete().eq('id',catId);
+  await renderMenu(true);
+}
+async function renameMenu(id, currentName){
+  if(IS_DEMO)return demoBlock();
+  var newName=prompt('Nytt namn på menyn:',currentName);
+  if(!newName||!newName.trim()||newName.trim()===currentName)return;
+  var {error}=await db.from('menus').update({name:newName.trim()}).eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  activeMenuId=id; // Säkerställ att rätt meny är aktiv
+  await renderMenu(true);
+}
+
+async function copyMenu(id){
+  if(IS_DEMO)return demoBlock();
+  var src=menus.find(m=>m.id===id);if(!src)return;
+  var newName=prompt('Namn på den kopierade menyn:',src.name+' (kopia)');
+  if(!newName||!newName.trim())return;
+  var {data:newMenu,error}=await db.from('menus').insert({restaurant_id:rest.id,name:newName.trim(),description:src.description||''}).select().single();
+  if(error||!newMenu){alert('Fel vid kopiering');return;}
+  var {data:srcCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',id).order('sort_order');
+  for(var i=0;i<(srcCats||[]).length;i++){
+    var cat=srcCats[i];
+    var {data:newCat}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:newMenu.id,label:cat.label,sort_order:cat.sort_order}).select().single();
+    if(!newCat)continue;
+    for(var j=0;j<(cat.menu_items||[]).length;j++){
+      var item=cat.menu_items[j];
+      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,price:item.price,description:item.description||'',sort_order:item.sort_order,active:true});
+    }
+  }
+  await renderMenu();
+}
+async function deleteMenu(id){
+  if(IS_DEMO)return demoBlock();
+  if(!confirm('Ta bort menyn permanent?'))return;
+  await db.from('menu_categories').select('id').eq('menu_id',id).then(async function({data:cs}){
+    for(var c of (cs||[])){await db.from('menu_items').delete().eq('category_id',c.id);}
+  });
+  await db.from('menu_categories').delete().eq('menu_id',id);
+  await db.from('menus').delete().eq('id',id);
+  activeMenuId=null;
+  await renderMenu();
+}
+// Demo: starta automatiskt
+autoInitDemo();
 </script>
 </body>
 </html>
+
