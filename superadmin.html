@@ -635,6 +635,13 @@ async function openEditRest(id){
         </div>
         <div style="font-size:11px;color:var(--muted);margin-top:4px">Detta är adressen kunden loggar in med och dit välkomstmejlet skickas. "Spara" nedan påverkar inte den – använd knappen "Byt inloggning".</div>
       </div>
+      <div class="ff" style="margin-top:.75rem"><label>Lösenord <span style="font-size:11px;color:var(--muted);font-weight:400">(för att logga in som kund och granska – mejlas INTE)</span></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="er-login-pass" placeholder="Sätt ett lösenord (minst 6 tecken)" style="flex:1;min-width:200px">
+          <button class="btn bg" type="button" onclick="setLoginPassword('${id}')" style="white-space:nowrap">Sätt lösenord</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Sätter kontots lösenord <strong>utan att meddela kunden</strong>. Logga sedan in på premeny.se/admin.html med inloggnings-e-posten ovan + detta lösenord och granska i lugn och ro. Kunden får sina uppgifter först när du skickar välkomstmejlet.</div>
+      </div>
     </div>
     <div id="er-msg" style="display:none" class="msg"></div>
     <div style="display:flex;gap:8px">
@@ -655,6 +662,21 @@ async function loadLoginEmail(id){
     const j=await r.json();
     if(j.ok&&j.email){el.value=j.email;}else{el.value='';el.placeholder='(kunde inte hämta)';}
   }catch(e){el.value='';el.placeholder='(kunde inte hämta)';}
+}
+
+async function setLoginPassword(id){
+  const el=document.getElementById('er-login-pass');
+  const v=(el?el.value:'').trim();
+  if(!v){alert('Skriv ett lösenord (minst 6 tecken).');return;}
+  if(v.length<6){alert('Lösenordet måste vara minst 6 tecken.');return;}
+  if(!confirm('Sätt lösenordet till:\n'+v+'\n\nKunden meddelas INTE. Du kan logga in som kunden med inloggnings-e-posten + detta lösenord.'))return;
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    const r=await fetch(SURL+'/functions/v1/update-admin-email',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({restaurantId:id,newPassword:v})});
+    const j=await r.json();
+    if(!j.ok)throw new Error(j.error||'Okänt fel');
+    alert('✓ Lösenord satt (inget mejl skickat).\n\nLogga in på premeny.se/admin.html med inloggnings-e-posten + '+v+'\nTips: använd ett inkognitofönster så påverkas inte din superadmin-session.');
+  }catch(e){alert('Fel: '+e.message);}
 }
 
 async function changeLoginEmail(id){
@@ -890,6 +912,16 @@ async function sendWelcomeEmail(){
   btn.disabled=true; btn.textContent='Skickar...'; msg.style.display='none';
   try{
     const {data:{session}} = await db.auth.getSession();
+    // Sätt kontots e-post + lösenord till exakt det som mejlas, så uppgifterna fungerar för inloggning
+    if(_welcomeRestId){
+      const setResp = await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/update-admin-email',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body: JSON.stringify({ restaurantId:_welcomeRestId, newEmail:email, newPassword:pass })
+      });
+      const setJson = await setResp.json();
+      if(!setJson.ok) throw new Error(setJson.error||'Kunde inte sätta inloggningsuppgifterna');
+    }
     const resp = await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
