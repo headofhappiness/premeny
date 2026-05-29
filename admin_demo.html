@@ -5,6 +5,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
+<meta name="description" content="Testa PreMeny – så här ser restaurangens vy ut när gästerna förbeställt sin mat.">
+<!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PreMeny">
+<meta property="og:title" content="PreMeny – Se demon">
+<meta property="og:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
+<meta property="og:image" content="https://premeny.se/og-demo.png">
+<meta property="og:url" content="https://premeny.se/admin_demo.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PreMeny – Se demon">
+<meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
+<meta name="twitter:image" content="https://premeny.se/og-demo.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--bs:#d4ccc0;--gold:#b8955a;--dark:#1a1712;--text:#1a1712;--muted:#5a5248;--red:#c0392b}
@@ -900,8 +912,9 @@ function renderKitchen(orders){
   const max=Math.max(...Object.values(counts));
   const byCat={};
   Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
-  return Object.entries(byCat).map(([cat,items])=>
-    `<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem">${cat}</div>`+
+  return Object.entries(byCat).map(([cat,items])=>{
+    const catTotal=items.reduce((s,it)=>s+it.n,0);
+    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
     items.map(({name,n,k})=>
       `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
         <div style="display:flex;align-items:center;gap:8px">
@@ -911,8 +924,8 @@ function renderKitchen(orders){
         </div>
         ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
       </div>`
-    ).join('')
-  ).join('');
+    ).join('');
+  }).join('');
 }
 
 function renderGuests(orders,bid){
