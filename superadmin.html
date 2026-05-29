@@ -1115,7 +1115,7 @@ async function smImportMenu(){
     if(!parsed.categories||!Array.isArray(parsed.categories)) throw new Error('Fel format från AI');
     _smImportData=parsed.categories;
     let ph='';
-    result.categories.forEach(function(cat){
+    _smImportData.forEach(function(cat){
       ph+='<div style="margin-bottom:.75rem"><div style="font-family:\'Playfair Display\',serif;font-style:italic;color:var(--dark);margin-bottom:.25rem">'+escAttrSM(cat.label)+'</div><div class="card" style="padding:.5rem;margin-bottom:0">';
       (cat.items||[]).forEach(function(item){
         ph+='<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:13px"><span>'+escAttrSM(item.name)+(item.description?' <span style="color:var(--muted)">– '+escAttrSM(item.description)+'</span>':'')+'</span><span style="color:var(--muted);white-space:nowrap">'+(item.price?item.price+' kr':'')+'</span></div>';
