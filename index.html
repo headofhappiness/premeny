@@ -207,6 +207,10 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
 }
 
 @media(max-width:600px){
+  /* Footer: visa Org.nr på egen rad */
+  footer .org-sep{display:none}
+  footer .org-nr{display:block}
+
   /* Base text size for comfortable reading */
   body{font-size:17px}
 
@@ -456,6 +460,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
 </section>
 
 <!-- HOW IT WORKS -->
+<span id="contact" aria-hidden="true" style="display:block;scroll-margin-top:80px"></span>
 <section class="cta-section" id="demo">
   <div class="container">
     <div class="section-tag">Kom igång</div>
@@ -482,7 +487,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
 
 <footer>
   <div class="footer-logo">Pre<span>Meny</span></div>
-  <p style="margin-top:.5rem">© 2026 PreMeny · En tjänst från Head of Happiness AB · Org.nr 556834-4518</p>
+  <p style="margin-top:.5rem">© 2026 PreMeny · En del av Head of Happiness AB<span class="org-sep"> · </span><span class="org-nr">Org.nr 556834-4518</span></p>
 </footer>
 
 <script>

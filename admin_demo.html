@@ -136,7 +136,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   <div style="display:flex;flex-direction:column;gap:5px;align-items:center;line-height:1.6;text-align:center">
     <div>👤 <a href="https://premeny.se/guest.html?r=demo&b=84fbc0c1-2b36-4b0c-abfd-462d8630342a" target="_blank" style="color:#b8955a;font-weight:600;text-decoration:none">Se hur det ser ut för dina gäster →</a></div>
     <div>Vill du ha en personlig genomgång? <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" style="color:#b8955a;font-weight:600;text-decoration:none">Boka möte</a></div>
-    <div>Redo att bli kund? <a href="https://premeny.se/#contact" target="_blank" style="color:#b8955a;font-weight:600;text-decoration:none">Fyll i formuläret</a></div>
+    <div>Redo att bli kund? <a href="https://premeny.se/#demo" target="_blank" style="color:#b8955a;font-weight:600;text-decoration:none">Fyll i formuläret</a></div>
   </div>
 </div>
 <div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
@@ -589,6 +589,14 @@ function showTab(tab){
 // BOOKINGS
 let allBookings=[];
 
+// Demo: visa ett stabilt antal beställningar 10–25 per bokning (samma vid varje laddning)
+function demoOrderCount(b){
+  var s=String(b.id||b.name||'');
+  var h=0;
+  for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}
+  return 10+(h%16); // 10..25
+}
+
 async function renderBookings(){
   if(!rest)return;
   const today=new Date().toISOString().split('T')[0];
@@ -639,7 +647,7 @@ function renderBCard(b){
   const today=new Date();today.setHours(0,0,0,0);
   const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
   const closed=dl&&today>dl;
-  const n=(b.orders||[]).length;
+  const n=IS_DEMO?demoOrderCount(b):(b.orders||[]).length;
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date);
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -2037,6 +2045,7 @@ async function confirmImport(){
 
 
 async function sendOverCapacityWarning(b,n){
+  if(IS_DEMO)return;
   try{
     await db.from('bookings').update({over_capacity_warned:true}).eq('id',b.id);
     if(!rest||!rest.contact_email)return;

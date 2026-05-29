@@ -64,7 +64,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 <!-- LOGIN -->
 <div id="loginPage">
   <div class="login-wrap">
-    <div style="font-family:'Outfit',sans-serif;font-size:2rem;font-weight:500;color:var(--dark);letter-spacing:-.01em;margin-bottom:.25rem">Pre<span style="color:var(--gold)">Meny</span></div>
+    <div style="font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:400;color:var(--dark);letter-spacing:.02em;margin-bottom:.25rem">Pre<span style="color:var(--gold)">Meny</span></div>
     <div class="sa-badge" style="display:inline-block;margin:.25rem 0 1.5rem">SuperAdmin</div>
     <div id="loginMsg" style="display:none" class="msg merr"></div>
     <div class="ff" style="text-align:left"><label>E-post</label><input type="email" id="loginEmail" placeholder="superadmin@premeny.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -278,6 +278,18 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
   </div>
 </div>
 
+<!-- MENY-HANTERARE -->
+<div id="menuModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeMenuModal()">
+  <div class="modal" style="max-width:680px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem">
+      <h3 id="menuModalTitle">Meny</h3>
+      <button class="btn bg" style="padding:5px 12px;font-size:12px" onclick="closeMenuModal()">✕</button>
+    </div>
+    <div class="gold-line"></div>
+    <div id="menuModalContent"><div style="text-align:center;padding:2rem"><span class="spinner"></span></div></div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
@@ -411,6 +423,7 @@ async function loadRestaurants(){
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleRestDetail('${r.id}')">Se mer ›</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openStats('${r.id}','${r.name.replace(/'/g,"\\'")}')">📊 Statistik</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openWelcomeModal(this)" data-id="${r.id}" data-name="${r.name}" data-email="${r.contact_email||''}">✉ Välkomstmejl</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openMenuModal(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">🍽 Meny</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openEditRest('${r.id}')">Redigera</button>
         <button class="btn ${r.active?'bd':'bg'}" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',${r.active})">${r.active?'Arkivera':'Återaktivera'}</button>
         <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteRestPermanent(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">Radera</button>
@@ -665,6 +678,7 @@ async function loadArchivedRestaurants(){
       <div class="rest-slug">premeny.se/${r.slug}</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:.75rem">
         <span class="plan-badge ${planClass[r.plan]||'plan-early'}">${planLabels[r.plan]||r.plan}</span>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openMenuModal(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">🍽 Meny</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',false)">Återaktivera</button>
         <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteRestPermanent('${r.id}','${r.name.replace(/'/g,"\'")}')">Radera permanent</button>
       </div>
@@ -673,10 +687,53 @@ async function loadArchivedRestaurants(){
 
 async function deleteRestPermanent(id, name){
   if(!confirm('Radera '+name+' permanent? All data raderas och kan inte återställas.'))return;
-  const {error:e1}=await db.from('restaurant_admins').delete().eq('restaurant_id',id);
-  const {error:e2}=await db.from('bookings').delete().eq('restaurant_id',id);
-  const {error:e3}=await db.from('restaurants').delete().eq('id',id);
-  if(e3){alert('Fel: '+e3.message);return;}
+  if(!confirm('Är du HELT säker? Detta raderar ALLA bokningar, beställningar och menyer för '+name+'.'))return;
+
+  // Hjälpare: kasta fel bara om det är ett "riktigt" fel (inte saknad tabell/kolumn)
+  const run = async (label, promise) => {
+    const {error} = await promise;
+    if(error && !/does not exist|could not find/i.test(error.message)){
+      throw new Error(label+': '+error.message);
+    }
+  };
+
+  try{
+    // Hämta id:n vi behöver för att scopa barn-raderingar
+    const {data:orders}  = await db.from('orders').select('id').eq('restaurant_id',id);
+    const orderIds = (orders||[]).map(o=>o.id);
+    const {data:cats}    = await db.from('menu_categories').select('id').eq('restaurant_id',id);
+    const catIds = (cats||[]).map(c=>c.id);
+
+    // 1. order_items — djupaste löv. Refererar orders, menu_categories och menu_items.
+    if(orderIds.length) await run('order_items', db.from('order_items').delete().in('order_id',orderIds));
+    if(catIds.length)   await run('order_items', db.from('order_items').delete().in('category_id',catIds));
+
+    // 2. orders
+    await run('orders', db.from('orders').delete().eq('restaurant_id',id));
+
+    // 3. menu_items (refererar menu_categories)
+    if(catIds.length) await run('menu_items', db.from('menu_items').delete().in('category_id',catIds));
+    await run('menu_items', db.from('menu_items').delete().eq('restaurant_id',id));
+
+    // 4. menu_categories
+    await run('menu_categories', db.from('menu_categories').delete().eq('restaurant_id',id));
+
+    // 5. menus
+    await run('menus', db.from('menus').delete().eq('restaurant_id',id));
+
+    // 6. bookings
+    await run('bookings', db.from('bookings').delete().eq('restaurant_id',id));
+
+    // 7. restaurant_admins
+    await run('restaurant_admins', db.from('restaurant_admins').delete().eq('restaurant_id',id));
+
+    // 8. själva restaurangen
+    await run('restaurants', db.from('restaurants').delete().eq('id',id));
+
+  }catch(err){
+    alert('Kunde inte radera: '+err.message);
+    return;
+  }
   loadRestaurants();loadStats();
 }
 
@@ -810,6 +867,238 @@ function toggleRestDetail(id){
   var btn=el.parentElement.querySelector('button');
   var isHidden=el.style.display==='none';
   el.style.display=isHidden?'block':'none';
+}
+
+// ── MENY-HANTERARE (samma datamodell som kund-admin) ────────────────
+let _smRestId=null,_smRestName=null,_smMenus=[],_smActiveMenuId=null,_smCats=[];
+
+function escAttrSM(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function smBtn(label,cls,fn){var b=document.createElement('button');b.className='btn '+cls;b.style.cssText='font-size:12px;padding:5px 12px';b.textContent=label;b.addEventListener('click',fn);return b;}
+
+async function openMenuModal(restId,restName){
+  _smRestId=restId;_smRestName=restName;_smActiveMenuId=null;_smMenus=[];_smCats=[];
+  document.getElementById('menuModalTitle').textContent='Meny – '+restName;
+  document.getElementById('menuModalContent').innerHTML='<div style="text-align:center;padding:2rem"><span class="spinner"></span></div>';
+  document.getElementById('menuModal').style.display='flex';
+  await smLoadAndRender();
+}
+function closeMenuModal(){document.getElementById('menuModal').style.display='none';}
+
+async function smLoadMenus(){
+  const {data}=await db.from('menus').select('*').eq('restaurant_id',_smRestId).order('created_at');
+  _smMenus=(data||[]).filter(m=>!m.archived&&!m.deleted_at);
+  if(_smActiveMenuId&&!_smMenus.find(m=>m.id===_smActiveMenuId))_smActiveMenuId=null;
+  if(!_smActiveMenuId&&_smMenus.length)_smActiveMenuId=_smMenus[0].id;
+}
+async function smLoadCats(){
+  if(!_smActiveMenuId){_smCats=[];return;}
+  const {data}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',_smActiveMenuId).order('sort_order');
+  _smCats=(data||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0))}));
+}
+async function smLoadAndRender(){
+  await smLoadMenus();
+  await smLoadCats();
+  smRender();
+}
+
+function smRender(){
+  const c=document.getElementById('menuModalContent');
+  c.innerHTML='';
+
+  // Meny-väljare
+  const selWrap=document.createElement('div');
+  selWrap.style.cssText='display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:1rem';
+  if(!_smMenus.length){
+    const none=document.createElement('div');none.style.cssText='font-size:13px;color:var(--muted)';none.textContent='Inga menyer ännu.';
+    selWrap.appendChild(none);
+  } else {
+    _smMenus.forEach(function(m){
+      const pill=document.createElement('button');
+      pill.className='btn '+(m.id===_smActiveMenuId?'bp':'bg');
+      pill.style.cssText='font-size:12px;padding:5px 14px;border-radius:100px';
+      pill.textContent=m.name;
+      pill.addEventListener('click',function(){_smActiveMenuId=m.id;smLoadCats().then(smRender);});
+      selWrap.appendChild(pill);
+    });
+  }
+  const addMenuBtn=smBtn('+ Ny meny','bp',function(){document.getElementById('smNewMenuForm').style.display='block';const i=document.getElementById('smNmName');if(i)i.focus();});
+  addMenuBtn.style.marginLeft='auto';
+  selWrap.appendChild(addMenuBtn);
+  c.appendChild(selWrap);
+
+  // Ny meny-formulär
+  const nmForm=document.createElement('div');
+  nmForm.id='smNewMenuForm';
+  nmForm.style.cssText='display:none;background:var(--surface2);border-radius:10px;padding:1rem;margin-bottom:1rem';
+  nmForm.innerHTML='<div class="ff"><label>Menyns namn</label><input type="text" id="smNmName" placeholder="t.ex. Lunchmeny"></div>'
+    +'<div class="ff"><label>Beskrivning (valfritt)</label><input type="text" id="smNmDesc" placeholder=""></div>';
+  const nmBtns=document.createElement('div');nmBtns.style.cssText='display:flex;gap:6px';
+  nmBtns.appendChild(smBtn('Skapa meny','bp',smCreateMenu));
+  nmBtns.appendChild(smBtn('Avbryt','bg',function(){nmForm.style.display='none';}));
+  nmForm.appendChild(nmBtns);
+  c.appendChild(nmForm);
+
+  if(!_smActiveMenuId)return;
+
+  // Verktygsrad för aktiv meny
+  const toolbar=document.createElement('div');
+  toolbar.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)';
+  toolbar.appendChild(smBtn('+ Ny rubrik','bg',function(){document.getElementById('smNewCatForm').style.display='block';const i=document.getElementById('smNcName');if(i)i.focus();}));
+  toolbar.appendChild(smBtn('Byt namn','bg',function(){smRenameMenu(_smActiveMenuId);}));
+  toolbar.appendChild(smBtn('Kopiera meny','bg',function(){smCopyMenu(_smActiveMenuId);}));
+  toolbar.appendChild(smBtn('Ta bort meny','bd',function(){smDeleteMenu(_smActiveMenuId);}));
+  c.appendChild(toolbar);
+
+  // Ny rubrik-formulär
+  const ncForm=document.createElement('div');
+  ncForm.id='smNewCatForm';
+  ncForm.style.cssText='display:none;background:var(--surface2);border-radius:10px;padding:1rem;margin-bottom:1rem';
+  ncForm.innerHTML='<div class="ff"><label>Rubrikens namn</label><input type="text" id="smNcName" placeholder="t.ex. Förrätter"></div>';
+  const ncBtns=document.createElement('div');ncBtns.style.cssText='display:flex;gap:6px';
+  ncBtns.appendChild(smBtn('Lägg till rubrik','bp',smAddCat));
+  ncBtns.appendChild(smBtn('Avbryt','bg',function(){ncForm.style.display='none';}));
+  ncForm.appendChild(ncBtns);
+  c.appendChild(ncForm);
+
+  // Rubriker + rätter
+  if(!_smCats.length){
+    const empty=document.createElement('div');empty.style.cssText='font-size:13px;color:var(--muted)';empty.textContent='Inga rubriker ännu. Klicka "+ Ny rubrik".';
+    c.appendChild(empty);return;
+  }
+  _smCats.forEach(function(cat){
+    const catDiv=document.createElement('div');catDiv.style.marginBottom='1.5rem';
+    const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem';
+    const label=document.createElement('div');label.style.cssText="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)";label.textContent=cat.label;
+    const hb=document.createElement('div');hb.style.cssText='display:flex;gap:6px';
+    const addBtn=smBtn('+ Rätt','bg',function(){const f=document.getElementById('smAi_'+cat.id);f.style.display=f.style.display==='none'?'block':'none';});addBtn.style.cssText='font-size:11px;padding:4px 10px';
+    const delCatBtn=smBtn('Ta bort rubrik','bd',function(){smDelCat(cat.id);});delCatBtn.style.cssText='font-size:11px;padding:4px 10px';
+    hb.appendChild(addBtn);hb.appendChild(delCatBtn);
+    head.appendChild(label);head.appendChild(hb);
+    catDiv.appendChild(head);
+
+    const card=document.createElement('div');card.className='card';card.style.marginBottom='0';
+    if(!(cat.menu_items||[]).length){
+      const e=document.createElement('div');e.style.cssText='font-size:13px;color:var(--muted)';e.textContent='Inga rätter ännu.';card.appendChild(e);
+    }
+    (cat.menu_items||[]).forEach(function(item){
+      const row=document.createElement('div');row.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)';
+      const info=document.createElement('div');info.style.flex='1';
+      const nm=document.createElement('div');nm.style.fontWeight='500';nm.textContent=item.name;info.appendChild(nm);
+      if(item.description){const d=document.createElement('div');d.style.cssText='font-size:12px;color:var(--muted)';d.textContent=item.description;info.appendChild(d);}
+      const price=document.createElement('div');price.style.cssText='font-size:13px;color:var(--muted);white-space:nowrap';price.textContent=item.price?item.price+' kr':'';
+      const be=smBtn('Redigera','bg',function(){const f=document.getElementById('smEdit_'+item.id);f.style.display=f.style.display==='none'?'block':'none';});be.style.cssText='font-size:11px;padding:4px 8px;flex-shrink:0';
+      const bd=smBtn('Ta bort','bd',function(){smDelItem(item.id);});bd.style.cssText='font-size:11px;padding:4px 8px;flex-shrink:0';
+      row.appendChild(info);row.appendChild(price);row.appendChild(be);row.appendChild(bd);
+      card.appendChild(row);
+
+      const ed=document.createElement('div');ed.id='smEdit_'+item.id;
+      ed.style.cssText='display:none;background:var(--surface2);border-radius:8px;padding:12px;margin:6px 0';
+      ed.innerHTML='<div class="r2"><div class="ff"><label>Namn</label><input type="text" id="smEn_'+item.id+'" value="'+escAttrSM(item.name)+'"></div>'
+        +'<div class="ff"><label>Pris (kr)</label><input type="number" id="smEp_'+item.id+'" value="'+(item.price||0)+'"></div></div>'
+        +'<div class="ff"><label>Beskrivning</label><textarea id="smEd_'+item.id+'" style="min-height:50px">'+escAttrSM(item.description||'')+'</textarea></div>';
+      const edBtns=document.createElement('div');edBtns.style.cssText='display:flex;gap:6px';
+      edBtns.appendChild(smBtn('Spara','bp',function(){smSaveItem(item.id);}));
+      edBtns.appendChild(smBtn('Avbryt','bg',function(){ed.style.display='none';}));
+      ed.appendChild(edBtns);
+      card.appendChild(ed);
+    });
+
+    const ai=document.createElement('div');ai.id='smAi_'+cat.id;
+    ai.style.cssText='display:none;padding-top:.75rem;margin-top:.5rem;border-top:1px solid var(--border)';
+    ai.innerHTML='<div class="r2"><div class="ff"><label>Namn</label><input type="text" id="smAn_'+cat.id+'" placeholder="Rättens namn"></div>'
+      +'<div class="ff"><label>Pris (kr)</label><input type="number" id="smAp_'+cat.id+'" placeholder="150"></div></div>'
+      +'<div class="ff"><label>Beskrivning</label><textarea id="smAd_'+cat.id+'" style="min-height:50px" placeholder="Ingredienser..."></textarea></div>';
+    const aiBtns=document.createElement('div');aiBtns.style.cssText='display:flex;gap:6px';
+    aiBtns.appendChild(smBtn('Lägg till','bp',function(){smAddItem(cat.id);}));
+    aiBtns.appendChild(smBtn('Avbryt','bg',function(){ai.style.display='none';}));
+    ai.appendChild(aiBtns);
+    card.appendChild(ai);
+
+    catDiv.appendChild(card);
+    c.appendChild(catDiv);
+  });
+}
+
+async function smCreateMenu(){
+  const name=document.getElementById('smNmName').value.trim();if(!name)return;
+  const desc=document.getElementById('smNmDesc').value.trim();
+  const {data,error}=await db.from('menus').insert({restaurant_id:_smRestId,name:name,description:desc}).select().single();
+  if(error){alert('Fel: '+error.message);return;}
+  _smActiveMenuId=data.id;
+  await smLoadAndRender();
+}
+async function smAddCat(){
+  const name=document.getElementById('smNcName').value.trim();if(!name||!_smActiveMenuId)return;
+  const maxSort=_smCats.length?Math.max.apply(null,_smCats.map(function(c){return c.sort_order||0;})):0;
+  const {error}=await db.from('menu_categories').insert({restaurant_id:_smRestId,menu_id:_smActiveMenuId,label:name,sort_order:maxSort+1});
+  if(error){alert('Fel: '+error.message);return;}
+  await smLoadAndRender();
+}
+async function smAddItem(catId){
+  const n=document.getElementById('smAn_'+catId);
+  const p=document.getElementById('smAp_'+catId);
+  const d=document.getElementById('smAd_'+catId);
+  if(!n||!n.value.trim())return;
+  const {error}=await db.from('menu_items').insert({category_id:catId,restaurant_id:_smRestId,name:n.value.trim(),price:parseInt(p.value)||0,description:d.value.trim(),sort_order:Math.floor(Date.now()/1000),active:true});
+  if(error){alert('Fel: '+error.message);return;}
+  await smLoadAndRender();
+}
+async function smSaveItem(id){
+  const name=document.getElementById('smEn_'+id);
+  const price=document.getElementById('smEp_'+id);
+  const desc=document.getElementById('smEd_'+id);
+  if(!name||!name.value.trim())return;
+  const {error}=await db.from('menu_items').update({name:name.value.trim(),price:parseInt(price.value)||0,description:desc.value.trim()}).eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  await smLoadAndRender();
+}
+async function smDelItem(id){
+  if(!confirm('Ta bort rätten?'))return;
+  const {error}=await db.from('menu_items').update({active:false}).eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  await smLoadAndRender();
+}
+async function smDelCat(catId){
+  if(!confirm('Ta bort rubriken och alla rätter under den?'))return;
+  await db.from('menu_items').delete().eq('category_id',catId);
+  const {error}=await db.from('menu_categories').delete().eq('id',catId);
+  if(error){alert('Fel: '+error.message);return;}
+  await smLoadAndRender();
+}
+async function smRenameMenu(id){
+  const m=_smMenus.find(function(x){return x.id===id;});if(!m)return;
+  const newName=prompt('Nytt namn på menyn:',m.name);
+  if(!newName||!newName.trim()||newName.trim()===m.name)return;
+  const {error}=await db.from('menus').update({name:newName.trim()}).eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  await smLoadAndRender();
+}
+async function smCopyMenu(id){
+  const src=_smMenus.find(function(m){return m.id===id;});if(!src)return;
+  const newName=prompt('Namn på den kopierade menyn:',src.name+' (kopia)');
+  if(!newName||!newName.trim())return;
+  const {data:newMenu,error}=await db.from('menus').insert({restaurant_id:_smRestId,name:newName.trim(),description:src.description||''}).select().single();
+  if(error||!newMenu){alert('Fel vid kopiering: '+(error?error.message:''));return;}
+  const {data:srcCats}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',id).order('sort_order');
+  for(const cat of (srcCats||[])){
+    const {data:newCat}=await db.from('menu_categories').insert({restaurant_id:_smRestId,menu_id:newMenu.id,label:cat.label,sort_order:cat.sort_order}).select().single();
+    if(!newCat)continue;
+    for(const item of (cat.menu_items||[])){
+      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:_smRestId,name:item.name,price:item.price,description:item.description||'',sort_order:item.sort_order,active:true});
+    }
+  }
+  _smActiveMenuId=newMenu.id;
+  await smLoadAndRender();
+}
+async function smDeleteMenu(id){
+  if(!confirm('Ta bort menyn permanent? Alla rubriker och rätter försvinner.'))return;
+  const {data:cs}=await db.from('menu_categories').select('id').eq('menu_id',id);
+  for(const cn of (cs||[])){await db.from('menu_items').delete().eq('category_id',cn.id);}
+  await db.from('menu_categories').delete().eq('menu_id',id);
+  const {error}=await db.from('menus').delete().eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  _smActiveMenuId=null;
+  await smLoadAndRender();
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────
