@@ -589,14 +589,6 @@ function showTab(tab){
 // BOOKINGS
 let allBookings=[];
 
-// Demo: visa ett stabilt antal beställningar 10–25 per bokning (samma vid varje laddning)
-function demoOrderCount(b){
-  var s=String(b.id||b.name||'');
-  var h=0;
-  for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}
-  return 10+(h%16); // 10..25
-}
-
 async function renderBookings(){
   if(!rest)return;
   const today=new Date().toISOString().split('T')[0];
@@ -647,7 +639,7 @@ function renderBCard(b){
   const today=new Date();today.setHours(0,0,0,0);
   const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
   const closed=dl&&today>dl;
-  const n=IS_DEMO?demoOrderCount(b):(b.orders||[]).length;
+  const n=(b.orders||[]).length;
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date);
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
