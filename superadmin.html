@@ -1033,8 +1033,9 @@ function smRender(){
     const upBtn=smBtn('↑','bg',function(){smMoveCat(cat.id,-1);});upBtn.style.cssText='font-size:11px;padding:4px 9px';if(_ci<=0)upBtn.disabled=true;
     const downBtn=smBtn('↓','bg',function(){smMoveCat(cat.id,1);});downBtn.style.cssText='font-size:11px;padding:4px 9px';if(_ci>=_smCats.length-1)downBtn.disabled=true;
     const addBtn=smBtn('+ Rätt','bg',function(){const f=document.getElementById('smAi_'+cat.id);f.style.display=f.style.display==='none'?'block':'none';});addBtn.style.cssText='font-size:11px;padding:4px 10px';
+    const renameBtn=smBtn('Byt namn','bg',function(){smRenameCat(cat.id,cat.label);});renameBtn.style.cssText='font-size:11px;padding:4px 10px';
     const delCatBtn=smBtn('Ta bort rubrik','bd',function(){smDelCat(cat.id);});delCatBtn.style.cssText='font-size:11px;padding:4px 10px';
-    hb.appendChild(upBtn);hb.appendChild(downBtn);hb.appendChild(addBtn);hb.appendChild(delCatBtn);
+    hb.appendChild(upBtn);hb.appendChild(downBtn);hb.appendChild(addBtn);hb.appendChild(renameBtn);hb.appendChild(delCatBtn);
     head.appendChild(label);head.appendChild(hb);
     catDiv.appendChild(head);
 
@@ -1203,6 +1204,13 @@ async function smDelCat(catId){
   if(!confirm('Ta bort rubriken och alla rätter under den?'))return;
   await db.from('menu_items').delete().eq('category_id',catId);
   const {error}=await db.from('menu_categories').delete().eq('id',catId);
+  if(error){alert('Fel: '+error.message);return;}
+  await smLoadAndRender();
+}
+async function smRenameCat(catId,current){
+  const nn=prompt('Nytt namn på rubriken:',current);
+  if(!nn||!nn.trim()||nn.trim()===current)return;
+  const {error}=await db.from('menu_categories').update({label:nn.trim()}).eq('id',catId);
   if(error){alert('Fel: '+error.message);return;}
   await smLoadAndRender();
 }

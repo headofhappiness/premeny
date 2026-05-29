@@ -1860,11 +1860,14 @@ async function loadMenuItems(menuId){
 
     var btnAdd=document.createElement('button');btnAdd.className='btn bg';btnAdd.style.cssText='font-size:11px;padding:4px 10px';btnAdd.textContent='+ Lägg till rätt';
     btnAdd.addEventListener('click',function(){showAI(cat.id);});
+
+    var btnRenameCat=document.createElement('button');btnRenameCat.className='btn bg';btnRenameCat.style.cssText='font-size:11px;padding:4px 10px';btnRenameCat.textContent='Byt namn';
+    btnRenameCat.addEventListener('click',function(){renameCat(cat.id,cat.label);});
     
     var btnDelCat=document.createElement('button');btnDelCat.className='btn bd';btnDelCat.style.cssText='font-size:11px;padding:4px 10px';btnDelCat.textContent='Ta bort rubrik';
     btnDelCat.addEventListener('click',function(){delCat(cat.id);});
     
-    catBtns.appendChild(btnUp);catBtns.appendChild(btnDown);catBtns.appendChild(btnAdd);catBtns.appendChild(btnDelCat);
+    catBtns.appendChild(btnUp);catBtns.appendChild(btnDown);catBtns.appendChild(btnAdd);catBtns.appendChild(btnRenameCat);catBtns.appendChild(btnDelCat);
     catHead.appendChild(catLabel);catHead.appendChild(catBtns);
     catDiv.appendChild(catHead);
     
@@ -2168,6 +2171,13 @@ async function delCat(catId){
   if(!confirm('Ta bort rubriken och alla rätter under den?'))return;
   await db.from('menu_items').delete().eq('category_id',catId);
   await db.from('menu_categories').delete().eq('id',catId);
+  await renderMenu(true);
+}
+async function renameCat(catId, current){
+  var nn=prompt('Nytt namn på rubriken:',current);
+  if(!nn||!nn.trim()||nn.trim()===current)return;
+  var {error}=await db.from('menu_categories').update({label:nn.trim()}).eq('id',catId);
+  if(error){alert('Fel: '+error.message);return;}
   await renderMenu(true);
 }
 async function moveCat(catId, dir){
