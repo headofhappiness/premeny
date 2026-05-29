@@ -815,7 +815,7 @@ function previewWelcomeEmail(){
       </div>
     </div>
     <div style="padding:0 2rem 2rem;font-size:13px;color:${muted};line-height:1.8">
-      Frågor? Kontakta oss på <a href="mailto:lisa@headofhappiness.se" style="color:${gold};text-decoration:none">lisa@headofhappiness.se</a>
+      Frågor? Kontakta oss på <a href="mailto:hej@premeny.se" style="color:${gold};text-decoration:none">hej@premeny.se</a>
     </div>
     <div style="border-top:1px solid ${border};padding:1.25rem 2rem;display:flex;justify-content:space-between;align-items:center">
       <div style="font-family:Georgia,serif;font-size:1.1rem;color:${dark}">Pre<span style="color:${gold}">Meny</span></div>
@@ -857,7 +857,7 @@ async function sendWelcomeEmail(){
       body: JSON.stringify({
         type:'welcome',
         booking:{ adminEmail:email, tempPassword:pass, restaurantName:_welcomeRestName },
-        restaurant:{ name:'PreMeny', contact_email:'lisa@headofhappiness.se' },
+        restaurant:{ name:'PreMeny', contact_email:'hej@premeny.se' },
         guestLink:'https://premeny.se/admin.html'
       })
     });
