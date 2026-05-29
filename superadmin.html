@@ -246,8 +246,8 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
       <h3>Skicka välkomstmejl</h3>
       <button class="btn bg" style="padding:5px 12px;font-size:12px" onclick="closeWelcomeModal()">✕</button>
     </div>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:1.25rem;line-height:1.7">Skickar ett välkomstmejl med inloggningslänk och info om hur systemet fungerar.</p>
-    <div class="ff"><label>Admin e-post</label><input type="email" id="wm-email" placeholder="admin@restaurangen.se"></div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:1.25rem;line-height:1.7">Skickar ett välkomstmejl med inloggningslänk och info om hur systemet fungerar. Mejlet går till adressen nedan, som även blir kundens <strong>inloggning</strong>. Tips: ange din <strong>egen</strong> e-post för att testa först.</p>
+    <div class="ff"><label>Admin e-post <span style="font-size:11px;color:var(--muted);font-weight:400">(hit skickas mejlet · blir inloggning)</span></label><input type="email" id="wm-email" placeholder="admin@restaurangen.se"></div>
     <div class="ff"><label>Tillfälligt lösenord <span style="font-size:11px;color:var(--muted)">(visas i mejlet)</span></label>
       <div style="display:flex;gap:6px">
         <input type="text" id="wm-pass" placeholder="T.ex. Tulpan2026">
@@ -628,12 +628,12 @@ async function openEditRest(id){
       <div class="ff"><label>Webbplats</label><input type="text" id="er-website" value="${r.website||''}"></div>
     </div>
     <div style="border-top:1px solid var(--border);margin:.5rem 0 .75rem;padding-top:.75rem">
-      <div class="ff"><label>Inloggnings-e-post <span style="font-size:11px;color:var(--muted);font-weight:400">(kundens användarnamn)</span></label>
+      <div class="ff"><label>Inloggnings-e-post <span style="font-size:11px;color:var(--muted);font-weight:400">(kundens användarnamn · hit skickas välkomstmejlet)</span></label>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input type="email" id="er-login-email" placeholder="Laddar..." style="flex:1;min-width:200px">
           <button class="btn bg" type="button" onclick="changeLoginEmail('${id}')" style="white-space:nowrap">Byt inloggning</button>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">Detta är adressen kunden loggar in med. "Spara" nedan påverkar inte den – använd knappen "Byt inloggning".</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Detta är adressen kunden loggar in med och dit välkomstmejlet skickas. "Spara" nedan påverkar inte den – använd knappen "Byt inloggning".</div>
       </div>
     </div>
     <div id="er-msg" style="display:none" class="msg"></div>
