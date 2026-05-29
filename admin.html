@@ -133,8 +133,18 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <p style="font-size:14px;color:var(--muted);margin:.25rem 0 1.5rem">Välkommen att hantera era förbeställningar.</p>
     <div id="loginMsg" style="display:none" class="msg merr"></div>
     <div id="loginForm">
-      <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="ff"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="ff">
+        <label>Lösenord</label>
+        <div style="position:relative">
+          <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding-right:44px">
+          <button type="button" onclick="togglePassVis()" id="passToggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0;line-height:1">👁</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+        <input type="checkbox" id="rememberMe" style="width:16px;height:16px;accent-color:var(--gold);cursor:pointer">
+        <label for="rememberMe" style="font-size:13px;color:var(--muted);cursor:pointer">Kom ihåg mig</label>
+      </div>
       <button class="btn bp bfull" style="padding:13px" onclick="doLogin()">Logga in</button>
       <div style="margin-top:1rem;text-align:center">
         <button onclick="forgotPassword()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline">Glömt lösenord?</button>
@@ -174,7 +184,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <!-- BOKNINGAR -->
     <div id="pane-bookings">
       <div class="fb"><h3>Aktiva bokningar</h3><button class="btn bp" onclick="toggleNB()">+ Ny bokning</button></div>
-      <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:13px;color:#6a5030;line-height:1.6">✉ Påminnelser skickas automatiskt – men aldrig om alla gäster redan svarat.</div>
+      <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:13px;color:#6a5030;line-height:1.6">🔔 Påminnelse skickas automatiskt via mejl och/eller SMS innan sista beställningsdag – men aldrig om alla gäster redan svarat.</div>
       <div id="newBookingForm" style="display:none" class="card">
         <div class="card-label">Skapa ny bokning</div>
         <div class="r2">
@@ -434,10 +444,21 @@ let calY=new Date().getFullYear(),calM=new Date().getMonth(),calDates={},calSel=
 async function doLogin(){
   const email=document.getElementById('loginEmail').value.trim();
   const pass=document.getElementById('loginPass').value;
+  const remember=document.getElementById('rememberMe')?.checked;
+  if(remember&&email)localStorage.setItem('premeny_saved_email',email);
   const {error}=await db.auth.signInWithPassword({email,password:pass});
   if(error){const m=document.getElementById('loginMsg');m.style.display='block';m.textContent='Fel e-post eller lösenord.';return;}
   initAdmin();
 }
+// Fyll i sparad e-post
+const savedEmail=localStorage.getItem('premeny_saved_email');
+if(savedEmail){
+  const emailEl=document.getElementById('loginEmail');
+  const remEl=document.getElementById('rememberMe');
+  if(emailEl)emailEl.value=savedEmail;
+  if(remEl)remEl.checked=true;
+}
+
 // Kolla om användaren kommer från återställningslänk
 db.auth.onAuthStateChange((event, session) => {
   if (event === 'PASSWORD_RECOVERY') {
@@ -449,6 +470,13 @@ db.auth.onAuthStateChange((event, session) => {
     m.textContent = 'Ange ditt nya lösenord nedan.';
   }
 });
+
+function togglePassVis(){
+  const inp=document.getElementById('loginPass');
+  const btn=document.getElementById('passToggle');
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁';}
+}
 
 async function doResetPassword(){
   const p1 = document.getElementById('newPass1').value;
