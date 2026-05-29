@@ -1100,8 +1100,12 @@ async function smImportMenu(){
     }
     const {data:{session}}=await db.auth.getSession();
     const resp=await fetch(SURL+'/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});
-    const result=await resp.json();
-    if(!result.categories)throw new Error(result.error||'Ingen data tolkades');
+    let result;
+    try{ result=await resp.json(); }catch(e){ result={error:'Servern svarade '+resp.status}; }
+    if(!resp.ok || !result.categories){
+      const e=(result&&result.error)?(typeof result.error==='string'?result.error:JSON.stringify(result.error)):('HTTP '+resp.status);
+      throw new Error(e);
+    }
     _smImportData=result.categories;
     let ph='';
     result.categories.forEach(function(cat){
@@ -1114,7 +1118,7 @@ async function smImportMenu(){
     document.getElementById('smImpPreview').innerHTML=ph;
     document.getElementById('smImpResult').style.display='block';
     document.getElementById('smImpAddBtn').style.display='inline-flex';
-  }catch(err){alert('Fel: '+err.message);}
+  }catch(err){alert('Fel: '+(err&&err.message?err.message:JSON.stringify(err)));}
   document.getElementById('smImpRunBtn').disabled=false;
   document.getElementById('smImpLoading').style.display='none';
 }
