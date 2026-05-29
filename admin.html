@@ -317,9 +317,9 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
       <!-- AI MENYIMPORT -->
       <div class="card" style="margin-top:1.5rem;background:rgba(184,149,90,.04);border:1px solid rgba(184,149,90,.18)">
-        <h3 style="margin-bottom:.25rem">Importera meny med AI</h3>
+        <h3 style="margin-bottom:.25rem">Skapa ny meny med AI</h3>
         <div class="gold-line"></div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Ladda upp en skärmdump från er hemsida eller klistra in text – AI:n tolkar menyn automatiskt och skapar rubriker och rätter.</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Ladda upp en skärmdump eller klistra in text – AI:n skapar en <strong>helt ny meny</strong> med rubriker och rätter. Du namnger menyn när du sparar. (Vill du lägga till rätter i en befintlig meny? Öppna den ovan och använd "+ Ny rubrik".)</p>
         <div style="display:flex;gap:4px;margin-bottom:1rem">
           <button class="btn bg" id="import-tab-text" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('text')">📝 Klistra in text</button>
           <button class="btn bg" id="import-tab-image" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('image')">🖼 Ladda upp bild</button>
@@ -332,7 +332,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           <div id="menu-img-preview" style="display:none;margin-top:.5rem"><img id="menu-img-preview-img" style="max-width:100%;border-radius:8px;border:1px solid var(--border)"></div>
         </div>
         <div id="import-warning" style="display:none;margin:.75rem 0" class="msg merr"></div>
-        <button class="btn bp" id="import-btn" onclick="importMenu()" style="margin-top:.5rem">✦ Importera meny</button>
+        <button class="btn bp" id="import-btn" onclick="importMenu()" style="margin-top:.5rem">✦ Tolka meny</button>
         <div id="import-loading" style="display:none;margin-top:1rem;font-size:13px;color:var(--muted)"><span class="spinner"></span> Tolkar menyn med AI...</div>
         <div id="import-result" style="display:none;margin-top:1.25rem">
           <div style="font-size:12px;font-weight:500;color:#3a6020;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:8px 12px;margin-bottom:.75rem">✓ Meny tolkad – granska och bekräfta nedan</div>
@@ -1867,7 +1867,8 @@ async function renderMenu(keepOpen){
 let _menuLoading=false;
 async function toggleMC(id){
   if(_menuLoading)return;
-  const wasOpen=activeMenuId===id;
+  const _el0=document.getElementById('mc_'+id);
+  const wasOpen=_el0?_el0.classList.contains('open'):false;
   activeMenuId=wasOpen?null:id;
   menus.forEach(function(m){
     const el=document.getElementById('mc_'+m.id);
@@ -2081,13 +2082,6 @@ async function importMenu(){
   var textVal=document.getElementById('menu-import-text').value.trim();
   var imgFile=document.getElementById('menu-import-image').files[0];
   if(!textVal&&!imgFile)return;
-  if(!activeMenuId){
-    var nm=prompt('Vad ska menyn heta?','Meny');
-    if(!nm||!nm.trim())return;
-    var {data:newMenu,error:me}=await db.from('menus').insert({restaurant_id:rest.id,name:nm.trim()}).select().single();
-    if(me||!newMenu){alert('Kunde inte skapa meny: '+(me?me.message:''));return;}
-    activeMenuId=newMenu.id;
-  }
   document.getElementById('import-btn').disabled=true;
   document.getElementById('import-loading').style.display='block';
   try{
@@ -2130,18 +2124,25 @@ async function importMenu(){
   document.getElementById('import-loading').style.display='none';
 }
 async function confirmImport(){
-  if(!_importData||!activeMenuId)return;
+  if(!_importData)return;
+  var nm=prompt('Vad ska den nya menyn heta?','Ny meny');
+  if(!nm||!nm.trim())return;
+  var {data:newMenu,error:me}=await db.from('menus').insert({restaurant_id:rest.id,name:nm.trim()}).select().single();
+  if(me||!newMenu){alert('Kunde inte skapa meny: '+(me?me.message:''));return;}
+  activeMenuId=newMenu.id;
   for(var i=0;i<_importData.length;i++){
     var cat=_importData[i];
-    var maxSort=cats.length?Math.max(...cats.map(function(c){return c.sort_order||0;})):0;
-    var {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:cat.label,sort_order:maxSort+1}).select().single();
+    var {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:cat.label,sort_order:i}).select().single();
     if(error||!newCat)continue;
     for(var j=0;j<(cat.items||[]).length;j++){
       var item=cat.items[j];
       await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description||'',price:parseInt(item.price)||0,sort_order:j,active:true});
     }
   }
-  _importData=null;var r=document.getElementById('import-result');if(r)r.style.display='none';
+  _importData=null;
+  var r=document.getElementById('import-result');if(r)r.style.display='none';
+  document.getElementById('menu-import-text').value='';
+  var imgEl=document.getElementById('menu-import-image');if(imgEl)imgEl.value='';
   await renderMenu(true);
 }
 
