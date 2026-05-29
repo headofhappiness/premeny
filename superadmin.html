@@ -1093,20 +1093,27 @@ async function smImportMenu(){
   document.getElementById('smImpResult').style.display='none';
   document.getElementById('smImpAddBtn').style.display='none';
   try{
-    const body={text:textVal};
+    const PROMPT='Tolka denna restaurangmeny och returnera ENDAST giltig JSON (inga backticks, ingen text runtomkring) i exakt detta format:\n{"categories":[{"label":"Rubrik","items":[{"name":"Rättens namn","description":"Beskrivning","price":0}]}]}\nPriser anges som heltal i kronor. Saknas pris, sätt 0. Saknas beskrivning, sätt tom sträng.';
+    let messages;
     if(imgFile){
       const b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(imgFile);});
-      body.image=b64;body.imageType=imgFile.type;
+      messages=[{role:'user',content:[{type:'image',source:{type:'base64',media_type:imgFile.type,data:b64}},{type:'text',text:PROMPT}]}];
+    } else {
+      messages=[{role:'user',content:'Här är menyn:\n\n'+textVal+'\n\n'+PROMPT}];
     }
     const {data:{session}}=await db.auth.getSession();
-    const resp=await fetch(SURL+'/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});
-    let result;
-    try{ result=await resp.json(); }catch(e){ result={error:'Servern svarade '+resp.status}; }
-    if(!resp.ok || !result.categories){
-      const e=(result&&result.error)?(typeof result.error==='string'?result.error:JSON.stringify(result.error)):('HTTP '+resp.status);
-      throw new Error(e);
+    const resp=await fetch(SURL+'/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({messages})});
+    const data=await resp.json();
+    if(data.error){
+      throw new Error(typeof data.error==='string'?data.error:(data.error.message||JSON.stringify(data.error)));
     }
-    _smImportData=result.categories;
+    const txt=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    if(!txt) throw new Error('Tomt svar från AI');
+    const clean=txt.replace(/```json|```/g,'').trim();
+    let parsed;
+    try{ parsed=JSON.parse(clean); }catch(e){ throw new Error('Kunde inte tolka AI-svaret som JSON'); }
+    if(!parsed.categories||!Array.isArray(parsed.categories)) throw new Error('Fel format från AI');
+    _smImportData=parsed.categories;
     let ph='';
     result.categories.forEach(function(cat){
       ph+='<div style="margin-bottom:.75rem"><div style="font-family:\'Playfair Display\',serif;font-style:italic;color:var(--dark);margin-bottom:.25rem">'+escAttrSM(cat.label)+'</div><div class="card" style="padding:.5rem;margin-bottom:0">';
