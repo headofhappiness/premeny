@@ -250,7 +250,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         </div>
         <div class="ff"><label>Intern kommentar (visas ej för gäster)</label><textarea id="nb-comment" placeholder="T.ex. VIP-sällskap, kräver extra personal..."></textarea></div>
         <div class="fg">
-          <button class="btn bp" onclick="createBooking()">Skapa bokning</button>
+          <button class="btn bp" id="nb-save-btn" onclick="createBooking()">Skapa bokning</button>
           <button class="btn bg" onclick="toggleNB()">Avbryt</button>
         </div>
         <div id="nb-msg" style="display:none;margin-top:.75rem" class="msg"></div>
@@ -742,6 +742,7 @@ function renderBCard(b){
         <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
         <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportPDF('${b.id}')">📄 Ladda ner PDF</button>`
       }
+      <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
       <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
     </div></div>`;
   }
@@ -959,13 +960,59 @@ async function saveGuestEdit(oid,bid){
 async function delOrder(oid,bid){if(!confirm('Ta bort?'))return;await db.from('order_items').delete().eq('order_id',oid);await db.from('orders').delete().eq('id',oid);loadDet(bid,dtabs[bid]||'guests');reRender(bid);}
 
 // NY BOKNING
-function toggleNB(){const f=document.getElementById('newBookingForm');f.style.display=f.style.display==='none'?'block':'none';}
+let _editingBookingId=null;
+
+function resetBookingForm(){
+  _editingBookingId=null;
+  ['nb-name','nb-date','nb-guests','nb-deadline','nb-contact','nb-email','nb-phone','nb-menu','nb-responsible','nb-comment'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('nb-time').value='18:00';
+  document.getElementById('nb-event-type').value='Middag';
+  document.getElementById('nb-reminder').value='2';
+  document.getElementById('nb-remind-email').checked=true;
+  document.getElementById('nb-remind-sms').checked=false;
+  const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Skapa ny bokning';
+  const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Skapa bokning';
+  const msg=document.getElementById('nb-msg');if(msg)msg.style.display='none';
+}
+
+function toggleNB(){
+  const f=document.getElementById('newBookingForm');
+  if(f.style.display==='none'){resetBookingForm();f.style.display='block';}
+  else{f.style.display='none';}
+}
+
+function editBooking(id,ev){
+  if(ev)ev.stopPropagation();
+  const b=(allBookings||[]).find(x=>x.id===id);
+  if(!b){alert('Hittar inte bokningen.');return;}
+  _editingBookingId=id;
+  document.getElementById('nb-name').value=b.name||'';
+  document.getElementById('nb-date').value=b.event_date||'';
+  document.getElementById('nb-time').value=b.event_time?b.event_time.slice(0,5):'';
+  document.getElementById('nb-event-type').value=b.event_type||'Middag';
+  document.getElementById('nb-guests').value=b.expected_guests||'';
+  document.getElementById('nb-deadline').value=b.deadline||'';
+  document.getElementById('nb-contact').value=b.contact_name||'';
+  document.getElementById('nb-email').value=b.contact_email||'';
+  document.getElementById('nb-phone').value=b.contact_phone||'';
+  document.getElementById('nb-menu').value=b.menu_id||'';
+  document.getElementById('nb-reminder').value=String(b.reminder_days||0);
+  document.getElementById('nb-remind-email').checked=(!b.reminder_channel||b.reminder_channel==='email'||b.reminder_channel==='both');
+  document.getElementById('nb-remind-sms').checked=(b.reminder_channel==='sms'||b.reminder_channel==='both');
+  document.getElementById('nb-responsible').value=b.responsible_staff||'';
+  document.getElementById('nb-comment').value=b.internal_comment||'';
+  const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Ändra bokning';
+  const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Spara ändringar';
+  const msg=document.getElementById('nb-msg');if(msg)msg.style.display='none';
+  const f=document.getElementById('newBookingForm');f.style.display='block';
+  f.scrollIntoView({behavior:'smooth',block:'center'});
+}
 
 async function createBooking(){
   const name=document.getElementById('nb-name').value.trim();
   const date=document.getElementById('nb-date').value;
   if(!name||!date){showMsg('nb-msg','merr','Namn och datum krävs.');return;}
-  const {error}=await db.from('bookings').insert({
+  const payload={
     restaurant_id:rest.id,name,event_date:date,
     event_time:document.getElementById('nb-time').value||null,
     event_type:document.getElementById('nb-event-type').value||null,
@@ -979,10 +1026,18 @@ async function createBooking(){
     reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
     internal_comment:document.getElementById('nb-comment').value.trim()||null,
     responsible_staff:document.getElementById('nb-responsible').value.trim()||null
-  });
+  };
+  const wasEdit=!!_editingBookingId;
+  let error;
+  if(wasEdit){
+    ({error}=await db.from('bookings').update(payload).eq('id',_editingBookingId));
+  }else{
+    ({error}=await db.from('bookings').insert(payload));
+  }
   if(error){showMsg('nb-msg','merr','Fel: '+error.message);return;}
-  showMsg('nb-msg','mok','✓ Bokning skapad! Gå in i bokningen och skicka bekräftelse till kontaktpersonen samt länk till beställningssida för gästerna.');
-  setTimeout(()=>{document.getElementById('newBookingForm').style.display='none';},4000);
+  showMsg('nb-msg','mok',wasEdit?'✓ Bokningen uppdaterad!':'✓ Bokning skapad! Gå in i bokningen och skicka bekräftelse till kontaktpersonen samt länk till beställningssida för gästerna.');
+  resetBookingForm();
+  setTimeout(()=>{document.getElementById('newBookingForm').style.display='none';},wasEdit?1500:4000);
   renderBookings();
 }
 
