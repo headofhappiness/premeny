@@ -1093,7 +1093,14 @@ async function smImportMenu(){
   document.getElementById('smImpResult').style.display='none';
   document.getElementById('smImpAddBtn').style.display='none';
   try{
-    const PROMPT='Tolka denna restaurangmeny och returnera ENDAST giltig JSON (inga backticks, ingen text runtomkring) i exakt detta format:\n{"categories":[{"label":"Rubrik","items":[{"name":"Rättens namn","description":"Beskrivning","price":0}]}]}\nPriser anges som heltal i kronor. Saknas pris, sätt 0. Saknas beskrivning, sätt tom sträng.';
+    const PROMPT='Tolka denna restaurangmeny och returnera ENDAST giltig JSON (inga backticks, ingen text runtomkring) i exakt detta format:\n'
+      +'{"categories":[{"label":"Rubrik","items":[{"name":"Rättens namn","description":"Beskrivning","price":0}]}]}\n\n'
+      +'Regler:\n'
+      +'- "label" är en rubrik/kategori (t.ex. Förrätter, Varmrätter, Huvudrätter, Desserter, Drycker). Ord som "Förrätt", "Varmrätt", "Dessert" ska användas som rubriker – ta bort dem ur rättnamnen.\n'
+      +'- "name" ska vara rättens korta namn, INTE hela beskrivningen. Ta aldrig med prefix som "Förrätt:", "Varmrätt:" eller "Dessert:" i namnet.\n'
+      +'- "description" ska innehålla ingredienser/beskrivning. Saknas beskrivning, sätt tom sträng.\n'
+      +'- Om en rad bara är en lång ingredienslista utan tydligt namn, använd hela raden som "name" och lämna "description" tom.\n'
+      +'- "price" anges som heltal i kronor utan "kr". Saknas pris, sätt 0. För fastprismeny: sätt priset på första rätten och 0 på övriga.';
     let messages;
     if(imgFile){
       const b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(imgFile);});
