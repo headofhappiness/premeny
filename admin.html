@@ -855,7 +855,8 @@ function renderTally(orders){
   const counts={};
   const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const n=oi.menu_items?.name||'?',c=oi.menu_items?.menu_categories?.label||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const n=oi.menu_items.name,c=oi.menu_items.menu_categories?.label||'Övrigt';
     const k=c+'||'+n;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){
@@ -879,8 +880,9 @@ function renderKitchen(orders){
   const counts={};
   const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const cat=oi.menu_items?.menu_categories?.label||'?';
-    const name=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const cat=oi.menu_items.menu_categories?.label||'Övrigt';
+    const name=oi.menu_items.name;
     const k=cat+'||'+name;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){
@@ -892,8 +894,9 @@ function renderKitchen(orders){
   const max=Math.max(...Object.values(counts));
   const byCat={};
   Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
-  return Object.entries(byCat).map(([cat,items])=>
-    `<div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .4rem">${cat}</div>`+
+  return Object.entries(byCat).map(([cat,items])=>{
+    const catTotal=items.reduce((s,it)=>s+it.n,0);
+    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
     items.map(({name,n,k})=>
       `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
         <div style="display:flex;align-items:center;gap:8px">
@@ -903,8 +906,8 @@ function renderKitchen(orders){
         </div>
         ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
       </div>`
-    ).join('')
-  ).join('');
+    ).join('');
+  }).join('');
 }
 
 function renderGuests(orders,bid){
@@ -1079,10 +1082,11 @@ async function sendSummary(id,ch){
   text+='Beställningar: '+(orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+'\n\n';
   const byCat={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?',n=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const c=oi.menu_items.menu_categories?.label||'Övrigt',n=oi.menu_items.name;
     if(!byCat[c])byCat[c]={};byCat[c][n]=(byCat[c][n]||0)+1;
   }));
-  Object.entries(byCat).forEach(([c,items])=>{text+=c+':\n';Object.entries(items).forEach(([n,cnt])=>text+='  '+n+' ×'+cnt+'\n');text+='\n';});
+  Object.entries(byCat).forEach(([c,items])=>{const tot=Object.values(items).reduce((s,x)=>s+x,0);text+=c+' ('+tot+' st totalt):\n';Object.entries(items).forEach(([n,cnt])=>text+='  '+n+' ×'+cnt+'\n');text+='\n';});
   const al=[];(orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{if(oi.comment?.trim())al.push(o.guest_name+' – '+oi.menu_items?.name+': '+oi.comment);}));
   if(al.length){text+='Kommentarer & allergier:\n';al.forEach(a=>text+='  '+a+'\n');}
   // Öppna mejl eller SMS
@@ -1141,13 +1145,15 @@ async function copyKitchen(id){
   let text=b.name+'\n'+ds+'\n'+gastInfo+'\n'+'─'.repeat(32)+'\n\n';
   const byCat={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?';
-    const n=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const c=oi.menu_items.menu_categories?.label||'Övrigt';
+    const n=oi.menu_items.name;
     if(!byCat[c])byCat[c]={};
     byCat[c][n]=(byCat[c][n]||0)+1;
   }));
   Object.entries(byCat).forEach(([c,items])=>{
-    text+=c.toUpperCase()+'\n';
+    const tot=Object.values(items).reduce((s,x)=>s+x,0);
+    text+=c.toUpperCase()+' ('+tot+' st totalt)\n';
     const maxLen=Math.max(...Object.keys(items).map(n=>n.length));
     Object.entries(items).forEach(([n,cnt])=>{
       const pad='.'.repeat(Math.max(2,maxLen-n.length+4));
@@ -1194,8 +1200,9 @@ async function printKitchen(id){
   // Count per dish
   const counts={};const allergies={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const cat=oi.menu_items?.menu_categories?.label||'?';
-    const name=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const cat=oi.menu_items.menu_categories?.label||'Övrigt';
+    const name=oi.menu_items.name;
     const k=cat+'||'+name;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((o.guest_name||'Okänd')+': '+oi.comment.trim());}
@@ -1259,7 +1266,8 @@ async function exportPDF(id){
   // Rätter per kategori - räkna antal, inga gästnamn
   const pdfCounts={};const pdfAllergies={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?',n=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const c=oi.menu_items.menu_categories?.label||'Övrigt',n=oi.menu_items.name;
     const k=c+'||'+n;
     pdfCounts[k]=(pdfCounts[k]||0)+1;
     if(oi.comment?.trim()){if(!pdfAllergies[k])pdfAllergies[k]=[];pdfAllergies[k].push((o.guest_name||'Gäst')+': '+oi.comment.trim());}
@@ -1269,9 +1277,12 @@ async function exportPDF(id){
 
   Object.entries(pdfByCat).forEach(([cat,items])=>{
     checkPage(16);
+    const catTotal=items.reduce((s,it)=>s+it.cnt,0);
     doc.setFont('helvetica','bold');doc.setFontSize(10);
     doc.setTextColor(184,149,90);
-    doc.text(cat.toUpperCase(),margin,y);y+=6;
+    doc.text(cat.toUpperCase(),margin,y);
+    doc.text(catTotal+' st totalt',pageW-margin,y,{align:'right'});
+    y+=6;
     doc.setTextColor(26,23,18);
 
     items.forEach(({name,cnt,k})=>{
@@ -1448,8 +1459,9 @@ function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCal();}
 function buildKitchenHtml(orders){
   const counts={};const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
+    if(!oi.menu_items||!oi.menu_items.name)return;
     const cat=oi.menu_items?.menu_categories?.label||'Övrigt';
-    const name=oi.menu_items?.name||'?';
+    const name=oi.menu_items.name;
     const k=cat+'||'+name;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push(o.guest_name+': '+oi.comment.trim());}
@@ -1599,8 +1611,9 @@ async function exportCalPDF(){
   // Räkna per kategori och rätt
   const counts={};const allergies={};
   allOrders.forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?';
-    const n=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const c=oi.menu_items.menu_categories?.label||'Övrigt';
+    const n=oi.menu_items.name;
     const k=c+'||'+n;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((o.guest_name||'Gäst')+': '+oi.comment.trim());}

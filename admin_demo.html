@@ -861,7 +861,8 @@ function renderTally(orders){
   const counts={};
   const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const n=oi.menu_items?.name||'?',c=oi.menu_items?.menu_categories?.label||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const n=oi.menu_items.name,c=oi.menu_items?.menu_categories?.label||'Övrigt';
     const k=c+'||'+n;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){
@@ -885,8 +886,9 @@ function renderKitchen(orders){
   const counts={};
   const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const cat=oi.menu_items?.menu_categories?.label||'?';
-    const name=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return; // hoppa över rätter som saknas (trasig koppling)
+    const cat=oi.menu_items?.menu_categories?.label||'Övrigt';
+    const name=oi.menu_items.name;
     const k=cat+'||'+name;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){
@@ -1035,7 +1037,8 @@ async function sendSummary(id,ch){
   text+='Beställningar: '+(orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+'\n\n';
   const byCat={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?',n=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const c=oi.menu_items.menu_categories?.label||'Övrigt',n=oi.menu_items.name;
     if(!byCat[c])byCat[c]={};byCat[c][n]=(byCat[c][n]||0)+1;
   }));
   Object.entries(byCat).forEach(([c,items])=>{text+=c+':\n';Object.entries(items).forEach(([n,cnt])=>text+='  '+n+' ×'+cnt+'\n');text+='\n';});
@@ -1098,8 +1101,9 @@ async function copyKitchen(id){
   let text=b.name+'\n'+ds+'\n'+gastInfo+'\n'+'─'.repeat(32)+'\n\n';
   const byCat={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?';
-    const n=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const c=oi.menu_items.menu_categories?.label||'Övrigt';
+    const n=oi.menu_items.name;
     if(!byCat[c])byCat[c]={};
     byCat[c][n]=(byCat[c][n]||0)+1;
   }));
@@ -1152,8 +1156,9 @@ async function printKitchen(id){
   // Count per dish
   const counts={};const allergies={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const cat=oi.menu_items?.menu_categories?.label||'?';
-    const name=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const cat=oi.menu_items.menu_categories?.label||'Övrigt';
+    const name=oi.menu_items.name;
     const k=cat+'||'+name;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((o.guest_name||'Okänd')+': '+oi.comment.trim());}
@@ -1218,7 +1223,8 @@ async function exportPDF(id){
   // Rätter per kategori - räkna antal, inga gästnamn
   const pdfCounts={};const pdfAllergies={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?',n=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const c=oi.menu_items.menu_categories?.label||'Övrigt',n=oi.menu_items.name;
     const k=c+'||'+n;
     pdfCounts[k]=(pdfCounts[k]||0)+1;
     if(oi.comment?.trim()){if(!pdfAllergies[k])pdfAllergies[k]=[];pdfAllergies[k].push((o.guest_name||'Gäst')+': '+oi.comment.trim());}
@@ -1410,8 +1416,9 @@ function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCal();}
 function buildKitchenHtml(orders){
   const counts={};const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
+    if(!oi.menu_items||!oi.menu_items.name)return;
     const cat=oi.menu_items?.menu_categories?.label||'Övrigt';
-    const name=oi.menu_items?.name||'?';
+    const name=oi.menu_items.name;
     const k=cat+'||'+name;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push(o.guest_name+': '+oi.comment.trim());}
@@ -1562,8 +1569,9 @@ async function exportCalPDF(){
   // Räkna per kategori och rätt
   const counts={};const allergies={};
   allOrders.forEach(o=>(o.order_items||[]).forEach(oi=>{
-    const c=oi.menu_items?.menu_categories?.label||'?';
-    const n=oi.menu_items?.name||'?';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const c=oi.menu_items.menu_categories?.label||'Övrigt';
+    const n=oi.menu_items.name;
     const k=c+'||'+n;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((o.guest_name||'Gäst')+': '+oi.comment.trim());}
