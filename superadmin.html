@@ -657,9 +657,11 @@ async function loadArchivedRestaurants(){
 
 async function deleteRestPermanent(id, name){
   if(!confirm('Radera '+name+' permanent? All data raderas och kan inte återställas.'))return;
-  await db.from('restaurant_admins').delete().eq('restaurant_id',id);
-  await db.from('restaurants').delete().eq('id',id);
-  loadArchivedRestaurants();loadStats();
+  const {error:e1}=await db.from('restaurant_admins').delete().eq('restaurant_id',id);
+  const {error:e2}=await db.from('bookings').delete().eq('restaurant_id',id);
+  const {error:e3}=await db.from('restaurants').delete().eq('id',id);
+  if(e3){alert('Fel: '+e3.message);return;}
+  loadRestaurants();loadStats();
 }
 
 // ── VÄLKOMSTMEJL ─────────────────────────────────────────────────────
