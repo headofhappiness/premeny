@@ -114,6 +114,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   h3{font-size:20px}
   .card-label, label, .bmeta, .pill, .trow, .tnr, .aitem, .grow, .bulk-cmt, .empty, .cal-dn, .linkbox{font-size:14px}
   .btn, .tab, .dtab{font-size:17px;min-height:50px;padding:12px 18px}
+  .nb-btn{font-size:14px !important;min-height:40px !important;padding:8px 16px !important}
   .tab, .dtab{padding:10px 16px}
   .linkbox{font-size:14px}
   .cal-day{font-size:14px;min-height:50px;padding:12px 0}
@@ -183,7 +184,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
     <!-- BOKNINGAR -->
     <div id="pane-bookings">
-      <div class="fb"><h3>Aktiva bokningar</h3><button class="btn bp" onclick="toggleNB()">+ Ny bokning</button></div>
+      <div class="fb"><h3>Aktiva bokningar</h3><button class="btn bp nb-btn" onclick="toggleNB()">+ Ny bokning</button></div>
       <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:13px;color:#6a5030;line-height:1.6">🔔 Påminnelse skickas automatiskt via mejl och/eller SMS innan sista beställningsdag – men aldrig om alla gäster redan svarat.</div>
       <div id="newBookingForm" style="display:none" class="card">
         <div class="card-label">Skapa ny bokning</div>
