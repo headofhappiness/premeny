@@ -79,7 +79,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
   <nav class="nav">
     <div style="display:flex;align-items:center;gap:10px">
       <img src="PM_logo.png" style="width:28px;height:28px;border-radius:50%">
-      <div class="logo">Pre<span>Meny</span></div>
+      <div class="logo" onclick="smGoHome()" style="cursor:pointer" title="Till översikten">Pre<span>Meny</span></div>
       <div class="sa-badge">SuperAdmin</div>
     </div>
     <button class="btn bg" style="padding:6px 14px;font-size:12px" onclick="doLogout()">Logga ut</button>
@@ -509,6 +509,10 @@ function closeStatsModal(){document.getElementById('statsModal').style.display='
 // ── NY RESTAURANG ────────────────────────────────────────────────────
 function openNewRest(){document.getElementById('newRestModal').style.display='flex';}
 function closeModalDirect(){document.getElementById('newRestModal').style.display='none';}
+function smGoHome(){
+  ['welcomeModal','menuModal','newRestModal'].forEach(function(id){var m=document.getElementById(id);if(m)m.style.display='none';});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
 document.addEventListener('input',function(e){
   if(e.target.id==='nr-name'){
