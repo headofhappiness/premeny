@@ -290,7 +290,10 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <!-- MENY -->
     <div id="pane-menu" style="display:none">
       <div class="fb"><h3>Menyer</h3>
-        <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
+          <button class="btn bg" style="font-size:12px" onclick="toggleAIPanel()">✦ Skapa meny med AI</button>
+        </div>
       </div>
 
       <!-- Meny-väljare -->
@@ -316,7 +319,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <div id="menuEditor" style="margin-top:0"></div>
 
       <!-- AI MENYIMPORT -->
-      <div class="card" style="margin-top:1.5rem;background:rgba(184,149,90,.04);border:1px solid rgba(184,149,90,.18)">
+      <div class="card" id="aiImportPanel" style="display:none;margin-top:1.5rem;background:rgba(184,149,90,.04);border:1px solid rgba(184,149,90,.18)">
         <h3 style="margin-bottom:.25rem">Skapa ny meny med AI</h3>
         <div class="gold-line"></div>
         <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Ladda upp en skärmdump eller klistra in text – AI:n skapar en <strong>helt ny meny</strong> med rubriker och rätter. Du namnger menyn när du sparar. (Vill du lägga till rätter i en befintlig meny? Öppna den ovan och använd "+ Ny rubrik".)</p>
@@ -2012,7 +2015,23 @@ async function loadMenuItems(menuId){
 
 
 // ─── HULPFUNKTIONER MENY ─────────────────────────────────────────────
-function showNewMenuForm(){document.getElementById('newMenuForm').style.display='block';}
+function showNewMenuForm(){
+  var ai=document.getElementById('aiImportPanel');if(ai)ai.style.display='none';
+  var f=document.getElementById('newMenuForm');f.style.display='block';
+  var i=document.getElementById('nm-name');if(i)i.focus();
+}
+function toggleAIPanel(){
+  document.getElementById('newMenuForm').style.display='none';
+  var p=document.getElementById('aiImportPanel');
+  var open=p.style.display==='none';
+  p.style.display=open?'block':'none';
+  if(open){
+    cancelImport();
+    var t=document.getElementById('menu-import-text');if(t)t.value='';
+    var img=document.getElementById('menu-import-image');if(img)img.value='';
+    p.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
 function toggleNC(){
   var f=document.getElementById('newCatForm');
   if(!f)return;
@@ -2143,6 +2162,7 @@ async function confirmImport(){
   var r=document.getElementById('import-result');if(r)r.style.display='none';
   document.getElementById('menu-import-text').value='';
   var imgEl=document.getElementById('menu-import-image');if(imgEl)imgEl.value='';
+  var ai=document.getElementById('aiImportPanel');if(ai)ai.style.display='none';
   await renderMenu(true);
 }
 
