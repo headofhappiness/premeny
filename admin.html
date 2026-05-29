@@ -777,7 +777,20 @@ async function loadDet(id,tab){
   if(!orders?.length){el.innerHTML='<div style="font-size:13px;color:var(--muted);padding:4px 0">Inga beställningar ännu.</div>';return;}
   if(tab==='tally')el.innerHTML=renderTally(orders);
   else if(tab==='kitchen')el.innerHTML=renderKitchen(orders);
-  else if(tab==='guests')el.innerHTML=renderGuests(orders,id);
+  else if(tab==='guests'){ await loadGuestEditItems(id); el.innerHTML=renderGuests(orders,id); }
+}
+
+// Hämta rätterna ur bokningens egen meny (för Ändra-funktionen i gästlistan)
+let _geCats=[];
+async function loadGuestEditItems(bookingId){
+  _geCats=[];
+  try{
+    const {data:b}=await db.from('bookings').select('menu_id').eq('id',bookingId).single();
+    let q=db.from('menu_categories').select('id,label,sort_order, menu_items(id,name,active)');
+    if(b&&b.menu_id) q=q.eq('menu_id',b.menu_id); else q=q.eq('restaurant_id',rest.id);
+    const {data}=await q.order('sort_order');
+    _geCats=(data||[]).map(c=>({id:c.id,label:c.label,items:(c.menu_items||[]).filter(i=>i.active)}));
+  }catch(e){ _geCats=[]; }
 }
 
 // BULK INMATNING
@@ -890,21 +903,59 @@ function renderKitchen(orders){
 }
 
 function renderGuests(orders,bid){
+  var buildOpts=function(selId){
+    var s='';
+    (_geCats||[]).forEach(function(c){
+      s+='<optgroup label="'+escAttr(c.label)+'">';
+      (c.items||[]).forEach(function(m){
+        s+='<option value="'+m.id+'"'+(m.id===selId?' selected':'')+'>'+escHtml(m.name)+'</option>';
+      });
+      s+='</optgroup>';
+    });
+    return s;
+  };
   return orders.map(o=>{
     const ch=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(' · ');
     const cm=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.menu_items?.name+': '+oi.comment).join(', ');
+    var editRows=(o.order_items||[]).map(function(oi){
+      return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">'
+        +'<select id="ge_item_'+oi.id+'" style="flex:2;min-width:150px">'+buildOpts(oi.menu_item_id)+'</select>'
+        +'<input id="ge_cmt_'+oi.id+'" placeholder="Kommentar/allergi" value="'+escAttr(oi.comment||'')+'" style="flex:1;min-width:140px">'
+        +'</div>';
+    }).join('');
     return `<div class="grow">
       <div>
         <div style="font-size:14px">${o.guest_name}</div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px">${ch}</div>
         ${cm?`<div style="font-size:12px;color:#8a7020;margin-top:2px">⚠ ${cm}</div>`:''}
       </div>
-      <button class="btn bd" style="font-size:11px;padding:4px 10px;flex-shrink:0;margin-left:8px" onclick="delOrder('${o.id}','${bid}')">Ta bort</button>
+      <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleGuestEdit('${o.id}')">Ändra</button>
+        <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delOrder('${o.id}','${bid}')">Ta bort</button>
+      </div>
+    </div>
+    <div id="gedit_${o.id}" style="display:none;background:var(--surface2);border-radius:8px;padding:10px;margin:0 0 8px">
+      ${editRows||'<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Den här gästen har inga rätter att ändra.</div>'}
+      <div class="fg"><button class="btn bp" style="font-size:12px" onclick="saveGuestEdit('${o.id}','${bid}')">Spara</button><button class="btn bg" style="font-size:12px" onclick="toggleGuestEdit('${o.id}')">Avbryt</button></div>
     </div>`;
   }).join('');
 }
+function toggleGuestEdit(oid){var el=document.getElementById('gedit_'+oid);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function _catOfItem(itemId){for(var i=0;i<(_geCats||[]).length;i++){var f=(_geCats[i].items||[]).find(function(m){return m.id===itemId;});if(f)return _geCats[i].id;}return null;}
+async function saveGuestEdit(oid,bid){
+  var cont=document.getElementById('gedit_'+oid);if(!cont)return;
+  var selects=cont.querySelectorAll('select[id^="ge_item_"]');
+  for(var i=0;i<selects.length;i++){
+    var sel=selects[i];var oiId=sel.id.replace('ge_item_','');var itemId=sel.value;var catId=_catOfItem(itemId);
+    var cmtEl=document.getElementById('ge_cmt_'+oiId);var cmt=cmtEl?cmtEl.value.trim():'';
+    var upd={menu_item_id:itemId,comment:cmt||null};if(catId)upd.category_id=catId;
+    var {error}=await db.from('order_items').update(upd).eq('id',oiId);
+    if(error){alert('Fel: '+error.message);return;}
+  }
+  loadDet(bid,dtabs[bid]||'guests');reRender(bid);
+}
 
-async function delOrder(oid,bid){if(!confirm('Ta bort?'))return;await db.from('orders').delete().eq('id',oid);loadDet(bid,dtabs[bid]||'guests');reRender(bid);}
+async function delOrder(oid,bid){if(!confirm('Ta bort?'))return;await db.from('order_items').delete().eq('order_id',oid);await db.from('orders').delete().eq('id',oid);loadDet(bid,dtabs[bid]||'guests');reRender(bid);}
 
 // NY BOKNING
 function toggleNB(){const f=document.getElementById('newBookingForm');f.style.display=f.style.display==='none'?'block':'none';}
