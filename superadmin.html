@@ -112,8 +112,8 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
       <div style="background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.2);border-radius:12px;padding:1.25rem 1.5rem;font-size:14px;line-height:2.2">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem">Så lägger du till en ny kund</div>
         <div><span style="color:var(--gold);font-weight:700">1.</span> Klicka <strong>+ Lägg till restaurang</strong> — fyll i info, admin-epost och generera ett lösenord</div>
-        <div><span style="color:var(--gold);font-weight:700">2.</span> Klicka <strong>✉ Välkomstmejl</strong> på det nya kortet — kunden får ett snyggt mejl med inloggningsuppgifter</div>
-        <div><span style="color:var(--gold);font-weight:700">3.</span> Logga in i kundens admin och lägg in deras första meny under <strong>Menyer</strong></div>
+        <div><span style="color:var(--gold);font-weight:700">2.</span> Lägg in kundens första meny via <strong>🍽 Meny</strong> på det nya kortet</div>
+        <div><span style="color:var(--gold);font-weight:700">3.</span> Klicka <strong>✉ Välkomstmejl</strong> på kortet — kunden får ett snyggt mejl med inloggningsuppgifter</div>
         <div style="margin-top:.75rem;font-size:12px;color:var(--muted)">Kontot skapas automatiskt — inget manuellt arbete i Supabase behövs!</div>
       </div>
     </div>
@@ -143,8 +143,8 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <div id="inlineGuide" style="display:none;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:13px;line-height:2">
       <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">Checklista</div>
       <div><span style="color:var(--gold);font-weight:600">1.</span> Fyll i restauranginfo + admin-epost + lösenord → klicka <strong>Skapa restaurang</strong></div>
-      <div><span style="color:var(--gold);font-weight:600">2.</span> Klicka <strong>✉ Välkomstmejl</strong> på kortet för att skicka inloggningsuppgifter till kunden</div>
-      <div><span style="color:var(--gold);font-weight:600">3.</span> Lägg in kundens första meny under <strong>Menyer</strong> i deras admin</div>
+      <div><span style="color:var(--gold);font-weight:600">2.</span> Lägg in kundens första meny via <strong>🍽 Meny</strong> på restaurangkortet</div>
+      <div><span style="color:var(--gold);font-weight:600">3.</span> Klicka <strong>✉ Välkomstmejl</strong> på kortet för att skicka inloggningsuppgifter till kunden</div>
     </div>
     <div class="card-label">Grundinfo</div>
     <div class="r2">
@@ -208,7 +208,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
         </div>
       </div>
     </div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:1rem">Kontot skapas automatiskt. Klicka sedan <strong>✉ Välkomstmejl</strong> för att skicka inloggningsuppgifter till kunden.</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1rem">Kontot skapas automatiskt. Lägg sedan in menyn via <strong>🍽 Meny</strong> på kortet, och klicka till sist <strong>✉ Välkomstmejl</strong> för att skicka inloggningsuppgifter till kunden.</div>
     <div id="nr-msg" style="display:none" class="msg"></div>
     <div style="display:flex;gap:8px">
       <button class="btn bp" onclick="createRestaurant()" id="nr-btn">Skapa restaurang</button>
@@ -1000,12 +1000,16 @@ function smRender(){
     +'<div id="smImpTextWrap"><div class="ff"><label>Menytext</label><textarea id="smImpText" style="min-height:120px;font-size:13px" placeholder="Klistra in menyn här..."></textarea></div></div>'
     +'<div id="smImpImageWrap" style="display:none"><div class="ff"><label>Menybild (skärmdump eller foto)</label><input type="file" id="smImpImage" accept="image/*" style="font-size:13px;color:var(--muted)"></div></div>'
     +'<div id="smImpLoading" style="display:none;margin:.5rem 0;font-size:13px;color:var(--muted)"><span class="spinner"></span> Tolkar menyn med AI...</div>'
-    +'<div id="smImpResult" style="display:none;margin-top:1rem"><div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Förhandsvisning</div><div id="smImpPreview"></div></div>';
+    +'<div id="smImpResult" style="display:none;margin-top:1rem">'
+      +'<div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem">✓ AI:ns förslag – granska nedan</div>'
+      +'<div id="smImpPreview"></div>'
+      +'<div style="background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.3);border-radius:8px;padding:.6rem .85rem;margin:.7rem 0;font-size:13px;color:#6a5030">Stämmer förslaget? Klicka knappen nedan för att lägga till rätterna i menyn – du kan redigera dem efteråt.</div>'
+      +'<button class="btn bp" id="smImpAddBtn" style="width:100%;justify-content:center;padding:12px;font-size:15px" onclick="smConfirmImport()">✓ Spara menyn</button>'
+    +'</div>';
   const impBtns=document.createElement('div');impBtns.style.cssText='display:flex;gap:6px;margin-top:.75rem;flex-wrap:wrap';
-  const impRunBtn=smBtn('✦ Tolka meny','bp',smImportMenu);impRunBtn.id='smImpRunBtn';
-  const impAddBtn=smBtn('Lägg till i menyn','bp',smConfirmImport);impAddBtn.id='smImpAddBtn';impAddBtn.style.display='none';
-  const impCancelBtn=smBtn('Stäng','bg',function(){imp.style.display='none';_smImportData=null;document.getElementById('smImpResult').style.display='none';document.getElementById('smImpAddBtn').style.display='none';});
-  impBtns.appendChild(impRunBtn);impBtns.appendChild(impAddBtn);impBtns.appendChild(impCancelBtn);
+  const impRunBtn=smBtn('✦ Tolka meny med AI','bp',smImportMenu);impRunBtn.id='smImpRunBtn';
+  const impCancelBtn=smBtn('Stäng','bg',function(){imp.style.display='none';_smImportData=null;var r=document.getElementById('smImpResult');if(r)r.style.display='none';});
+  impBtns.appendChild(impRunBtn);impBtns.appendChild(impCancelBtn);
   imp.appendChild(impBtns);
   c.appendChild(imp);
   // Wire upp flik-knapparna
@@ -1025,9 +1029,12 @@ function smRender(){
     const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem';
     const label=document.createElement('div');label.style.cssText="font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--dark)";label.textContent=cat.label;
     const hb=document.createElement('div');hb.style.cssText='display:flex;gap:6px';
+    const _ci=_smCats.findIndex(function(c){return c.id===cat.id;});
+    const upBtn=smBtn('↑','bg',function(){smMoveCat(cat.id,-1);});upBtn.style.cssText='font-size:11px;padding:4px 9px';if(_ci<=0)upBtn.disabled=true;
+    const downBtn=smBtn('↓','bg',function(){smMoveCat(cat.id,1);});downBtn.style.cssText='font-size:11px;padding:4px 9px';if(_ci>=_smCats.length-1)downBtn.disabled=true;
     const addBtn=smBtn('+ Rätt','bg',function(){const f=document.getElementById('smAi_'+cat.id);f.style.display=f.style.display==='none'?'block':'none';});addBtn.style.cssText='font-size:11px;padding:4px 10px';
     const delCatBtn=smBtn('Ta bort rubrik','bd',function(){smDelCat(cat.id);});delCatBtn.style.cssText='font-size:11px;padding:4px 10px';
-    hb.appendChild(addBtn);hb.appendChild(delCatBtn);
+    hb.appendChild(upBtn);hb.appendChild(downBtn);hb.appendChild(addBtn);hb.appendChild(delCatBtn);
     head.appendChild(label);head.appendChild(hb);
     catDiv.appendChild(head);
 
@@ -1091,7 +1098,6 @@ async function smImportMenu(){
   document.getElementById('smImpRunBtn').disabled=true;
   document.getElementById('smImpLoading').style.display='block';
   document.getElementById('smImpResult').style.display='none';
-  document.getElementById('smImpAddBtn').style.display='none';
   try{
     const PROMPT='Tolka denna restaurangmeny och returnera ENDAST giltig JSON (inga backticks, ingen text runtomkring) i exakt detta format:\n'
       +'{"categories":[{"label":"Rubrik","items":[{"name":"Rättens namn","description":"Beskrivning","price":0}]}]}\n\n'
@@ -1131,7 +1137,6 @@ async function smImportMenu(){
     });
     document.getElementById('smImpPreview').innerHTML=ph;
     document.getElementById('smImpResult').style.display='block';
-    document.getElementById('smImpAddBtn').style.display='inline-flex';
   }catch(err){alert('Fel: '+(err&&err.message?err.message:JSON.stringify(err)));}
   document.getElementById('smImpRunBtn').disabled=false;
   document.getElementById('smImpLoading').style.display='none';
@@ -1199,6 +1204,18 @@ async function smDelCat(catId){
   await db.from('menu_items').delete().eq('category_id',catId);
   const {error}=await db.from('menu_categories').delete().eq('id',catId);
   if(error){alert('Fel: '+error.message);return;}
+  await smLoadAndRender();
+}
+async function smMoveCat(catId,dir){
+  const idx=_smCats.findIndex(function(c){return c.id===catId;});
+  if(idx<0)return;
+  const swapIdx=dir<0?idx-1:idx+1;
+  if(swapIdx<0||swapIdx>=_smCats.length)return;
+  const arr=_smCats.slice();
+  const tmp=arr[idx];arr[idx]=arr[swapIdx];arr[swapIdx]=tmp;
+  for(let i=0;i<arr.length;i++){
+    await db.from('menu_categories').update({sort_order:i}).eq('id',arr[i].id);
+  }
   await smLoadAndRender();
 }
 async function smRenameMenu(id){
