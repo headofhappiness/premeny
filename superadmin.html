@@ -130,12 +130,11 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     </div>
     <div id="inlineGuide" style="display:none;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:13px;line-height:2">
       <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">Checklista</div>
-      <div><span style="color:var(--gold);font-weight:600">1.</span> Fyll i namn, slug, plan och kontaktuppgifter nedan</div>
-      <div><span style="color:var(--gold);font-weight:600">2.</span> Fyll i admin-e-post och klicka <strong>Skapa &amp; skicka inbjudan</strong></div>
-      <div><span style="color:var(--gold);font-weight:600">3.</span> Gå till <strong>Supabase → Authentication → Users → Add user</strong> och skapa kontot med e-post + lösenord</div>
-      <div><span style="color:var(--gold);font-weight:600">4.</span> Kör i <strong>SQL Editor:</strong> <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:11px">INSERT INTO restaurant_admins (restaurant_id, user_id) SELECT '[rest-id]', id FROM auth.users WHERE email = '[admin-email]';</code></div>
-      <div><span style="color:var(--gold);font-weight:600">5.</span> Klicka <strong>✉ Välkomstmejl</strong> på kortet och fyll i e-post + tillfälligt lösenord</div>
-      <div><span style="color:var(--gold);font-weight:600">6.</span> Lägg in kundens första meny under <strong>Menyer</strong> i deras admin</div>
+      <div><span style="color:var(--gold);font-weight:600">1.</span> Fyll i namn, slug, plan och kontaktuppgifter nedan → <strong>Skapa restaurang</strong></div>
+      <div><span style="color:var(--gold);font-weight:600">2.</span> Gå till <strong>Supabase → Authentication → Users → Add user</strong> och skapa kontot med e-post + lösenord</div>
+      <div><span style="color:var(--gold);font-weight:600">3.</span> Kör i <strong>SQL Editor:</strong> <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:11px">INSERT INTO restaurant_admins (restaurant_id, user_id) SELECT '[rest-id]', id FROM auth.users WHERE email = '[admin-email]';</code></div>
+      <div><span style="color:var(--gold);font-weight:600">4.</span> Klicka <strong>✉ Välkomstmejl</strong> på kortet — fyll i e-post + tillfälligt lösenord och skicka</div>
+      <div><span style="color:var(--gold);font-weight:600">5.</span> Lägg in kundens första meny under <strong>Menyer</strong> i deras admin</div>
     </div>
     <div class="card-label">Grundinfo</div>
     <div class="r2">
