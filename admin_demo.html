@@ -133,9 +133,10 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 <body>
 
 <div class="demo-banner">
-  <div style="display:flex;flex-direction:column;gap:4px;align-items:center;line-height:1.6">
+  <div style="display:flex;flex-direction:column;gap:5px;align-items:center;line-height:1.6;text-align:center">
     <div>👤 <a href="https://premeny.se/guest.html?r=demo&b=84fbc0c1-2b36-4b0c-abfd-462d8630342a" target="_blank" style="color:#b8955a;font-weight:600;text-decoration:none">Se hur det ser ut för dina gäster →</a></div>
-    <div>Vill du ha en personlig genomgång? <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" style="color:#b8955a;font-weight:600;text-decoration:none">Boka möte</a> &nbsp;·&nbsp; Redo att bli kund? <a href="https://premeny.se/#contact" target="_blank" style="color:#b8955a;font-weight:600;text-decoration:none">Fyll i formuläret</a></div>
+    <div>Vill du ha en personlig genomgång? <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" style="color:#b8955a;font-weight:600;text-decoration:none">Boka möte</a></div>
+    <div>Redo att bli kund? <a href="https://premeny.se/#contact" target="_blank" style="color:#b8955a;font-weight:600;text-decoration:none">Fyll i formuläret</a></div>
   </div>
 </div>
 <div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
@@ -172,7 +173,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     </div>
     <div style="display:flex;align-items:center;gap:12px">
       <span style="font-size:13px;color:var(--muted)" id="restName"></span>
-      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn bp" style="padding:6px 14px;font-size:12px;text-decoration:none">📅 Boka möte</a>
+      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn" style="padding:6px 14px;font-size:12px;text-decoration:none;background:var(--gold);color:#fff;border-radius:100px;font-weight:600">📅 Boka möte</a>
     </div>
   </nav>
 
@@ -656,7 +657,7 @@ function renderBCard(b){
     const sentD=new Date(b.reminder_sent_at);
     reminderHtml=`<div style="font-size:12px;color:#6a5030;margin-top:4px">✉ Påminnelse skickad ${sentD.getDate()} ${months[sentD.getMonth()]} ${sentD.getFullYear()}</div>`;
   } else if(b.reminder_days&&!allOk){
-    reminderHtml=`<div style="font-size:12px;color:var(--muted);margin-top:4px">🔔 Påminnelse ${b.reminder_days} dagar före deadline</div>`;
+    reminderHtml=`<div style="font-size:12px;color:var(--muted);margin-top:4px">🔔 Påminnelse ${b.reminder_days} dagar före sista beställningsdag</div>`;
   } else if(allOk){
     reminderHtml=`<div style="font-size:12px;color:#3a7d44;margin-top:4px">✓ Alla gäster har svarat</div>`;
   }
@@ -730,7 +731,7 @@ function renderBCard(b){
     } else {
       const miss=b.expected_guests?(b.expected_guests-n)+' av '+b.expected_guests+' saknas':n+' har svarat';
       html+=`<div class="fg" style="margin-bottom:.75rem;flex-wrap:wrap">
-        <div style="font-size:12px;color:var(--muted)">✉ Påminnelse ${b.reminder_days} dagar före deadline · ${miss}</div>
+        <div style="font-size:12px;color:var(--muted)">✉ Påminnelse ${b.reminder_days} dagar före sista beställningsdag · ${miss}</div>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="doReminder('${b.id}',event)">Skicka nu</button>
       </div>`;
     }
