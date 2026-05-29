@@ -627,6 +627,15 @@ async function openEditRest(id){
       <div class="ff"><label>Adress</label><input type="text" id="er-address" value="${r.address||''}"></div>
       <div class="ff"><label>Webbplats</label><input type="text" id="er-website" value="${r.website||''}"></div>
     </div>
+    <div style="border-top:1px solid var(--border);margin:.5rem 0 .75rem;padding-top:.75rem">
+      <div class="ff"><label>Inloggnings-e-post <span style="font-size:11px;color:var(--muted);font-weight:400">(kundens användarnamn)</span></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="email" id="er-login-email" placeholder="Laddar..." style="flex:1;min-width:200px">
+          <button class="btn bg" type="button" onclick="changeLoginEmail('${id}')" style="white-space:nowrap">Byt inloggning</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Detta är adressen kunden loggar in med. "Spara" nedan påverkar inte den – använd knappen "Byt inloggning".</div>
+      </div>
+    </div>
     <div id="er-msg" style="display:none" class="msg"></div>
     <div style="display:flex;gap:8px">
       <button class="btn bp" onclick="saveEditRest('${id}')">Spara</button>
@@ -634,6 +643,32 @@ async function openEditRest(id){
     </div>`;
   document.getElementById('er-color').addEventListener('input',function(){document.getElementById('er-color-text').value=this.value;});
   document.getElementById('editRestModal').style.display='flex';
+  // Hämta nuvarande inloggnings-e-post
+  loadLoginEmail(id);
+}
+
+async function loadLoginEmail(id){
+  const el=document.getElementById('er-login-email');if(!el)return;
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    const r=await fetch(SURL+'/functions/v1/update-admin-email',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({restaurantId:id})});
+    const j=await r.json();
+    if(j.ok&&j.email){el.value=j.email;}else{el.value='';el.placeholder='(kunde inte hämta)';}
+  }catch(e){el.value='';el.placeholder='(kunde inte hämta)';}
+}
+
+async function changeLoginEmail(id){
+  const el=document.getElementById('er-login-email');
+  const v=(el?el.value:'').trim();
+  if(!v){alert('Ange en e-postadress.');return;}
+  if(!confirm('Byta inloggnings-e-post till:\n'+v+'\n\nKunden loggar därefter in med den nya adressen. Befintligt lösenord behålls.'))return;
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    const r=await fetch(SURL+'/functions/v1/update-admin-email',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({restaurantId:id,newEmail:v})});
+    const j=await r.json();
+    if(!j.ok)throw new Error(j.error||'Okänt fel');
+    alert('✓ Inloggnings-e-post ändrad till '+v);
+  }catch(e){alert('Fel: '+e.message);}
 }
 
 async function saveEditRest(id){
