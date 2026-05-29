@@ -96,7 +96,10 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
       <button class="btn bp" id="rtab-active" style="font-size:13px;padding:7px 16px;border-radius:100px" onclick="switchRestTab('active')">Aktiva kunder</button>
       <button class="btn bg" id="rtab-archived" style="font-size:13px;padding:7px 16px;border-radius:100px" onclick="switchRestTab('archived')">Arkiv</button>
-      <button class="btn bp" style="font-size:12px;margin-left:auto" onclick="openNewRest()">+ Lägg till restaurang</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn bg" style="font-size:12px" onclick="document.getElementById('overviewGuideWrap').style.display=document.getElementById('overviewGuideWrap').style.display==='none'?'block':'none'">📋 Guide</button>
+        <button class="btn bp" style="font-size:12px" onclick="openNewRest()">+ Lägg till restaurang</button>
+      </div>
     </div>
     <div style="position:relative;margin-bottom:1.25rem">
       <input type="text" id="restSearch" placeholder="Sök på restaurangnamn..." oninput="filterRestaurants()" style="padding-left:36px">
@@ -105,7 +108,16 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 
     <!-- Aktiva -->
     <div id="rpane-active">
-      <div id="restGrid" class="rest-grid"></div>
+      <div id="overviewGuideWrap" style="display:none;margin-bottom:1.25rem">
+      <div style="background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.2);border-radius:12px;padding:1.25rem 1.5rem;font-size:14px;line-height:2.2">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem">Så lägger du till en ny kund</div>
+        <div><span style="color:var(--gold);font-weight:700">1.</span> Klicka <strong>+ Lägg till restaurang</strong> — fyll i info, admin-epost och generera ett lösenord</div>
+        <div><span style="color:var(--gold);font-weight:700">2.</span> Klicka <strong>✉ Välkomstmejl</strong> på det nya kortet — kunden får ett snyggt mejl med inloggningsuppgifter</div>
+        <div><span style="color:var(--gold);font-weight:700">3.</span> Logga in i kundens admin och lägg in deras första meny under <strong>Menyer</strong></div>
+        <div style="margin-top:.75rem;font-size:12px;color:var(--muted)">Kontot skapas automatiskt — inget manuellt arbete i Supabase behövs!</div>
+      </div>
+    </div>
+    <div id="restGrid" class="rest-grid"></div>
     </div>
 
     <!-- Arkiv -->
@@ -130,11 +142,9 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     </div>
     <div id="inlineGuide" style="display:none;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:13px;line-height:2">
       <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">Checklista</div>
-      <div><span style="color:var(--gold);font-weight:600">1.</span> Fyll i namn, slug, plan och kontaktuppgifter nedan → <strong>Skapa restaurang</strong></div>
-      <div><span style="color:var(--gold);font-weight:600">2.</span> Gå till <strong>Supabase → Authentication → Users → Add user</strong> och skapa kontot med e-post + lösenord</div>
-      <div><span style="color:var(--gold);font-weight:600">3.</span> Kör i <strong>SQL Editor:</strong> <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:11px">INSERT INTO restaurant_admins (restaurant_id, user_id) SELECT '[rest-id]', id FROM auth.users WHERE email = '[admin-email]';</code></div>
-      <div><span style="color:var(--gold);font-weight:600">4.</span> Klicka <strong>✉ Välkomstmejl</strong> på kortet — fyll i e-post + tillfälligt lösenord och skicka</div>
-      <div><span style="color:var(--gold);font-weight:600">5.</span> Lägg in kundens första meny under <strong>Menyer</strong> i deras admin</div>
+      <div><span style="color:var(--gold);font-weight:600">1.</span> Fyll i restauranginfo + admin-epost + lösenord → klicka <strong>Skapa restaurang</strong></div>
+      <div><span style="color:var(--gold);font-weight:600">2.</span> Klicka <strong>✉ Välkomstmejl</strong> på kortet för att skicka inloggningsuppgifter till kunden</div>
+      <div><span style="color:var(--gold);font-weight:600">3.</span> Lägg in kundens första meny under <strong>Menyer</strong> i deras admin</div>
     </div>
     <div class="card-label">Grundinfo</div>
     <div class="r2">
