@@ -189,13 +189,19 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
       <div class="ff"><label>Telefon</label><input type="tel" id="nr-contact-phone" placeholder="+46 70 123 45 67"></div>
     </div>
     <div class="card-label" style="margin-top:.25rem">Adminkonto</div>
-    <div class="ff"><label>Admin-inloggning e-post *</label><input type="email" id="nr-admin-email" placeholder="personal@restaurangen.se"><div style="font-size:11px;color:var(--muted);margin-top:4px">Används för att logga in på admin-panelen</div></div>
-    <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.2);border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#6a5030;line-height:1.6;margin-bottom:1rem">
-      ℹ Efter att du skapat restaurangen — skapa kontot i Supabase och klicka sedan <strong>✉ Välkomstmejl</strong> på kortet för att skicka inloggningsuppgifter manuellt.
+    <div class="r2">
+      <div class="ff"><label>Admin e-post *</label><input type="email" id="nr-admin-email" placeholder="personal@restaurangen.se"></div>
+      <div class="ff"><label>Tillfälligt lösenord *</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="nr-admin-pass" placeholder="T.ex. Tulpan2026">
+          <button type="button" class="btn bg" style="padding:8px 12px;flex-shrink:0;font-size:12px" onclick="genNrPass()">Generera</button>
+        </div>
+      </div>
     </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1rem">Kontot skapas automatiskt. Klicka sedan <strong>✉ Välkomstmejl</strong> för att skicka inloggningsuppgifter till kunden.</div>
     <div id="nr-msg" style="display:none" class="msg"></div>
     <div style="display:flex;gap:8px">
-      <button class="btn bp" onclick="createRestaurant()" id="nr-btn">Skapa &amp; skicka inbjudan</button>
+      <button class="btn bp" onclick="createRestaurant()" id="nr-btn">Skapa restaurang</button>
       <button class="btn bg" onclick="closeModalDirect()">Avbryt</button>
     </div>
   </div>
@@ -500,10 +506,11 @@ async function createRestaurant(){
   const name=document.getElementById('nr-name').value.trim();
   const slug=document.getElementById('nr-slug').value.trim().toLowerCase();
   const adminEmail=document.getElementById('nr-admin-email').value.trim();
+  const adminPass=document.getElementById('nr-admin-pass').value.trim();
   const msgEl=document.getElementById('nr-msg');
 
-  if(!name||!slug||!adminEmail){
-    msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Fyll i namn, slug och admin e-post (markerade med *).';return;
+  if(!name||!slug||!adminEmail||!adminPass){
+    msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Fyll i namn, slug, admin e-post och lösenord (markerade med *).';return;
   }
 
   const btn=document.getElementById('nr-btn');
@@ -536,29 +543,29 @@ async function createRestaurant(){
     }).select().single();
     if(e1)throw new Error('Kunde inte skapa restaurang: '+e1.message);
 
-    // 3. Skicka inbjudningsmejl via Edge Function
-    btn.textContent='Skickar inbjudan...';
+    // 3. Skapa användarkonto via Edge Function
+    btn.textContent='Skapar konto...';
     const {data:{session}}=await db.auth.getSession();
     const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/create-admin-user',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
-      body:JSON.stringify({email:adminEmail,restaurantId:rest.id,restaurantName:name})
+      body:JSON.stringify({email:adminEmail,password:adminPass,restaurantId:rest.id})
     });
     const result=await resp.json();
 
     msgEl.style.display='block';
     if(result.ok){
       msgEl.className='msg mok';
-      msgEl.innerHTML='✓ <strong>'+name+'</strong> skapades och inbjudan skickades till <strong>'+adminEmail+'</strong>!<br><span style="font-size:12px;color:#3a6020">Restaurangen kan logga in via länken i mejlet och sätta sitt lösenord.</span>';
+      msgEl.innerHTML='✓ <strong>'+name+'</strong> och adminkonto skapat!<br><span style="font-size:12px;color:#3a6020">Klicka nu <strong>✉ Välkomstmejl</strong> på restaurangkortet för att skicka inloggningsuppgifter till kunden.</span>';
     } else {
       msgEl.className='msg merr';
-      msgEl.innerHTML='Restaurangen skapades men inbjudan misslyckades: '+result.error+'<br><br>Gå till Supabase → Authentication → Users → Invite user och bjud in <strong>'+adminEmail+'</strong> manuellt.';
+      msgEl.innerHTML='Restaurangen skapades men kontot misslyckades: <strong>'+result.error+'</strong><br><span style="font-size:12px">Skapa kontot manuellt i Supabase → Authentication → Users → Add user</span>';
     }
     loadRestaurants();loadStats();
   }catch(err){
     msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Fel: '+err.message;
   }
-  btn.disabled=false;btn.textContent='Skapa & skicka inbjudan';
+  btn.disabled=false;btn.textContent='Skapa restaurang';
 }
 
 // ── REDIGERA RESTAURANG ──────────────────────────────────────────────
@@ -729,6 +736,13 @@ function previewWelcomeEmail(){
   frame.srcdoc=html;
   document.getElementById('previewModal').style.display='flex';
 }
+function genNrPass(){
+  const flowers=['Tulpan','Lavendel','Jasmin','Rosmarin','Iris','Dahlia','Mimosa','Clematis','Anemone','Salvia'];
+  const f=flowers[Math.floor(Math.random()*flowers.length)];
+  const n=2024+Math.floor(Math.random()*4);
+  document.getElementById('nr-admin-pass').value=f+n;
+}
+
 function genWelcomePass(){
   const blommor=['Tulpan','Lavendel','Jasmin','Rosmarin','Lilja','Dahlia','Iris','Mimosa','Verbena','Freesia','Anemone','Clematis','Magnolia','Petunia','Begonia'];
   const blomma=blommor[Math.floor(Math.random()*blommor.length)];
