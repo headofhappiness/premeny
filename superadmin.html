@@ -577,12 +577,19 @@ async function createRestaurant(){
     const result=await resp.json();
 
     msgEl.style.display='block';
-    if(result.ok){
-      msgEl.className='msg mok';
-      msgEl.innerHTML='✓ <strong>'+name+'</strong> och adminkonto skapat!<br><span style="font-size:12px;color:#3a6020">Klicka nu <strong>✉ Välkomstmejl</strong> på restaurangkortet för att skicka inloggningsuppgifter till kunden.</span>';
+    if(result.ok && result.userId){
+      // Koppla användaren till restaurangen här (som superadmin – behörighet finns)
+      const {error:linkErr}=await db.from('restaurant_admins').insert({restaurant_id:rest.id,user_id:result.userId});
+      if(linkErr){
+        msgEl.className='msg merr';
+        msgEl.innerHTML='Kontot skapades men kopplingen misslyckades: <strong>'+linkErr.message+'</strong>';
+      } else {
+        msgEl.className='msg mok';
+        msgEl.innerHTML='✓ <strong>'+name+'</strong> och adminkonto skapat!<br><span style="font-size:12px;color:#3a6020">Klicka nu <strong>✉ Välkomstmejl</strong> på restaurangkortet för att skicka inloggningsuppgifter till kunden.</span>';
+      }
     } else {
       msgEl.className='msg merr';
-      msgEl.innerHTML='Restaurangen skapades men kontot misslyckades: <strong>'+result.error+'</strong><br><span style="font-size:12px">Skapa kontot manuellt i Supabase → Authentication → Users → Add user</span>';
+      msgEl.innerHTML='Restaurangen skapades men kontot misslyckades: <strong>'+(result.error||'okänt fel')+'</strong>';
     }
     loadRestaurants();loadStats();
   }catch(err){
@@ -698,6 +705,11 @@ async function deleteRestPermanent(id, name){
   };
 
   try{
+    // Hämta admin-användarnas id:n INNAN vi raderar restaurant_admins,
+    // så vi kan ta bort själva inloggningskontona också.
+    const {data:admins} = await db.from('restaurant_admins').select('user_id').eq('restaurant_id',id);
+    const userIds = (admins||[]).map(a=>a.user_id).filter(Boolean);
+
     // Hämta id:n vi behöver för att scopa barn-raderingar
     const {data:orders}  = await db.from('orders').select('id').eq('restaurant_id',id);
     const orderIds = (orders||[]).map(o=>o.id);
@@ -729,6 +741,20 @@ async function deleteRestPermanent(id, name){
 
     // 8. själva restaurangen
     await run('restaurants', db.from('restaurants').delete().eq('id',id));
+
+    // 9. Inloggningskonton (auth-användare) via Edge Function – så e-posten kan återanvändas
+    if(userIds.length){
+      try{
+        const {data:{session}}=await db.auth.getSession();
+        for(const uid of userIds){
+          await fetch(SURL+'/functions/v1/delete-admin-user',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+            body:JSON.stringify({userId:uid})
+          });
+        }
+      }catch(e){ console.warn('Kunde inte radera inloggningskonto:',e.message); }
+    }
 
   }catch(err){
     alert('Kunde inte radera: '+err.message);
@@ -944,6 +970,7 @@ function smRender(){
   const toolbar=document.createElement('div');
   toolbar.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)';
   toolbar.appendChild(smBtn('+ Ny rubrik','bg',function(){document.getElementById('smNewCatForm').style.display='block';const i=document.getElementById('smNcName');if(i)i.focus();}));
+  toolbar.appendChild(smBtn('✦ Importera meny','bp',function(){const p=document.getElementById('smImportPanel');p.style.display=p.style.display==='none'?'block':'none';}));
   toolbar.appendChild(smBtn('Byt namn','bg',function(){smRenameMenu(_smActiveMenuId);}));
   toolbar.appendChild(smBtn('Kopiera meny','bg',function(){smCopyMenu(_smActiveMenuId);}));
   toolbar.appendChild(smBtn('Ta bort meny','bd',function(){smDeleteMenu(_smActiveMenuId);}));
@@ -959,6 +986,34 @@ function smRender(){
   ncBtns.appendChild(smBtn('Avbryt','bg',function(){ncForm.style.display='none';}));
   ncForm.appendChild(ncBtns);
   c.appendChild(ncForm);
+
+  // Importera meny (AI) – text eller bild, precis som i kund-admin
+  const imp=document.createElement('div');
+  imp.id='smImportPanel';
+  imp.style.cssText='display:none;background:var(--surface2);border-radius:10px;padding:1rem;margin-bottom:1rem';
+  imp.innerHTML=
+    '<div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">Importera meny med AI</div>'
+    +'<div style="display:flex;gap:6px;margin-bottom:.75rem">'
+      +'<button class="btn bp" id="smImpTabText" style="font-size:12px;padding:6px 14px;border-radius:100px">📝 Klistra in text</button>'
+      +'<button class="btn bg" id="smImpTabImage" style="font-size:12px;padding:6px 14px;border-radius:100px">🖼 Ladda upp bild</button>'
+    +'</div>'
+    +'<div id="smImpTextWrap"><div class="ff"><label>Menytext</label><textarea id="smImpText" style="min-height:120px;font-size:13px" placeholder="Klistra in menyn här..."></textarea></div></div>'
+    +'<div id="smImpImageWrap" style="display:none"><div class="ff"><label>Menybild (skärmdump eller foto)</label><input type="file" id="smImpImage" accept="image/*" style="font-size:13px;color:var(--muted)"></div></div>'
+    +'<div id="smImpLoading" style="display:none;margin:.5rem 0;font-size:13px;color:var(--muted)"><span class="spinner"></span> Tolkar menyn med AI...</div>'
+    +'<div id="smImpResult" style="display:none;margin-top:1rem"><div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Förhandsvisning</div><div id="smImpPreview"></div></div>';
+  const impBtns=document.createElement('div');impBtns.style.cssText='display:flex;gap:6px;margin-top:.75rem;flex-wrap:wrap';
+  const impRunBtn=smBtn('✦ Tolka meny','bp',smImportMenu);impRunBtn.id='smImpRunBtn';
+  const impAddBtn=smBtn('Lägg till i menyn','bp',smConfirmImport);impAddBtn.id='smImpAddBtn';impAddBtn.style.display='none';
+  const impCancelBtn=smBtn('Stäng','bg',function(){imp.style.display='none';_smImportData=null;document.getElementById('smImpResult').style.display='none';document.getElementById('smImpAddBtn').style.display='none';});
+  impBtns.appendChild(impRunBtn);impBtns.appendChild(impAddBtn);impBtns.appendChild(impCancelBtn);
+  imp.appendChild(impBtns);
+  c.appendChild(imp);
+  // Wire upp flik-knapparna
+  setTimeout(function(){
+    const bt=document.getElementById('smImpTabText'),bi=document.getElementById('smImpTabImage');
+    if(bt)bt.addEventListener('click',function(){smImpTab('text');});
+    if(bi)bi.addEventListener('click',function(){smImpTab('image');});
+  },0);
 
   // Rubriker + rätter
   if(!_smCats.length){
@@ -1017,6 +1072,69 @@ function smRender(){
     catDiv.appendChild(card);
     c.appendChild(catDiv);
   });
+}
+
+// ── MENY-IMPORT (AI, text/bild) ──────────────────────────────────────
+let _smImportData=null;
+function smImpTab(tab){
+  document.getElementById('smImpTextWrap').style.display=tab==='text'?'block':'none';
+  document.getElementById('smImpImageWrap').style.display=tab==='image'?'block':'none';
+  const bt=document.getElementById('smImpTabText'),bi=document.getElementById('smImpTabImage');
+  if(bt){bt.className='btn '+(tab==='text'?'bp':'bg');bt.style.cssText='font-size:12px;padding:6px 14px;border-radius:100px';}
+  if(bi){bi.className='btn '+(tab==='image'?'bp':'bg');bi.style.cssText='font-size:12px;padding:6px 14px;border-radius:100px';}
+}
+async function smImportMenu(){
+  if(!_smActiveMenuId){alert('Välj en meny först.');return;}
+  const textVal=document.getElementById('smImpText').value.trim();
+  const imgFile=document.getElementById('smImpImage').files[0];
+  if(!textVal&&!imgFile){alert('Klistra in text eller välj en bild.');return;}
+  document.getElementById('smImpRunBtn').disabled=true;
+  document.getElementById('smImpLoading').style.display='block';
+  document.getElementById('smImpResult').style.display='none';
+  document.getElementById('smImpAddBtn').style.display='none';
+  try{
+    const body={text:textVal};
+    if(imgFile){
+      const b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(imgFile);});
+      body.image=b64;body.imageType=imgFile.type;
+    }
+    const {data:{session}}=await db.auth.getSession();
+    const resp=await fetch(SURL+'/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});
+    const result=await resp.json();
+    if(!result.categories)throw new Error(result.error||'Ingen data tolkades');
+    _smImportData=result.categories;
+    let ph='';
+    result.categories.forEach(function(cat){
+      ph+='<div style="margin-bottom:.75rem"><div style="font-family:\'Playfair Display\',serif;font-style:italic;color:var(--dark);margin-bottom:.25rem">'+escAttrSM(cat.label)+'</div><div class="card" style="padding:.5rem;margin-bottom:0">';
+      (cat.items||[]).forEach(function(item){
+        ph+='<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:13px"><span>'+escAttrSM(item.name)+(item.description?' <span style="color:var(--muted)">– '+escAttrSM(item.description)+'</span>':'')+'</span><span style="color:var(--muted);white-space:nowrap">'+(item.price?item.price+' kr':'')+'</span></div>';
+      });
+      ph+='</div></div>';
+    });
+    document.getElementById('smImpPreview').innerHTML=ph;
+    document.getElementById('smImpResult').style.display='block';
+    document.getElementById('smImpAddBtn').style.display='inline-flex';
+  }catch(err){alert('Fel: '+err.message);}
+  document.getElementById('smImpRunBtn').disabled=false;
+  document.getElementById('smImpLoading').style.display='none';
+}
+async function smConfirmImport(){
+  if(!_smImportData||!_smActiveMenuId)return;
+  document.getElementById('smImpAddBtn').disabled=true;
+  for(let i=0;i<_smImportData.length;i++){
+    const cat=_smImportData[i];
+    const maxSort=_smCats.length?Math.max.apply(null,_smCats.map(function(c){return c.sort_order||0;})):0;
+    const {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:_smRestId,menu_id:_smActiveMenuId,label:cat.label,sort_order:maxSort+1+i}).select().single();
+    if(error||!newCat)continue;
+    for(let j=0;j<(cat.items||[]).length;j++){
+      const item=cat.items[j];
+      await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:_smRestId,name:item.name,description:item.description||'',price:parseInt(item.price)||0,sort_order:j,active:true});
+    }
+  }
+  _smImportData=null;
+  document.getElementById('smImpAddBtn').disabled=false;
+  const panel=document.getElementById('smImportPanel');if(panel)panel.style.display='none';
+  await smLoadAndRender();
 }
 
 async function smCreateMenu(){
