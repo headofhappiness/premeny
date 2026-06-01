@@ -888,12 +888,13 @@ function renderTally(orders){
   const max=Math.max(...Object.values(counts));
   const byCat={};
   Object.entries(counts).forEach(([k,n])=>{const[c,name]=k.split('||');if(!byCat[c])byCat[c]=[];byCat[c].push({name,n,k});});
-  return Object.entries(byCat).map(([c,items])=>
-    `<div class="chead">${c}</div>`+items.map(({name,n,k})=>
+  return Object.entries(byCat).map(([c,items])=>{
+    const catTotal=items.reduce((s,it)=>s+it.n,0);
+    return `<div class="chead" style="display:flex;align-items:baseline;justify-content:space-between"><span>${c}</span><span style="font-size:11px;font-weight:600;color:var(--dark);letter-spacing:0;text-transform:none">${catTotal} st totalt</span></div>`+items.map(({name,n,k})=>
       `<div class="trow"><span class="tn">${name}</span><div class="tbw"><div class="tb" style="width:${Math.round(n/max*100)}%"></div></div><span class="tnr">${n}</span></div>`+
       (allergies[k]?`<div style="margin:-2px 0 6px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:'')
-    ).join('')
-  ).join('');
+    ).join('');
+  }).join('');
 }
 
 function renderKitchen(orders){
@@ -1422,9 +1423,9 @@ function updateNextBooking(){
   const diffDays=Math.round((new Date(b.event_date+'T12:00:00')-new Date(todayStr+'T12:00:00'))/86400000);
   const when=diffDays===0?'idag':diffDays===1?'imorgon':'om '+diffDays+' dagar';
   const guests=b.expected_guests?` · ${b.expected_guests} gäster`:'';
-  bar.innerHTML=`<div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem">Nästa bokning</div>`
-    +`<div style="font-size:15px;font-weight:600">${escHtml(b.name||'')} – ${dateTxt}${timeTxt}</div>`
-    +`<div style="font-size:12px;opacity:.8;margin-top:2px">${when}${guests}</div>`;
+  bar.innerHTML=`<div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem">Nästa bokning</div>`
+    +`<div style="font-family:'Playfair Display',Georgia,serif;font-size:19px;font-weight:400;letter-spacing:.01em;line-height:1.3">${escHtml(b.name||'')} <span style="opacity:.55">·</span> ${dateTxt}${timeTxt}</div>`
+    +`<div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:.45rem;letter-spacing:.02em">${when}${guests}</div>`;
   bar.style.display='block';
 }
 
@@ -1951,7 +1952,7 @@ async function loadMenuItems(menuId){
       var info=document.createElement('div');
       info.className='menu-item-info';
       var name=document.createElement('div');
-      name.className='menu-item-name';name.style.fontWeight='600';name.textContent=item.name;
+      name.className='menu-item-name';name.textContent=item.name;
       info.appendChild(name);
       if(item.description){
         var desc=document.createElement('div');desc.className='menu-item-desc';desc.textContent=item.description;
