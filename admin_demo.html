@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
-<meta name="pm-build" content="2026-06-01d">
+<meta name="pm-build" content="2026-06-01e">
 <meta name="description" content="Testa PreMeny – så här ser restaurangens vy ut när gästerna förbeställt sin mat.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -157,6 +157,18 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
 
 <div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
+<!-- DEMO VÄLKOMSTRUTA -->
+<div id="demoWelcome" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(26,23,18,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;max-width:440px;width:100%;border-radius:16px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center">
+    <div style="font-family:'Playfair Display',serif;font-weight:500;font-size:1.5rem;color:var(--dark);margin-bottom:.5rem">Välkommen till PreMeny-demon 👋</div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Du tittar på en restaurangs egen adminvy. Klicka runt fritt – inget du gör här sparas. Så här ser det ut när ni tar emot förbeställningar från sällskap.</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn bp" style="font-weight:500" onclick="closeDemoWelcome()">Utforska demon</button>
+      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn bg" style="text-decoration:none;font-weight:500" onclick="closeDemoWelcome()">📅 Boka en genomgång</a>
+      <a href="https://premeny.se/guest.html?r=demo&b=84fbc0c1-2b36-4b0c-abfd-462d8630342a" target="_blank" style="font-size:13px;color:var(--gold);text-decoration:none;font-weight:500;margin-top:.35rem">Se hur det ser ut för gästerna →</a>
+    </div>
+  </div>
+</div>
 <div id="loginPage" style="display:none">
   <div class="login-wrap">
     <div style="font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--dark);margin-bottom:.25rem">Pre<span style="color:var(--gold)">Meny</span></div>
@@ -560,6 +572,14 @@ async function autoInitDemo(){
   renderBookings();
 }
 
+function maybeShowDemoWelcome(){
+  try{if(localStorage.getItem('pm_demo_welcome_seen'))return;}catch(e){}
+  var el=document.getElementById('demoWelcome');if(el)el.style.display='flex';
+}
+function closeDemoWelcome(){
+  var el=document.getElementById('demoWelcome');if(el)el.style.display='none';
+  try{localStorage.setItem('pm_demo_welcome_seen','1');}catch(e){}
+}
 async function initAdmin(){
   const {data:{user}}=await db.auth.getUser();
   if(!user)return;
@@ -594,6 +614,7 @@ async function initAdmin(){
     (menuList||[]).forEach(m=>{var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});
   }
   renderBookings();
+  maybeShowDemoWelcome();
 }
 
 // TABS
