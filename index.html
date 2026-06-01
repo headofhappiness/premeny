@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzBmMGQwYiIgc3Ryb2tlPSIjYzlhNTVhIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSI1MCIgeT0iNjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iYm9sZCI+CiAgICA8dHNwYW4gZmlsbD0iI2M5YTU1YSI+UDwvdHNwYW4+PHRzcGFuIGZpbGw9IndoaXRlIj5NPC90c3Bhbj4KICA8L3RleHQ+Cjwvc3ZnPg==">
 <title>PreMeny – Förbeställning för sällskap</title>
-<meta name="pm-build" content="2026-06-01a">
+<meta name="pm-build" content="2026-06-01b">
 <meta name="description" content="PreMeny låter restauranger ta emot förbeställningar från sällskap – gästerna väljer sin mat i förväg och köket får en färdig sammanställning.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -44,7 +44,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.25rem 2rem;display
 .nav-links a{font-size:14px;color:var(--muted);text-decoration:none;letter-spacing:.02em;transition:color .2s}
 .nav-links a:hover{color:var(--dark)}
 .btn-nav{padding:9px 22px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:13px;font-weight:500;text-decoration:none;transition:all .2s;letter-spacing:.02em}
-.btn-book{background:var(--dark);color:#fff !important;border:2px solid var(--dark);font-weight:700}
+.btn-book{background:var(--dark);color:#fff !important;border:2px solid var(--dark);font-weight:500}
 .btn-book:hover{background:var(--gold);border-color:var(--gold);color:#fff !important}
 
 /* ── HERO ── */
@@ -63,6 +63,8 @@ h1 em{color:var(--gold)}
 .hero-cta{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
 .btn-primary{background:var(--dark);color:#fff;padding:14px 32px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:15px;font-weight:500;text-decoration:none;transition:all .25s;letter-spacing:.02em;display:inline-flex;align-items:center;gap:8px}
 .btn-primary:hover{background:var(--gold);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--dark);border:2px solid var(--border);padding:12px 30px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:15px;font-weight:500;text-decoration:none;transition:all .25s;letter-spacing:.02em;display:inline-flex;align-items:center;gap:8px}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
 .btn-secondary{color:var(--muted);font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .2s}
 .btn-secondary:hover{color:var(--dark)}
 .btn-secondary::after{content:"→";transition:transform .2s}
@@ -259,7 +261,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
     <a href="#features">Funktioner</a>
     <a href="#pricing">Pris</a>
     <a href="https://premeny.se/admin.html" class="btn-nav" style="background:transparent;border:2px solid var(--border);color:var(--dark);font-weight:500;margin-right:4px">Logga in</a>
-    <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn-nav btn-book">Boka demo</a>
+    <a href="https://premeny.se/bli-kund.html" class="btn-nav btn-book">Bli kund</a>
   </div>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Meny">
     <span></span><span></span><span></span>
@@ -271,7 +273,9 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
   <a href="#features" onclick="toggleMenu()">Funktioner</a>
   <a href="#pricing" onclick="toggleMenu()">Pris</a>
   <a href="https://premeny.se/admin.html" onclick="toggleMenu()">Logga in</a>
-  <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn-nav btn-book">Boka demo</a>
+  <a href="https://premeny.se/admin_demo.html" onclick="toggleMenu()">Se demo</a>
+  <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" onclick="toggleMenu()">Boka demo</a>
+  <a href="https://premeny.se/bli-kund.html" class="btn-nav btn-book">Bli kund</a>
 </div>
 
 </nav>
@@ -287,8 +291,8 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
     <h1 class="fade-up">Förbeställ maten.<br><em>Utan mejlkaos.</em></h1>
     <p class="hero-sub fade-up">PreMeny ersätter mejlkaos och manuell sammanställning. Gästerna förbeställer via en länk – ni får en klar kökslista automatiskt, med allergier markerade och inköpsplanering i god tid.</p>
     <div class="hero-cta fade-up">
-      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn-primary">Boka en demo →</a>
-
+      <a href="https://premeny.se/bli-kund.html" class="btn-primary">Bli kund →</a>
+      <a href="https://premeny.se/admin_demo.html" class="btn-ghost">Se demo</a>
     </div>
     <div class="hero-stats fade-up">
       <div>
@@ -479,16 +483,17 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
     <div class="section-tag">Kom igång</div>
     <h2>Enklare.<br><em style="color:var(--gold);font-style:italic">Snabbare. Bättre.</em></h2>
     <p>Personlig genomgång live. Vi sätter upp allt – ni är redo på ett par dagar.</p>
-    <div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap">
-      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn-cta" style="text-decoration:none">📅 Boka tid direkt</a>
-      <span style="color:rgba(240,235,226,.6);display:flex;align-items:center;font-size:13px">eller fyll i formuläret</span>
+    <div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap">
+      <a href="https://premeny.se/bli-kund.html" class="btn-cta" style="text-decoration:none;background:var(--dark);color:#fff">Bli kund →</a>
+      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn-cta" style="text-decoration:none">📅 Boka demo</a>
     </div>
-    <div class="cta-form" style="flex-direction:column;max-width:400px">
+    <p style="margin-bottom:1.5rem"><a href="#" onclick="document.getElementById('writeToUs').style.display='flex';this.parentNode.style.display='none';return false;" style="color:rgba(240,235,226,.55);font-size:13px;text-decoration:underline;text-underline-offset:3px">Hellre att vi hör av oss? Skriv några rader →</a></p>
+    <div class="cta-form" id="writeToUs" style="display:none;flex-direction:column;max-width:400px">
       <input type="text" class="cta-input" id="demo-name" placeholder="Ert namn">
       <input type="text" class="cta-input" id="demo-restaurant" placeholder="Restaurang / företag">
       <input type="text" class="cta-input" id="demo-email" placeholder="Er mejladress">
       <textarea class="cta-input" id="demo-message" placeholder="Meddelande (valfritt)" style="border-radius:16px;min-height:80px;resize:none;padding:13px 20px;line-height:1.5"></textarea>
-      <button class="btn-cta" onclick="bookDemo()">Boka demo</button>
+      <button class="btn-cta" onclick="bookDemo(this)">Skicka →</button>
     </div>
     <div class="cta-confirm" id="demo-confirm" style="display:none;flex-direction:column;gap:1.5rem;align-items:center">
   <p style="font-size:16px;color:var(--gold)">Tack – vi hörs inom kort!</p>
@@ -512,7 +517,7 @@ function toggleMenu(){
   document.body.style.overflow=m.classList.contains("open")?"hidden":"";
 }
 
-async function bookDemo(){
+async function bookDemo(btnEl){
   var name=document.getElementById("demo-name").value.trim();
   var restaurant=document.getElementById("demo-restaurant").value.trim();
   var email=document.getElementById("demo-email").value.trim();
@@ -522,7 +527,7 @@ async function bookDemo(){
     return;
   }
   document.getElementById("demo-email").style.borderColor="";
-  var btn=document.querySelector(".btn-cta");
+  var btn=btnEl||document.querySelector("#writeToUs .btn-cta");
   btn.textContent="Skickar...";btn.disabled=true;
   try{
     await fetch("https://formspree.io/f/xzdwrllo",{
