@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Förbeställ din mat</title>
-<meta name="pm-build" content="2026-06-01a">
+<meta name="pm-build" content="2026-06-01b">
 <meta name="description" content="Välj din mat inför besöket – snabbt och enkelt via PreMeny.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -199,7 +199,7 @@ async function init(){
     let info='<strong>'+book.name+'</strong> – '+dateStr+(book.event_type?' – <span style="color:var(--gold)">'+book.event_type+'</span>':'')+(book.event_time?' kl '+book.event_time.slice(0,5):'');
     if(dl&&!isClosed){
       const dlStr=dl.getDate()+' '+months[dl.getMonth()];
-      info+='<br><span style="color:#8a7020;font-size:14px">⏱ Sista dag att beställa: '+dlStr+'</span>';
+      info+='<br><span style="color:#8a7020;font-size:14px">⏱ Svara gärna så snart du kan – senast '+dlStr+'</span>';
     }
     document.getElementById('bookingInfo').innerHTML=info;
     var fullMonths=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
