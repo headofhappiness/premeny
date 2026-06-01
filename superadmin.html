@@ -68,7 +68,12 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <div class="sa-badge" style="display:inline-block;margin:.25rem 0 1.5rem">SuperAdmin</div>
     <div id="loginMsg" style="display:none" class="msg merr"></div>
     <div class="ff" style="text-align:left"><label>E-post</label><input type="email" id="loginEmail" placeholder="superadmin@premeny.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <div class="ff" style="text-align:left"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="ff" style="text-align:left"><label>Lösenord</label>
+      <div style="position:relative">
+        <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding-right:44px;box-sizing:border-box">
+        <button type="button" onclick="toggleLoginPass()" title="Visa/dölj lösenord" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:4px;color:var(--muted);line-height:1" id="loginPassEye">👁</button>
+      </div>
+    </div>
     <button class="btn bp bfull" style="padding:13px;margin-bottom:.75rem" onclick="doLogin()">Logga in</button>
     <button onclick="forgotPassword()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif">Glömt lösenord?</button>
   </div>
@@ -299,6 +304,13 @@ const db=createClient(SURL,SKEY);
 const SUPERADMIN_EMAIL='lisa@headofhappiness.se';
 
 // ── AUTH ─────────────────────────────────────────────────────────────
+function toggleLoginPass(){
+  const inp=document.getElementById('loginPass');
+  const eye=document.getElementById('loginPassEye');
+  if(!inp)return;
+  if(inp.type==='password'){inp.type='text';if(eye)eye.textContent='🙈';}
+  else{inp.type='password';if(eye)eye.textContent='👁';}
+}
 async function doLogin(){
   const email=document.getElementById('loginEmail').value.trim();
   const pass=document.getElementById('loginPass').value;
