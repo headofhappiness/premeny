@@ -290,6 +290,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <div id="pane-calendar" style="display:none">
       <h3 style="margin-bottom:.25rem">Dagsöversikt</h3>
       <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Välj ett eller flera datum för att se beställningar och sammanställning.</p>
+      <div id="nextBookingBar" style="display:none;background:var(--dark);color:#fff;border-radius:12px;padding:.85rem 1.25rem;margin-bottom:1.25rem;max-width:420px"></div>
       <div class="card" style="max-width:420px">
         <div class="cal-nav">
           <button class="btn bg" style="padding:6px 12px" onclick="calPrev()">←</button>
@@ -1403,7 +1404,28 @@ function renderCal(){
   grid.innerHTML=html;
   const info=calSel.size?[...calSel].sort().join(', '):'Inget datum valt';
   document.getElementById('calSelInfo').textContent=calSel.size?calSel.size+' datum valt':'';
+  updateNextBooking();
   renderCalResults();
+}
+
+function updateNextBooking(){
+  const bar=document.getElementById('nextBookingBar');
+  if(!bar)return;
+  const months=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  const todayStr=new Date().toLocaleDateString('sv-SE');
+  const upcoming=(allBookings||[]).filter(b=>b.event_date&&b.event_date>=todayStr).sort((a,b)=>a.event_date.localeCompare(b.event_date));
+  if(!upcoming.length){bar.style.display='none';return;}
+  const b=upcoming[0];
+  const d=new Date(b.event_date+'T12:00:00');
+  const dateTxt=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  const timeTxt=b.event_time?' kl '+b.event_time.slice(0,5):'';
+  const diffDays=Math.round((new Date(b.event_date+'T12:00:00')-new Date(todayStr+'T12:00:00'))/86400000);
+  const when=diffDays===0?'idag':diffDays===1?'imorgon':'om '+diffDays+' dagar';
+  const guests=b.expected_guests?` · ${b.expected_guests} gäster`:'';
+  bar.innerHTML=`<div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem">Nästa bokning</div>`
+    +`<div style="font-size:15px;font-weight:600">${escHtml(b.name||'')} – ${dateTxt}${timeTxt}</div>`
+    +`<div style="font-size:12px;opacity:.8;margin-top:2px">${when}${guests}</div>`;
+  bar.style.display='block';
 }
 
 function toggleCalDay(ds){calSel.has(ds)?calSel.delete(ds):calSel.add(ds);renderCal();}
