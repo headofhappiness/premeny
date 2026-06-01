@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Förbeställ din mat</title>
+<meta name="pm-build" content="2026-06-01a">
 <meta name="description" content="Välj din mat inför besöket – snabbt och enkelt via PreMeny.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -118,8 +119,9 @@ textarea{min-height:75px}
 
     <!-- FORMULÄR -->
     <div id="formWrap">
-      <h1>Förbeställ din mat</h1>
+      <h1>Välkommen!</h1>
       <div class="gold-line"></div>
+      <p id="guestGreeting" style="font-size:15px;color:var(--muted);line-height:1.7;margin:0 0 1.1rem"></p>
       <div class="booking-info" id="bookingInfo"></div>
       <div class="card">
         <div class="card-label">Ditt namn</div>
@@ -200,6 +202,13 @@ async function init(){
       info+='<br><span style="color:#8a7020;font-size:14px">⏱ Sista dag att beställa: '+dlStr+'</span>';
     }
     document.getElementById('bookingInfo').innerHTML=info;
+    var fullMonths=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+    var greetDate=d.getDate()+' '+fullMonths[d.getMonth()];
+    var greetEl=document.getElementById('guestGreeting');
+    if(greetEl){
+      if(isClosed){greetEl.innerHTML='Inför <strong>'+book.name+'</strong> den '+greetDate+'.';}
+      else{greetEl.innerHTML='Inför <strong>'+book.name+'</strong> den '+greetDate+' vill vi gärna veta vad du önskar äta. Tack för att du fyller i nedan.';}
+    }
 
     if(isClosed){
       // Bygg kontaktmeddelande med restaurangens info
