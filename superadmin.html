@@ -4,7 +4,7 @@
 <link rel="icon" type="image/png" href="PM_logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="pm-build" content="2026-06-01a">
+<meta name="pm-build" content="2026-06-01b">
 <title>SuperAdmin – PreMeny</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -254,12 +254,12 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     </div>
     <p style="font-size:14px;color:var(--muted);margin-bottom:1.25rem;line-height:1.7">Skickar ett välkomstmejl med inloggningslänk och info om hur systemet fungerar. Mejlet går till adressen nedan, som även blir kundens <strong>inloggning</strong>. Tips: ange din <strong>egen</strong> e-post för att testa först.</p>
     <div class="ff"><label>Admin e-post <span style="font-size:11px;color:var(--muted);font-weight:400">(hit skickas mejlet · blir inloggning)</span></label><input type="email" id="wm-email" placeholder="admin@restaurangen.se"></div>
-    <div class="ff"><label>Tillfälligt lösenord <span style="font-size:11px;color:var(--muted)">(visas i mejlet)</span></label>
+    <div class="ff"><label>Lösenord <span style="font-size:11px;color:var(--muted)">(skrivs i mejlet · sätts på kontot)</span></label>
       <div style="display:flex;gap:6px">
-        <input type="text" id="wm-pass" placeholder="T.ex. Tulpan2026">
+        <input type="text" id="wm-pass" placeholder="Samma lösenord du satte tidigare">
         <button class="btn bg" style="padding:8px 12px;flex-shrink:0;font-size:12px" onclick="genWelcomePass()">Generera</button>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px">Skapa kontot i Supabase med samma lösenord, eller be kunden byta direkt via Glömt lösenord.</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Skriv samma lösenord du satte under Redigera (ett redan satt lösenord går inte att läsa ut). Det skickas till kunden och sätts på kontot.</div>
     </div>
     <div id="wm-msg" style="display:none" class="msg"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -841,14 +841,22 @@ async function deleteRestPermanent(id, name){
 let _welcomeRestId = null;
 let _welcomeRestName = null;
 
-function openWelcomeModal(btn){
+async function openWelcomeModal(btn){
   _welcomeRestId = btn.dataset.id;
   _welcomeRestName = btn.dataset.name;
-  document.getElementById('wm-email').value = btn.dataset.email || '';
+  const emailEl = document.getElementById('wm-email');
+  emailEl.value = '';
+  emailEl.placeholder = 'Hämtar inloggnings-e-post...';
   document.getElementById('wm-pass').value = '';
   document.getElementById('wm-msg').style.display = 'none';
-  genWelcomePass();
   document.getElementById('welcomeModal').style.display = 'flex';
+  try{
+    const {data:{session}} = await db.auth.getSession();
+    const r = await fetch(SURL+'/functions/v1/update-admin-email',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({restaurantId:_welcomeRestId})});
+    const j = await r.json();
+    if(j.ok && j.email){ emailEl.value = j.email; }
+    else { emailEl.placeholder = '(kunde inte hämta – fyll i manuellt)'; }
+  }catch(e){ emailEl.placeholder = '(kunde inte hämta – fyll i manuellt)'; }
 }
 function closeWelcomeModal(){ document.getElementById('welcomeModal').style.display='none'; }
 
