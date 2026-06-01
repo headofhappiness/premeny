@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
-<meta name="pm-build" content="2026-06-01b">
+<meta name="pm-build" content="2026-06-01c">
 <meta name="description" content="Testa PreMeny – så här ser restaurangens vy ut när gästerna förbeställt sin mat.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -2173,8 +2173,9 @@ async function loadMenuItems(menuId){
 
 
 // ─── HULPFUNKTIONER MENY ─────────────────────────────────────────────
-function showNewMenuForm(){var ai=document.getElementById('aiImportPanel');if(ai)ai.style.display='none';document.getElementById('newMenuForm').style.display='block';}
+function showNewMenuForm(){if(IS_DEMO)return demoBlock();var ai=document.getElementById('aiImportPanel');if(ai)ai.style.display='none';document.getElementById('newMenuForm').style.display='block';}
 function openImportForMenu(id,name){
+  if(IS_DEMO)return demoBlock();
   activeMenuId=id;
   var f=document.getElementById('newMenuForm');if(f)f.style.display='none';
   var p=document.getElementById('aiImportPanel');if(!p)return;
