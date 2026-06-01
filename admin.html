@@ -420,6 +420,9 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       </div>
     </div>
   </div>
+  <footer style="text-align:center;padding:2rem 1rem 2.5rem;margin-top:1rem;border-top:1px solid var(--border)">
+    <a href="https://premeny.se" target="_blank" style="font-size:12px;color:var(--muted);text-decoration:none;letter-spacing:.02em">drivs av <span style="font-family:'Playfair Display',serif;color:var(--muted)">Pre<span style="color:var(--gold)">Meny</span></span></a>
+  </footer>
 </div>
 
 <!-- QR MODAL -->
@@ -562,11 +565,13 @@ async function initAdmin(){
   rest=r;
   document.getElementById('restName').textContent=r.name;
   document.documentElement.style.setProperty('--gold',r.accent_color||'#b8955a');
-  // Kundens logga i navbar (bredvid PreMeny) om den finns
+  // Kundens logga i navbar om den finns – då döljs PreMeny-texten (flyttas till sidfot)
   var navLogo=document.getElementById('nav-logo-wrap');
+  var brandText=document.querySelector('.nav .logo');
   if(navLogo&&r.logo_url){
-    navLogo.innerHTML='<img src="'+r.logo_url+'" alt="'+(r.name||'')+'" style="height:38px;max-width:150px;object-fit:contain;display:block"><span style="display:inline-block;width:1px;height:24px;background:var(--border);margin-left:12px"></span>';
-    navLogo.style.cssText='display:flex;align-items:center;gap:12px';
+    navLogo.innerHTML='<img src="'+r.logo_url+'" alt="'+(r.name||'')+'" style="height:42px;max-width:180px;object-fit:contain;display:block">';
+    navLogo.style.cssText='display:flex;align-items:center';
+    if(brandText)brandText.style.display='none';
   }
   document.getElementById('loginPage').style.display='none';
   document.getElementById('adminPage').style.display='block';
