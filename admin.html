@@ -1737,7 +1737,7 @@ async function backupPDF(){
   if(!bookings.length){
     doc.setFontSize(12);doc.setTextColor(120,120,120);
     doc.text('Inga kommande bokningar.',margin,y);
-    doc.save('backup-bokningar-'+today+'.pdf');return;
+    doc.save('PreMeny Säkerhetskopia bokningar.pdf');return;
   }
 
   bookings.forEach((b,idx)=>{
@@ -1821,7 +1821,7 @@ async function backupPDF(){
     doc.text('PreMeny – premeny.se',margin,pageH-10);
     doc.text(i+' / '+pages,pageW-margin,pageH-10,{align:'right'});
   }
-  doc.save('backup-bokningar-'+today+'.pdf');
+  doc.save('PreMeny Säkerhetskopia bokningar.pdf');
 }
 
 // Daglig påminnelse om säkerhetskopia (en gång per dag)
