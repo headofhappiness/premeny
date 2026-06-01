@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-01c">
+<meta name="pm-build" content="2026-06-01d">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -286,6 +286,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <div id="bookingsLayout">
       <div id="attnSection" style="display:none"></div>
       <div id="bookingsMain">
+      <h3 style="margin:0 0 .75rem">Kommande bokningar</h3>
       <!-- SÖK -->
     <div style="position:relative;margin-bottom:.75rem">
       <input type="text" id="bookingSearch" placeholder="Sök på sällskap, kontaktperson, företag..." 
@@ -658,7 +659,7 @@ function renderAttention(){
     const exp=b.expected_guests||0;
     let chip='';
     if(exp&&n>exp){chip='<span class="attn-chip over">⚠ '+(n-exp)+' fler än väntat</span>';}
-    else if(closed&&exp&&n<exp){chip='<span class="attn-chip miss">⚠ '+(exp-n)+' saknas · deadline passerad</span>';}
+    else if(closed&&exp&&n<exp){chip='<span class="attn-chip miss">⚠ '+(exp-n)+' saknas · sista beställningsdag passerad</span>';}
     if(!chip)return;
     const d=new Date(b.event_date);
     const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -728,7 +729,7 @@ function renderBCard(b){
     const sentD=new Date(b.reminder_sent_at);
     reminderHtml=`<div style="font-size:12px;color:#6a5030;margin-top:4px">✉ Påminnelse skickad ${sentD.getDate()} ${months[sentD.getMonth()]} ${sentD.getFullYear()}</div>`;
   } else if(b.reminder_days&&!allOk){
-    reminderHtml=`<div style="font-size:12px;color:var(--muted);margin-top:4px">🔔 Påminnelse ${b.reminder_days} dagar före deadline</div>`;
+    reminderHtml=`<div style="font-size:12px;color:var(--muted);margin-top:4px">🔔 Påminnelse ${b.reminder_days} dagar före sista beställningsdag</div>`;
   } else if(allOk){
     reminderHtml=`<div style="font-size:12px;color:#3a7d44;margin-top:4px">✓ Alla gäster har svarat</div>`;
   }
@@ -802,7 +803,7 @@ function renderBCard(b){
     } else {
       const miss=b.expected_guests?(b.expected_guests-n)+' av '+b.expected_guests+' saknas':n+' har svarat';
       html+=`<div class="fg" style="margin-bottom:.75rem;flex-wrap:wrap">
-        <div style="font-size:12px;color:var(--muted)">✉ Påminnelse ${b.reminder_days} dagar före deadline · ${miss}</div>
+        <div style="font-size:12px;color:var(--muted)">✉ Påminnelse ${b.reminder_days} dagar före sista beställningsdag · ${miss}</div>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="doReminder('${b.id}',event)">Skicka nu</button>
       </div>`;
     }
