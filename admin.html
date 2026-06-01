@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
+<meta name="pm-build" content="2026-06-01b">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--bs:#d4ccc0;--gold:#b8955a;--dark:#1a1712;--text:#1a1712;--muted:#5a5248;--red:#c0392b}
@@ -301,7 +302,6 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <div class="fb"><h3>Menyer</h3>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
-          <button class="btn bg" style="font-size:12px" onclick="toggleAIPanel()">✦ Skapa meny med AI</button>
         </div>
       </div>
 
@@ -329,9 +329,9 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
       <!-- AI MENYIMPORT -->
       <div class="card" id="aiImportPanel" style="display:none;margin-top:1.5rem;background:rgba(184,149,90,.04);border:1px solid rgba(184,149,90,.18)">
-        <h3 style="margin-bottom:.25rem">Skapa ny meny med AI</h3>
+        <h3 style="margin-bottom:.25rem">Läs in i menyn: <span id="ai-target-name" style="color:var(--gold)"></span></h3>
         <div class="gold-line"></div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Ladda upp en skärmdump eller klistra in text – AI:n skapar en <strong>helt ny meny</strong> med rubriker och rätter. Du namnger menyn när du sparar. (Vill du lägga till rätter i en befintlig meny? Öppna den ovan och använd "+ Ny rubrik".)</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Ladda upp en bild eller klistra in text från er befintliga meny – AI:n läser av den och fyller i rubriker och rätter automatiskt i den här menyn. Du granskar allt innan det sparas.</p>
         <div style="display:flex;gap:4px;margin-bottom:1rem">
           <button class="btn bg" id="import-tab-text" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('text')">📝 Klistra in text</button>
           <button class="btn bg" id="import-tab-image" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('image')">🖼 Ladda upp bild</button>
@@ -350,7 +350,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           <div style="font-size:12px;font-weight:500;color:#3a6020;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:8px 12px;margin-bottom:.75rem">✓ Meny tolkad – granska och bekräfta nedan</div>
           <div id="import-preview-content"></div>
           <div style="display:flex;gap:8px;margin-top:1rem">
-            <button class="btn bp" onclick="confirmImport()">✓ Spara meny</button>
+            <button class="btn bp" onclick="confirmImport()">✓ Lägg till i menyn</button>
             <button class="btn bg" onclick="cancelImport()">Avbryt</button>
           </div>
         </div>
@@ -2064,6 +2064,8 @@ async function renderMenu(keepOpen){
     if(!btnsEl)return;
     var btnNy=document.createElement('button');btnNy.className='btn bg';btnNy.style.fontSize='12px';btnNy.textContent='+ Ny rubrik';
     btnNy.addEventListener('click',function(e){e.stopPropagation();activeMenuId=m.id;toggleNC();});
+    var btnImport=document.createElement('button');btnImport.className='btn bg';btnImport.style.fontSize='12px';btnImport.textContent='✦ Läs in från foto/text';
+    btnImport.addEventListener('click',function(e){e.stopPropagation();openImportForMenu(m.id,m.name);});
     var btnRename=document.createElement('button');btnRename.className='btn bg';btnRename.style.fontSize='12px';btnRename.textContent='Byt namn';
     btnRename.addEventListener('click',function(e){e.stopPropagation();renameMenu(m.id,m.name);});
     var btnKopiera=document.createElement('button');btnKopiera.className='btn bg';btnKopiera.style.fontSize='12px';btnKopiera.textContent='Kopiera meny';
@@ -2072,7 +2074,7 @@ async function renderMenu(keepOpen){
     btnArkivera.addEventListener('click',function(e){e.stopPropagation();archiveMenu(m.id);});
     var btnDel=document.createElement('button');btnDel.className='btn bd';btnDel.style.fontSize='12px';btnDel.textContent='Ta bort meny';
     btnDel.addEventListener('click',function(e){e.stopPropagation();deleteMenu(m.id);});
-    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
+    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnImport);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
   });
 }
 
@@ -2242,6 +2244,17 @@ function toggleAIPanel(){
     p.scrollIntoView({behavior:'smooth',block:'center'});
   }
 }
+function openImportForMenu(id,name){
+  activeMenuId=id;
+  var f=document.getElementById('newMenuForm');if(f)f.style.display='none';
+  var p=document.getElementById('aiImportPanel');if(!p)return;
+  cancelImport();
+  var t=document.getElementById('menu-import-text');if(t)t.value='';
+  var img=document.getElementById('menu-import-image');if(img)img.value='';
+  var nameEl=document.getElementById('ai-target-name');if(nameEl)nameEl.textContent=name||'';
+  p.style.display='block';
+  p.scrollIntoView({behavior:'smooth',block:'center'});
+}
 function toggleNC(){
   var f=document.getElementById('newCatForm');
   if(!f)return;
@@ -2354,14 +2367,12 @@ async function importMenu(){
 }
 async function confirmImport(){
   if(!_importData)return;
-  var nm=prompt('Vad ska den nya menyn heta?','Ny meny');
-  if(!nm||!nm.trim())return;
-  var {data:newMenu,error:me}=await db.from('menus').insert({restaurant_id:rest.id,name:nm.trim()}).select().single();
-  if(me||!newMenu){alert('Kunde inte skapa meny: '+(me?me.message:''));return;}
-  activeMenuId=newMenu.id;
+  if(!activeMenuId){alert('Ingen meny vald. Öppna en meny och klicka "Läs in från foto/text".');return;}
+  var {data:existingCats}=await db.from('menu_categories').select('sort_order').eq('menu_id',activeMenuId);
+  var startSort=(existingCats&&existingCats.length)?Math.max.apply(null,existingCats.map(function(c){return c.sort_order||0;}))+1:0;
   for(var i=0;i<_importData.length;i++){
     var cat=_importData[i];
-    var {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:cat.label,sort_order:i}).select().single();
+    var {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:cat.label,sort_order:startSort+i}).select().single();
     if(error||!newCat)continue;
     for(var j=0;j<(cat.items||[]).length;j++){
       var item=cat.items[j];
