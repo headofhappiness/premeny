@@ -562,7 +562,12 @@ async function initAdmin(){
   rest=r;
   document.getElementById('restName').textContent=r.name;
   document.documentElement.style.setProperty('--gold',r.accent_color||'#b8955a');
-  // Logo visas ej i navbar
+  // Kundens logga i navbar (bredvid PreMeny) om den finns
+  var navLogo=document.getElementById('nav-logo-wrap');
+  if(navLogo&&r.logo_url){
+    navLogo.innerHTML='<img src="'+r.logo_url+'" alt="'+(r.name||'')+'" style="height:38px;max-width:150px;object-fit:contain;display:block"><span style="display:inline-block;width:1px;height:24px;background:var(--border);margin-left:12px"></span>';
+    navLogo.style.cssText='display:flex;align-items:center;gap:12px';
+  }
   document.getElementById('loginPage').style.display='none';
   document.getElementById('adminPage').style.display='block';
   await loadCats();
