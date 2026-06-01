@@ -4,6 +4,7 @@
 <link rel="icon" type="image/png" href="PM_logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="pm-build" content="2026-06-01a">
 <title>SuperAdmin – PreMeny</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -652,7 +653,7 @@ async function openEditRest(id){
           <input type="text" id="er-login-pass" placeholder="Sätt ett lösenord (minst 6 tecken)" style="flex:1;min-width:200px">
           <button class="btn bg" type="button" onclick="setLoginPassword('${id}')" style="white-space:nowrap">Sätt lösenord</button>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">Sätter kontots lösenord <strong>utan att meddela kunden</strong>. Logga sedan in på premeny.se/admin.html med inloggnings-e-posten ovan + detta lösenord och granska i lugn och ro. Kunden får sina uppgifter först när du skickar välkomstmejlet.</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Lämna tomt = behåll nuvarande lösenord. Skriv för att sätta nytt. Sätter kontots lösenord <strong>utan att meddela kunden</strong>. Logga sedan in på premeny.se/admin.html med inloggnings-e-posten ovan + detta lösenord och granska i lugn och ro. Kunden får sina uppgifter först när du skickar välkomstmejlet.</div>
       </div>
     </div>
     <div id="er-msg" style="display:none" class="msg"></div>
