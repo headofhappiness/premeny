@@ -5,7 +5,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
-<meta name="pm-build" content="2026-06-01f">
+<meta name="pm-build" content="2026-06-01g">
+<style>
+#bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
+#bookingsMain{min-width:0}
+#attnSection{background:rgba(192,57,43,.045);border:1px solid rgba(192,57,43,.18);border-radius:12px;padding:.85rem .9rem}
+#attnSection .attn-head{font-family:"Playfair Display",serif;font-size:1.05rem;color:var(--text);margin-bottom:.05rem;font-weight:400}
+.attn-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.65rem .8rem;margin-bottom:.55rem;cursor:pointer;transition:border-color .15s}
+.attn-card:last-child{margin-bottom:0}
+.attn-card:hover{border-color:var(--gold)}
+.attn-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px}
+.attn-meta{font-size:12px;color:var(--muted)}
+.attn-chip{display:inline-block;margin-top:6px;font-size:11px;font-weight:500;padding:2px 9px;border-radius:999px}
+.attn-chip.miss{background:rgba(184,149,90,.16);color:#8a6d20}
+.attn-chip.over{background:rgba(192,57,43,.12);color:#c0392b}
+@media(min-width:760px){
+  #bookingsLayout{flex-direction:row;align-items:flex-start}
+  #attnSection{width:272px;flex-shrink:0;position:sticky;top:1rem}
+  #bookingsMain{flex:1}
+}
+</style>
 <meta name="description" content="Testa PreMeny – så här ser restaurangens vy ut när gästerna förbeställt sin mat.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -294,6 +313,9 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         </div>
         <div id="nb-msg" style="display:none;margin-top:.75rem" class="msg"></div>
       </div>
+      <div id="bookingsLayout">
+      <div id="attnSection" style="display:none"></div>
+      <div id="bookingsMain">
       <!-- SÖK -->
     <div style="position:relative;margin-bottom:.75rem">
       <input type="text" id="bookingSearch" placeholder="Sök på sällskap, kontaktperson, företag..." 
@@ -304,6 +326,8 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     </div>
     <div id="searchInfo" style="display:none;font-size:12px;color:var(--muted);margin-bottom:.5rem"></div>
     <div id="bookingList" style="margin-top:.25rem"></div>
+      </div>
+      </div>
     </div>
 
     <!-- KALENDER -->
@@ -646,9 +670,43 @@ function renderBookingList(bookings){
   const list=document.getElementById('bookingList');
   if(!bookings.length){
     list.innerHTML='<div class="empty">Inga bokningar matchar sökningen.</div>';
+    renderAttention();
     return;
   }
   list.innerHTML=bookings.map(b=>renderBCard(b)).join('');
+  renderAttention();
+}
+
+function renderAttention(){
+  const el=document.getElementById('attnSection');
+  if(!el)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const items=[];
+  (allBookings||[]).forEach(b=>{
+    const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
+    const closed=dl&&today>dl;
+    const n=(b.orders||[]).length;
+    const exp=b.expected_guests||0;
+    let chip='';
+    if(exp&&n>exp){chip='<span class="attn-chip over">⚠ '+(n-exp)+' fler än väntat</span>';}
+    else if(closed&&exp&&n<exp){chip='<span class="attn-chip miss">⚠ '+(exp-n)+' saknas · deadline passerad</span>';}
+    if(!chip)return;
+    const d=new Date(b.event_date);
+    const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+    items.push('<div class="attn-card" onclick="focusBooking(\''+b.id+'\')"><div class="attn-title">'+b.name+'</div><div class="attn-meta">'+ds+(b.event_time?' kl '+b.event_time.slice(0,5):'')+'</div>'+chip+'</div>');
+  });
+  if(!items.length){el.style.display='none';el.innerHTML='';return;}
+  el.style.display='';
+  el.innerHTML='<div class="attn-head">Behöver åtgärd</div><div style="font-size:12px;color:var(--muted);margin-bottom:.6rem">'+items.length+' bokning'+(items.length>1?'ar':'')+' att kolla</div>'+items.join('');
+}
+
+function focusBooking(id){
+  let card=document.getElementById('bc_'+id);
+  if(!card&&typeof clearSearch==='function'){clearSearch();}
+  card=document.getElementById('bc_'+id);
+  if(card&&!card.classList.contains('open'))toggleB(id);
+  setTimeout(function(){var c=document.getElementById('bc_'+id);if(c)c.scrollIntoView({behavior:'smooth',block:'center'});},80);
 }
 
 function filterBookings(){
