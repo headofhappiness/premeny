@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
-<meta name="pm-build" content="2026-06-01e">
+<meta name="pm-build" content="2026-06-01f">
 <meta name="description" content="Testa PreMeny – så här ser restaurangens vy ut när gästerna förbeställt sin mat.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -570,6 +570,7 @@ async function autoInitDemo(){
     (menuList||[]).forEach(m=>{var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});
   }
   renderBookings();
+  maybeShowDemoWelcome();
 }
 
 function maybeShowDemoWelcome(){
