@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
+<meta name="pm-build" content="2026-06-01b">
 <meta name="description" content="Testa PreMeny – så här ser restaurangens vy ut när gästerna förbeställt sin mat.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -343,10 +344,10 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <div id="menuEditor" style="margin-top:0"></div>
 
       <!-- AI MENYIMPORT -->
-      <div class="card" style="margin-top:1.5rem;background:rgba(184,149,90,.04);border:1px solid rgba(184,149,90,.18)">
-        <h3 style="margin-bottom:.25rem">Importera meny med AI</h3>
+      <div class="card" id="aiImportPanel" style="display:none;margin-top:1.5rem;background:rgba(184,149,90,.04);border:1px solid rgba(184,149,90,.18)">
+        <h3 style="margin-bottom:.25rem">Läs in i menyn: <span id="ai-target-name" style="color:var(--gold)"></span></h3>
         <div class="gold-line"></div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Ladda upp en skärmdump från er hemsida eller klistra in text – AI:n tolkar menyn automatiskt och skapar rubriker och rätter.</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Ladda upp en bild eller klistra in text från er befintliga meny – AI:n läser av den och fyller i rubriker och rätter automatiskt i den här menyn. Du granskar allt innan det sparas.</p>
         <div style="display:flex;gap:4px;margin-bottom:1rem">
           <button class="btn bg" id="import-tab-text" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('text')">📝 Klistra in text</button>
           <button class="btn bg" id="import-tab-image" style="font-size:12px;padding:6px 14px;border-radius:100px" onclick="switchImportTab('image')">🖼 Ladda upp bild</button>
@@ -2019,6 +2020,8 @@ async function renderMenu(keepOpen){
     if(!btnsEl)return;
     var btnNy=document.createElement('button');btnNy.className='btn bg';btnNy.style.fontSize='12px';btnNy.textContent='+ Ny rubrik';
     btnNy.addEventListener('click',function(e){e.stopPropagation();activeMenuId=m.id;toggleNC();});
+    var btnImport=document.createElement('button');btnImport.className='btn bg';btnImport.style.fontSize='12px';btnImport.textContent='✦ Läs in från foto/text';
+    btnImport.addEventListener('click',function(e){e.stopPropagation();openImportForMenu(m.id,m.name);});
     var btnRename=document.createElement('button');btnRename.className='btn bg';btnRename.style.fontSize='12px';btnRename.textContent='Byt namn';
     btnRename.addEventListener('click',function(e){e.stopPropagation();renameMenu(m.id,m.name);});
     var btnKopiera=document.createElement('button');btnKopiera.className='btn bg';btnKopiera.style.fontSize='12px';btnKopiera.textContent='Kopiera meny';
@@ -2027,7 +2030,7 @@ async function renderMenu(keepOpen){
     btnArkivera.addEventListener('click',function(e){e.stopPropagation();archiveMenu(m.id);});
     var btnDel=document.createElement('button');btnDel.className='btn bd';btnDel.style.fontSize='12px';btnDel.textContent='Ta bort meny';
     btnDel.addEventListener('click',function(e){e.stopPropagation();deleteMenu(m.id);});
-    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
+    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnImport);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
   });
 }
 
@@ -2170,7 +2173,18 @@ async function loadMenuItems(menuId){
 
 
 // ─── HULPFUNKTIONER MENY ─────────────────────────────────────────────
-function showNewMenuForm(){document.getElementById('newMenuForm').style.display='block';}
+function showNewMenuForm(){var ai=document.getElementById('aiImportPanel');if(ai)ai.style.display='none';document.getElementById('newMenuForm').style.display='block';}
+function openImportForMenu(id,name){
+  activeMenuId=id;
+  var f=document.getElementById('newMenuForm');if(f)f.style.display='none';
+  var p=document.getElementById('aiImportPanel');if(!p)return;
+  cancelImport();
+  var t=document.getElementById('menu-import-text');if(t)t.value='';
+  var img=document.getElementById('menu-import-image');if(img)img.value='';
+  var nameEl=document.getElementById('ai-target-name');if(nameEl)nameEl.textContent=name||'';
+  p.style.display='block';
+  p.scrollIntoView({behavior:'smooth',block:'center'});
+}
 function toggleNC(){
   var f=document.getElementById('newCatForm');
   if(!f)return;
@@ -2281,6 +2295,7 @@ async function confirmImport(){
     }
   }
   _importData=null;var r=document.getElementById('import-result');if(r)r.style.display='none';
+  var ai=document.getElementById('aiImportPanel');if(ai)ai.style.display='none';
   await renderMenu();
 }
 
