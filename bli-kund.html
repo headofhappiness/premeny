@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bli kund – PreMeny</title>
+<meta name="pm-build" content="2026-06-01a">
+<meta name="description" content="Kom igång med PreMeny – fyll i era uppgifter så är ni igång inom kort.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PreMeny">
+<meta property="og:title" content="Bli kund hos PreMeny">
+<meta property="og:description" content="Fyll i era uppgifter så är ni igång. Enklare förbeställning för era sällskap.">
+<meta property="og:image" content="https://premeny.se/og-start.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bli kund hos PreMeny">
+<meta name="twitter:image" content="https://premeny.se/og-start.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--gold:#b8955a;--dark:#1a1712;--text:#2d2a24;--muted:#8a8070;--red:#c0392b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);position:sticky;top:0;z-index:10}
+.nav-logo{font-family:"Playfair Display",serif;font-size:1.2rem;color:var(--dark)}
+.nav-logo span{color:var(--gold)}
+.page{max-width:600px;margin:0 auto;padding:2rem 1.25rem 5rem}
+h1{font-family:"Playfair Display",serif;font-size:2rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
+.gold-line{width:32px;height:1px;background:var(--gold);margin:.5rem 0 1rem;opacity:.7}
+.intro{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card-label{font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.ff{margin-bottom:.9rem}
+.ff:last-child{margin-bottom:0}
+.ff label{display:block;font-size:14px;color:var(--text);margin-bottom:5px}
+.ff .opt{color:var(--muted);font-size:12px}
+.hint{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+input,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:13px 15px;font-family:"Outfit",sans-serif;font-size:16px;color:var(--text);outline:none;transition:border-color .2s;font-weight:300}
+input:focus,textarea:focus{border-color:var(--gold);background:var(--surface)}
+input.bad{border-color:var(--red);background:#fdf5f4}
+.row{display:flex;gap:10px}
+.row .ff{flex:1}
+.row .zip{max-width:140px}
+.terms{background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.25);border-radius:10px;padding:1.1rem 1.25rem;font-size:14px;line-height:1.9;color:var(--text)}
+.terms strong{font-weight:500}
+.terms ul{list-style:none;margin:.5rem 0 0}
+.terms li{padding-left:1.1rem;position:relative}
+.terms li:before{content:"·";position:absolute;left:.3rem;color:var(--gold)}
+.check{display:flex;align-items:flex-start;gap:10px;margin-top:1rem;cursor:pointer;font-size:15px;line-height:1.5}
+.check input{width:20px;height:20px;flex-shrink:0;accent-color:var(--gold);margin-top:1px}
+.msg{padding:13px 16px;border-radius:10px;font-size:15px;margin:1rem 0 0;border:1px solid;line-height:1.6;display:none}
+.msg.ok{background:#f2f8ec;color:#3a6020;border-color:#c8e0a8;display:block}
+.msg.err{background:#fdf2f2;color:#8a2020;border-color:#e8c0c0;display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:15px 24px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:all .2s;border:none;width:100%;letter-spacing:.02em;margin-top:1.25rem;min-height:48px;background:var(--dark);color:#fff}
+.btn:hover{background:#2d2820}
+.btn:disabled{opacity:.5;cursor:default}
+.done-wrap{text-align:center;padding:3rem 1rem}
+.done-icon{font-size:3rem;color:var(--gold);margin-bottom:.5rem}
+.done-wrap h1{margin-bottom:.5rem}
+.done-wrap p{font-size:16px;color:var(--text);line-height:1.7;max-width:420px;margin:.5rem auto 0}
+.spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){body{font-size:17px}.page{padding:1.5rem 1rem 4rem}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="nav-logo">Pre<span>Meny</span></div>
+  <div style="font-size:14px;color:var(--muted)">Bli kund</div>
+</div>
+
+<div class="page">
+  <div id="formState">
+    <h1>Bli kund hos PreMeny</h1>
+    <div class="gold-line"></div>
+    <p class="intro">Fyll i uppgifterna nedan så är ni igång inom kort. Det tar någon minut. Fält märkta <strong style="color:var(--text)">*</strong> är obligatoriska.</p>
+
+    <div class="card">
+      <div class="card-label">Företag &amp; faktura</div>
+      <div class="ff"><label>Företagets / restaurangens namn *</label><input type="text" id="company" autocomplete="organization"></div>
+      <div class="ff"><label>Organisationsnummer *</label><input type="text" id="orgnr" inputmode="numeric" placeholder="556xxx-xxxx"></div>
+      <div class="ff"><label>Fakturaadress (gata) *</label><input type="text" id="address" autocomplete="street-address"></div>
+      <div class="row">
+        <div class="ff zip"><label>Postnummer *</label><input type="text" id="zip" inputmode="numeric"></div>
+        <div class="ff"><label>Ort *</label><input type="text" id="city"></div>
+      </div>
+      <div class="ff"><label>Faktura-e-post *</label><input type="email" id="invoice_email" autocomplete="email" placeholder="faktura@..."><div class="hint">Hit mejlas månadsfakturan. Ange gärna en separat ekonomi-/bokföringsadress om ni vill.</div></div>
+      <div class="ff"><label>E-fakturaadress / GLN / PEPPOL-ID <span class="opt">(valfritt)</span></label><input type="text" id="einvoice"><div class="hint">Bara om ni vill ha e-faktura.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Kontaktperson</div>
+      <div class="ff"><label>Namn *</label><input type="text" id="contact_name" autocomplete="name"></div>
+      <div class="ff"><label>E-post *</label><input type="email" id="contact_email" placeholder="namn@..."><div class="hint">Blir er inloggning till PreMeny.</div></div>
+      <div class="ff"><label>Mobil *</label><input type="tel" id="contact_mobile" autocomplete="tel" placeholder="+46 70 123 45 67"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Om restaurangen</div>
+      <div class="ff"><label>Restaurangens telefon *</label><input type="tel" id="restaurant_phone" placeholder="+46 ..."><div class="hint">Visas för gästerna om en beställning hunnit stänga.</div></div>
+      <div class="ff"><label>Webbplats <span class="opt">(valfritt)</span></label><input type="text" id="website" placeholder="www.restaurangen.se"></div>
+      <div class="hint">Logotyp? Mejla den gärna till info@premeny.se så lägger vi in den.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Villkor</div>
+      <div class="terms">
+        <strong>Genom att skicka in blir ni kund hos PreMeny.</strong>
+        <ul>
+          <li>Uppstartsavgift: <strong>1 490 kr ex. moms</strong> (engång)</li>
+          <li>Månadsavgift: <strong>349 kr/mån ex. moms</strong></li>
+          <li>Avgiften faktureras månadsvis i förskott. Fakturan skickas den 1:a varje månad och avser nästkommande månad. Betaltid 20 dagar.</li>
+          <li>Ingen bindningstid, ingen uppsägningstid</li>
+          <li>Avsluta när ni vill – meddela info@premeny.se</li>
+        </ul>
+      </div>
+      <label class="check"><input type="checkbox" id="terms"><span>Vi har läst och godkänner villkoren ovan.</span></label>
+    </div>
+
+    <div id="msg" class="msg"></div>
+    <button class="btn" id="submitBtn" onclick="submitSignup()">Skicka in &amp; bli kund</button>
+  </div>
+
+  <div id="doneState" style="display:none">
+    <div class="done-wrap">
+      <div class="done-icon">✓</div>
+      <h1>Tack!</h1>
+      <div class="gold-line" style="margin:.5rem auto 1rem"></div>
+      <p>Vi har tagit emot er anmälan och skickat en kopia till er e-post. Vi hör av oss inom kort med inloggning och nästa steg. Välkomna till PreMeny!</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://gndzalmkbsfhclpoidqi.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduZHphbG1rYnNmaGNscG9pZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NDAxODcsImV4cCI6MjA5NTAxNjE4N30.Om9UOmTFR8CZZKu5qyiu1YImGdVxzI3KtlgukUV3Q-s';
+
+const REQUIRED=['company','orgnr','address','zip','city','invoice_email','contact_name','contact_email','contact_mobile','restaurant_phone'];
+
+function val(id){return (document.getElementById(id).value||'').trim();}
+function showMsg(t,cls){const m=document.getElementById('msg');m.textContent=t;m.className='msg '+cls;m.scrollIntoView({behavior:'smooth',block:'center'});}
+function validEmail(e){return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);}
+
+async function submitSignup(){
+  document.querySelectorAll('input').forEach(function(i){i.classList.remove('bad');});
+  const missing=[];
+  REQUIRED.forEach(function(id){if(!val(id)){missing.push(id);document.getElementById(id).classList.add('bad');}});
+  if(missing.length){showMsg('Fyll i alla obligatoriska fält (*).','err');return;}
+  if(!validEmail(val('invoice_email'))){document.getElementById('invoice_email').classList.add('bad');showMsg('Kontrollera faktura-e-postadressen.','err');return;}
+  if(!validEmail(val('contact_email'))){document.getElementById('contact_email').classList.add('bad');showMsg('Kontrollera kontaktpersonens e-postadress.','err');return;}
+  if(!document.getElementById('terms').checked){showMsg('Ni behöver godkänna villkoren för att skicka in.','err');return;}
+
+  const payload={
+    company:val('company'),orgnr:val('orgnr'),address:val('address'),
+    zip:val('zip'),city:val('city'),invoice_email:val('invoice_email'),einvoice:val('einvoice'),
+    contact_name:val('contact_name'),contact_email:val('contact_email'),contact_mobile:val('contact_mobile'),
+    restaurant_phone:val('restaurant_phone'),website:val('website')
+  };
+
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Skickar...';
+  document.getElementById('msg').className='msg';
+  try{
+    const resp=await fetch(SUPABASE_URL+'/functions/v1/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_KEY},
+      body:JSON.stringify({type:'signup',booking:payload})
+    });
+    const result=await resp.json();
+    if(!result.ok)throw new Error(result.error||'Okänt fel');
+    document.getElementById('formState').style.display='none';
+    document.getElementById('doneState').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    btn.disabled=false;btn.textContent='Skicka in & bli kund';
+    showMsg('Något gick fel: '+err.message+'. Försök igen, eller mejla info@premeny.se.','err');
+  }
+}
+</script>
+</body>
+</html>
