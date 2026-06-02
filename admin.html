@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-01d">
+<meta name="pm-build" content="2026-06-01e">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1796,7 +1796,7 @@ async function backupPDF(){
   if(!bookings.length){
     doc.setFontSize(12);doc.setTextColor(120,120,120);
     doc.text('Inga kommande bokningar.',margin,y);
-    doc.save('PreMeny Säkerhetskopia bokningar.pdf');return;
+    doc.save('PreMeny-sakerhetskopia-'+new Date().toLocaleDateString('sv-SE')+'.pdf');return;
   }
 
   bookings.forEach((b,idx)=>{
@@ -1880,7 +1880,7 @@ async function backupPDF(){
     doc.text('PreMeny – premeny.se',margin,pageH-10);
     doc.text(i+' / '+pages,pageW-margin,pageH-10,{align:'right'});
   }
-  doc.save('PreMeny Säkerhetskopia bokningar.pdf');
+  doc.save('PreMeny-sakerhetskopia-'+new Date().toLocaleDateString('sv-SE')+'.pdf');
 }
 
 // Daglig påminnelse om säkerhetskopia (en gång per dag)
