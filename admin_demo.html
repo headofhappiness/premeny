@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
-<meta name="pm-build" content="2026-06-01n">
+<meta name="pm-build" content="2026-06-01o">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -238,7 +238,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.25rem">
         <div onclick="toggleLathund()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px">
           <span style="font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--dark)">Så gör du – steg för steg</span>
-          <span id="lhArrow" style="color:var(--gold);font-size:13px;transition:transform .2s">▾</span>
+          <span style="color:var(--gold);font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px;white-space:nowrap"><span id="lhText">Dölj</span> <span id="lhArrow" style="display:inline-block;transition:transform .2s">▾</span></span>
         </div>
         <div id="lhBody">
         <div style="width:28px;height:1px;background:var(--gold);margin:.4rem 0 .9rem;opacity:.7"></div>
@@ -2549,10 +2549,10 @@ async function deleteMenu(id){
 autoInitDemo();
 
 function toggleLathund(){
-  var b=document.getElementById('lhBody');var a=document.getElementById('lhArrow');
+  var b=document.getElementById('lhBody');var a=document.getElementById('lhArrow');var t=document.getElementById('lhText');
   if(!b)return;
-  if(b.style.display==='none'){b.style.display='';if(a)a.style.transform='';}
-  else{b.style.display='none';if(a)a.style.transform='rotate(-90deg)';}
+  if(b.style.display==='none'){b.style.display='';if(a)a.style.transform='';if(t)t.textContent='Dölj';}
+  else{b.style.display='none';if(a)a.style.transform='rotate(-90deg)';if(t)t.textContent='Visa';}
 }
 </script>
 </body>
