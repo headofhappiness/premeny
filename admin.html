@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-01e">
+<meta name="pm-build" content="2026-06-01f">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -777,6 +777,9 @@ function renderBCard(b){
         <button onclick="sendSummary('${b.id}','email')" class="btn bg" style="font-size:11px;padding:5px 12px">✉ Skicka länk via mejl</button>
         ${b.contact_phone?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:''}
         <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera länk</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin:-.4rem 0 1rem;line-height:1.6">
+        <strong>Bekräftelse</strong> = bekräftar bokningen till kontaktpersonen. <strong>Skicka länk</strong> = gästlänken som kontaktpersonen vidarebefordrar till sina gäster.
       </div>`;
 
     // Påminnelse status
@@ -790,7 +793,7 @@ function renderBCard(b){
       const lines=b.summary_sent_log.trim().split('\n').filter(Boolean);
       const last=lines[lines.length-1];
       html+=`<div style="font-size:12px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:6px 10px;margin-bottom:.75rem;color:#3a6020;line-height:1.6">
-        ✓ <strong>Sammanställning skickad</strong><br>
+        ✓ <strong>Skickat till kontaktperson</strong><br>
         ${lines.map(l=>'<span style="opacity:.85">'+l+'</span>').join('<br>')}
       </div>`;
     }
@@ -1158,6 +1161,9 @@ async function sendSummary(id,ch){
     alert(ch==='email'?'Ingen e-post registrerad för kontaktpersonen.':'Inget telefonnummer registrerat för kontaktpersonen.');
     return;
   }
+  const _btn=event?.target;const _orig=_btn?_btn.textContent:'';
+  if(_btn){if(_btn.disabled)return;_btn.disabled=true;_btn.textContent='Skickar...';}
+  const _restoreBtn=()=>{if(_btn){_btn.disabled=false;_btn.textContent=_orig;}};
   let text=b.name+'\n'+ds+(b.event_type?' – '+b.event_type:'')+(b.event_time?' kl '+b.event_time.slice(0,5):'')+' | '+b.contact_name+'\n';
   text+='Beställningar: '+(orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+'\n\n';
   const byCat={};
@@ -1179,13 +1185,14 @@ async function sendSummary(id,ch){
       body:JSON.stringify({type:'guestlink',booking:b,restaurant:rest,guestLink})
     });
     const json=await res.json();
-    if(!json.ok){alert('Fel: '+(json.error||'okänt'));return;}
+    if(!json.ok){_restoreBtn();alert('Fel: '+(json.error||'okänt'));return;}
     const now=new Date();
     const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
     await db.from('bookings').update({
       summary_sent_at:now.toISOString(),
       summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via mejl till '+dest+'\n'
     }).eq('id',id);
+    _restoreBtn();
     alert('✓ Gästlänk skickad till '+dest+'!');
     reRender(id);
     return;
@@ -1206,9 +1213,10 @@ async function sendSummary(id,ch){
         summary_sent_at:now.toISOString(),
         summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via SMS till '+dest+'\n'
       }).eq('id',id);
+      _restoreBtn();
       reRender(id);
       alert('✓ SMS skickat till '+dest+'!');
-    }catch(err){alert('Fel: '+err.message);}
+    }catch(err){_restoreBtn();alert('Fel: '+err.message);}
   }
 }
 
