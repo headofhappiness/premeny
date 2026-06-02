@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
-<meta name="pm-build" content="2026-06-01p">
+<meta name="pm-build" content="2026-06-01r">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -259,7 +259,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           </div>
         </div>
         <div style="margin-top:.9rem;font-size:12.5px;line-height:1.6;color:var(--muted)">
-          <strong style="color:var(--text)">Tips:</strong> dina kommande bokningar ser du i listan nedan – eller samlat per dag under <strong>Dagsöversikt</strong>.
+          <strong style="color:var(--text)">Tips:</strong> dina kommande bokningar ser du i listan nedan – eller samlat under <strong>Dagsöversikt</strong>, där du kan välja en eller flera dagar.
         </div>
         <div style="margin-top:.8rem;padding-top:.8rem;border-top:1px dashed var(--border);font-size:12.5px;line-height:1.7;color:var(--muted)">
           <strong style="color:var(--text)">Sköts automatiskt:</strong><br>
@@ -276,7 +276,6 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           <button class="btn" style="padding:5px 13px;font-size:13px;min-height:0;background:transparent;color:#6a5030;border-color:rgba(184,149,90,.4)" onclick="dismissBackupReminder()">Inte nu</button>
         </span>
       </div>
-      <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:13px;color:#6a5030;line-height:1.6">🔔 Påminnelse skickas automatiskt via mejl och/eller SMS innan sista beställningsdag – men aldrig om alla gäster redan svarat.</div>
       <div id="newBookingForm" style="display:none" class="card">
         <div class="card-label">Skapa ny bokning</div>
         <div class="r2">
