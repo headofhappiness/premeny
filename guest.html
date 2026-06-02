@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Förbeställ din mat</title>
-<meta name="pm-build" content="2026-06-01b">
+<meta name="pm-build" content="2026-06-01c">
 <meta name="description" content="Välj din mat inför besöket – snabbt och enkelt via PreMeny.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -207,7 +207,7 @@ async function init(){
     var greetEl=document.getElementById('guestGreeting');
     if(greetEl){
       if(isClosed){greetEl.innerHTML='Inför <strong>'+book.name+'</strong> den '+greetDate+'.';}
-      else{greetEl.innerHTML='Inför <strong>'+book.name+'</strong> den '+greetDate+' vill vi gärna veta vad du önskar äta. Tack för att du fyller i nedan.';}
+      else{greetEl.innerHTML='Inför <strong>'+book.name+'</strong> den '+greetDate+' vill vi gärna veta vad du önskar äta. Tack för att du fyller i nedan. Har du redan valt din mat kan du bortse från detta.';}
     }
 
     if(isClosed){
