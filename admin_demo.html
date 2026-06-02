@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
-<meta name="pm-build" content="2026-06-01j">
+<meta name="pm-build" content="2026-06-01m">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -218,7 +218,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     </div>
     <div style="display:flex;align-items:center;gap:12px">
       <span style="font-size:13px;color:var(--muted)" id="restName"></span>
-      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn" style="padding:6px 14px;font-size:12px;text-decoration:none;background:var(--gold);color:#fff;border-radius:100px;font-weight:600">📅 Boka möte</a>
+      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn" style="padding:6px 14px;font-size:12px;text-decoration:none;background:var(--gold);color:#fff;border-radius:100px;font-weight:500">📅 Boka möte</a>
     </div>
   </nav>
 
@@ -241,19 +241,28 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         <div style="display:flex;flex-direction:column;gap:.7rem;font-size:13.5px;line-height:1.55;color:var(--text)">
           <div style="display:flex;gap:.7rem;align-items:flex-start">
             <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">1</span>
-            <div><strong>Skapa bokningen.</strong> Klicka <strong>+ Ny bokning</strong> och fyll i sällskapets namn, datum, antal gäster och sista beställningsdag.</div>
+            <div><strong>Skapa bokningen.</strong> Klicka <strong>+ Ny bokning</strong>, fyll i sällskapets namn, datum, antal gäster, sista beställningsdag osv. och klicka <strong>Skapa bokning</strong>.</div>
           </div>
           <div style="display:flex;gap:.7rem;align-items:flex-start">
             <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">2</span>
-            <div><strong>Skicka gästlänken till kontaktpersonen.</strong> Öppna bokningen och klicka <strong>Skicka länk via mejl</strong> (eller sms). Kontaktpersonen vidarebefordrar länken till sina gäster, som väljer sin mat. Vill du även bekräfta bokningen, klicka <strong>Skicka bekräftelse till kontaktperson</strong>.</div>
+            <div><strong>Öppna bokningen.</strong> Klicka på den i listan nedan för att öppna den.</div>
           </div>
           <div style="display:flex;gap:.7rem;align-items:flex-start">
             <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">3</span>
-            <div><strong>Läs kökslistan inför besöket.</strong> Öppna bokningen och klicka <strong>Kökslista</strong> – där ser du antal rätter, allergier och specialkost samlat.</div>
+            <div><strong>Skicka bekräftelse till kontaktpersonen.</strong> Klicka <strong>Skicka bekräftelse till kontaktperson</strong> så får de en bekräftelse på bokningen.</div>
+          </div>
+          <div style="display:flex;gap:.7rem;align-items:flex-start">
+            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">4</span>
+            <div><strong>Skicka gästlänken.</strong> Klicka <strong>Skicka länk via mejl</strong> (eller sms). Kontaktpersonen vidarebefordrar länken till sina gäster, som väljer sin mat.</div>
           </div>
         </div>
-        <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px dashed var(--border);font-size:12.5px;line-height:1.6;color:var(--muted)">
-          <strong style="color:var(--text)">Sköts automatiskt:</strong> Påminnelse till kontaktpersonen innan sista beställningsdag · Sammanställning av alla val mejlas till kontaktpersonen dagen efter sista beställningsdag.
+        <div style="margin-top:.9rem;font-size:12.5px;line-height:1.6;color:var(--muted)">
+          <strong style="color:var(--text)">Tips:</strong> dina kommande bokningar ser du i listan nedan – eller samlat per dag under <strong>Dagsöversikt</strong>.
+        </div>
+        <div style="margin-top:.8rem;padding-top:.8rem;border-top:1px dashed var(--border);font-size:12.5px;line-height:1.7;color:var(--muted)">
+          <strong style="color:var(--text)">Sköts automatiskt:</strong><br>
+          • Påminnelse till kontaktpersonen innan sista beställningsdag.<br>
+          • Sammanställning av alla val mejlas till kontaktpersonen dagen efter sista beställningsdag.
         </div>
       </div>
       <div class="fb"><h3>Aktiva bokningar</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bg nb-btn" onclick="backupPDF()" title="Ladda ner alla kommande bokningar som PDF">⬇ Säkerhetskopia</button><button class="btn bp nb-btn" onclick="toggleNB()">+ Ny bokning</button></div></div>
