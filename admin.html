@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03t">
+<meta name="pm-build" content="2026-06-03v">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -2546,8 +2546,8 @@ async function importMenu(){
       +'{"menuPrice":0,"categories":[{"label":"Rubrik","items":[{"name":"Rättens namn","description":"Beskrivning","price":0}]}]}\n\n'
       +'Regler:\n'
       +'- VIKTIGAST: utelämna ALDRIG en rätt. Varje rätt/rad i menyn måste vara med i svaret – tappa ingen rad.\n'
-      +'- Saknar menyn tydliga rubriker, dela själv in rätterna i logiska rubriker. För en svensk meny är ordningen normalt Förrätter, Varmrätter, Desserter. Rätter som Toast Skagen, räkor, soppa eller sallad är oftast förrätter; kött- och fiskrätter är varmrätter; kakor, glass och söta efterrätter är desserter.\n'
-      +'- Står det "X rätter" (t.ex. "3 rätter") betyder det X serveringar – placera då en rätt per rubrik i tur och ordning (förrätt, varmrätt, dessert).\n'
+      +'- Saknar menyn tydliga rubriker, dela själv in rätterna i logiska rubriker. För en svensk meny är ordningen normalt Förrätter, Varmrätter, Ost, Desserter. Rätter som Toast Skagen, räkor, soppa eller sallad är oftast förrätter; kött- och fiskrätter är varmrätter; ostbricka/ost är en egen rätt (rubrik "Ost"); kakor, glass och söta efterrätter är desserter.\n'
+      +'- Står det "X rätter" (t.ex. "3 rätter", "4 rätter") är det en fast meny där ALLA rätter serveras. Ge då VARJE serverad rätt en EGEN rubrik så att antalet rubriker blir lika många som antalet rätter. Ordning: Förrätt, Varmrätt, Ost, Dessert. En ostbricka/osttallrik är en egen rätt med rubriken "Ost" (mellan varmrätt och dessert) – slå ALDRIG ihop ost och dessert under samma rubrik. (Har en rätt flera valbara alternativ, lägg alternativen under samma rubrik.)\n'
       +'- Är du osäker på vilken rubrik en rätt hör till: gissa rimligt och ta med den ändå – hellre fel rubrik än att tappa rätten.\n'
       +'- "label" är en rubrik/kategori. Ord som "Förrätt", "Varmrätt", "Dessert" ska användas som rubriker – ta bort dem ur rättnamnen.\n'
       +'- "name" ska vara rättens korta namn, INTE hela beskrivningen. Ta aldrig med prefix som "Förrätt:", "Varmrätt:" eller "Dessert:" i namnet.\n'
@@ -2569,8 +2569,12 @@ async function importMenu(){
     var txt=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
     if(!txt)throw new Error('Tomt svar från AI');
     var clean=txt.replace(/```json|```/g,'').trim();
-    var parsed;
-    try{parsed=JSON.parse(clean);}catch(e){throw new Error('Kunde inte tolka AI-svaret som JSON');}
+    var parsed=null;
+    try{parsed=JSON.parse(clean);}catch(e){
+      var _s=clean.indexOf('{'),_e=clean.lastIndexOf('}');
+      if(_s>=0&&_e>_s){try{parsed=JSON.parse(clean.slice(_s,_e+1));}catch(e2){}}
+    }
+    if(!parsed)throw new Error('Kunde inte tolka AI-svaret som JSON');
     if(!parsed.categories||!Array.isArray(parsed.categories))throw new Error('Fel format från AI');
     _importData=parsed.categories;
     _importMenuPrice=parseInt(parsed.menuPrice)||0;
