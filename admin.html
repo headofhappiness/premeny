@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03ah">
+<meta name="pm-build" content="2026-06-03ai">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -368,6 +368,11 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         </div>
         <div class="cal-hdr"><div class="cal-dn">Mån</div><div class="cal-dn">Tis</div><div class="cal-dn">Ons</div><div class="cal-dn">Tor</div><div class="cal-dn">Fre</div><div class="cal-dn">Lör</div><div class="cal-dn">Sön</div></div>
         <div class="cal-grid" id="calGrid"></div>
+        <div style="margin-top:.6rem;display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--muted)">
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#e0a52e"></span>Pågående</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#3a7d44"></span>Klar</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#c0392b"></span>Ej klar i tid</span>
+        </div>
         <div style="margin-top:.75rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="calClear()">Rensa val</button>
           <span style="font-size:12px;color:var(--muted)" id="calSelInfo"></span>
@@ -792,6 +797,32 @@ function bOrderStats(b){
   return {counts:counts,guests:guests,portions:portions,breakdown:breakdown};
 }
 
+// Status: grön=klar (manuellt markerad ELLER alla beställt med påminnelse på), röd=ej klar i tid, gul=pågående
+const STATUS_COLORS={done:'#3a7d44',progress:'#e0a52e',late:'#c0392b'};
+const STATUS_LABELS={done:'Klar',progress:'Pågående',late:'Ej klar i tid'};
+function bStatus(b){
+  const today=new Date();today.setHours(0,0,0,0);
+  const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
+  const closed=dl&&today>dl;
+  const remindersOn=!!b.reminder_days;
+  const guests=bOrderStats(b).guests;
+  const allOrdered=remindersOn&&b.expected_guests&&guests>=b.expected_guests;
+  if(b.completed_at||allOrdered)return 'done';
+  if(closed)return 'late';
+  return 'progress';
+}
+async function toggleComplete(bid,e){
+  if(e)e.stopPropagation();
+  const b=(allBookings||[]).find(x=>x.id===bid);
+  if(!b)return;
+  const newVal=b.completed_at?null:new Date().toISOString();
+  const {error}=await db.from('bookings').update({completed_at:newVal}).eq('id',bid);
+  if(error){alert('Kunde inte spara: '+error.message);return;}
+  b.completed_at=newVal;
+  renderBookingList(allBookings);
+  if(rest&&typeof initCalendar==='function')initCalendar();
+}
+
 function renderBCard(b){
   const isOpen=!!openB[b.id];
   const dtab=dtabs[b.id]||'tally';
@@ -801,6 +832,7 @@ function renderBCard(b){
   const _st=bOrderStats(b);
   const n=_st.guests;
   const remindersOn=!!b.reminder_days;
+  const _status=bStatus(b);
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date);
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -841,7 +873,10 @@ function renderBCard(b){
         ${_st.breakdown?'<div style="font-size:13px;color:var(--text);margin-top:6px;font-weight:400">'+_st.breakdown+'</div>':''}
         ${reminderHtml}
       </div>
-      <span class="pill ${closed?'pc':'po'}" style="flex-shrink:0">${closed?'Stängd':'Öppen'}</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap"><span style="width:10px;height:10px;border-radius:50%;background:${STATUS_COLORS[_status]};box-shadow:0 0 0 3px ${STATUS_COLORS[_status]}26"></span>${STATUS_LABELS[_status]}</span>
+        <span class="pill ${closed?'pc':'po'}">${closed?'Stängd':'Öppen'}</span>
+      </div>
     </div>`;
 
   if(isOpen){
@@ -909,6 +944,7 @@ function renderBCard(b){
     </div>
     <div id="det_${b.id}"></div>
     <div class="fg" style="margin-top:1rem;flex-wrap:wrap">
+      <button class="btn ${b.completed_at?'bg':'bo'}" style="font-size:11px;padding:5px 10px" onclick="toggleComplete('${b.id}',event)">${b.completed_at?'↩ Markera som pågående':'✓ Markera som klar'}</button>
       ${dtab==='guests'?
         `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>
         <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut</button>
@@ -1640,8 +1676,15 @@ async function exportGuestPDF(id){
 // KALENDER
 async function initCalendar(){
   if(!rest)return;
-  const {data:bs}=await db.from('bookings').select('event_date,name').eq('restaurant_id',rest.id);
-  calDates={};(bs||[]).forEach(b=>{if(!calDates[b.event_date])calDates[b.event_date]=[];calDates[b.event_date].push(b.name);});
+  const {data:bs}=await db.from('bookings').select('event_date,name,deadline,completed_at,reminder_days,expected_guests, orders(id, order_items(menu_items(menu_categories(label))))').eq('restaurant_id',rest.id).is('deleted_at',null);
+  const rank={done:1,progress:2,late:3};
+  calDates={};
+  (bs||[]).forEach(b=>{
+    if(!calDates[b.event_date])calDates[b.event_date]={names:[],status:'done'};
+    calDates[b.event_date].names.push(b.name);
+    const s=bStatus(b);
+    if(rank[s]>rank[calDates[b.event_date].status])calDates[b.event_date].status=s;
+  });
   renderCal();
 }
 
@@ -1658,7 +1701,7 @@ function renderCal(){
   for(let day=1;day<=dim;day++){
     const ds=calY+'-'+String(calM+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
     const has=!!calDates[ds],isToday=today.getFullYear()===calY&&today.getMonth()===calM&&today.getDate()===day,isSel=calSel.has(ds);
-    html+=`<div class="cal-day${has?' has':''}${isToday?' today':''}${isSel?' sel':''}" onclick="${has||true?`toggleCalDay('${ds}')`:''}" title="${has?calDates[ds].join(', '):''}">${day}${has?`<div class="cal-dot"></div>`:''}</div>`;
+    html+=`<div class="cal-day${has?' has':''}${isToday?' today':''}${isSel?' sel':''}" onclick="${has||true?`toggleCalDay('${ds}')`:''}" title="${has?calDates[ds].names.join(', '):''}">${day}${has?`<div class="cal-dot" style="background:${STATUS_COLORS[calDates[ds].status]};opacity:1;width:5px;height:5px"></div>`:''}</div>`;
   }
   grid.innerHTML=html;
   const info=calSel.size?[...calSel].sort().join(', '):'Inget datum valt';
