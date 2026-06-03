@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03m">
+<meta name="pm-build" content="2026-06-03o">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -967,7 +967,7 @@ async function loadGuestEditItems(bookingId){
 async function renderBulk(bookingId){
   let html=`<div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
     <strong style="color:var(--text)">Fyll i för hela sällskapet</strong><br>
-    Ange antal rätter per alternativ. Varje enhet skapas som en separat beställning. Kommentar gäller alla av den rätten.
+    Ange antal rätter per alternativ. Varje enhet skapas som en separat beställning. En kommentar/allergi gäller en gäst (visas en gång), inte hela sällskapet.
   </div>`;
   cats.forEach(cat=>{
     html+=`<div class="bulk-sec"><div class="bulk-head">${cat.label}</div>`;
@@ -979,7 +979,7 @@ async function renderBulk(bookingId){
         </div>
         ${item.price?`<div style="font-size:13px;color:var(--gold);font-weight:500;white-space:nowrap">${item.price} kr</div>`:''}
         <input type="number" class="bulk-qty" id="bq_${bookingId}_${item.id}" min="0" max="999" value="0" placeholder="0">
-        <input type="text" class="bulk-cmt" id="bc_${bookingId}_${item.id}" placeholder="Kommentar/allergi (valfritt)" style="max-width:220px">
+        <input type="text" class="bulk-cmt" id="bc_${bookingId}_${item.id}" placeholder="Kommentar/allergi för en gäst (valfritt)" style="max-width:220px">
       </div>`;
     });
     html+=`</div>`;
@@ -1001,7 +1001,7 @@ async function saveBulk(bid){
         if(qty>0){
           for(let i=0;i<qty;i++){
             const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:'Gäst '+(++count)+' (bokningsansvarig)'}).select().single();
-            await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:cmt});
+            await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
           }
         }
       }
@@ -1388,7 +1388,7 @@ async function printKitchen(id){
     body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
     h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
     .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
-    .cat{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a1712;margin:1.25rem 0 .4rem;border-bottom:1px solid #999;padding-bottom:3px}
+    .cat{font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a1712;margin:1.25rem 0 .4rem;border-bottom:1px solid #999;padding-bottom:3px}
     .cat::before{content:"● ";color:#3a7d44}
     .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ccc;font-size:13px}
     .alg{position:relative;background:#fff;border:1px solid #333;border-radius:4px;padding:5px 10px;font-size:11px;margin:2px 0 8px;color:#1a1712;font-style:italic}
@@ -1724,7 +1724,7 @@ function printCalKitchen(){
   const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
   const title=dates.length===1?dateLabels:dates.length+' datum: '+dateLabels;
   const w=window.open('','_blank');
-  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #333;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#1a1712}.alg{background:#fff;border:1px solid #333;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#1a1712;font-style:italic}.pmk-cat::before{content:"● ";color:#3a7d44}.pmk-bar{display:none !important}.pmk-alg{position:relative !important;background:#fff !important;border:1px solid #333 !important;color:#1a1712 !important;font-style:italic !important}.pmk-alg::before{content:"▶";position:absolute;left:-1.4rem;top:5px;color:#1a1712;font-weight:700;font-style:normal;font-size:11px}.alg .warn,.pmk-alg .warn{color:#ff6a00 !important;font-style:normal !important;font-weight:700 !important}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
+  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #333;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#1a1712}.alg{background:#fff;border:1px solid #333;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#1a1712;font-style:italic}.pmk-cat{font-size:15px !important}.pmk-cat::before{content:"● ";color:#3a7d44}.pmk-bar{display:none !important}.pmk-alg{position:relative !important;background:#fff !important;border:1px solid #333 !important;color:#1a1712 !important;font-style:italic !important}.pmk-alg::before{content:"▶";position:absolute;left:-1.4rem;top:5px;color:#1a1712;font-weight:700;font-style:normal;font-size:11px}.alg .warn,.pmk-alg .warn{color:#ff6a00 !important;font-style:normal !important;font-weight:700 !important}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
   w.document.close();w.print();
 }
 
