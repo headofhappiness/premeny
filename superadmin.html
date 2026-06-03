@@ -4,7 +4,7 @@
 <link rel="icon" type="image/png" href="PM_logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="pm-build" content="2026-06-01b">
+<meta name="pm-build" content="2026-06-03a">
 <title>SuperAdmin – PreMeny</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -391,6 +391,10 @@ async function loadRestaurants(){
   const thisMonthCounts={};
   (thisMonthBk||[]).forEach(b=>{thisMonthCounts[b.restaurant_id]=(thisMonthCounts[b.restaurant_id]||0)+1;});
 
+  // Privata noteringar (egen tabell, RLS släpper bara in superadmin)
+  const {data:_notes}=await db.from('restaurant_notes').select('restaurant_id,note');
+  const notesByRest={};(_notes||[]).forEach(n=>{notesByRest[n.restaurant_id]=n.note||'';});
+
   const htmlList=rests.map(r=>`
     <div class="rest-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
@@ -401,6 +405,16 @@ async function loadRestaurants(){
         <span style="width:8px;height:8px;border-radius:50%;background:${r.active?'#3a7d44':'#c0392b'};display:inline-block;flex-shrink:0;margin-top:6px"></span>
       </div>
       <div class="rest-slug">Slug: ${r.slug} &nbsp;·&nbsp; <span style="color:var(--gold)">premeny.se/guest.html?r=${r.slug}</span></div>
+
+      <!-- Privat notering (bara superadmin) -->
+      <div id="rnotebox_${r.id}" style="${(notesByRest[r.id]||'')?'':'display:none;'}margin:.4rem 0 .6rem;padding:.5rem .7rem;background:#fffbe8;border:1px solid #e8dca0;border-radius:8px;font-size:12.5px;color:#5a4d20;line-height:1.5;white-space:pre-wrap">📝 <span id="rnotetext_${r.id}">${escapeHtml(notesByRest[r.id]||'')}</span></div>
+      <div id="rnoteedit_${r.id}" style="display:none;margin:.4rem 0 .6rem">
+        <textarea id="rnotearea_${r.id}" style="width:100%;min-height:60px;font-size:13px;padding:.5rem;border:1px solid var(--border);border-radius:8px;box-sizing:border-box" placeholder="Privat notering om kunden – bara du ser detta...">${escapeHtml(notesByRest[r.id]||'')}</textarea>
+        <div style="display:flex;gap:6px;margin-top:5px">
+          <button class="btn bp" style="font-size:11px;padding:4px 12px" onclick="saveRestNote('${r.id}')">Spara notering</button>
+          <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="document.getElementById('rnoteedit_${r.id}').style.display='none'">Avbryt</button>
+        </div>
+      </div>
 
       <!-- Mini-statistik -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:.9rem">
@@ -434,6 +448,7 @@ async function loadRestaurants(){
 
       <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleRestDetail('${r.id}')">Se mer ›</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleRestNote('${r.id}')">📝 Notering</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openStats('${r.id}','${r.name.replace(/'/g,"\\'")}')">📊 Statistik</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openWelcomeModal(this)" data-id="${r.id}" data-name="${r.name}" data-email="${r.contact_email||''}">✉ Välkomstmejl</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openMenuModal(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">🍽 Meny</button>
@@ -986,6 +1001,25 @@ function toggleRestDetail(id){
   var isHidden=el.style.display==='none';
   el.style.display=isHidden?'block':'none';
 }
+
+function toggleRestNote(id){
+  var e=document.getElementById('rnoteedit_'+id);
+  if(!e)return;
+  e.style.display=(e.style.display==='none'?'block':'none');
+}
+async function saveRestNote(id){
+  var area=document.getElementById('rnotearea_'+id);
+  if(!area)return;
+  var val=area.value.trim();
+  const {error}=await db.from('restaurant_notes').upsert({restaurant_id:id,note:val||null,updated_at:new Date().toISOString()},{onConflict:'restaurant_id'});
+  if(error){alert('Kunde inte spara noteringen: '+error.message);return;}
+  var box=document.getElementById('rnotebox_'+id);
+  var txt=document.getElementById('rnotetext_'+id);
+  if(txt)txt.textContent=val;
+  if(box)box.style.display=val?'':'none';
+  var ed=document.getElementById('rnoteedit_'+id);if(ed)ed.style.display='none';
+}
+function escapeHtml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // ── MENY-HANTERARE (samma datamodell som kund-admin) ────────────────
 let _smRestId=null,_smRestName=null,_smMenus=[],_smActiveMenuId=null,_smCats=[];
