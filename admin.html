@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03p">
+<meta name="pm-build" content="2026-06-03q">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -281,7 +281,12 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
               <option value="">Välj meny...</option>
             </select>
           </div>
-          <div class="ff"></div>
+          <div class="ff"><label>Priser i gästvyn</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:15px;color:var(--text);cursor:pointer;margin-top:4px">
+              <input type="checkbox" id="nb-show-prices" checked style="width:18px;height:18px;accent-color:var(--gold)"> Visa priserna för gästerna
+            </label>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">Avmarkera om gästerna inte ska se priser (t.ex. bröllop där värdarna betalar).</div>
+          </div>
           <div class="ff"><label>Påminnelse</label>
             <select id="nb-reminder">
               <option value="0">Ingen påminnelse</option>
@@ -308,12 +313,6 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         <div class="r2">
           <div class="ff"><label>Bokningsansvarig (restaurangens personal)</label><input type="text" id="nb-responsible" placeholder="T.ex. Maria, Kalle..."></div>
           <div class="ff"><label>Bord</label><input type="text" id="nb-table" placeholder="T.ex. Bord 4, Bord 4–6, Stora salen"></div>
-        </div>
-        <div class="ff"><label>Priser i gästvyn</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:15px;color:var(--text);cursor:pointer;margin-top:4px">
-            <input type="checkbox" id="nb-show-prices" checked style="width:18px;height:18px;accent-color:var(--gold)"> Visa priserna för gästerna
-          </label>
-          <div style="font-size:12px;color:var(--muted);margin-top:4px">Avmarkera om gästerna inte ska se priser (t.ex. bröllop där värdarna betalar).</div>
         </div>
         <div class="ff"><label>Intern kommentar (visas ej för gäster)</label><textarea id="nb-comment" placeholder="T.ex. VIP-sällskap, kräver extra personal..."></textarea></div>
         <div class="fg">
