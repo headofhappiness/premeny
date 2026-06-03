@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03a">
+<meta name="pm-build" content="2026-06-03b">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -872,11 +872,27 @@ function renderBCard(b){
   return html;
 }
 
+let _lastWarm=0;
+async function prewarmSend(){
+  // Tyst förvärmning av edge-funktionerna så första utskicket slipper kallstarta.
+  // OBS: ingen gäst-/mottagardata skickas med ({warmup:true}), så inget kan skickas av misstag.
+  try{
+    if(Date.now()-_lastWarm<90000)return; // redan varmt nyligen – hoppa över
+    _lastWarm=Date.now();
+    const {data:{session}}=await db.auth.getSession();
+    if(!session)return;
+    const base='https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/';
+    ['send-email','send-sms'].forEach(function(fn){
+      fetch(base+fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({warmup:true})}).catch(function(){});
+    });
+  }catch(e){}
+}
+
 async function toggleB(id){
   openB[id]=!openB[id];
   if(!dtabs[id])dtabs[id]='tally';
   await reRender(id);
-  if(openB[id])loadDet(id,dtabs[id]);
+  if(openB[id]){prewarmSend();loadDet(id,dtabs[id]);}
 }
 
 async function switchDtab(id,tab){
