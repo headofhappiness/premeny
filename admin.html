@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03ae">
+<meta name="pm-build" content="2026-06-03ag">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -697,7 +697,7 @@ let allBookings=[];
 async function renderBookings(){
   if(!rest)return;
   const today=new Date().toISOString().split('T')[0];
-  const {data:bs}=await db.from('bookings').select('*, orders(id)').eq('restaurant_id',rest.id).gte('event_date',today).is('deleted_at',null).order('event_date');
+  const {data:bs}=await db.from('bookings').select('*, orders(id, order_items(menu_items(menu_categories(label))))').eq('restaurant_id',rest.id).gte('event_date',today).is('deleted_at',null).order('event_date');
   allBookings=bs||[];
   renderBookingList(allBookings);
   if(allBookings.length)maybeShowBackupReminder();
@@ -723,7 +723,7 @@ function renderAttention(){
   (allBookings||[]).forEach(b=>{
     const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
     const closed=dl&&today>dl;
-    const n=(b.orders||[]).length;
+    const n=bOrderStats(b).guests;
     const exp=b.expected_guests||0;
     let chip='';
     if(exp&&n>exp){chip='<span class="attn-chip over">⚠ '+(n-exp)+' fler än väntat</span>';}
@@ -776,13 +776,28 @@ function clearSearch(){
   filterBookings();
 }
 
+// Räknar portioner per kategori + ett person-estimat (mest beställda rätten ≈ antal personer)
+function bOrderStats(b){
+  const counts={};
+  (b.orders||[]).forEach(function(o){(o.order_items||[]).forEach(function(oi){
+    var lbl=(oi.menu_items&&oi.menu_items.menu_categories)?oi.menu_items.menu_categories.label:'Övrigt';
+    counts[lbl]=(counts[lbl]||0)+1;
+  });});
+  var labels=Object.keys(counts);
+  var guests=labels.length?Math.max.apply(null,labels.map(function(k){return counts[k];})):0;
+  var portions=labels.reduce(function(s,k){return s+counts[k];},0);
+  var breakdown=labels.map(function(k){return counts[k]+' '+k;}).join(' · ');
+  return {counts:counts,guests:guests,portions:portions,breakdown:breakdown};
+}
+
 function renderBCard(b){
   const isOpen=!!openB[b.id];
   const dtab=dtabs[b.id]||'tally';
   const today=new Date();today.setHours(0,0,0,0);
   const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
   const closed=dl&&today>dl;
-  const n=(b.orders||[]).length;
+  const _st=bOrderStats(b);
+  const n=_st.guests;
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date);
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -820,6 +835,7 @@ function renderBCard(b){
             ${b.expected_guests?(n>b.expected_guests?'⚠ '+n+' beställda · <span style="color:#c0392b;font-weight:600">'+( n-b.expected_guests)+' fler än väntat!</span>':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
           </div>
         </div>
+        ${_st.breakdown?'<div style="font-size:12px;color:var(--muted);margin-top:3px">'+_st.breakdown+'</div>':''}
         ${reminderHtml}
       </div>
       <span class="pill ${closed?'pc':'po'}" style="flex-shrink:0">${closed?'Stängd':'Öppen'}</span>
@@ -973,8 +989,8 @@ let _bulkCats=[];
 async function renderBulk(bookingId){
   let html=`<div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
     <strong style="color:var(--text)">Fyll i för hela sällskapet</strong><br>
-    Ange hur många i sällskapet som vill ha varje rätt.<br><br>
-    <strong style="font-weight:500;color:var(--text)">💡 Tips:</strong> lägg in gäster med specialönskemål <strong style="font-weight:500;color:var(--text)">först</strong>. Sätt antal 1 på deras rätt, skriv namn + specialkost/önskemål och tryck Spara. Fyll sedan i resten av sällskapet. Då syns allergin på rätt person i listan. (Lämnar du namnet tomt blir det "Gäst 1, 2, 3 …".)
+    Ange hur många <strong style="font-weight:500;color:var(--text)">portioner</strong> av varje rätt sällskapet vill ha – en snabb summering till köket. Alla behöver inte ha alla rätter. Vill du ha varje gäst med namn och egna val, låt dem fylla i via gästlänken.<br><br>
+    <strong style="font-weight:500;color:var(--text)">💡 Tips:</strong> lägg in gäster med specialönskemål <strong style="font-weight:500;color:var(--text)">först</strong>. Sätt antal 1 på deras rätt, skriv namn + specialkost/önskemål och tryck Spara. Fyll sedan i resten av sällskapet. Då syns allergin på rätt person i listan. (Lämnar du namnet tomt blir raden "Portion 1, 2, 3 …".)
   </div>`;
   const {data:_b}=await db.from('bookings').select('menu_id').eq('id',bookingId).single();
   let _q=db.from('menu_categories').select('id,label,sort_order, menu_items(id,name,description,price,active,sort_order)');
@@ -1019,7 +1035,7 @@ async function saveBulk(bid){
         const nm=document.getElementById('bn_'+bid+'_'+item.id)?.value?.trim()||'';
         if(qty>0){
           for(let i=0;i<qty;i++){
-            const gname=(i===0&&nm)?nm:('Gäst '+(++seq)+' (bokningsansvarig)');
+            const gname=(i===0&&nm)?nm:('Portion '+(++seq));
             const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:gname}).select().single();
             await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
             made++;
