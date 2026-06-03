@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03c">
+<meta name="pm-build" content="2026-06-03d">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -327,6 +327,21 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         style="padding-left:36px;background:var(--surface)">
       <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">🔍</span>
       <button id="clearSearch" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0">✕</button>
+    </div>
+    <div style="margin-bottom:.6rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--muted)">Visa:</span>
+      <select id="bookingTypeFilter" onchange="filterBookings()" style="width:auto;padding:6px 10px;font-size:13px;background:var(--surface)">
+        <option value="">Alla typer</option>
+        <option value="Bröllop">Bröllop</option>
+        <option value="Middag">Middag</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Brunch">Brunch</option>
+        <option value="Frukost">Frukost</option>
+        <option value="Mingel">Mingel</option>
+        <option value="Konferens">Konferens</option>
+        <option value="Kalas">Kalas</option>
+        <option value="Annat">Annat</option>
+      </select>
     </div>
     <div id="searchInfo" style="display:none;font-size:12px;color:var(--muted);margin-bottom:.5rem"></div>
     <div id="bookingList" style="margin-top:.25rem"></div>
@@ -717,23 +732,26 @@ function focusBooking(id){
 
 function filterBookings(){
   const q=document.getElementById('bookingSearch').value.trim().toLowerCase();
+  const tEl=document.getElementById('bookingTypeFilter');
+  const t=tEl?tEl.value:'';
   const clearBtn=document.getElementById('clearSearch');
   const info=document.getElementById('searchInfo');
   clearBtn.style.display=q?'block':'none';
-  if(!q){
-    info.style.display='none';
-    renderBookingList(allBookings);
-    return;
-  }
-  const filtered=allBookings.filter(b=>
+  let filtered=allBookings;
+  if(t)filtered=filtered.filter(b=>(b.event_type||'')===t);
+  if(q)filtered=filtered.filter(b=>
     (b.name||'').toLowerCase().includes(q)||
     (b.contact_name||'').toLowerCase().includes(q)||
     (b.contact_email||'').toLowerCase().includes(q)||
     (b.contact_phone||'').toLowerCase().includes(q)||
     (b.internal_comment||'').toLowerCase().includes(q)
   );
-  info.style.display='block';
-  info.textContent=filtered.length+' av '+allBookings.length+' bokningar';
+  if(q||t){
+    info.style.display='block';
+    info.textContent=filtered.length+' av '+allBookings.length+' bokningar';
+  }else{
+    info.style.display='none';
+  }
   renderBookingList(filtered);
 }
 
