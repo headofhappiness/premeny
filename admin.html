@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-01p">
+<meta name="pm-build" content="2026-06-03a">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1340,9 +1340,10 @@ async function printKitchen(id){
     body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
     h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
     .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
-    .cat{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b8955a;margin:1.25rem 0 .4rem}
-    .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:13px}
-    .alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:5px 10px;font-size:11px;margin:2px 0 8px;color:#7a5c00}
+    .cat{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a1712;margin:1.25rem 0 .4rem;border-bottom:1px solid #999;padding-bottom:3px}
+    .cat::before{content:"● ";color:#d2691e}
+    .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ccc;font-size:13px}
+    .alg{background:#fff;border:1px solid #333;border-radius:4px;padding:5px 10px;font-size:11px;margin:2px 0 8px;color:#1a1712;font-weight:600}
     @media print{body{padding:.75rem}}
   </style></head><body>`;
   ph+=`<h1>${b.name}</h1>`;
@@ -1385,7 +1386,7 @@ async function exportPDF(id){
   doc.text('Utskriven: '+new Date().toLocaleDateString('sv-SE')+' kl '+String(new Date().getHours()).padStart(2,'0')+':'+String(new Date().getMinutes()).padStart(2,'0'),margin,y);y+=8;
 
   // Gold line
-  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.setDrawColor(90,90,90);doc.setLineWidth(0.5);
   doc.line(margin,y,pageW-margin,y);y+=8;
 
   // Rätter per kategori - räkna antal, inga gästnamn
@@ -1404,7 +1405,7 @@ async function exportPDF(id){
     checkPage(16);
     const catTotal=items.reduce((s,it)=>s+it.cnt,0);
     doc.setFont('helvetica','bold');doc.setFontSize(10);
-    doc.setTextColor(184,149,90);
+    doc.setTextColor(26,23,18);
     doc.text(cat.toUpperCase(),margin,y);
     doc.text(catTotal+' st totalt',pageW-margin,y,{align:'right'});
     y+=6;
@@ -1419,7 +1420,7 @@ async function exportPDF(id){
       doc.setFont('helvetica','normal');
       y+=7;
       if(pdfAllergies[k]){
-        doc.setFontSize(9);doc.setTextColor(120,80,0);
+        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,23,18);
         pdfAllergies[k].forEach(a=>{checkPage(6);doc.text('  ⚠ '+a,margin+4,y);y+=5;});
         doc.setTextColor(26,23,18);doc.setFontSize(12);
       }
@@ -1432,12 +1433,12 @@ async function exportPDF(id){
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{if(oi.comment?.trim())al.push(o.guest_name+' – '+oi.menu_items?.name+': '+oi.comment);}));
   if(al.length){
     checkPage(20);
-    doc.setDrawColor(200,180,80);doc.setFillColor(255,251,236);
+    doc.setDrawColor(51,51,51);doc.setFillColor(255,255,255);
     doc.setLineWidth(0.3);
     const alHeight=14+al.length*6;
     doc.roundedRect(margin,y,contentW,alHeight,2,2,'FD');
     doc.setFont('helvetica','bold');doc.setFontSize(10);
-    doc.setTextColor(100,80,0);
+    doc.setTextColor(26,23,18);
     doc.text('⚠ Kommentarer & Allergier',margin+4,y+7);y+=12;
     doc.setFont('helvetica','normal');doc.setFontSize(9);
     al.forEach(a=>{doc.text('• '+a,margin+4,y);y+=6;});
@@ -1446,7 +1447,7 @@ async function exportPDF(id){
 
   // Footer
   doc.setFont('helvetica','normal');doc.setFontSize(8);
-  doc.setTextColor(160,160,160);
+  doc.setTextColor(110,110,110);
   doc.text('PreMeny – premeny.se',margin,pageH-10);
 
   const filename='kokslista-'+b.name.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase()+'-'+b.event_date+'.pdf';
@@ -1465,11 +1466,11 @@ async function printGuestList(id){
     body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
     h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
     .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
-    .row{padding:8px 0;border-bottom:1px solid #eee;font-size:13px}
+    .row{padding:8px 0;border-bottom:1px solid #ccc;font-size:13px}
     .row:last-child{border-bottom:none}
-    .num{color:#b8955a;font-weight:600;margin-right:8px}
-    .dishes{color:#666;font-size:12px;margin-top:2px}
-    .allergy{color:#8a7020;font-size:11px;margin-top:2px}
+    .num{color:#1a1712;font-weight:600;margin-right:8px}
+    .dishes{color:#555;font-size:12px;margin-top:2px}
+    .allergy{color:#1a1712;font-size:11px;margin-top:2px;font-weight:600;border-left:2px solid #333;padding-left:6px}
     @media print{body{padding:.75rem}}
   </style></head><body>`;
   ph+=`<h1>Gästlista – ${b.name}</h1>`;
@@ -1504,7 +1505,7 @@ async function exportGuestPDF(id){
   doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(100,100,100);
   doc.text(b.name+' – '+ds+(b.event_time?' kl '+b.event_time.slice(0,5):''),margin,y);y+=5;
   doc.text((orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+' gäster · Skrivet ut: '+new Date().toLocaleDateString('sv-SE'),margin,y);y+=8;
-  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.setDrawColor(90,90,90);doc.setLineWidth(0.5);
   doc.line(margin,y,pageW-margin,y);y+=8;
 
   (orders||[]).forEach((o,i)=>{
@@ -1512,7 +1513,7 @@ async function exportGuestPDF(id){
     const allergy=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
     checkPage(14);
     doc.setFont('helvetica','normal');doc.setFontSize(12);doc.setTextColor(26,23,18);
-    doc.setFont('helvetica','bold');doc.setTextColor(184,149,90);
+    doc.setFont('helvetica','bold');doc.setTextColor(26,23,18);
     doc.text(String(i+1)+'.',margin,y);
     doc.setFont('helvetica','bold');doc.setTextColor(26,23,18);
     doc.text(o.guest_name||'',margin+8,y);
@@ -1522,13 +1523,13 @@ async function exportGuestPDF(id){
       y+=5;checkPage(6);doc.text(dl,margin+8,y);y+=dl.length*4;
     }else{y+=6;}
     if(allergy){
-      doc.setFontSize(9);doc.setTextColor(120,80,0);
+      doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,23,18);
       checkPage(5);doc.text('⚠ '+allergy,margin+8,y);y+=5;
     }
     y+=3;
   });
 
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(110,110,110);
   doc.text('PreMeny – premeny.se',margin,pageH-10);
   doc.save('gastlista-'+b.name.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase()+'-'+b.event_date+'.pdf');
 }
@@ -1634,15 +1635,15 @@ function buildKitchenHtml(orders){
   Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
   return Object.entries(byCat).map(([cat,items])=>{
     const catTotal=items.reduce((s,it)=>s+it.n,0);
-    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
+    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span class="pmk-cat" style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
     items.map(({name,n,k})=>
       `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
-          <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
+          <div class="pmk-bar" style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
           <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
         </div>
-        ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
+        ${allergies[k]?`<div class="pmk-alg" style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
       </div>`
     ).join('');
   }).join('');
@@ -1669,7 +1670,7 @@ function printCalKitchen(){
   const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
   const title=dates.length===1?dateLabels:dates.length+' datum: '+dateLabels;
   const w=window.open('','_blank');
-  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #e8d49a;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#b8955a}.alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#7a5c00}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
+  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #333;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#1a1712}.alg{background:#fff;border:1px solid #333;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#1a1712;font-weight:600}.pmk-cat::before{content:"● ";color:#d2691e}.pmk-bar{display:none !important}.pmk-alg{background:#fff !important;border:1px solid #333 !important;color:#1a1712 !important;font-weight:600 !important}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
   w.document.close();w.print();
 }
 
@@ -1764,7 +1765,7 @@ async function exportCalPDF(){
   doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(100,100,100);
   doc.text(dateLabels,margin,y);y+=5;
   doc.text('Skrivet ut: '+new Date().toLocaleString('sv-SE'),margin,y);y+=8;
-  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.setDrawColor(90,90,90);doc.setLineWidth(0.5);
   doc.line(margin,y,pageW-margin,y);y+=8;
 
   // Hämta alla bokningar för valda datum
@@ -1786,7 +1787,7 @@ async function exportCalPDF(){
 
   Object.entries(byCat).forEach(([cat,items])=>{
     checkPage(16);
-    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(184,149,90);
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(26,23,18);
     doc.text(cat.toUpperCase(),margin,y);y+=6;
     doc.setTextColor(26,23,18);
     items.forEach(({name,cnt,k})=>{
@@ -1798,7 +1799,7 @@ async function exportCalPDF(){
       doc.setFont('helvetica','normal');
       y+=7;
       if(allergies[k]){
-        doc.setFontSize(9);doc.setTextColor(120,80,0);
+        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,23,18);
         allergies[k].forEach(a=>{checkPage(6);doc.text('  ⚠ '+a,margin+4,y);y+=5;});
         doc.setTextColor(26,23,18);doc.setFontSize(12);
       }
@@ -1806,7 +1807,7 @@ async function exportCalPDF(){
     y+=4;
   });
 
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(110,110,110);
   doc.text('PreMeny – premeny.se',margin,pageH-10);
   doc.save('kokslista-'+dates[0]+'.pdf');
 }
@@ -1836,7 +1837,7 @@ async function backupPDF(){
   doc.text((rest.name||'')+' · Säkerhetskopia',margin,y);y+=5;
   doc.text('Skapad: '+new Date().toLocaleString('sv-SE'),margin,y);y+=5;
   doc.text(bookings.length+' kommande bokning'+(bookings.length===1?'':'ar'),margin,y);y+=8;
-  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);doc.line(margin,y,pageW-margin,y);y+=10;
+  doc.setDrawColor(90,90,90);doc.setLineWidth(0.5);doc.line(margin,y,pageW-margin,y);y+=10;
 
   if(!bookings.length){
     doc.setFontSize(12);doc.setTextColor(120,120,120);
@@ -1886,7 +1887,7 @@ async function backupPDF(){
       Object.entries(byCat).forEach(([cat,items])=>{
         checkPage(12);
         const catTotal=items.reduce((s,it)=>s+it.cnt,0);
-        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(184,149,90);
+        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,23,18);
         doc.text(cat.toUpperCase(),margin+2,y);
         doc.text(catTotal+' st totalt',pageW-margin,y,{align:'right'});y+=5;
         doc.setTextColor(26,23,18);
@@ -1897,7 +1898,7 @@ async function backupPDF(){
           doc.text(String(cnt)+' st',pageW-margin,y,{align:'right'});
           y+=6;
           if(allergies[k]){
-            doc.setFontSize(8);doc.setTextColor(120,80,0);
+            doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(26,23,18);
             allergies[k].forEach(a=>{checkPage(5);doc.text('  ⚠ '+a,margin+6,y);y+=4;});
             doc.setTextColor(26,23,18);doc.setFontSize(11);
           }
@@ -1913,7 +1914,7 @@ async function backupPDF(){
     // Avdelare mellan bokningar
     if(idx<bookings.length-1){
       y+=2;checkPage(8);
-      doc.setDrawColor(220,216,205);doc.setLineWidth(0.3);doc.line(margin,y,pageW-margin,y);y+=8;
+      doc.setDrawColor(170,170,170);doc.setLineWidth(0.3);doc.line(margin,y,pageW-margin,y);y+=8;
     }
   });
 
@@ -1921,7 +1922,7 @@ async function backupPDF(){
   const pages=doc.internal.getNumberOfPages();
   for(let i=1;i<=pages;i++){
     doc.setPage(i);
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(110,110,110);
     doc.text('PreMeny – premeny.se',margin,pageH-10);
     doc.text(i+' / '+pages,pageW-margin,pageH-10,{align:'right'});
   }
