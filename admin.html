@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03q">
+<meta name="pm-build" content="2026-06-03r">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -2206,6 +2206,7 @@ async function renderMenu(keepOpen){
         +'<div style="flex:1">'
           +'<div style="display:flex;align-items:center;gap:8px">'
             +'<div class="bname">'+escHtml(m.name)+'</div>'
+            +(m.price?'<span style="font-size:13px;color:var(--gold);font-weight:500;white-space:nowrap">'+m.price+' kr</span>':'')
             +'<span style="font-size:12px;color:var(--gold)">Se mer ›</span>'
           +'</div>'
           +desc
@@ -2252,6 +2253,8 @@ async function renderMenu(keepOpen){
     btnImport.addEventListener('click',function(e){e.stopPropagation();openImportForMenu(m.id,m.name);});
     var btnRename=document.createElement('button');btnRename.className='btn bg';btnRename.style.fontSize='12px';btnRename.textContent='Byt namn';
     btnRename.addEventListener('click',function(e){e.stopPropagation();renameMenu(m.id,m.name);});
+    var btnPris=document.createElement('button');btnPris.className='btn bg';btnPris.style.fontSize='12px';btnPris.textContent=m.price?('Menypris: '+m.price+' kr'):'Sätt menypris';
+    btnPris.addEventListener('click',function(e){e.stopPropagation();setMenuPrice(m.id,m.price);});
     var btnKopiera=document.createElement('button');btnKopiera.className='btn bg';btnKopiera.style.fontSize='12px';btnKopiera.textContent='Kopiera meny';
     btnKopiera.addEventListener('click',function(e){e.stopPropagation();copyMenu(m.id);});
     var btnArkivera=document.createElement('button');btnArkivera.className='btn bg';btnArkivera.style.fontSize='12px';btnArkivera.textContent='Arkivera meny';
@@ -2262,7 +2265,7 @@ async function renderMenu(keepOpen){
     inpType.addEventListener('click',function(e){e.stopPropagation();});
     inpType.addEventListener('change',function(e){e.stopPropagation();setMenuType(m.id,inpType.value.trim());});
     btnsEl.appendChild(inpType);
-    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnImport);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
+    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnImport);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnPris);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
   });
 }
 
@@ -2295,6 +2298,13 @@ async function loadMenuItems(menuId){
     return;
   }
   el.innerHTML='';
+  var _menuPrice=(menus.find(function(x){return x.id===menuId;})||{}).price;
+  if(_menuPrice){
+    var _pb=document.createElement('div');
+    _pb.style.cssText='background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.35);border-radius:8px;padding:.6rem .9rem;margin-bottom:1.25rem;font-size:13px;color:var(--dark)';
+    _pb.innerHTML='Menypris: <span style="font-weight:500;color:var(--gold)">'+_menuPrice+' kr</span> för hela menyn. Rätt-priserna visas inte för gästen.';
+    el.appendChild(_pb);
+  }
   cats.forEach(function(cat){
     // Category wrapper
     var catDiv=document.createElement('div');
@@ -2357,7 +2367,7 @@ async function loadMenuItems(menuId){
       }
       
       var price=document.createElement('div');
-      price.className='menu-item-price';price.textContent=item.price?item.price+' kr':'';
+      price.className='menu-item-price';price.textContent=(item.price&&!_menuPrice)?item.price+' kr':'';
       
       var btnEdit=document.createElement('button');btnEdit.className='btn bg';btnEdit.style.cssText='font-size:11px;padding:4px 8px;flex-shrink:0';btnEdit.textContent='Redigera';
       btnEdit.addEventListener('click',function(){editItem(item.id);});
@@ -2477,6 +2487,16 @@ async function createMenu(){
 async function setMenuType(id,type){
   var {error}=await db.from('menus').update({menu_type:(type||null)}).eq('id',id);
   if(error){alert('Kunde inte byta kategori: '+error.message);return;}
+  await renderMenu(true);
+}
+
+async function setMenuPrice(id,current){
+  var inp=prompt('Pris för hela menyn i kr (t.ex. 395). Lämna tomt för att ta bort menypriset – då visas pris per rätt istället:', current||'');
+  if(inp===null)return;
+  var v=inp.trim()===''?null:parseInt(inp.replace(/[^0-9]/g,''),10);
+  if(v!==null&&(isNaN(v)||v<0)){alert('Ange ett giltigt pris (bara siffror).');return;}
+  var {error}=await db.from('menus').update({price:v}).eq('id',id);
+  if(error){alert('Kunde inte spara menypriset: '+error.message);return;}
   await renderMenu(true);
 }
 function setMenuCatFilter(cat){window._menuCatFilter=cat;renderMenu(true);}

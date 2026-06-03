@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Förbeställ din mat</title>
-<meta name="pm-build" content="2026-06-01c">
+<meta name="pm-build" content="2026-06-03b">
 <meta name="description" content="Välj din mat inför besöket – snabbt och enkelt via PreMeny.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -161,7 +161,7 @@ const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 const params=new URLSearchParams(location.search);
 const SLUG=params.get('r');
 const BID=params.get('b');
-let restaurant=null,booking=null,categories=[],gSel={},gComments={},existingOrderId=null,isClosed=false;
+let restaurant=null,booking=null,categories=[],gSel={},gComments={},existingOrderId=null,isClosed=false,menuPrice=null;
 
 async function init(){
   if(!SLUG||!BID){
@@ -226,10 +226,13 @@ async function init(){
     let catsQuery;
     if(book.menu_id){
       catsQuery=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',book.menu_id).order('sort_order');
+      const {data:_mrow}=await db.from('menus').select('price').eq('id',book.menu_id).single();
+      if(_mrow)menuPrice=_mrow.price;
     } else {
       // Fallback: load first menu or all categories for restaurant
-      const {data:firstMenu}=await db.from('menus').select('id').eq('restaurant_id',rest.id).order('created_at').limit(1).single();
+      const {data:firstMenu}=await db.from('menus').select('id,price').eq('restaurant_id',rest.id).order('created_at').limit(1).single();
       if(firstMenu){
+        menuPrice=firstMenu.price;
         catsQuery=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',firstMenu.id).order('sort_order');
       } else {
         catsQuery=await db.from('menu_categories').select('*, menu_items(*)').eq('restaurant_id',rest.id).order('sort_order');
@@ -247,7 +250,8 @@ async function init(){
 function buildMenu(){
   const wrap=document.getElementById('courseWrap');
   if(!categories.length){wrap.innerHTML='<p style="color:var(--muted);padding:1rem 0">Ingen meny inlagd ännu.</p>';return;}
-  wrap.innerHTML=categories.map(cat=>`
+  var _priceBanner=(menuPrice&&booking&&booking.show_prices!==false)?`<div style="background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.35);border-radius:10px;padding:.7rem 1rem;margin-bottom:1.25rem;font-size:15px;color:var(--text)">Pris: <span style="font-weight:500;color:var(--gold)">${menuPrice} kr</span></div>`:'';
+  wrap.innerHTML=_priceBanner+categories.map(cat=>`
     <div class="course-section">
       <div class="course-title">${cat.label}</div>
       <div class="course-sub">Välj ett alternativ – eller hoppa över</div>
@@ -265,7 +269,7 @@ function buildMenu(){
               <div class="meal-name">${item.name}</div>
               ${item.description?`<div class="meal-desc">${item.description}</div>`:''}
             </div>
-            ${(item.price&&booking&&booking.show_prices!==false)?`<div class="meal-price">${item.price} kr</div>`:''}
+            ${(item.price&&booking&&booking.show_prices!==false&&!menuPrice)?`<div class="meal-price">${item.price} kr</div>`:''}
           </div>
           <div class="meal-comment-wrap" id="cmtwrap_${item.id}">
             <label>Allergier / specialkost för denna rätt (valfritt)</label>
@@ -343,7 +347,7 @@ async function submitOrder(){
     categories.forEach(cat=>{
       if(gSel[cat.id]){
         const item=cat.menu_items.find(i=>i.id===gSel[cat.id]);
-        if(item)summary+=`<div class="summary-row"><div><div>${item.name}</div>${gComments[gSel[cat.id]]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${gComments[gSel[cat.id]]}</div>`:''}</div>${(item.price&&booking&&booking.show_prices!==false)?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
+        if(item)summary+=`<div class="summary-row"><div><div>${item.name}</div>${gComments[gSel[cat.id]]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${gComments[gSel[cat.id]]}</div>`:''}</div>${(item.price&&booking&&booking.show_prices!==false&&!menuPrice)?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
       }
     });
     document.getElementById('confirmSummary').innerHTML=summary;
