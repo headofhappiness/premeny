@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03h">
+<meta name="pm-build" content="2026-06-03i">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -379,18 +379,15 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       </div>
 
       <!-- Meny-väljare -->
+      <div id="menu-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:.75rem"></div>
       <div id="menu-selector" style="margin-bottom:1rem;display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
 
       <!-- Ny meny-formulär -->
       <div id="newMenuForm" style="display:none" class="card">
         <div class="ff"><label>Menyns namn</label><input type="text" id="nm-name" placeholder="T.ex. À la carte, Julbord, Bröllopsmeny..."></div>
-        <div class="ff"><label>Typ <span style="font-size:11px;color:var(--muted)">(grupperar menyerna i listan)</span></label>
-          <select id="nm-type">
-            <option value="Vardag">Vardag</option>
-            <option value="Bröllop">Bröllop</option>
-            <option value="Konferens">Konferens</option>
-            <option value="Övrigt">Övrigt</option>
-          </select>
+        <div class="ff"><label>Kategori <span style="font-size:11px;color:var(--muted)">(grupperar menyerna – skriv egen eller välj förslag)</span></label>
+          <input type="text" id="nm-type" list="menucat-list" autocomplete="off" placeholder="T.ex. Bröllop, Lunch, Kväll, Konferens">
+          <datalist id="menucat-list"></datalist>
         </div>
         <div class="ff"><label>Intern beskrivning <span style="font-size:11px;color:var(--muted)">(syns bara för dig)</span></label>
           <textarea id="nm-desc" style="min-height:55px" placeholder="T.ex. Används vid bröllop, max 30 gäster, 2 förrätter..."></textarea>
@@ -2208,17 +2205,29 @@ async function renderMenu(keepOpen){
       +'</div>'
     +'</div>';
   }
-  var _order=['Bröllop','Vardag','Konferens','Övrigt'];
-  var _groups={};
-  menus.forEach(function(m){var t=m.menu_type||'Övrigt';if(_order.indexOf(t)<0)t='Övrigt';(_groups[t]=_groups[t]||[]).push(m);});
-  var _present=_order.filter(function(t){return _groups[t]&&_groups[t].length;});
-  var _showHeads=_present.length>1;
-  var _out='';
-  _present.forEach(function(t){
-    if(_showHeads)_out+='<div style="flex-basis:100%;width:100%;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .25rem">'+escHtml(t)+'</div>';
-    _out+=_groups[t].map(_menuCardHtml).join('');
-  });
-  sel.innerHTML=_out;
+  var _filter=window._menuCatFilter||'';
+  // Använda kategorier (för knappar) + förslag (för autocomplete-listan)
+  var _used=[];menus.forEach(function(m){var c=(m.menu_type||'').trim();if(c&&_used.indexOf(c)<0)_used.push(c);});
+  _used.sort(function(a,b){return a.localeCompare(b,'sv');});
+  var _seeds=['Lunch','Kväll','Bröllop','Konferens'];
+  var _dlAll=[];_seeds.concat(_used).forEach(function(c){if(c&&_dlAll.indexOf(c)<0)_dlAll.push(c);});
+  var _dl=document.getElementById('menucat-list');
+  if(_dl)_dl.innerHTML=_dlAll.map(function(c){return '<option value="'+escHtml(c)+'"></option>';}).join('');
+  // Filterknappar: Alla + använda kategorier
+  var _chipsEl=document.getElementById('menu-cat-chips');
+  if(_chipsEl){
+    if(_used.length<1){_chipsEl.innerHTML='';}
+    else{
+      var _chip=function(label,val){
+        var on=(_filter===val);
+        return '<button onclick="setMenuCatFilter(\''+String(val).replace(/'/g,"\\'")+'\')" class="btn '+(on?'bp':'bg')+'" style="font-size:12px;padding:4px 12px">'+escHtml(label)+'</button>';
+      };
+      _chipsEl.innerHTML=_chip('Alla','')+_used.map(function(c){return _chip(c,c);}).join('');
+    }
+  }
+  // Visa alla, eller bara vald kategori
+  var _show=_filter?menus.filter(function(m){return (m.menu_type||'')===_filter;}):menus;
+  sel.innerHTML=_show.map(_menuCardHtml).join('');
   // Återöppna aktiv meny om den fanns
   if(keepOpen&&activeMenuId&&menus.find(m=>m.id===activeMenuId)){
     var elOpen=document.getElementById('mc_'+activeMenuId);
@@ -2243,11 +2252,10 @@ async function renderMenu(keepOpen){
     btnArkivera.addEventListener('click',function(e){e.stopPropagation();archiveMenu(m.id);});
     var btnDel=document.createElement('button');btnDel.className='btn bd';btnDel.style.fontSize='12px';btnDel.textContent='Ta bort meny';
     btnDel.addEventListener('click',function(e){e.stopPropagation();deleteMenu(m.id);});
-    var selType=document.createElement('select');selType.style.fontSize='12px';selType.style.padding='4px 8px';
-    ['Vardag','Bröllop','Konferens','Övrigt'].forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent='Typ: '+t;if((m.menu_type||'Övrigt')===t)o.selected=true;selType.appendChild(o);});
-    selType.addEventListener('click',function(e){e.stopPropagation();});
-    selType.addEventListener('change',function(e){e.stopPropagation();setMenuType(m.id,selType.value);});
-    btnsEl.appendChild(selType);
+    var inpType=document.createElement('input');inpType.type='text';inpType.setAttribute('list','menucat-list');inpType.setAttribute('autocomplete','off');inpType.value=m.menu_type||'';inpType.placeholder='Kategori';inpType.style.fontSize='12px';inpType.style.padding='4px 8px';inpType.style.width='140px';
+    inpType.addEventListener('click',function(e){e.stopPropagation();});
+    inpType.addEventListener('change',function(e){e.stopPropagation();setMenuType(m.id,inpType.value.trim());});
+    btnsEl.appendChild(inpType);
     btnsEl.appendChild(btnNy);btnsEl.appendChild(btnImport);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
   });
 }
@@ -2452,19 +2460,20 @@ function closeQR(){var el=document.getElementById('qrOverlay');if(el)el.style.di
 async function downloadQR(){var canvas=document.querySelector('#qrCanvas canvas');if(!canvas)return;var a=document.createElement('a');a.download='qr-premeny.png';a.href=canvas.toDataURL('image/png');a.click();}
 async function createMenu(){
   var name=document.getElementById('nm-name').value.trim();if(!name)return;
-  var {data,error}=await db.from('menus').insert({restaurant_id:rest.id,name,description:document.getElementById('nm-desc').value.trim(),menu_type:(document.getElementById('nm-type')?document.getElementById('nm-type').value:'Vardag')}).select().single();
+  var {data,error}=await db.from('menus').insert({restaurant_id:rest.id,name,description:document.getElementById('nm-desc').value.trim(),menu_type:((document.getElementById('nm-type')?document.getElementById('nm-type').value.trim():'')||null)}).select().single();
   if(error){alert('Fel: '+error.message);return;}
   activeMenuId=data.id;
   document.getElementById('newMenuForm').style.display='none';
   document.getElementById('nm-name').value='';document.getElementById('nm-desc').value='';
-  var _t=document.getElementById('nm-type');if(_t)_t.value='Vardag';
+  var _t=document.getElementById('nm-type');if(_t)_t.value='';
   await renderMenu(true);
 }
 async function setMenuType(id,type){
-  var {error}=await db.from('menus').update({menu_type:type}).eq('id',id);
-  if(error){alert('Kunde inte byta typ: '+error.message);return;}
+  var {error}=await db.from('menus').update({menu_type:(type||null)}).eq('id',id);
+  if(error){alert('Kunde inte byta kategori: '+error.message);return;}
   await renderMenu(true);
 }
+function setMenuCatFilter(cat){window._menuCatFilter=cat;renderMenu(true);}
 async function addCat(){
   var name=document.getElementById('nc-name').value.trim();if(!name||!activeMenuId)return;
   var maxSort=cats.length?Math.max(...cats.map(function(c){return c.sort_order||0;})):0;
