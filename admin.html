@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03v">
+<meta name="pm-build" content="2026-06-03w">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -969,14 +969,22 @@ async function loadGuestEditItems(bookingId){
 }
 
 // BULK INMATNING
+let _bulkCats=[];
 async function renderBulk(bookingId){
   let html=`<div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
     <strong style="color:var(--text)">Fyll i för hela sällskapet</strong><br>
     Ange antal rätter per alternativ. Varje enhet skapas som en separat beställning. En kommentar/allergi gäller en gäst (visas en gång), inte hela sällskapet.
   </div>`;
-  cats.forEach(cat=>{
+  const {data:_b}=await db.from('bookings').select('menu_id').eq('id',bookingId).single();
+  let _q=db.from('menu_categories').select('id,label,sort_order, menu_items(id,name,description,price,active,sort_order)');
+  if(_b&&_b.menu_id) _q=_q.eq('menu_id',_b.menu_id); else _q=_q.eq('restaurant_id',rest.id);
+  const {data:_bc}=await _q.order('sort_order');
+  _bulkCats=(_bc||[]).map(c=>({...c,menu_items:(c.menu_items||[]).slice().sort((a,b)=>(a.sort_order||0)-(b.sort_order||0))}));
+  _bulkCats.forEach(cat=>{
+    const _items=(cat.menu_items||[]).filter(i=>i.active);
+    if(!_items.length)return;
     html+=`<div class="bulk-sec"><div class="bulk-head">${cat.label}</div>`;
-    (cat.menu_items||[]).filter(i=>i.active).forEach(item=>{
+    _items.forEach(item=>{
       html+=`<div class="bulk-row">
         <div style="flex:1">
           <div style="font-size:14px;color:var(--dark)">${item.name}</div>
@@ -999,7 +1007,7 @@ async function renderBulk(bookingId){
 async function saveBulk(bid){
   let count=0;
   try{
-    for(const cat of cats){
+    for(const cat of _bulkCats){
       for(const item of (cat.menu_items||[]).filter(i=>i.active)){
         const qty=parseInt(document.getElementById('bq_'+bid+'_'+item.id)?.value)||0;
         const cmt=document.getElementById('bc_'+bid+'_'+item.id)?.value?.trim()||'';
