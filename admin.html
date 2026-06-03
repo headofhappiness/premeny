@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03b">
+<meta name="pm-build" content="2026-06-03c">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -307,7 +307,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         </div>
         <div class="r2">
           <div class="ff"><label>Bokningsansvarig (restaurangens personal)</label><input type="text" id="nb-responsible" placeholder="T.ex. Maria, Kalle..."></div>
-          <div class="ff"></div>
+          <div class="ff"><label>Bord</label><input type="text" id="nb-table" placeholder="T.ex. Bord 4, Bord 4–6, Stora salen"></div>
         </div>
         <div class="ff"><label>Intern kommentar (visas ej för gäster)</label><textarea id="nb-comment" placeholder="T.ex. VIP-sällskap, kräver extra personal..."></textarea></div>
         <div class="fg">
@@ -780,6 +780,7 @@ function renderBCard(b){
         </div>
         <div class="bmeta" style="margin-top:4px">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''}</div>
         ${b.deadline?('<div style="font-size:12px;color:var(--muted);margin-top:2px">Sista beställning: '+new Date(b.deadline+'T12:00:00').getDate()+' '+months[new Date(b.deadline+'T12:00:00').getMonth()]+' '+new Date(b.deadline+'T12:00:00').getFullYear()+'</div>'):''}
+        ${b.table_label?('<div style="font-size:13px;color:var(--text);margin-top:2px">🪑 Bord: <strong style="font-weight:500">'+b.table_label+'</strong></div>'):''}
         <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
           <div style="font-size:15px;font-weight:400;color:${b.expected_guests&&n>b.expected_guests?'#c0392b':'var(--muted)'}">
             ${b.expected_guests?(n>b.expected_guests?'⚠ '+n+' beställda · <span style="color:#c0392b;font-weight:600">'+( n-b.expected_guests)+' fler än väntat!</span>':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
@@ -1106,7 +1107,7 @@ let _editingBookingId=null;
 
 function resetBookingForm(){
   _editingBookingId=null;
-  ['nb-name','nb-date','nb-guests','nb-deadline','nb-contact','nb-email','nb-phone','nb-menu','nb-responsible','nb-comment'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['nb-name','nb-date','nb-guests','nb-deadline','nb-contact','nb-email','nb-phone','nb-menu','nb-responsible','nb-comment','nb-table'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('nb-time').value='18:00';
   document.getElementById('nb-event-type').value='Middag';
   document.getElementById('nb-reminder').value='2';
@@ -1142,6 +1143,7 @@ function editBooking(id,ev){
   document.getElementById('nb-remind-email').checked=(!b.reminder_channel||b.reminder_channel==='email'||b.reminder_channel==='both');
   document.getElementById('nb-remind-sms').checked=(b.reminder_channel==='sms'||b.reminder_channel==='both');
   document.getElementById('nb-responsible').value=b.responsible_staff||'';
+  document.getElementById('nb-table').value=b.table_label||'';
   document.getElementById('nb-comment').value=b.internal_comment||'';
   const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Ändra bokning';
   const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Spara ändringar';
@@ -1167,7 +1169,8 @@ async function createBooking(){
     reminder_days:parseInt(document.getElementById('nb-reminder').value)||0,
     reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
     internal_comment:document.getElementById('nb-comment').value.trim()||null,
-    responsible_staff:document.getElementById('nb-responsible').value.trim()||null
+    responsible_staff:document.getElementById('nb-responsible').value.trim()||null,
+    table_label:document.getElementById('nb-table').value.trim()||null
   };
   const wasEdit=!!_editingBookingId;
   let error;
@@ -1277,13 +1280,13 @@ async function sendSummary(id,ch){
 // COPY / PRINT KITCHEN
 async function copyKitchen(id){
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()+(b.event_time?' kl '+b.event_time.slice(0,5):'');
   const bestellningar=(orders||[]).length;
   const gastInfo=b.expected_guests?bestellningar+' av '+b.expected_guests+' gäster har beställt':bestellningar+' beställningar';
-  let text=b.name+'\n'+ds+'\n'+gastInfo+'\n'+'─'.repeat(32)+'\n\n';
+  let text=b.name+'\n'+ds+'\n'+(b.table_label?'Bord: '+b.table_label+'\n':'')+gastInfo+'\n'+'─'.repeat(32)+'\n\n';
   const byCat={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
     if(!oi.menu_items||!oi.menu_items.name)return;
@@ -1333,7 +1336,7 @@ async function copyGuestList(id){
 
 async function printKitchen(id){
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -1363,6 +1366,7 @@ async function printKitchen(id){
     @media print{body{padding:.75rem}}
   </style></head><body>`;
   ph+=`<h1>${b.name}</h1>`;
+  ph+=b.table_label?`<div style="font-size:15px;font-weight:600;color:#1a1712;margin-bottom:.5rem">Bord: ${b.table_label}</div>`:'';
   ph+=`<div class="meta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orders?.length||0}${b.expected_guests?' av '+b.expected_guests:''} beställningar · Skrivet ut: ${new Date().toLocaleString('sv-SE')}</div>`;
   
   Object.entries(byCat).forEach(([cat,items])=>{
@@ -1378,7 +1382,7 @@ async function printKitchen(id){
 
 async function exportPDF(id){
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
@@ -1398,6 +1402,7 @@ async function exportPDF(id){
   doc.setFontSize(12);
   doc.setTextColor(100,100,100);
   doc.text(b.name+' – '+dateStr+(b.event_time?' kl '+b.event_time.slice(0,5):''),margin,y);y+=5;
+  if(b.table_label){doc.setFont('helvetica','bold');doc.setTextColor(26,23,18);doc.text('Bord: '+b.table_label,margin,y);y+=5;doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);}
   doc.text('Beställningar: '+(orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:''),margin,y);y+=5;
   doc.text('Utskriven: '+new Date().toLocaleDateString('sv-SE')+' kl '+String(new Date().getHours()).padStart(2,'0')+':'+String(new Date().getMinutes()).padStart(2,'0'),margin,y);y+=8;
 
@@ -1473,7 +1478,7 @@ async function exportPDF(id){
 
 async function printGuestList(id){
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -1508,7 +1513,7 @@ async function exportGuestPDF(id){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
