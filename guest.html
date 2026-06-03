@@ -265,7 +265,7 @@ function buildMenu(){
               <div class="meal-name">${item.name}</div>
               ${item.description?`<div class="meal-desc">${item.description}</div>`:''}
             </div>
-            ${item.price?`<div class="meal-price">${item.price} kr</div>`:''}
+            ${(item.price&&booking&&booking.show_prices!==false)?`<div class="meal-price">${item.price} kr</div>`:''}
           </div>
           <div class="meal-comment-wrap" id="cmtwrap_${item.id}">
             <label>Allergier / specialkost för denna rätt (valfritt)</label>
@@ -343,7 +343,7 @@ async function submitOrder(){
     categories.forEach(cat=>{
       if(gSel[cat.id]){
         const item=cat.menu_items.find(i=>i.id===gSel[cat.id]);
-        if(item)summary+=`<div class="summary-row"><div><div>${item.name}</div>${gComments[gSel[cat.id]]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${gComments[gSel[cat.id]]}</div>`:''}</div>${item.price?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
+        if(item)summary+=`<div class="summary-row"><div><div>${item.name}</div>${gComments[gSel[cat.id]]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${gComments[gSel[cat.id]]}</div>`:''}</div>${(item.price&&booking&&booking.show_prices!==false)?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
       }
     });
     document.getElementById('confirmSummary').innerHTML=summary;

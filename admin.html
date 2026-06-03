@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03o">
+<meta name="pm-build" content="2026-06-03p">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -308,6 +308,12 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         <div class="r2">
           <div class="ff"><label>Bokningsansvarig (restaurangens personal)</label><input type="text" id="nb-responsible" placeholder="T.ex. Maria, Kalle..."></div>
           <div class="ff"><label>Bord</label><input type="text" id="nb-table" placeholder="T.ex. Bord 4, Bord 4–6, Stora salen"></div>
+        </div>
+        <div class="ff"><label>Priser i gästvyn</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:15px;color:var(--text);cursor:pointer;margin-top:4px">
+            <input type="checkbox" id="nb-show-prices" checked style="width:18px;height:18px;accent-color:var(--gold)"> Visa priserna för gästerna
+          </label>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Avmarkera om gästerna inte ska se priser (t.ex. bröllop där värdarna betalar).</div>
         </div>
         <div class="ff"><label>Intern kommentar (visas ej för gäster)</label><textarea id="nb-comment" placeholder="T.ex. VIP-sällskap, kräver extra personal..."></textarea></div>
         <div class="fg">
@@ -1142,6 +1148,7 @@ function resetBookingForm(){
   document.getElementById('nb-reminder').value='2';
   document.getElementById('nb-remind-email').checked=true;
   document.getElementById('nb-remind-sms').checked=false;
+  document.getElementById('nb-show-prices').checked=true;
   const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Skapa ny bokning';
   const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Skapa bokning';
   const msg=document.getElementById('nb-msg');if(msg)msg.style.display='none';
@@ -1173,6 +1180,7 @@ function editBooking(id,ev){
   document.getElementById('nb-remind-sms').checked=(b.reminder_channel==='sms'||b.reminder_channel==='both');
   document.getElementById('nb-responsible').value=b.responsible_staff||'';
   document.getElementById('nb-table').value=b.table_label||'';
+  document.getElementById('nb-show-prices').checked=(b.show_prices!==false);
   document.getElementById('nb-comment').value=b.internal_comment||'';
   const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Ändra bokning';
   const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Spara ändringar';
@@ -1199,7 +1207,8 @@ async function createBooking(){
     reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
     internal_comment:document.getElementById('nb-comment').value.trim()||null,
     responsible_staff:document.getElementById('nb-responsible').value.trim()||null,
-    table_label:document.getElementById('nb-table').value.trim()||null
+    table_label:document.getElementById('nb-table').value.trim()||null,
+    show_prices:!!document.getElementById('nb-show-prices').checked
   };
   const wasEdit=!!_editingBookingId;
   let error;
