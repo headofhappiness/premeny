@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03r">
+<meta name="pm-build" content="2026-06-03s">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -2471,7 +2471,7 @@ function switchImportTab(tab){
   document.getElementById('import-image-wrap').style.display=tab==='image'?'block':'none';
   ['text','image'].forEach(function(t){var btn=document.getElementById('import-tab-'+t);if(btn){btn.classList.toggle('bp',t===tab);btn.classList.toggle('bg',t!==tab);}});
 }
-function cancelImport(){_importData=null;var r=document.getElementById('import-result');if(r)r.style.display='none';}
+function cancelImport(){_importData=null;_importMenuPrice=0;var r=document.getElementById('import-result');if(r)r.style.display='none';}
 function closeQR(){var el=document.getElementById('qrOverlay');if(el)el.style.display='none';}
 async function downloadQR(){var canvas=document.querySelector('#qrCanvas canvas');if(!canvas)return;var a=document.createElement('a');a.download='qr-premeny.png';a.href=canvas.toDataURL('image/png');a.click();}
 async function createMenu(){
@@ -2534,7 +2534,7 @@ async function saveSettings(){
   if(error){if(msg){msg.className='msg merr';msg.textContent='Fel: '+error.message;}}
   else{if(msg){msg.className='msg mok';msg.textContent='Sparat!';}rest=Object.assign({},rest,{phone,contact_email:email,address,website,logo_url:logoUrl});setTimeout(function(){if(msg)msg.style.display='none';},3000);}
 }
-var _importData=null;
+var _importData=null;var _importMenuPrice=0;
 async function importMenu(){
   var textVal=document.getElementById('menu-import-text').value.trim();
   var imgFile=document.getElementById('menu-import-image').files[0];
@@ -2543,13 +2543,15 @@ async function importMenu(){
   document.getElementById('import-loading').style.display='block';
   try{
     var PROMPT='Tolka denna restaurangmeny och returnera ENDAST giltig JSON (inga backticks, ingen text runtomkring) i exakt detta format:\n'
-      +'{"categories":[{"label":"Rubrik","items":[{"name":"Rättens namn","description":"Beskrivning","price":0}]}]}\n\n'
+      +'{"menuPrice":0,"categories":[{"label":"Rubrik","items":[{"name":"Rättens namn","description":"Beskrivning","price":0}]}]}\n\n'
       +'Regler:\n'
       +'- "label" är en rubrik/kategori (t.ex. Förrätter, Varmrätter, Huvudrätter, Desserter, Drycker). Ord som "Förrätt", "Varmrätt", "Dessert" ska användas som rubriker – ta bort dem ur rättnamnen.\n'
       +'- "name" ska vara rättens korta namn, INTE hela beskrivningen. Ta aldrig med prefix som "Förrätt:", "Varmrätt:" eller "Dessert:" i namnet.\n'
       +'- "description" ska innehålla ingredienser/beskrivning. Saknas beskrivning, sätt tom sträng.\n'
       +'- Om en rad bara är en lång ingredienslista utan tydligt namn, använd hela raden som "name" och lämna "description" tom.\n'
-      +'- "price" anges som heltal i kronor utan "kr". Saknas pris, sätt 0. För fastprismeny: sätt priset på första rätten och 0 på övriga.';
+      +'- "menuPrice": om HELA menyn säljs till ett enda fast pris (t.ex. "2 rätter 395 kr", "3-rätters meny 495 kr", "450 kr/person"), ange det priset som heltal i kronor i "menuPrice" och sätt "price" till 0 på ALLA rätter.\n'
+      +'- Om varje rätt istället har eget pris (à la carte), sätt "menuPrice" till 0 och ange pris per rätt i "price" (heltal i kronor utan "kr").\n'
+      +'- Saknas pris helt, sätt "menuPrice" till 0 och alla "price" till 0.';
     var messages;
     if(imgFile){
       var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(imgFile);});
@@ -2568,7 +2570,9 @@ async function importMenu(){
     try{parsed=JSON.parse(clean);}catch(e){throw new Error('Kunde inte tolka AI-svaret som JSON');}
     if(!parsed.categories||!Array.isArray(parsed.categories))throw new Error('Fel format från AI');
     _importData=parsed.categories;
+    _importMenuPrice=parseInt(parsed.menuPrice)||0;
     var ph='';
+    if(_importMenuPrice>0){ph+='<div style="background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.35);border-radius:8px;padding:.6rem .9rem;margin-bottom:1rem;font-size:13px;color:var(--dark)">Menypris: <span style="font-weight:500;color:var(--gold)">'+_importMenuPrice+' kr</span> för hela menyn</div>';}
     _importData.forEach(function(cat){
       ph+='<div style="margin-bottom:1rem"><div class="card-label">'+escHtml(cat.label)+'</div><div class="card" style="padding:.5rem">';
       (cat.items||[]).forEach(function(item){ph+='<div class="menu-item-row"><div class="menu-item-info"><div class="menu-item-name">'+escHtml(item.name)+'</div>'+(item.description?'<div class="menu-item-desc">'+escHtml(item.description)+'</div>':'')+'</div><div class="menu-item-price">'+(item.price?item.price+' kr':'')+'</div></div>';});
@@ -2594,6 +2598,7 @@ async function confirmImport(){
       await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description||'',price:parseInt(item.price)||0,sort_order:j,active:true});
     }
   }
+  if(_importMenuPrice>0){await db.from('menus').update({price:_importMenuPrice}).eq('id',activeMenuId);}
   _importData=null;
   var r=document.getElementById('import-result');if(r)r.style.display='none';
   document.getElementById('menu-import-text').value='';
