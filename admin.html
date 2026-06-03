@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03j">
+<meta name="pm-build" content="2026-06-03k">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -2206,28 +2206,22 @@ async function renderMenu(keepOpen){
     +'</div>';
   }
   var _filter=window._menuCatFilter||'';
-  // Använda kategorier (för knappar) + förslag (för autocomplete-listan)
+  var _std=['Lunch','Kväll','Bröllop','Konferens'];
   var _used=[];menus.forEach(function(m){var c=(m.menu_type||'').trim();if(c&&_used.indexOf(c)<0)_used.push(c);});
-  _used.sort(function(a,b){return a.localeCompare(b,'sv');});
-  var _seeds=['Lunch','Kväll','Bröllop','Konferens'];
-  var _dlAll=[];_seeds.concat(_used).forEach(function(c){if(c&&_dlAll.indexOf(c)<0)_dlAll.push(c);});
+  var _extra=_used.filter(function(c){return _std.indexOf(c)<0;}).sort(function(a,b){return a.localeCompare(b,'sv');});
+  var _chipsCats=_std.concat(_extra);
   var _dl=document.getElementById('menucat-list');
-  if(_dl)_dl.innerHTML=_dlAll.map(function(c){return '<option value="'+escHtml(c)+'"></option>';}).join('');
-  // Filterknappar: Alla + använda kategorier
+  if(_dl)_dl.innerHTML=_chipsCats.map(function(c){return '<option value="'+escHtml(c)+'"></option>';}).join('');
   var _chipsEl=document.getElementById('menu-cat-chips');
   if(_chipsEl){
-    if(_used.length<1){_chipsEl.innerHTML='';}
-    else{
-      var _chip=function(label,val){
-        var on=(_filter===val);
-        return '<button onclick="setMenuCatFilter(\''+String(val).replace(/'/g,"\\'")+'\')" class="btn '+(on?'bp':'bg')+'" style="font-size:12px;padding:4px 12px">'+escHtml(label)+'</button>';
-      };
-      _chipsEl.innerHTML=_chip('Alla','')+_used.map(function(c){return _chip(c,c);}).join('');
-    }
+    var _chip=function(label,val){
+      var on=(_filter===val);
+      return '<button onclick="setMenuCatFilter(\''+String(val).replace(/'/g,"\\'")+'\')" class="btn '+(on?'bp':'bg')+'" style="font-size:12px;padding:4px 12px">'+escHtml(label)+'</button>';
+    };
+    _chipsEl.innerHTML=_chip('Alla','')+_chipsCats.map(function(c){return _chip(c,c);}).join('');
   }
-  // Visa alla, eller bara vald kategori
   var _show=_filter?menus.filter(function(m){return (m.menu_type||'')===_filter;}):menus;
-  sel.innerHTML=_show.map(_menuCardHtml).join('');
+  sel.innerHTML=_show.length?_show.map(_menuCardHtml).join(''):'<div style="font-size:13px;color:var(--muted);padding:.5rem 0">Inga menyer i kategorin "'+escHtml(_filter)+'" ännu.</div>';
   // Återöppna aktiv meny om den fanns
   if(keepOpen&&activeMenuId&&menus.find(m=>m.id===activeMenuId)){
     var elOpen=document.getElementById('mc_'+activeMenuId);
