@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03s">
+<meta name="pm-build" content="2026-06-03t">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -2545,11 +2545,14 @@ async function importMenu(){
     var PROMPT='Tolka denna restaurangmeny och returnera ENDAST giltig JSON (inga backticks, ingen text runtomkring) i exakt detta format:\n'
       +'{"menuPrice":0,"categories":[{"label":"Rubrik","items":[{"name":"Rättens namn","description":"Beskrivning","price":0}]}]}\n\n'
       +'Regler:\n'
-      +'- "label" är en rubrik/kategori (t.ex. Förrätter, Varmrätter, Huvudrätter, Desserter, Drycker). Ord som "Förrätt", "Varmrätt", "Dessert" ska användas som rubriker – ta bort dem ur rättnamnen.\n'
+      +'- VIKTIGAST: utelämna ALDRIG en rätt. Varje rätt/rad i menyn måste vara med i svaret – tappa ingen rad.\n'
+      +'- Saknar menyn tydliga rubriker, dela själv in rätterna i logiska rubriker. För en svensk meny är ordningen normalt Förrätter, Varmrätter, Desserter. Rätter som Toast Skagen, räkor, soppa eller sallad är oftast förrätter; kött- och fiskrätter är varmrätter; kakor, glass och söta efterrätter är desserter.\n'
+      +'- Står det "X rätter" (t.ex. "3 rätter") betyder det X serveringar – placera då en rätt per rubrik i tur och ordning (förrätt, varmrätt, dessert).\n'
+      +'- Är du osäker på vilken rubrik en rätt hör till: gissa rimligt och ta med den ändå – hellre fel rubrik än att tappa rätten.\n'
+      +'- "label" är en rubrik/kategori. Ord som "Förrätt", "Varmrätt", "Dessert" ska användas som rubriker – ta bort dem ur rättnamnen.\n'
       +'- "name" ska vara rättens korta namn, INTE hela beskrivningen. Ta aldrig med prefix som "Förrätt:", "Varmrätt:" eller "Dessert:" i namnet.\n'
       +'- "description" ska innehålla ingredienser/beskrivning. Saknas beskrivning, sätt tom sträng.\n'
-      +'- Om en rad bara är en lång ingredienslista utan tydligt namn, använd hela raden som "name" och lämna "description" tom.\n'
-      +'- "menuPrice": om HELA menyn säljs till ett enda fast pris (t.ex. "2 rätter 395 kr", "3-rätters meny 495 kr", "450 kr/person"), ange det priset som heltal i kronor i "menuPrice" och sätt "price" till 0 på ALLA rätter.\n'
+      +'- "menuPrice": om HELA menyn säljs till ett enda fast pris (t.ex. "3 rätter 399 kr", "450 kr/person"), ange det priset som heltal i kronor i "menuPrice" och sätt "price" till 0 på ALLA rätter.\n'
       +'- Om varje rätt istället har eget pris (à la carte), sätt "menuPrice" till 0 och ange pris per rätt i "price" (heltal i kronor utan "kr").\n'
       +'- Saknas pris helt, sätt "menuPrice" till 0 och alla "price" till 0.';
     var messages;
