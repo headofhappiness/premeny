@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03w">
+<meta name="pm-build" content="2026-06-03y">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -973,7 +973,11 @@ let _bulkCats=[];
 async function renderBulk(bookingId){
   let html=`<div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
     <strong style="color:var(--text)">Fyll i för hela sällskapet</strong><br>
-    Ange antal rätter per alternativ. Varje enhet skapas som en separat beställning. En kommentar/allergi gäller en gäst (visas en gång), inte hela sällskapet.
+    Ange antal per rätt – varje antal blir en egen beställning.<br><br>
+    <span style="color:var(--text)">Allergi / specialkost:</span><br>
+    • <strong style="font-weight:500;color:var(--text)">En person</strong> – skriv det i kommentarsfältet (visas på en gäst).<br>
+    • <strong style="font-weight:500;color:var(--text)">Flera med <em>samma</em> önskemål</strong> – skriv antalet i kommentaren, t.ex. "2 gäster: nötallergi".<br>
+    • <strong style="font-weight:500;color:var(--text)">Flera med <em>olika</em> önskemål</strong> – lägg in dem en i taget först: sätt antal 1 på personens rätt, skriv kommentaren och tryck Spara. Upprepa för nästa. Fyll sedan i resten (utan kommentar) och spara. Numreringen fortsätter automatiskt.
   </div>`;
   const {data:_b}=await db.from('bookings').select('menu_id').eq('id',bookingId).single();
   let _q=db.from('menu_categories').select('id,label,sort_order, menu_items(id,name,description,price,active,sort_order)');
@@ -1005,23 +1009,33 @@ async function renderBulk(bookingId){
 }
 
 async function saveBulk(bid){
-  let count=0;
+  let made=0;
   try{
+    // Fortsätt numreringen från befintliga beställningar (så namnen inte krockar mellan sparningar)
+    const {count:_existing}=await db.from('orders').select('id',{count:'exact',head:true}).eq('booking_id',bid);
+    let seq=_existing||0;
     for(const cat of _bulkCats){
       for(const item of (cat.menu_items||[]).filter(i=>i.active)){
         const qty=parseInt(document.getElementById('bq_'+bid+'_'+item.id)?.value)||0;
         const cmt=document.getElementById('bc_'+bid+'_'+item.id)?.value?.trim()||'';
         if(qty>0){
           for(let i=0;i<qty;i++){
-            const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:'Gäst '+(++count)+' (bokningsansvarig)'}).select().single();
+            const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:'Gäst '+(++seq)+' (bokningsansvarig)'}).select().single();
             await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
+            made++;
           }
         }
       }
     }
+    if(made===0){
+      const el0=document.getElementById('bmsg_'+bid);
+      if(el0){el0.style.display='block';el0.className='msg merr';el0.textContent='Inget antal ifyllt – skriv hur många som vill ha varje rätt.';setTimeout(()=>el0.style.display='none',4000);}
+      return;
+    }
+    // Rita om bulk-fliken (nollställ formuläret) men håll kortet öppet på samma flik
+    await loadDet(bid,'bulk');
     const el=document.getElementById('bmsg_'+bid);
-    if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+count+' beställningar skapade.';setTimeout(()=>el.style.display='none',4000);}
-    reRender(bid);
+    if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+made+' beställning(ar) skapade. Fyll i nästa person eller spara resten – numreringen fortsätter.';setTimeout(()=>el.style.display='none',6000);}
   }catch(err){
     const el=document.getElementById('bmsg_'+bid);
     if(el){el.style.display='block';el.className='msg merr';el.textContent='Fel: '+err.message;}
