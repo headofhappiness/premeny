@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03z">
+<meta name="pm-build" content="2026-06-03ad">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -973,11 +973,8 @@ let _bulkCats=[];
 async function renderBulk(bookingId){
   let html=`<div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
     <strong style="color:var(--text)">Fyll i för hela sällskapet</strong><br>
-    Ange antal per rätt – varje antal blir en egen beställning.<br><br>
-    <span style="color:var(--text)">Allergi / specialkost:</span><br>
-    • <strong style="font-weight:500;color:var(--text)">En person</strong> – skriv det i kommentarsfältet (visas på en gäst).<br>
-    • <strong style="font-weight:500;color:var(--text)">Flera med <em>samma</em> önskemål</strong> – skriv antalet i kommentaren, t.ex. "2 gäster: nötallergi".<br>
-    • <strong style="font-weight:500;color:var(--text)">Flera med <em>olika</em> önskemål</strong> – lägg in dem en i taget först: sätt antal 1 på personens rätt, skriv kommentaren och tryck Spara. Upprepa för nästa. Fyll sedan i resten (utan kommentar) och spara. Numreringen fortsätter automatiskt.
+    Ange hur många i sällskapet som vill ha varje rätt.<br><br>
+    <strong style="font-weight:500;color:var(--text)">💡 Tips:</strong> lägg in gäster med specialönskemål <strong style="font-weight:500;color:var(--text)">först, en i taget</strong> – sätt antal 1 på deras rätt, skriv namn + allergi och tryck Spara. Spara mellan varje, och fyll sedan i resten av sällskapet. Då syns allergin på rätt person i listan. (Lämnar du namnet tomt blir det "Gäst 1, 2, 3 …".)
   </div>`;
   const {data:_b}=await db.from('bookings').select('menu_id').eq('id',bookingId).single();
   let _q=db.from('menu_categories').select('id,label,sort_order, menu_items(id,name,description,price,active,sort_order)');
@@ -996,7 +993,8 @@ async function renderBulk(bookingId){
         </div>
         ${item.price?`<div style="font-size:13px;color:var(--gold);font-weight:500;white-space:nowrap">${item.price} kr</div>`:''}
         <input type="number" class="bulk-qty" id="bq_${bookingId}_${item.id}" min="0" max="999" value="0" placeholder="0">
-        <input type="text" class="bulk-cmt" id="bc_${bookingId}_${item.id}" placeholder="Kommentar/allergi för en gäst (valfritt)" style="max-width:220px">
+        <input type="text" class="bulk-cmt" id="bn_${bookingId}_${item.id}" placeholder="Namn (valfritt)" style="max-width:150px">
+        <input type="text" class="bulk-cmt" id="bc_${bookingId}_${item.id}" placeholder="Allergi/kommentar (valfritt)" style="max-width:200px">
       </div>`;
     });
     html+=`</div>`;
@@ -1018,9 +1016,11 @@ async function saveBulk(bid){
       for(const item of (cat.menu_items||[]).filter(i=>i.active)){
         const qty=parseInt(document.getElementById('bq_'+bid+'_'+item.id)?.value)||0;
         const cmt=document.getElementById('bc_'+bid+'_'+item.id)?.value?.trim()||'';
+        const nm=document.getElementById('bn_'+bid+'_'+item.id)?.value?.trim()||'';
         if(qty>0){
           for(let i=0;i<qty;i++){
-            const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:'Gäst '+(++seq)+' (bokningsansvarig)'}).select().single();
+            const gname=(i===0&&nm)?nm:('Gäst '+(++seq)+' (bokningsansvarig)');
+            const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:gname}).select().single();
             await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
             made++;
           }
