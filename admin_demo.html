@@ -5,7 +5,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo – PreMeny</title>
-<meta name="pm-build" content="2026-06-01r">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PreMeny">
+<meta property="og:title" content="PreMeny – Se demon">
+<meta property="og:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
+<meta property="og:image" content="https://premeny.se/og-demo.png">
+<meta property="og:url" content="https://premeny.se/admin_demo.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PreMeny – Se demon">
+<meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
+<meta name="twitter:image" content="https://premeny.se/og-demo.png">
+<meta name="pm-build" content="2026-06-03-demo-a">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -22,28 +32,15 @@
 @media(min-width:760px){
   #attnSection{margin-bottom:.25rem}
 }
+.demo-banner{background:linear-gradient(135deg,rgba(184,149,90,.1),rgba(184,149,90,.04));border-bottom:1px solid rgba(184,149,90,.3);padding:.7rem 1.5rem;text-align:center;font-size:13px;color:#6a5030}
+.demo-banner a{color:var(--gold);font-weight:500;text-decoration:none}
+.demo-banner a:hover{text-decoration:underline}
+.demo-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 24px;border-radius:100px;font-size:14px;z-index:1000;display:none;box-shadow:0 4px 24px rgba(0,0,0,.2)}
 </style>
-<meta name="description" content="Testa PreMeny – så här ser restaurangens vy ut när gästerna förbeställt sin mat.">
-<!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="PreMeny">
-<meta property="og:title" content="PreMeny – Se demon">
-<meta property="og:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
-<meta property="og:image" content="https://premeny.se/og-demo.png">
-<meta property="og:url" content="https://premeny.se/admin_demo.html">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="PreMeny – Se demon">
-<meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
-<meta name="twitter:image" content="https://premeny.se/og-demo.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--bs:#d4ccc0;--gold:#b8955a;--dark:#1a1712;--text:#1a1712;--muted:#5a5248;--red:#c0392b}
 *{box-sizing:border-box;margin:0;padding:0}
-.demo-banner{background:linear-gradient(135deg,rgba(184,149,90,.1),rgba(184,149,90,.04));border-bottom:1px solid rgba(184,149,90,.3);padding:.7rem 1.5rem;text-align:center;font-size:13px;color:#6a5030}
-.demo-banner a{color:var(--gold);font-weight:500;text-decoration:none}
-.demo-banner a:hover{text-decoration:underline}
-.demo-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 24px;border-radius:100px;font-size:14px;z-index:1000;display:none;box-shadow:0 4px 24px rgba(0,0,0,.2);animation:slideUp .2s ease}
-@keyframes slideUp{from{transform:translateX(-50%) translateY(10px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
 body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
 .logo{font-family:"Playfair Display",serif;font-weight:400;font-size:1.4rem;letter-spacing:.02em;color:var(--dark);cursor:pointer}.logo span{color:var(--gold)}
@@ -163,37 +160,24 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 </head>
 <body>
 
-<div class="demo-banner">
-  <div style="display:flex;flex-direction:column;gap:5px;align-items:center;line-height:1.6;text-align:center">
-    <div>👤 <a href="https://premeny.se/guest.html?r=demo&b=84fbc0c1-2b36-4b0c-abfd-462d8630342a" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Se hur det ser ut för dina gäster →</a></div>
-    <div>Vill du ha en personlig genomgång? <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Boka möte</a></div>
-    <div>Redo att bli kund? <a href="https://premeny.se/#demo" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Fyll i formuläret</a></div>
-  </div>
-</div>
-<div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
-
-
-<div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
-<!-- DEMO VÄLKOMSTRUTA -->
-<div id="demoWelcome" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(26,23,18,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem">
-  <div style="background:#fff;max-width:440px;width:100%;border-radius:16px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center">
-    <div style="font-family:'Playfair Display',serif;font-weight:500;font-size:1.5rem;color:var(--dark);margin-bottom:.5rem">Välkommen till PreMeny-demon 👋</div>
-    <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Du tittar på en restaurangs egen adminvy. Klicka runt fritt – inget du gör här sparas. Så här ser det ut när ni tar emot förbeställningar från sällskap.</p>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn bp" style="font-weight:500" onclick="closeDemoWelcome()">Utforska demon</button>
-      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn bg" style="text-decoration:none;font-weight:500" onclick="closeDemoWelcome()">📅 Boka en genomgång</a>
-      <a href="https://premeny.se/guest.html?r=demo&b=84fbc0c1-2b36-4b0c-abfd-462d8630342a" target="_blank" style="font-size:13px;color:var(--gold);text-decoration:none;font-weight:500;margin-top:.35rem">Se hur det ser ut för gästerna →</a>
-    </div>
-  </div>
-</div>
-<div id="loginPage" style="display:none">
+<div id="loginPage">
   <div class="login-wrap">
     <div style="font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--dark);margin-bottom:.25rem">Pre<span style="color:var(--gold)">Meny</span></div>
     <p style="font-size:14px;color:var(--muted);margin:.25rem 0 1.5rem">Välkommen att hantera era förbeställningar.</p>
     <div id="loginMsg" style="display:none" class="msg merr"></div>
     <div id="loginForm">
-      <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="ff"><label>Lösenord</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="ff">
+        <label>Lösenord</label>
+        <div style="position:relative">
+          <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding-right:44px">
+          <button type="button" onclick="togglePassVis()" id="passToggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0;line-height:1">👁</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+        <input type="checkbox" id="rememberMe" style="width:16px;height:16px;accent-color:var(--gold);cursor:pointer">
+        <label for="rememberMe" style="font-size:13px;color:var(--muted);cursor:pointer">Kom ihåg mig</label>
+      </div>
       <button class="btn bp bfull" style="padding:13px" onclick="doLogin()">Logga in</button>
       <div style="margin-top:1rem;text-align:center">
         <button onclick="forgotPassword()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline">Glömt lösenord?</button>
@@ -208,15 +192,34 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   </div>
 </div>
 
-<div id="adminPage">
+<div id="adminPage" style="display:none">
+<div class="demo-banner">
+  <div style="display:flex;flex-direction:column;gap:5px;align-items:center;line-height:1.6;text-align:center">
+    <div>👤 <a href="https://premeny.se/guest.html?r=demo&b=84fbc0c1-2b36-4b0c-abfd-462d8630342a" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Se hur det ser ut för dina gäster →</a></div>
+    <div>Vill du ha en personlig genomgång? <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Boka möte</a></div>
+    <div>Redo att bli kund? <a href="https://premeny.se/#demo" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Fyll i formuläret</a></div>
+  </div>
+</div>
+<div class="demo-toast" id="demoToast">🔒 I demon kan du inte spara ändringar</div>
+<div id="demoWelcome" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(26,23,18,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;max-width:440px;width:100%;border-radius:16px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center">
+    <div style="font-family:'Playfair Display',serif;font-weight:500;font-size:1.5rem;color:var(--dark);margin-bottom:.5rem">Välkommen till PreMeny-demon 👋</div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Du tittar på en restaurangs egen adminvy. Klicka runt fritt – inget du gör här sparas. Så här ser det ut när ni tar emot förbeställningar från sällskap.</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn bp" style="font-weight:500" onclick="closeDemoWelcome()">Utforska demon</button>
+      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn bg" style="text-decoration:none;font-weight:500" onclick="closeDemoWelcome()">📅 Boka en genomgång</a>
+      <a href="https://premeny.se/guest.html?r=demo&b=84fbc0c1-2b36-4b0c-abfd-462d8630342a" target="_blank" style="font-size:13px;color:var(--gold);text-decoration:none;font-weight:500;margin-top:.35rem">Se hur det ser ut för gästerna →</a>
+    </div>
+  </div>
+</div>
   <nav class="nav">
     <div style="display:flex;align-items:center;gap:12px">
       <div id="nav-logo-wrap" style="display:none"></div>
-      <div class="logo">Pre<span>Meny</span></div>
+      <div class="logo" onclick="showTab('bookings')" style="cursor:pointer" title="Till startsidan">Pre<span>Meny</span></div>
     </div>
     <div style="display:flex;align-items:center;gap:12px">
       <span style="font-size:13px;color:var(--muted)" id="restName"></span>
-      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn" style="padding:6px 14px;font-size:12px;text-decoration:none;background:var(--gold);color:#fff;border-radius:100px;font-weight:500">📅 Boka möte</a>
+      <button class="btn bg" style="padding:6px 14px;font-size:12px" onclick="doLogout()">Logga ut</button>
     </div>
   </nav>
 
@@ -255,7 +258,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           </div>
           <div style="display:flex;gap:.7rem;align-items:flex-start">
             <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">4</span>
-            <div><strong>Skicka gästlänken.</strong> Klicka <strong>Skicka länk via mejl</strong> (eller sms). Kontaktpersonen vidarebefordrar länken till sina gäster, som väljer sin mat.</div>
+            <div><strong>Skicka gästlänken.</strong> Klicka <strong>Skicka länk via mejl</strong> (och/eller sms). Kontaktpersonen vidarebefordrar länken till sina gäster, som väljer sin mat.</div>
           </div>
         </div>
         <div style="margin-top:.9rem;font-size:12.5px;line-height:1.6;color:var(--muted)">
@@ -270,7 +273,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       </div>
       <div class="fb"><h3>Aktiva bokningar</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bg nb-btn" onclick="backupPDF()" title="Ladda ner alla kommande bokningar som PDF">⬇ Säkerhetskopia</button><button class="btn bp nb-btn" onclick="toggleNB()">+ Ny bokning</button></div></div>
       <div id="backupReminder" style="display:none;background:rgba(184,149,90,.1);border:2px solid rgba(184,149,90,.55);border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;font-size:13px;line-height:1.5;color:#5a4520;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <span>💾 Rekommendation: ladda ner en daglig säkerhetskopia av kommande bokningar. Bra att ha om internet skulle krångla.</span>
+        <span>💾 <span style="font-weight:500;color:var(--dark)">Rekommendation:</span> ladda ner en daglig säkerhetskopia av kommande bokningar. Bra att ha om internet skulle krångla.</span>
         <span style="display:flex;gap:8px;flex-shrink:0">
           <button class="btn" style="padding:5px 14px;font-size:13px;min-height:0;background:var(--gold);color:#fff;border-color:var(--gold);font-weight:400" onclick="backupPDF();dismissBackupReminder()">Ladda ner</button>
           <button class="btn" style="padding:5px 13px;font-size:13px;min-height:0;background:transparent;color:#6a5030;border-color:rgba(184,149,90,.4)" onclick="dismissBackupReminder()">Inte nu</button>
@@ -302,7 +305,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         </div>
         <div class="r3">
           <div class="ff"><label>Kontaktpersonens namn</label><input type="text" id="nb-contact" placeholder="Anna Karlsson"></div>
-          <div class="ff"><label>E-post</label><input type="email" id="nb-email" placeholder="anna@email.se"></div>
+          <div class="ff"><label>E-post <span style="font-size:11px;color:var(--muted)">(hit går bekräftelse & påminnelse)</span></label><input type="email" id="nb-email" placeholder="anna@email.se"></div>
           <div class="ff"><label>Telefon</label><input type="tel" id="nb-phone" placeholder="+46 70 123 45 67"></div>
         </div>
         <div class="r2">
@@ -311,7 +314,12 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
               <option value="">Välj meny...</option>
             </select>
           </div>
-          <div class="ff"></div>
+          <div class="ff"><label>Priser i gästvyn</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:15px;color:var(--text);cursor:pointer;margin-top:4px">
+              <input type="checkbox" id="nb-show-prices" checked style="width:18px;height:18px;accent-color:var(--gold)"> Visa priserna för gästerna
+            </label>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">Avmarkera om gästerna inte ska se priser (t.ex. bröllop där värdarna betalar).</div>
+          </div>
           <div class="ff"><label>Påminnelse</label>
             <select id="nb-reminder">
               <option value="0">Ingen påminnelse</option>
@@ -323,6 +331,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
               <option value="10">10 dagar innan sista beställningsdag</option>
               <option value="14">2 veckor innan sista beställningsdag</option>
             </select>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5">Välj <strong style="font-weight:500">Ingen påminnelse</strong> om ni fyller i åt gästerna själva – då visas bara antal per rätt, ingen nedräkning.</div>
           </div>
           <div class="ff"><label>Påminnelse via</label>
             <div style="display:flex;gap:1rem;margin-top:8px">
@@ -337,11 +346,11 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         </div>
         <div class="r2">
           <div class="ff"><label>Bokningsansvarig (restaurangens personal)</label><input type="text" id="nb-responsible" placeholder="T.ex. Maria, Kalle..."></div>
-          <div class="ff"></div>
+          <div class="ff"><label>Bord</label><input type="text" id="nb-table" placeholder="T.ex. Bord 4, Bord 4–6, Stora salen"></div>
         </div>
         <div class="ff"><label>Intern kommentar (visas ej för gäster)</label><textarea id="nb-comment" placeholder="T.ex. VIP-sällskap, kräver extra personal..."></textarea></div>
         <div class="fg">
-          <button class="btn bp" onclick="createBooking()">Skapa bokning</button>
+          <button class="btn bp" id="nb-save-btn" onclick="createBooking()">Skapa bokning</button>
           <button class="btn bg" onclick="toggleNB()">Avbryt</button>
         </div>
         <div id="nb-msg" style="display:none;margin-top:.75rem" class="msg"></div>
@@ -357,6 +366,21 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         style="padding-left:36px;background:var(--surface)">
       <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">🔍</span>
       <button id="clearSearch" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0">✕</button>
+    </div>
+    <div style="margin-bottom:.6rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--muted)">Visa:</span>
+      <select id="bookingTypeFilter" onchange="filterBookings()" style="width:auto;padding:6px 10px;font-size:13px;background:var(--surface)">
+        <option value="">Alla typer</option>
+        <option value="Bröllop">Bröllop</option>
+        <option value="Middag">Middag</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Brunch">Brunch</option>
+        <option value="Frukost">Frukost</option>
+        <option value="Mingel">Mingel</option>
+        <option value="Konferens">Konferens</option>
+        <option value="Kalas">Kalas</option>
+        <option value="Annat">Annat</option>
+      </select>
     </div>
     <div id="searchInfo" style="display:none;font-size:12px;color:var(--muted);margin-bottom:.5rem"></div>
     <div id="bookingList" style="margin-top:.25rem"></div>
@@ -377,6 +401,11 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         </div>
         <div class="cal-hdr"><div class="cal-dn">Mån</div><div class="cal-dn">Tis</div><div class="cal-dn">Ons</div><div class="cal-dn">Tor</div><div class="cal-dn">Fre</div><div class="cal-dn">Lör</div><div class="cal-dn">Sön</div></div>
         <div class="cal-grid" id="calGrid"></div>
+        <div style="margin-top:.6rem;display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--muted)">
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#e0a52e"></span>Pågående</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#3a7d44"></span>Klar</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#c0392b"></span>Ej klar i tid</span>
+        </div>
         <div style="margin-top:.75rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <button class="btn bg" style="font-size:12px;padding:5px 12px" onclick="calClear()">Rensa val</button>
           <span style="font-size:12px;color:var(--muted)" id="calSelInfo"></span>
@@ -388,15 +417,22 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <!-- MENY -->
     <div id="pane-menu" style="display:none">
       <div class="fb"><h3>Menyer</h3>
-        <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn bg" style="font-size:12px" onclick="showNewMenuForm()">+ Ny meny</button>
+        </div>
       </div>
 
       <!-- Meny-väljare -->
+      <div id="menu-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:.75rem"></div>
       <div id="menu-selector" style="margin-bottom:1rem;display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
 
       <!-- Ny meny-formulär -->
       <div id="newMenuForm" style="display:none" class="card">
         <div class="ff"><label>Menyns namn</label><input type="text" id="nm-name" placeholder="T.ex. À la carte, Julbord, Bröllopsmeny..."></div>
+        <div class="ff"><label>Kategori <span style="font-size:11px;color:var(--muted)">(grupperar menyerna – skriv egen eller välj förslag)</span></label>
+          <input type="text" id="nm-type" list="menucat-list" autocomplete="off" placeholder="T.ex. Bröllop, Lunch, Kväll, Konferens">
+          <datalist id="menucat-list"></datalist>
+        </div>
         <div class="ff"><label>Intern beskrivning <span style="font-size:11px;color:var(--muted)">(syns bara för dig)</span></label>
           <textarea id="nm-desc" style="min-height:55px" placeholder="T.ex. Används vid bröllop, max 30 gäster, 2 förrätter..."></textarea>
         </div>
@@ -430,13 +466,13 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           <div id="menu-img-preview" style="display:none;margin-top:.5rem"><img id="menu-img-preview-img" style="max-width:100%;border-radius:8px;border:1px solid var(--border)"></div>
         </div>
         <div id="import-warning" style="display:none;margin:.75rem 0" class="msg merr"></div>
-        <button class="btn bp" id="import-btn" onclick="importMenu()" style="margin-top:.5rem">✦ Importera meny</button>
+        <button class="btn bp" id="import-btn" onclick="importMenu()" style="margin-top:.5rem">✦ Tolka meny</button>
         <div id="import-loading" style="display:none;margin-top:1rem;font-size:13px;color:var(--muted)"><span class="spinner"></span> Tolkar menyn med AI...</div>
         <div id="import-result" style="display:none;margin-top:1.25rem">
           <div style="font-size:12px;font-weight:500;color:#3a6020;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:8px 12px;margin-bottom:.75rem">✓ Meny tolkad – granska och bekräfta nedan</div>
           <div id="import-preview-content"></div>
           <div style="display:flex;gap:8px;margin-top:1rem">
-            <button class="btn bp" onclick="confirmImport()">Lägg till i menyn</button>
+            <button class="btn bp" onclick="confirmImport()">✓ Lägg till i menyn</button>
             <button class="btn bg" onclick="cancelImport()">Avbryt</button>
           </div>
         </div>
@@ -506,6 +542,19 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       </div>
     </div>
   </div>
+  <!-- FEEDBACK (utanför flikarna – visas på alla flikar) -->
+  <div style="max-width:560px;margin:1.5rem auto 0;padding:1.25rem 1.5rem;background:rgba(184,149,90,.08);border:1px solid rgba(184,149,90,.3);border-radius:12px;text-align:center">
+    <div style="font-size:14px;font-weight:500;color:var(--dark);margin-bottom:.35rem">Frågor, idéer eller synpunkter på PreMeny?</div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:.6rem">Vi utvecklar PreMeny tillsammans med er – hör gärna av dig till</div>
+    <div style="display:flex;gap:.4rem 1rem;justify-content:center;flex-wrap:wrap;align-items:center;font-size:14px;font-weight:500">
+      <a href="mailto:lisa@premeny.se" style="color:var(--gold);text-decoration:none">lisa@premeny.se</a>
+      <span style="color:var(--muted)">·</span>
+      <a href="tel:0708200894" style="color:var(--gold);text-decoration:none">0708 200 894</a>
+    </div>
+  </div>
+  <footer style="text-align:center;padding:2rem 1rem 2.5rem;margin-top:1rem;border-top:1px solid var(--border)">
+    <a href="https://premeny.se" target="_blank" style="font-size:12px;color:var(--muted);text-decoration:none;letter-spacing:.02em">drivs av <span style="font-family:'Playfair Display',serif;color:var(--muted)">Pre<span style="color:var(--gold)">Meny</span></span></a>
+  </footer>
 </div>
 
 <!-- QR MODAL -->
@@ -537,12 +586,9 @@ const {createClient}=supabase;
 const db=createClient(SURL,SKEY);
 const IS_DEMO=true;
 const DEMO_SLUG='demo';
-
 function demoBlock(){
   const t=document.getElementById('demoToast');
-  t.style.display='block';
-  clearTimeout(t._timer);
-  t._timer=setTimeout(()=>{t.style.display='none';},2500);
+  if(t){t.style.display='block';clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},2500);}
   return false;
 }
 let rest=null,cats=[],menus=[],activeMenuId=null,openB={},dtabs={};
@@ -552,11 +598,39 @@ let calY=new Date().getFullYear(),calM=new Date().getMonth(),calDates={},calSel=
 async function doLogin(){
   const email=document.getElementById('loginEmail').value.trim();
   const pass=document.getElementById('loginPass').value;
+  const remember=document.getElementById('rememberMe')?.checked;
+  if(remember&&email)localStorage.setItem('premeny_saved_email',email);
   const {error}=await db.auth.signInWithPassword({email,password:pass});
   if(error){const m=document.getElementById('loginMsg');m.style.display='block';m.textContent='Fel e-post eller lösenord.';return;}
   initAdmin();
 }
-// Demo: ingen auth-hantering behövs
+// Fyll i sparad e-post
+const savedEmail=localStorage.getItem('premeny_saved_email');
+if(savedEmail){
+  const emailEl=document.getElementById('loginEmail');
+  const remEl=document.getElementById('rememberMe');
+  if(emailEl)emailEl.value=savedEmail;
+  if(remEl)remEl.checked=true;
+}
+
+// Kolla om användaren kommer från återställningslänk
+db.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('resetForm').style.display = 'block';
+    const m = document.getElementById('loginMsg');
+    m.style.display = 'block';
+    m.className = 'msg mok';
+    m.textContent = 'Ange ditt nya lösenord nedan.';
+  }
+});
+
+function togglePassVis(){
+  const inp=document.getElementById('loginPass');
+  const btn=document.getElementById('passToggle');
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁';}
+}
 
 async function doResetPassword(){
   const p1 = document.getElementById('newPass1').value;
@@ -581,8 +655,7 @@ async function forgotPassword(){
   if(error){m.className='msg merr';m.textContent='Fel: '+error.message;}
   else{m.className='msg mok';m.textContent='✓ Återställningslänk skickad till '+email;}
 }
-async function sendConfirmation(id){
-  if(IS_DEMO)return demoBlock();
+async function sendConfirmation(id){if(IS_DEMO)return demoBlock();
   const b=allBookings.find(x=>x.id===id);
   if(!b){alert('Bokning hittades inte.');return;}
   if(!b.contact_email){alert('Ingen e-postadress registrerad för kontaktpersonen.');return;}
@@ -599,7 +672,7 @@ async function sendConfirmation(id){
     if(!result.ok)throw new Error(result.error||'Okänt fel');
     const now=new Date();
     const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    const log=(b.summary_sent_log||'')+ts+' bekräftelse via Resend till '+b.contact_email+'\n';
+    const log=(b.summary_sent_log||'')+ts+' bekräftelse via mejl till '+b.contact_email+'\n';
     await db.from('bookings').update({summary_sent_log:log,summary_sent_at:now.toISOString()}).eq('id',id);
     await renderBookings();
     alert('✓ Bekräftelsemejl skickat till '+b.contact_email+'!');
@@ -608,29 +681,22 @@ async function sendConfirmation(id){
 }
 async function doLogout(){await db.auth.signOut();location.reload();}
 
-// ── DEMO AUTO-INIT ──────────────────────────────────────────────────
+// ── DEMO AUTO-INIT ──
 async function autoInitDemo(){
-  // Hämta demo-restaurang
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('adminPage').style.display='block';
   const {data:r}=await db.from('restaurants').select('*').eq('slug',DEMO_SLUG).single();
-  if(!r){
-    document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte. Kontakta premeny.se</div>';
-    return;
-  }
+  if(!r){document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte. Kontakta premeny.se</div>';return;}
   rest=r;
   document.getElementById('restName').textContent=r.name+' (Demo)';
-  // I demo: behåll --gold för loggan, sätt --accent för UI-färger
-  document.documentElement.style.setProperty('--gold','#b8955a'); // Loggan alltid guld
+  document.documentElement.style.setProperty('--gold','#b8955a');
   await loadCats();
   const {data:menuList}=await db.from('menus').select('*').eq('restaurant_id',rest.id).eq('archived',false).order('created_at');
   const nbMenu=document.getElementById('nb-menu');
-  if(nbMenu){
-    nbMenu.innerHTML='<option value="">Välj meny...</option>';
-    (menuList||[]).forEach(m=>{var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});
-  }
+  if(nbMenu){nbMenu.innerHTML='<option value="">Välj meny...</option>';(menuList||[]).forEach(function(m){var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});}
   renderBookings();
   maybeShowDemoWelcome();
 }
-
 function maybeShowDemoWelcome(){
   try{if(localStorage.getItem('pm_demo_welcome_seen'))return;}catch(e){}
   var el=document.getElementById('demoWelcome');if(el)el.style.display='flex';
@@ -642,7 +708,8 @@ function closeDemoWelcome(){
 async function initAdmin(){
   const {data:{user}}=await db.auth.getUser();
   if(!user)return;
-  const {data:ar,error:arErr}=await db.from('restaurant_admins').select('restaurant_id').eq('user_id',user.id).single();
+  const {data:arRows,error:arErr}=await db.from('restaurant_admins').select('restaurant_id').eq('user_id',user.id).limit(1);
+  const ar = arRows && arRows[0];
   if(arErr||!ar){
     const msg=document.getElementById('loginMsg');
     msg.style.display='block';
@@ -661,7 +728,14 @@ async function initAdmin(){
   rest=r;
   document.getElementById('restName').textContent=r.name;
   document.documentElement.style.setProperty('--gold',r.accent_color||'#b8955a');
-  // Logo visas ej i navbar
+  // Kundens logga i navbar om den finns – då döljs PreMeny-texten (flyttas till sidfot)
+  var navLogo=document.getElementById('nav-logo-wrap');
+  var brandText=document.querySelector('.nav .logo');
+  if(navLogo&&r.logo_url){
+    navLogo.innerHTML='<img src="'+r.logo_url+'" alt="'+(r.name||'')+'" style="height:42px;max-width:180px;object-fit:contain;display:block">';
+    navLogo.style.cssText='display:flex;align-items:center';
+    if(brandText)brandText.style.display='none';
+  }
   document.getElementById('loginPage').style.display='none';
   document.getElementById('adminPage').style.display='block';
   await loadCats();
@@ -673,7 +747,6 @@ async function initAdmin(){
     (menuList||[]).forEach(m=>{var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});
   }
   renderBookings();
-  maybeShowDemoWelcome();
 }
 
 // TABS
@@ -683,7 +756,7 @@ function showTab(tab){
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
   });
   if(tab==='calendar')initCalendar();
-  if(tab==='menu')renderMenu(true);
+  if(tab==='menu')renderMenu();
   if(tab==='archive')renderArchive();
   if(tab==='settings')loadSettings();
 }
@@ -694,7 +767,7 @@ let allBookings=[];
 async function renderBookings(){
   if(!rest)return;
   const today=new Date().toISOString().split('T')[0];
-  const {data:bs}=await db.from('bookings').select('*, orders(id)').eq('restaurant_id',rest.id).gte('event_date',today).is('deleted_at',null).order('event_date');
+  const {data:bs}=await db.from('bookings').select('*, orders(id, order_items(menu_items(menu_categories(label))))').eq('restaurant_id',rest.id).gte('event_date',today).is('deleted_at',null).order('event_date');
   allBookings=bs||[];
   renderBookingList(allBookings);
   if(allBookings.length)maybeShowBackupReminder();
@@ -720,11 +793,12 @@ function renderAttention(){
   (allBookings||[]).forEach(b=>{
     const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
     const closed=dl&&today>dl;
-    const n=(b.orders||[]).length;
+    const n=bOrderStats(b).guests;
     const exp=b.expected_guests||0;
+    const remindersOn=!!b.reminder_days;
     let chip='';
-    if(exp&&n>exp){chip='<span class="attn-chip over">⚠ '+(n-exp)+' fler än väntat</span>';}
-    else if(closed&&exp&&n<exp){chip='<span class="attn-chip miss">⚠ '+(exp-n)+' saknas · sista beställningsdag passerad</span>';}
+    if(remindersOn&&exp&&n>exp){chip='<span class="attn-chip over">⚠ '+(n-exp)+' fler än väntat</span>';}
+    else if(remindersOn&&closed&&exp&&n<exp){chip='<span class="attn-chip miss">⚠ '+(exp-n)+' saknas · sista beställningsdag passerad</span>';}
     if(!chip)return;
     const d=new Date(b.event_date);
     const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -745,23 +819,26 @@ function focusBooking(id){
 
 function filterBookings(){
   const q=document.getElementById('bookingSearch').value.trim().toLowerCase();
+  const tEl=document.getElementById('bookingTypeFilter');
+  const t=tEl?tEl.value:'';
   const clearBtn=document.getElementById('clearSearch');
   const info=document.getElementById('searchInfo');
   clearBtn.style.display=q?'block':'none';
-  if(!q){
-    info.style.display='none';
-    renderBookingList(allBookings);
-    return;
-  }
-  const filtered=allBookings.filter(b=>
+  let filtered=allBookings;
+  if(t)filtered=filtered.filter(b=>(b.event_type||'')===t);
+  if(q)filtered=filtered.filter(b=>
     (b.name||'').toLowerCase().includes(q)||
     (b.contact_name||'').toLowerCase().includes(q)||
     (b.contact_email||'').toLowerCase().includes(q)||
     (b.contact_phone||'').toLowerCase().includes(q)||
     (b.internal_comment||'').toLowerCase().includes(q)
   );
-  info.style.display='block';
-  info.textContent=filtered.length+' av '+allBookings.length+' bokningar';
+  if(q||t){
+    info.style.display='block';
+    info.textContent=filtered.length+' av '+allBookings.length+' bokningar';
+  }else{
+    info.style.display='none';
+  }
   renderBookingList(filtered);
 }
 
@@ -770,13 +847,56 @@ function clearSearch(){
   filterBookings();
 }
 
+// Räknar portioner per kategori + ett person-estimat (mest beställda rätten ≈ antal personer)
+function bOrderStats(b){
+  const counts={};
+  (b.orders||[]).forEach(function(o){(o.order_items||[]).forEach(function(oi){
+    var lbl=(oi.menu_items&&oi.menu_items.menu_categories)?oi.menu_items.menu_categories.label:'Övrigt';
+    counts[lbl]=(counts[lbl]||0)+1;
+  });});
+  var labels=Object.keys(counts);
+  var guests=labels.length?Math.max.apply(null,labels.map(function(k){return counts[k];})):0;
+  var portions=labels.reduce(function(s,k){return s+counts[k];},0);
+  var breakdown=labels.map(function(k){return counts[k]+' '+k;}).join(' · ');
+  return {counts:counts,guests:guests,portions:portions,breakdown:breakdown};
+}
+
+// Status: grön=klar (manuellt markerad ELLER alla beställt med påminnelse på), röd=ej klar i tid, gul=pågående
+const STATUS_COLORS={done:'#3a7d44',progress:'#e0a52e',late:'#c0392b'};
+const STATUS_LABELS={done:'Klar',progress:'Pågående',late:'Ej klar i tid'};
+function bStatus(b){
+  const today=new Date();today.setHours(0,0,0,0);
+  const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
+  const closed=dl&&today>dl;
+  const remindersOn=!!b.reminder_days;
+  const guests=bOrderStats(b).guests;
+  const allOrdered=remindersOn&&b.expected_guests&&guests>=b.expected_guests;
+  if(b.completed_at||allOrdered)return 'done';
+  if(closed)return 'late';
+  return 'progress';
+}
+async function toggleComplete(bid,e){if(IS_DEMO)return demoBlock();
+  if(e)e.stopPropagation();
+  const b=(allBookings||[]).find(x=>x.id===bid);
+  if(!b)return;
+  const newVal=b.completed_at?null:new Date().toISOString();
+  const {error}=await db.from('bookings').update({completed_at:newVal}).eq('id',bid);
+  if(error){alert('Kunde inte spara: '+error.message);return;}
+  b.completed_at=newVal;
+  renderBookingList(allBookings);
+  if(rest&&typeof initCalendar==='function')initCalendar();
+}
+
 function renderBCard(b){
   const isOpen=!!openB[b.id];
   const dtab=dtabs[b.id]||'tally';
   const today=new Date();today.setHours(0,0,0,0);
   const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
   const closed=dl&&today>dl;
-  const n=(b.orders||[]).length;
+  const _st=bOrderStats(b);
+  const n=_st.guests;
+  const remindersOn=!!b.reminder_days;
+  const _status=bStatus(b);
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date);
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -787,7 +907,7 @@ function renderBCard(b){
   let reminderHtml='';
   const allOk=b.expected_guests&&n>=b.expected_guests;
   // Auto-warn if over capacity (only once - check via flag in booking)
-  if(b.expected_guests&&n>b.expected_guests&&!b.over_capacity_warned){
+  if(remindersOn&&b.expected_guests&&n>b.expected_guests&&!b.over_capacity_warned){
     sendOverCapacityWarning(b,n);
   }
   if(b.reminder_sent_at){
@@ -795,7 +915,7 @@ function renderBCard(b){
     reminderHtml=`<div style="font-size:12px;color:#6a5030;margin-top:4px">✉ Påminnelse skickad ${sentD.getDate()} ${months[sentD.getMonth()]} ${sentD.getFullYear()}</div>`;
   } else if(b.reminder_days&&!allOk){
     reminderHtml=`<div style="font-size:12px;color:var(--muted);margin-top:4px">🔔 Påminnelse ${b.reminder_days} dagar före sista beställningsdag</div>`;
-  } else if(allOk){
+  } else if(remindersOn&&allOk){
     reminderHtml=`<div style="font-size:12px;color:#3a7d44;margin-top:4px">✓ Alla gäster har svarat</div>`;
   }
 
@@ -808,14 +928,19 @@ function renderBCard(b){
         </div>
         <div class="bmeta" style="margin-top:4px">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''}</div>
         ${b.deadline?('<div style="font-size:12px;color:var(--muted);margin-top:2px">Sista beställning: '+new Date(b.deadline+'T12:00:00').getDate()+' '+months[new Date(b.deadline+'T12:00:00').getMonth()]+' '+new Date(b.deadline+'T12:00:00').getFullYear()+'</div>'):''}
-        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
+        ${b.table_label?('<div style="font-size:13px;color:var(--text);margin-top:2px">🪑 Bord: <strong style="font-weight:500">'+b.table_label+'</strong></div>'):''}
+        ${remindersOn?`<div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
           <div style="font-size:15px;font-weight:400;color:${b.expected_guests&&n>b.expected_guests?'#c0392b':'var(--muted)'}">
-            ${b.expected_guests?(n>b.expected_guests?'⚠ '+n+' beställda · <span style="color:#c0392b;font-weight:600">'+( n-b.expected_guests)+' fler än väntat!</span>':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
+            ${b.expected_guests?(n>b.expected_guests?'⚠ '+n+' beställda · <span style="color:#c0392b;font-weight:600">'+(n-b.expected_guests)+' fler än väntat!</span>':n+' av '+b.expected_guests+' beställda'):n+' beställda'}
           </div>
-        </div>
+        </div>`:''}
+        ${_st.breakdown?'<div style="font-size:13px;color:var(--text);margin-top:6px;font-weight:400">'+_st.breakdown+'</div>':''}
         ${reminderHtml}
       </div>
-      <span class="pill ${closed?'pc':'po'}" style="flex-shrink:0">${closed?'Stängd':'Öppen'}</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap"><span style="width:13px;height:13px;border-radius:50%;background:${STATUS_COLORS[_status]};box-shadow:0 0 0 3px ${STATUS_COLORS[_status]}26"></span>${STATUS_LABELS[_status]}</span>
+        <span class="pill ${closed?'pc':'po'}">${closed?'Stängd':'Öppen'}</span>
+      </div>
     </div>`;
 
   if(isOpen){
@@ -842,12 +967,15 @@ function renderBCard(b){
         <button onclick="sendSummary('${b.id}','email')" class="btn bg" style="font-size:11px;padding:5px 12px">✉ Skicka länk via mejl</button>
         ${b.contact_phone?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:''}
         <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera länk</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin:-.4rem 0 1rem;line-height:1.6">
+        <strong>Bekräftelse</strong> = bekräftar bokningen till kontaktpersonen. <strong>Skicka länk</strong> = gästlänken som kontaktpersonen vidarebefordrar till sina gäster.
       </div>`;
 
     // Påminnelse status
     const allOk=b.expected_guests&&n>=b.expected_guests;
   // Auto-warn if over capacity (only once - check via flag in booking)
-  if(b.expected_guests&&n>b.expected_guests&&!b.over_capacity_warned){
+  if(remindersOn&&b.expected_guests&&n>b.expected_guests&&!b.over_capacity_warned){
     sendOverCapacityWarning(b,n);
   }
     // Sammanställning skickad
@@ -855,7 +983,7 @@ function renderBCard(b){
       const lines=b.summary_sent_log.trim().split('\n').filter(Boolean);
       const last=lines[lines.length-1];
       html+=`<div style="font-size:12px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:6px 10px;margin-bottom:.75rem;color:#3a6020;line-height:1.6">
-        ✓ <strong>Sammanställning skickad</strong><br>
+        ✓ <strong>Skickat till kontaktperson</strong><br>
         ${lines.map(l=>'<span style="opacity:.85">'+l+'</span>').join('<br>')}
       </div>`;
     }
@@ -880,6 +1008,7 @@ function renderBCard(b){
     </div>
     <div id="det_${b.id}"></div>
     <div class="fg" style="margin-top:1rem;flex-wrap:wrap">
+      <button class="btn ${b.completed_at?'bg':'bo'}" style="font-size:11px;padding:5px 10px" onclick="toggleComplete('${b.id}',event)">${b.completed_at?'↩ Markera som pågående':'✓ Markera som klar'}</button>
       ${dtab==='guests'?
         `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>
         <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut</button>
@@ -889,6 +1018,7 @@ function renderBCard(b){
         <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
         <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportPDF('${b.id}')">📄 Ladda ner PDF</button>`
       }
+      <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
       <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
     </div></div>`;
   }
@@ -896,11 +1026,27 @@ function renderBCard(b){
   return html;
 }
 
+let _lastWarm=0;
+async function prewarmSend(){
+  // Tyst förvärmning av edge-funktionerna så första utskicket slipper kallstarta.
+  // OBS: ingen gäst-/mottagardata skickas med ({warmup:true}), så inget kan skickas av misstag.
+  try{
+    if(Date.now()-_lastWarm<90000)return; // redan varmt nyligen – hoppa över
+    _lastWarm=Date.now();
+    const {data:{session}}=await db.auth.getSession();
+    if(!session)return;
+    const base='https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/';
+    ['send-email','send-sms'].forEach(function(fn){
+      fetch(base+fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({warmup:true})}).catch(function(){});
+    });
+  }catch(e){}
+}
+
 async function toggleB(id){
   openB[id]=!openB[id];
   if(!dtabs[id])dtabs[id]='tally';
   await reRender(id);
-  if(openB[id])loadDet(id,dtabs[id]);
+  if(openB[id]){prewarmSend();loadDet(id,dtabs[id]);}
 }
 
 async function switchDtab(id,tab){
@@ -912,7 +1058,7 @@ async function switchDtab(id,tab){
 async function reRender(id){
   const el=document.getElementById('bc_'+id);
   if(!el)return;
-  const {data:b}=await db.from('bookings').select('*, orders(id)').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('*, orders(id, order_items(menu_items(menu_categories(label))))').eq('id',id).single();
   if(b)el.outerHTML=renderBCard(b);
 }
 
@@ -942,14 +1088,23 @@ async function loadGuestEditItems(bookingId){
 }
 
 // BULK INMATNING
+let _bulkCats=[];
 async function renderBulk(bookingId){
   let html=`<div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
     <strong style="color:var(--text)">Fyll i för hela sällskapet</strong><br>
-    Ange antal rätter per alternativ. Varje enhet skapas som en separat beställning. Kommentar gäller alla av den rätten.
+    Ange hur många <strong style="font-weight:500;color:var(--text)">portioner</strong> av varje rätt sällskapet vill ha – en snabb summering till köket. Alla behöver inte ha alla rätter. Vill du ha varje gäst med namn och egna val, låt dem fylla i via gästlänken.<br><br>
+    <strong style="font-weight:500;color:var(--text)">💡 Tips:</strong> lägg in gäster med specialönskemål <strong style="font-weight:500;color:var(--text)">först</strong>. Sätt antal 1 på deras rätt, skriv namn + specialkost/önskemål och tryck Spara. Fyll sedan i resten av sällskapet. Då syns allergin på rätt person i listan. (Lämnar du namnet tomt blir raden "Portion 1, 2, 3 …".)
   </div>`;
-  cats.forEach(cat=>{
+  const {data:_b}=await db.from('bookings').select('menu_id').eq('id',bookingId).single();
+  let _q=db.from('menu_categories').select('id,label,sort_order, menu_items(id,name,description,price,active,sort_order)');
+  if(_b&&_b.menu_id) _q=_q.eq('menu_id',_b.menu_id); else _q=_q.eq('restaurant_id',rest.id);
+  const {data:_bc}=await _q.order('sort_order');
+  _bulkCats=(_bc||[]).map(c=>({...c,menu_items:(c.menu_items||[]).slice().sort((a,b)=>(a.sort_order||0)-(b.sort_order||0))}));
+  _bulkCats.forEach(cat=>{
+    const _items=(cat.menu_items||[]).filter(i=>i.active);
+    if(!_items.length)return;
     html+=`<div class="bulk-sec"><div class="bulk-head">${cat.label}</div>`;
-    (cat.menu_items||[]).filter(i=>i.active).forEach(item=>{
+    _items.forEach(item=>{
       html+=`<div class="bulk-row">
         <div style="flex:1">
           <div style="font-size:14px;color:var(--dark)">${item.name}</div>
@@ -957,7 +1112,8 @@ async function renderBulk(bookingId){
         </div>
         ${item.price?`<div style="font-size:13px;color:var(--gold);font-weight:500;white-space:nowrap">${item.price} kr</div>`:''}
         <input type="number" class="bulk-qty" id="bq_${bookingId}_${item.id}" min="0" max="999" value="0" placeholder="0">
-        <input type="text" class="bulk-cmt" id="bc_${bookingId}_${item.id}" placeholder="Kommentar/allergi (valfritt)" style="max-width:220px">
+        <input type="text" class="bulk-cmt" id="bn_${bookingId}_${item.id}" placeholder="Namn (valfritt)" style="max-width:150px">
+        <input type="text" class="bulk-cmt" id="bc_${bookingId}_${item.id}" placeholder="Allergi/kommentar (valfritt)" style="max-width:200px">
       </div>`;
     });
     html+=`</div>`;
@@ -969,24 +1125,36 @@ async function renderBulk(bookingId){
   return html;
 }
 
-async function saveBulk(bid){
-  let count=0;
+async function saveBulk(bid){if(IS_DEMO)return demoBlock();
+  let made=0;
   try{
-    for(const cat of cats){
+    // Fortsätt numreringen från befintliga beställningar (så namnen inte krockar mellan sparningar)
+    const {count:_existing}=await db.from('orders').select('id',{count:'exact',head:true}).eq('booking_id',bid);
+    let seq=_existing||0;
+    for(const cat of _bulkCats){
       for(const item of (cat.menu_items||[]).filter(i=>i.active)){
         const qty=parseInt(document.getElementById('bq_'+bid+'_'+item.id)?.value)||0;
         const cmt=document.getElementById('bc_'+bid+'_'+item.id)?.value?.trim()||'';
+        const nm=document.getElementById('bn_'+bid+'_'+item.id)?.value?.trim()||'';
         if(qty>0){
           for(let i=0;i<qty;i++){
-            const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:'Gäst '+(++count)+' (bokningsansvarig)'}).select().single();
-            await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:cmt});
+            const gname=(i===0&&nm)?nm:('Portion '+(++seq));
+            const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:gname}).select().single();
+            await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
+            made++;
           }
         }
       }
     }
+    if(made===0){
+      const el0=document.getElementById('bmsg_'+bid);
+      if(el0){el0.style.display='block';el0.className='msg merr';el0.textContent='Inget antal ifyllt – skriv hur många som vill ha varje rätt.';setTimeout(()=>el0.style.display='none',4000);}
+      return;
+    }
+    // Rita om bulk-fliken (nollställ formuläret) men håll kortet öppet på samma flik
+    await loadDet(bid,'bulk');
     const el=document.getElementById('bmsg_'+bid);
-    if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+count+' beställningar skapade.';setTimeout(()=>el.style.display='none',4000);}
-    reRender(bid);
+    if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+made+' beställning(ar) skapade. Fyll i nästa person eller spara resten – numreringen fortsätter.';setTimeout(()=>el.style.display='none',6000);}
   }catch(err){
     const el=document.getElementById('bmsg_'+bid);
     if(el){el.style.display='block';el.className='msg merr';el.textContent='Fel: '+err.message;}
@@ -999,7 +1167,7 @@ function renderTally(orders){
   const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
     if(!oi.menu_items||!oi.menu_items.name)return;
-    const n=oi.menu_items.name,c=oi.menu_items?.menu_categories?.label||'Övrigt';
+    const n=oi.menu_items.name,c=oi.menu_items.menu_categories?.label||'Övrigt';
     const k=c+'||'+n;
     counts[k]=(counts[k]||0)+1;
     if(oi.comment?.trim()){
@@ -1015,7 +1183,7 @@ function renderTally(orders){
     const catTotal=items.reduce((s,it)=>s+it.n,0);
     return `<div class="chead" style="display:flex;align-items:baseline;justify-content:space-between"><span>${c}</span><span style="font-size:11px;font-weight:600;color:var(--dark);letter-spacing:0;text-transform:none">${catTotal} st totalt</span></div>`+items.map(({name,n,k})=>
       `<div class="trow"><span class="tn">${name}</span><div class="tbw"><div class="tb" style="width:${Math.round(n/max*100)}%"></div></div><span class="tnr">${n}</span></div>`+
-      (allergies[k]?`<div style="margin:-2px 0 6px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:'')
+      (allergies[k]?`<div style="display:flex;align-items:flex-start;gap:7px;margin:-2px 0 8px"><span style="color:#ef6c00;font-size:16px;line-height:1.35;flex-shrink:0">⚠</span><div style="flex:1;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:7px 11px;font-size:13px;color:#5a3e00;font-weight:500;line-height:1.5">${allergies[k].join('<br>')}</div></div>`:'')
     ).join('');
   }).join('');
 }
@@ -1024,8 +1192,8 @@ function renderKitchen(orders){
   const counts={};
   const allergies={};
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
-    if(!oi.menu_items||!oi.menu_items.name)return; // hoppa över rätter som saknas (trasig koppling)
-    const cat=oi.menu_items?.menu_categories?.label||'Övrigt';
+    if(!oi.menu_items||!oi.menu_items.name)return;
+    const cat=oi.menu_items.menu_categories?.label||'Övrigt';
     const name=oi.menu_items.name;
     const k=cat+'||'+name;
     counts[k]=(counts[k]||0)+1;
@@ -1048,12 +1216,17 @@ function renderKitchen(orders){
           <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
           <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
         </div>
-        ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
+        ${allergies[k]?`<div style="display:flex;align-items:flex-start;gap:7px;margin-top:6px"><span style="color:#ef6c00;font-size:16px;line-height:1.35;flex-shrink:0">⚠</span><div style="flex:1;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:7px 11px;font-size:13px;color:#5a3e00;font-weight:500;line-height:1.5">${allergies[k].join('<br>')}</div></div>`:''}
       </div>`
     ).join('');
   }).join('');
 }
 
+// Sorterar gäster med specialönskemål (kommentar) överst
+function sortGuestsSpecialFirst(orders){
+  var has=function(o){return (o.order_items||[]).some(function(oi){return oi.comment&&oi.comment.trim();});};
+  return (orders||[]).slice().sort(function(a,b){return (has(b)?1:0)-(has(a)?1:0);});
+}
 function renderGuests(orders,bid){
   var buildOpts=function(selId){
     var s='';
@@ -1066,7 +1239,7 @@ function renderGuests(orders,bid){
     });
     return s;
   };
-  return orders.map(o=>{
+  return sortGuestsSpecialFirst(orders).map(o=>{
     const ch=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(' · ');
     const cm=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.menu_items?.name+': '+oi.comment).join(', ');
     var editRows=(o.order_items||[]).map(function(oi){
@@ -1094,7 +1267,7 @@ function renderGuests(orders,bid){
 }
 function toggleGuestEdit(oid){var el=document.getElementById('gedit_'+oid);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function _catOfItem(itemId){for(var i=0;i<(_geCats||[]).length;i++){var f=(_geCats[i].items||[]).find(function(m){return m.id===itemId;});if(f)return _geCats[i].id;}return null;}
-async function saveGuestEdit(oid,bid){
+async function saveGuestEdit(oid,bid){if(IS_DEMO)return demoBlock();
   var cont=document.getElementById('gedit_'+oid);if(!cont)return;
   var selects=cont.querySelectorAll('select[id^="ge_item_"]');
   for(var i=0;i<selects.length;i++){
@@ -1104,20 +1277,68 @@ async function saveGuestEdit(oid,bid){
     var {error}=await db.from('order_items').update(upd).eq('id',oiId);
     if(error){alert('Fel: '+error.message);return;}
   }
-  loadDet(bid,dtabs[bid]||'guests');reRender(bid);
+  await reRender(bid);loadDet(bid,dtabs[bid]||'guests');
 }
 
-async function delOrder(oid,bid){if(!confirm('Ta bort?'))return;await db.from('order_items').delete().eq('order_id',oid);await db.from('orders').delete().eq('id',oid);loadDet(bid,dtabs[bid]||'guests');reRender(bid);}
+async function delOrder(oid,bid){if(IS_DEMO)return demoBlock();if(!confirm('Ta bort?'))return;await db.from('order_items').delete().eq('order_id',oid);await db.from('orders').delete().eq('id',oid);await reRender(bid);loadDet(bid,dtabs[bid]||'guests');}
 
 // NY BOKNING
-function toggleNB(){const f=document.getElementById('newBookingForm');f.style.display=f.style.display==='none'?'block':'none';}
+let _editingBookingId=null;
 
-async function createBooking(){
-  if(IS_DEMO)return demoBlock();
+function resetBookingForm(){
+  _editingBookingId=null;
+  ['nb-name','nb-date','nb-guests','nb-deadline','nb-contact','nb-email','nb-phone','nb-menu','nb-responsible','nb-comment','nb-table'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('nb-time').value='18:00';
+  document.getElementById('nb-event-type').value='Middag';
+  document.getElementById('nb-reminder').value='2';
+  document.getElementById('nb-remind-email').checked=true;
+  document.getElementById('nb-remind-sms').checked=false;
+  document.getElementById('nb-show-prices').checked=true;
+  const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Skapa ny bokning';
+  const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Skapa bokning';
+  const msg=document.getElementById('nb-msg');if(msg)msg.style.display='none';
+}
+
+function toggleNB(){
+  const f=document.getElementById('newBookingForm');
+  if(f.style.display==='none'){resetBookingForm();f.style.display='block';}
+  else{f.style.display='none';}
+}
+
+function editBooking(id,ev){
+  if(ev)ev.stopPropagation();
+  const b=(allBookings||[]).find(x=>x.id===id);
+  if(!b){alert('Hittar inte bokningen.');return;}
+  _editingBookingId=id;
+  document.getElementById('nb-name').value=b.name||'';
+  document.getElementById('nb-date').value=b.event_date||'';
+  document.getElementById('nb-time').value=b.event_time?b.event_time.slice(0,5):'';
+  document.getElementById('nb-event-type').value=b.event_type||'Middag';
+  document.getElementById('nb-guests').value=b.expected_guests||'';
+  document.getElementById('nb-deadline').value=b.deadline||'';
+  document.getElementById('nb-contact').value=b.contact_name||'';
+  document.getElementById('nb-email').value=b.contact_email||'';
+  document.getElementById('nb-phone').value=b.contact_phone||'';
+  document.getElementById('nb-menu').value=b.menu_id||'';
+  document.getElementById('nb-reminder').value=String(b.reminder_days||0);
+  document.getElementById('nb-remind-email').checked=(!b.reminder_channel||b.reminder_channel==='email'||b.reminder_channel==='both');
+  document.getElementById('nb-remind-sms').checked=(b.reminder_channel==='sms'||b.reminder_channel==='both');
+  document.getElementById('nb-responsible').value=b.responsible_staff||'';
+  document.getElementById('nb-table').value=b.table_label||'';
+  document.getElementById('nb-show-prices').checked=(b.show_prices!==false);
+  document.getElementById('nb-comment').value=b.internal_comment||'';
+  const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Ändra bokning';
+  const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Spara ändringar';
+  const msg=document.getElementById('nb-msg');if(msg)msg.style.display='none';
+  const f=document.getElementById('newBookingForm');f.style.display='block';
+  f.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+async function createBooking(){if(IS_DEMO)return demoBlock();
   const name=document.getElementById('nb-name').value.trim();
   const date=document.getElementById('nb-date').value;
   if(!name||!date){showMsg('nb-msg','merr','Namn och datum krävs.');return;}
-  const {error}=await db.from('bookings').insert({
+  const payload={
     restaurant_id:rest.id,name,event_date:date,
     event_time:document.getElementById('nb-time').value||null,
     event_type:document.getElementById('nb-event-type').value||null,
@@ -1130,16 +1351,25 @@ async function createBooking(){
     reminder_days:parseInt(document.getElementById('nb-reminder').value)||0,
     reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
     internal_comment:document.getElementById('nb-comment').value.trim()||null,
-    responsible_staff:document.getElementById('nb-responsible').value.trim()||null
-  });
+    responsible_staff:document.getElementById('nb-responsible').value.trim()||null,
+    table_label:document.getElementById('nb-table').value.trim()||null,
+    show_prices:!!document.getElementById('nb-show-prices').checked
+  };
+  const wasEdit=!!_editingBookingId;
+  let error;
+  if(wasEdit){
+    ({error}=await db.from('bookings').update(payload).eq('id',_editingBookingId));
+  }else{
+    ({error}=await db.from('bookings').insert(payload));
+  }
   if(error){showMsg('nb-msg','merr','Fel: '+error.message);return;}
-  showMsg('nb-msg','mok','✓ Bokning skapad! Gå in i bokningen och skicka bekräftelse till kontaktpersonen samt länk till beställningssida för gästerna.');
-  setTimeout(()=>{document.getElementById('newBookingForm').style.display='none';},4000);
+  showMsg('nb-msg','mok',wasEdit?'✓ Bokningen uppdaterad!':'✓ Bokning skapad! Gå in i bokningen och skicka bekräftelse till kontaktpersonen samt länk till beställningssida för gästerna.');
+  resetBookingForm();
+  setTimeout(()=>{document.getElementById('newBookingForm').style.display='none';},wasEdit?1500:4000);
   renderBookings();
 }
 
-async function delBooking(id,ev){
-  if(IS_DEMO)return demoBlock();
+async function delBooking(id,ev){if(IS_DEMO)return demoBlock();
   ev.stopPropagation();
   if(!confirm('Ta bort bokningen? Den sparas i Arkiv och kan återställas.'))return;
   await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
@@ -1148,20 +1378,19 @@ async function delBooking(id,ev){
 }
 
 // PÅMINNELSE
-async function doReminder(id,ev){
-  if(IS_DEMO)return demoBlock();
+async function doReminder(id,ev){if(IS_DEMO)return demoBlock();
   ev.stopPropagation();
-  const {data:b}=await db.from('bookings').select('*, orders(id)').eq('id',id).single();
-  if(b.expected_guests&&(b.orders||[]).length>=b.expected_guests){alert('Alla gäster har svarat!');return;}
-  const miss=b.expected_guests?(b.expected_guests-(b.orders||[]).length)+' av '+b.expected_guests+' saknas':'';
+  const {data:b}=await db.from('bookings').select('*, orders(id, order_items(menu_items(menu_categories(label))))').eq('id',id).single();
+  const _g=bOrderStats(b).guests;
+  if(b.expected_guests&&_g>=b.expected_guests){alert('Alla gäster har svarat!');return;}
+  const miss=b.expected_guests?(b.expected_guests-_g)+' av '+b.expected_guests+' saknas':'';
   if(!confirm('Skicka påminnelse till '+b.contact_name+'?\n\n'+miss+'\n\n(Demo: markeras som skickad)'))return;
   await db.from('bookings').update({reminder_sent_at:new Date().toISOString()}).eq('id',id);
   reRender(id);
 }
 
 // SKICKA SAMMANSTÄLLNING
-async function sendSummary(id,ch){
-  if(IS_DEMO)return demoBlock();
+async function sendSummary(id,ch){if(IS_DEMO)return demoBlock();
   const {data:b}=await db.from('bookings').select('*').eq('id',id).single();
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
@@ -1172,6 +1401,9 @@ async function sendSummary(id,ch){
     alert(ch==='email'?'Ingen e-post registrerad för kontaktpersonen.':'Inget telefonnummer registrerat för kontaktpersonen.');
     return;
   }
+  const _btn=event?.target;const _orig=_btn?_btn.textContent:'';
+  if(_btn){if(_btn.disabled)return;_btn.disabled=true;_btn.textContent='Skickar...';}
+  const _restoreBtn=()=>{if(_btn){_btn.disabled=false;_btn.textContent=_orig;}};
   let text=b.name+'\n'+ds+(b.event_type?' – '+b.event_type:'')+(b.event_time?' kl '+b.event_time.slice(0,5):'')+' | '+b.contact_name+'\n';
   text+='Beställningar: '+(orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+'\n\n';
   const byCat={};
@@ -1180,7 +1412,7 @@ async function sendSummary(id,ch){
     const c=oi.menu_items.menu_categories?.label||'Övrigt',n=oi.menu_items.name;
     if(!byCat[c])byCat[c]={};byCat[c][n]=(byCat[c][n]||0)+1;
   }));
-  Object.entries(byCat).forEach(([c,items])=>{text+=c+':\n';Object.entries(items).forEach(([n,cnt])=>text+='  '+n+' ×'+cnt+'\n');text+='\n';});
+  Object.entries(byCat).forEach(([c,items])=>{const tot=Object.values(items).reduce((s,x)=>s+x,0);text+=c+' ('+tot+' st totalt):\n';Object.entries(items).forEach(([n,cnt])=>text+='  '+n+' ×'+cnt+'\n');text+='\n';});
   const al=[];(orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{if(oi.comment?.trim())al.push(o.guest_name+' – '+oi.menu_items?.name+': '+oi.comment);}));
   if(al.length){text+='Kommentarer & allergier:\n';al.forEach(a=>text+='  '+a+'\n');}
   // Öppna mejl eller SMS
@@ -1193,13 +1425,14 @@ async function sendSummary(id,ch){
       body:JSON.stringify({type:'guestlink',booking:b,restaurant:rest,guestLink})
     });
     const json=await res.json();
-    if(!json.ok){alert('Fel: '+(json.error||'okänt'));return;}
+    if(!json.ok){_restoreBtn();alert('Fel: '+(json.error||'okänt'));return;}
     const now=new Date();
     const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
     await db.from('bookings').update({
       summary_sent_at:now.toISOString(),
       summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via mejl till '+dest+'\n'
     }).eq('id',id);
+    _restoreBtn();
     alert('✓ Gästlänk skickad till '+dest+'!');
     reRender(id);
     return;
@@ -1220,24 +1453,24 @@ async function sendSummary(id,ch){
         summary_sent_at:now.toISOString(),
         summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via SMS till '+dest+'\n'
       }).eq('id',id);
+      _restoreBtn();
       reRender(id);
       alert('✓ SMS skickat till '+dest+'!');
-    }catch(err){alert('Fel: '+err.message);}
+    }catch(err){_restoreBtn();alert('Fel: '+err.message);}
   }
 }
 
 
 // COPY / PRINT KITCHEN
-async function copyKitchen(id){
-  if(IS_DEMO)return demoBlock();
+async function copyKitchen(id){if(IS_DEMO)return demoBlock();
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()+(b.event_time?' kl '+b.event_time.slice(0,5):'');
   const bestellningar=(orders||[]).length;
   const gastInfo=b.expected_guests?bestellningar+' av '+b.expected_guests+' gäster har beställt':bestellningar+' beställningar';
-  let text=b.name+'\n'+ds+'\n'+gastInfo+'\n'+'─'.repeat(32)+'\n\n';
+  let text=b.name+'\n'+ds+'\n'+(b.table_label?'Bord: '+b.table_label+'\n':'')+gastInfo+'\n'+'─'.repeat(32)+'\n\n';
   const byCat={};
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
     if(!oi.menu_items||!oi.menu_items.name)return;
@@ -1247,7 +1480,8 @@ async function copyKitchen(id){
     byCat[c][n]=(byCat[c][n]||0)+1;
   }));
   Object.entries(byCat).forEach(([c,items])=>{
-    text+=c.toUpperCase()+'\n';
+    const tot=Object.values(items).reduce((s,x)=>s+x,0);
+    text+=c.toUpperCase()+' ('+tot+' st totalt)\n';
     const maxLen=Math.max(...Object.keys(items).map(n=>n.length));
     Object.entries(items).forEach(([n,cnt])=>{
       const pad='.'.repeat(Math.max(2,maxLen-n.length+4));
@@ -1266,15 +1500,14 @@ async function copyKitchen(id){
   navigator.clipboard.writeText(text).then(()=>alert('\u2713 Sammanfattning kopierad!')).catch(()=>alert('Kunde inte kopiera.'));
 }
 
-async function copyGuestList(id){
-  if(IS_DEMO)return demoBlock();
+async function copyGuestList(id){if(IS_DEMO)return demoBlock();
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
   const {data:b}=await db.from('bookings').select('name,event_date,event_time').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()+(b.event_time?' kl '+b.event_time.slice(0,5):'');
   let text=b.name+' – Gästlista\n'+ds+'\n'+'─'.repeat(32)+'\n\n';
-  (orders||[]).forEach((o,i)=>{
+  sortGuestsSpecialFirst(orders).forEach((o,i)=>{
     const ratter=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
     const komm=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
     text+=(i+1)+'. '+o.guest_name+'\n';
@@ -1287,7 +1520,7 @@ async function copyGuestList(id){
 
 async function printKitchen(id){
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -1310,29 +1543,32 @@ async function printKitchen(id){
     body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
     h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
     .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
-    .cat{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b8955a;margin:1.25rem 0 .4rem}
-    .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:13px}
-    .alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:5px 10px;font-size:11px;margin:2px 0 8px;color:#7a5c00}
-    @media print{body{padding:.75rem}}
+    .cat{font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a1712;margin:1.25rem 0 .4rem;border-bottom:1px solid #999;padding-bottom:3px}
+    .cat::before{content:"● ";color:#3a7d44}
+    .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ccc;font-size:13px}
+    .alg{position:relative;background:#fff;border:1px solid #333;border-radius:4px;padding:5px 10px;font-size:11px;margin:2px 0 8px;color:#1a1712;font-style:italic}
+    .alg .warn{color:#ff6a00;font-style:normal;font-weight:700}
+    .alg::before{content:"▶";position:absolute;left:-1.4rem;top:5px;color:#1a1712;font-weight:700;font-style:normal;font-size:11px}
+    @media print{body{padding:.75rem .75rem .75rem 2rem}}
   </style></head><body>`;
   ph+=`<h1>${b.name}</h1>`;
+  ph+=b.table_label?`<div style="font-size:15px;font-weight:600;color:#1a1712;margin-bottom:.5rem">Bord: ${b.table_label}</div>`:'';
   ph+=`<div class="meta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orders?.length||0}${b.expected_guests?' av '+b.expected_guests:''} beställningar · Skrivet ut: ${new Date().toLocaleString('sv-SE')}</div>`;
   
   Object.entries(byCat).forEach(([cat,items])=>{
     ph+=`<div class="cat">${cat}</div>`;
     items.forEach(({name,n,k})=>{
       ph+=`<div class="row"><span>${name}</span><strong>${n} st</strong></div>`;
-      if(allergies[k])ph+=allergies[k].map(a=>`<div class="alg">⚠ ${a}</div>`).join('');
+      if(allergies[k])ph+=allergies[k].map(a=>`<div class="alg"><span class="warn">⚠</span> ${a}</div>`).join('');
     });
   });
   ph+='</'+'body></'+'html>';
   w.document.write(ph);w.document.close();w.print();
 }
 
-async function exportPDF(id){
-  if(IS_DEMO)return demoBlock();
+async function exportPDF(id){if(IS_DEMO)return demoBlock();
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
@@ -1352,11 +1588,12 @@ async function exportPDF(id){
   doc.setFontSize(12);
   doc.setTextColor(100,100,100);
   doc.text(b.name+' – '+dateStr+(b.event_time?' kl '+b.event_time.slice(0,5):''),margin,y);y+=5;
+  if(b.table_label){doc.setFont('helvetica','bold');doc.setTextColor(26,23,18);doc.text('Bord: '+b.table_label,margin,y);y+=5;doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);}
   doc.text('Beställningar: '+(orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:''),margin,y);y+=5;
   doc.text('Utskriven: '+new Date().toLocaleDateString('sv-SE')+' kl '+String(new Date().getHours()).padStart(2,'0')+':'+String(new Date().getMinutes()).padStart(2,'0'),margin,y);y+=8;
 
   // Gold line
-  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.setDrawColor(90,90,90);doc.setLineWidth(0.5);
   doc.line(margin,y,pageW-margin,y);y+=8;
 
   // Rätter per kategori - räkna antal, inga gästnamn
@@ -1373,9 +1610,12 @@ async function exportPDF(id){
 
   Object.entries(pdfByCat).forEach(([cat,items])=>{
     checkPage(16);
+    const catTotal=items.reduce((s,it)=>s+it.cnt,0);
     doc.setFont('helvetica','bold');doc.setFontSize(10);
-    doc.setTextColor(184,149,90);
-    doc.text(cat.toUpperCase(),margin,y);y+=6;
+    doc.setTextColor(26,23,18);
+    doc.text(cat.toUpperCase(),margin,y);
+    doc.text(catTotal+' st totalt',pageW-margin,y,{align:'right'});
+    y+=6;
     doc.setTextColor(26,23,18);
 
     items.forEach(({name,cnt,k})=>{
@@ -1387,7 +1627,7 @@ async function exportPDF(id){
       doc.setFont('helvetica','normal');
       y+=7;
       if(pdfAllergies[k]){
-        doc.setFontSize(9);doc.setTextColor(120,80,0);
+        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,23,18);
         pdfAllergies[k].forEach(a=>{checkPage(6);doc.text('  ⚠ '+a,margin+4,y);y+=5;});
         doc.setTextColor(26,23,18);doc.setFontSize(12);
       }
@@ -1400,12 +1640,12 @@ async function exportPDF(id){
   (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{if(oi.comment?.trim())al.push(o.guest_name+' – '+oi.menu_items?.name+': '+oi.comment);}));
   if(al.length){
     checkPage(20);
-    doc.setDrawColor(200,180,80);doc.setFillColor(255,251,236);
+    doc.setDrawColor(51,51,51);doc.setFillColor(255,255,255);
     doc.setLineWidth(0.3);
     const alHeight=14+al.length*6;
     doc.roundedRect(margin,y,contentW,alHeight,2,2,'FD');
     doc.setFont('helvetica','bold');doc.setFontSize(10);
-    doc.setTextColor(100,80,0);
+    doc.setTextColor(26,23,18);
     doc.text('⚠ Kommentarer & Allergier',margin+4,y+7);y+=12;
     doc.setFont('helvetica','normal');doc.setFontSize(9);
     al.forEach(a=>{doc.text('• '+a,margin+4,y);y+=6;});
@@ -1414,7 +1654,7 @@ async function exportPDF(id){
 
   // Footer
   doc.setFont('helvetica','normal');doc.setFontSize(8);
-  doc.setTextColor(160,160,160);
+  doc.setTextColor(110,110,110);
   doc.text('PreMeny – premeny.se',margin,pageH-10);
 
   const filename='kokslista-'+b.name.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase()+'-'+b.event_date+'.pdf';
@@ -1424,7 +1664,7 @@ async function exportPDF(id){
 
 async function printGuestList(id){
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -1433,34 +1673,35 @@ async function printGuestList(id){
     body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
     h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
     .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
-    .row{padding:8px 0;border-bottom:1px solid #eee;font-size:13px}
+    .row{padding:8px 0;border-bottom:1px solid #ccc;font-size:13px}
     .row:last-child{border-bottom:none}
-    .num{color:#b8955a;font-weight:600;margin-right:8px}
-    .dishes{color:#666;font-size:12px;margin-top:2px}
-    .allergy{color:#8a7020;font-size:11px;margin-top:2px}
-    @media print{body{padding:.75rem}}
+    .num{color:#1a1712;font-weight:600;margin-right:8px}
+    .dishes{color:#555;font-size:12px;margin-top:2px}
+    .allergy{position:relative;color:#1a1712;font-size:11px;margin-top:2px;font-style:italic;border-left:2px solid #333;padding-left:6px}
+    .allergy .warn{color:#ff6a00;font-style:normal;font-weight:700}
+    .allergy::before{content:"▶";position:absolute;left:-1.4rem;top:0;color:#1a1712;font-weight:700;font-style:normal;font-size:11px}
+    @media print{body{padding:.75rem .75rem .75rem 2rem}}
   </style></head><body>`;
   ph+=`<h1>Gästlista – ${b.name}</h1>`;
   ph+=`<div class="meta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orders?.length||0}${b.expected_guests?' av '+b.expected_guests:''} gäster · Skrivet ut: ${new Date().toLocaleString('sv-SE')}</div>`;
-  (orders||[]).forEach((o,i)=>{
+  sortGuestsSpecialFirst(orders).forEach((o,i)=>{
     const dishes=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
     const allergy=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
     ph+=`<div class="row"><span class="num">${i+1}.</span><strong>${o.guest_name}</strong>`;
     if(dishes)ph+=`<div class="dishes">${dishes}</div>`;
-    if(allergy)ph+=`<div class="allergy">⚠ ${allergy}</div>`;
+    if(allergy)ph+=`<div class="allergy"><span class="warn">⚠</span> ${allergy}</div>`;
     ph+=`</div>`;
   });
   ph+='</'+'body></'+'html>';
   w.document.write(ph);w.document.close();w.print();
 }
 
-async function exportGuestPDF(id){
-  if(IS_DEMO)return demoBlock();
+async function exportGuestPDF(id){if(IS_DEMO)return demoBlock();
   if(!window.jspdf){alert('PDF-biblioteket laddas. Försök igen.');return;}
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
-  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
@@ -1473,15 +1714,15 @@ async function exportGuestPDF(id){
   doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(100,100,100);
   doc.text(b.name+' – '+ds+(b.event_time?' kl '+b.event_time.slice(0,5):''),margin,y);y+=5;
   doc.text((orders?.length||0)+(b.expected_guests?' av '+b.expected_guests:'')+' gäster · Skrivet ut: '+new Date().toLocaleDateString('sv-SE'),margin,y);y+=8;
-  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.setDrawColor(90,90,90);doc.setLineWidth(0.5);
   doc.line(margin,y,pageW-margin,y);y+=8;
 
-  (orders||[]).forEach((o,i)=>{
+  sortGuestsSpecialFirst(orders).forEach((o,i)=>{
     const dishes=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
     const allergy=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
     checkPage(14);
     doc.setFont('helvetica','normal');doc.setFontSize(12);doc.setTextColor(26,23,18);
-    doc.setFont('helvetica','bold');doc.setTextColor(184,149,90);
+    doc.setFont('helvetica','bold');doc.setTextColor(26,23,18);
     doc.text(String(i+1)+'.',margin,y);
     doc.setFont('helvetica','bold');doc.setTextColor(26,23,18);
     doc.text(o.guest_name||'',margin+8,y);
@@ -1491,13 +1732,13 @@ async function exportGuestPDF(id){
       y+=5;checkPage(6);doc.text(dl,margin+8,y);y+=dl.length*4;
     }else{y+=6;}
     if(allergy){
-      doc.setFontSize(9);doc.setTextColor(120,80,0);
+      doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,23,18);
       checkPage(5);doc.text('⚠ '+allergy,margin+8,y);y+=5;
     }
     y+=3;
   });
 
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(110,110,110);
   doc.text('PreMeny – premeny.se',margin,pageH-10);
   doc.save('gastlista-'+b.name.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase()+'-'+b.event_date+'.pdf');
 }
@@ -1505,8 +1746,15 @@ async function exportGuestPDF(id){
 // KALENDER
 async function initCalendar(){
   if(!rest)return;
-  const {data:bs}=await db.from('bookings').select('event_date,name').eq('restaurant_id',rest.id);
-  calDates={};(bs||[]).forEach(b=>{if(!calDates[b.event_date])calDates[b.event_date]=[];calDates[b.event_date].push(b.name);});
+  const {data:bs}=await db.from('bookings').select('event_date,name,deadline,completed_at,reminder_days,expected_guests, orders(id, order_items(menu_items(menu_categories(label))))').eq('restaurant_id',rest.id).is('deleted_at',null);
+  const rank={done:1,progress:2,late:3};
+  calDates={};
+  (bs||[]).forEach(b=>{
+    if(!calDates[b.event_date])calDates[b.event_date]={names:[],status:'done'};
+    calDates[b.event_date].names.push(b.name);
+    const s=bStatus(b);
+    if(rank[s]>rank[calDates[b.event_date].status])calDates[b.event_date].status=s;
+  });
   renderCal();
 }
 
@@ -1523,7 +1771,7 @@ function renderCal(){
   for(let day=1;day<=dim;day++){
     const ds=calY+'-'+String(calM+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
     const has=!!calDates[ds],isToday=today.getFullYear()===calY&&today.getMonth()===calM&&today.getDate()===day,isSel=calSel.has(ds);
-    html+=`<div class="cal-day${has?' has':''}${isToday?' today':''}${isSel?' sel':''}" onclick="${has||true?`toggleCalDay('${ds}')`:''}" title="${has?calDates[ds].join(', '):''}">${day}${has?`<div class="cal-dot"></div>`:''}</div>`;
+    html+=`<div class="cal-day${has?' has':''}${isToday?' today':''}${isSel?' sel':''}" onclick="${has||true?`toggleCalDay('${ds}')`:''}" title="${has?calDates[ds].names.join(', '):''}">${day}${has?`<div class="cal-dot" style="background:${STATUS_COLORS[calDates[ds].status]};opacity:1;width:5px;height:5px"></div>`:''}</div>`;
   }
   grid.innerHTML=html;
   const info=calSel.size?[...calSel].sort().join(', '):'Inget datum valt';
@@ -1532,17 +1780,28 @@ function renderCal(){
   renderCalResults();
 }
 
+function goToBooking(id){
+  showTab('bookings');
+  setTimeout(function(){
+    if(!openB[id]){toggleB(id);}
+    const card=document.getElementById('bc_'+id);
+    if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
+  },150);
+}
+
 function updateNextBooking(){
   const bar=document.getElementById('nextBookingBar');
   if(!bar)return;
   const months=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
   const todayStr=new Date().toLocaleDateString('sv-SE');
+  // allBookings är redan framtida + sorterade på event_date; ta första med datum >= idag
   const upcoming=(allBookings||[]).filter(b=>b.event_date&&b.event_date>=todayStr).sort((a,b)=>a.event_date.localeCompare(b.event_date));
   if(!upcoming.length){bar.style.display='none';return;}
   const b=upcoming[0];
   const d=new Date(b.event_date+'T12:00:00');
   const dateTxt=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
   const timeTxt=b.event_time?' kl '+b.event_time.slice(0,5):'';
+  // dagar kvar
   const diffDays=Math.round((new Date(b.event_date+'T12:00:00')-new Date(todayStr+'T12:00:00'))/86400000);
   const when=diffDays===0?'idag':diffDays===1?'imorgon':'om '+diffDays+' dagar';
   const guests=b.expected_guests?` · ${b.expected_guests} gäster`:'';
@@ -1557,19 +1816,9 @@ function updateNextBooking(){
   bar.style.display='block';
 }
 
-function goToBooking(id){
-  showTab('bookings');
-  setTimeout(function(){
-    if(!openB[id]){toggleB(id);}
-    const card=document.getElementById('bc_'+id);
-    if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
-  },150);
-}
-
 function toggleCalDay(ds){calSel.has(ds)?calSel.delete(ds):calSel.add(ds);renderCal();}
 function calClear(){calSel.clear();renderCal();}
-async function archiveFromCal(id){
-  if(IS_DEMO)return demoBlock();
+async function archiveFromCal(id){if(IS_DEMO)return demoBlock();
   if(!confirm('Arkivera bokningen? Den kan återställas från Arkiv.'))return;
   await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
   await initCalendar();
@@ -1577,8 +1826,7 @@ async function archiveFromCal(id){
   renderBookings();
 }
 
-async function delBookingFromCal(id){
-  if(IS_DEMO)return demoBlock();
+async function delBookingFromCal(id){if(IS_DEMO)return demoBlock();
   if(!confirm('Ta bort bokningen? Den kan återställas från Arkiv.'))return;
   await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
   await initCalendar();
@@ -1603,15 +1851,15 @@ function buildKitchenHtml(orders){
   Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
   return Object.entries(byCat).map(([cat,items])=>{
     const catTotal=items.reduce((s,it)=>s+it.n,0);
-    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
+    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span class="pmk-cat" style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
     items.map(({name,n,k})=>
       `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
-          <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
+          <div class="pmk-bar" style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
           <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
         </div>
-        ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
+        ${allergies[k]?`<div class="pmk-alg" style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00"><span class="warn">⚠</span> ${allergies[k].join('<br>')}</div>`:''}
       </div>`
     ).join('');
   }).join('');
@@ -1638,7 +1886,7 @@ function printCalKitchen(){
   const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
   const title=dates.length===1?dateLabels:dates.length+' datum: '+dateLabels;
   const w=window.open('','_blank');
-  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #e8d49a;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#b8955a}.alg{background:#fff8e8;border:1px solid #e8d49a;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#7a5c00}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
+  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #333;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#1a1712}.alg{background:#fff;border:1px solid #333;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#1a1712;font-style:italic}.pmk-cat{font-size:15px !important}.pmk-cat::before{content:"● ";color:#3a7d44}.pmk-bar{display:none !important}.pmk-alg{position:relative !important;background:#fff !important;border:1px solid #333 !important;color:#1a1712 !important;font-style:italic !important}.pmk-alg::before{content:"▶";position:absolute;left:-1.4rem;top:5px;color:#1a1712;font-weight:700;font-style:normal;font-size:11px}.alg .warn,.pmk-alg .warn{color:#ff6a00 !important;font-style:normal !important;font-weight:700 !important}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
   w.document.close();w.print();
 }
 
@@ -1715,8 +1963,7 @@ async function renderCalResults(){
   el.innerHTML=html;
 }
 
-async function exportCalPDF(){
-  if(IS_DEMO)return demoBlock();
+async function exportCalPDF(){if(IS_DEMO)return demoBlock();
   if(!window.jspdf){alert('PDF-biblioteket laddas. Försök igen om ett ögonblick.');return;}
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
@@ -1734,7 +1981,7 @@ async function exportCalPDF(){
   doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(100,100,100);
   doc.text(dateLabels,margin,y);y+=5;
   doc.text('Skrivet ut: '+new Date().toLocaleString('sv-SE'),margin,y);y+=8;
-  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);
+  doc.setDrawColor(90,90,90);doc.setLineWidth(0.5);
   doc.line(margin,y,pageW-margin,y);y+=8;
 
   // Hämta alla bokningar för valda datum
@@ -1756,7 +2003,7 @@ async function exportCalPDF(){
 
   Object.entries(byCat).forEach(([cat,items])=>{
     checkPage(16);
-    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(184,149,90);
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(26,23,18);
     doc.text(cat.toUpperCase(),margin,y);y+=6;
     doc.setTextColor(26,23,18);
     items.forEach(({name,cnt,k})=>{
@@ -1768,7 +2015,7 @@ async function exportCalPDF(){
       doc.setFont('helvetica','normal');
       y+=7;
       if(allergies[k]){
-        doc.setFontSize(9);doc.setTextColor(120,80,0);
+        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,23,18);
         allergies[k].forEach(a=>{checkPage(6);doc.text('  ⚠ '+a,margin+4,y);y+=5;});
         doc.setTextColor(26,23,18);doc.setFontSize(12);
       }
@@ -1776,7 +2023,7 @@ async function exportCalPDF(){
     y+=4;
   });
 
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(110,110,110);
   doc.text('PreMeny – premeny.se',margin,pageH-10);
   doc.save('kokslista-'+dates[0]+'.pdf');
 }
@@ -1793,18 +2040,20 @@ async function backupPDF(){
   function checkPage(n){if(y+n>pageH-margin){doc.addPage();y=margin;}}
 
   const today=new Date().toLocaleDateString('sv-SE');
+  // Hämta kommande bokningar med beställningar
   const {data:bs}=await db.from('bookings')
     .select('*, orders(*, order_items(*, menu_items(name, menu_categories(label))))')
     .eq('restaurant_id',rest.id).is('deleted_at',null).gte('event_date',today).order('event_date');
   const bookings=bs||[];
 
+  // Försättsblad-rubrik
   doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(26,23,18);
   doc.text('Kommande bokningar',margin,y);y+=8;
   doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(100,100,100);
   doc.text((rest.name||'')+' · Säkerhetskopia',margin,y);y+=5;
   doc.text('Skapad: '+new Date().toLocaleString('sv-SE'),margin,y);y+=5;
   doc.text(bookings.length+' kommande bokning'+(bookings.length===1?'':'ar'),margin,y);y+=8;
-  doc.setDrawColor(184,149,90);doc.setLineWidth(0.5);doc.line(margin,y,pageW-margin,y);y+=10;
+  doc.setDrawColor(90,90,90);doc.setLineWidth(0.5);doc.line(margin,y,pageW-margin,y);y+=10;
 
   if(!bookings.length){
     doc.setFontSize(12);doc.setTextColor(120,120,120);
@@ -1817,6 +2066,7 @@ async function backupPDF(){
     const d=new Date(b.event_date+'T12:00:00');
     const dateTxt=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
     const timeTxt=b.event_time?' kl '+b.event_time.slice(0,5):'';
+    // Bokningsrubrik
     doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(26,23,18);
     doc.text(b.name||'(namnlös)',margin,y);y+=6;
     doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(90,90,90);
@@ -1825,6 +2075,7 @@ async function backupPDF(){
     if(b.expected_guests)meta.push(b.expected_guests+' gäster');
     if(b.deadline){const dl=new Date(b.deadline+'T12:00:00');meta.push('sista best: '+dl.getDate()+' '+mshort[dl.getMonth()]);}
     if(meta.length){doc.text(meta.join('  ·  '),margin,y);y+=5;}
+    // Kontaktperson
     const kontakt=[];
     if(b.contact_name)kontakt.push(b.contact_name);
     if(b.contact_phone)kontakt.push(b.contact_phone);
@@ -1832,6 +2083,7 @@ async function backupPDF(){
     if(kontakt.length){doc.text('Kontakt: '+kontakt.join(' · '),margin,y);y+=5;}
     y+=2;
 
+    // Kökslista för bokningen
     const orders=b.orders||[];
     const counts={};const allergies={};
     orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
@@ -1851,7 +2103,7 @@ async function backupPDF(){
       Object.entries(byCat).forEach(([cat,items])=>{
         checkPage(12);
         const catTotal=items.reduce((s,it)=>s+it.cnt,0);
-        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(184,149,90);
+        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,23,18);
         doc.text(cat.toUpperCase(),margin+2,y);
         doc.text(catTotal+' st totalt',pageW-margin,y,{align:'right'});y+=5;
         doc.setTextColor(26,23,18);
@@ -1862,7 +2114,7 @@ async function backupPDF(){
           doc.text(String(cnt)+' st',pageW-margin,y,{align:'right'});
           y+=6;
           if(allergies[k]){
-            doc.setFontSize(8);doc.setTextColor(120,80,0);
+            doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(26,23,18);
             allergies[k].forEach(a=>{checkPage(5);doc.text('  ⚠ '+a,margin+6,y);y+=4;});
             doc.setTextColor(26,23,18);doc.setFontSize(11);
           }
@@ -1875,28 +2127,31 @@ async function backupPDF(){
       doc.setFont('helvetica','normal');
     }
 
+    // Avdelare mellan bokningar
     if(idx<bookings.length-1){
       y+=2;checkPage(8);
-      doc.setDrawColor(220,216,205);doc.setLineWidth(0.3);doc.line(margin,y,pageW-margin,y);y+=8;
+      doc.setDrawColor(170,170,170);doc.setLineWidth(0.3);doc.line(margin,y,pageW-margin,y);y+=8;
     }
   });
 
+  // Sidfot på alla sidor
   const pages=doc.internal.getNumberOfPages();
   for(let i=1;i<=pages;i++){
     doc.setPage(i);
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,160);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(110,110,110);
     doc.text('PreMeny – premeny.se',margin,pageH-10);
     doc.text(i+' / '+pages,pageW-margin,pageH-10,{align:'right'});
   }
   doc.save('PreMeny-sakerhetskopia-'+new Date().toLocaleDateString('sv-SE')+'.pdf');
 }
 
+// Daglig påminnelse om säkerhetskopia (en gång per dag)
 function maybeShowBackupReminder(){
   try{
     const today=new Date().toLocaleDateString('sv-SE');
     const key='premeny_backup_reminder_'+(rest?rest.id:'x');
     const last=localStorage.getItem(key);
-    if(last===today)return;
+    if(last===today)return; // redan visad/avfärdad idag
     const bar=document.getElementById('backupReminder');
     if(bar)bar.style.display='flex';
   }catch(e){}
@@ -1959,8 +2214,7 @@ async function deleteMenuPermanent(id){
   await db.from('menus').delete().eq('id',id);
   renderArchivedMenus();
 }
-async function archiveMenu(id){
-  if(IS_DEMO)return demoBlock();
+async function archiveMenu(id){if(IS_DEMO)return demoBlock();
   if(!confirm('Arkivera menyn? Den kan återställas från Arkiv.'))return;
   await db.from('menus').update({archived:true}).eq('id',id);
   await renderMenu();
@@ -1999,16 +2253,14 @@ function renderArchiveList(bookings){
   }).join('');
 }
 
-async function restoreBooking(id){
-  if(IS_DEMO)return demoBlock();
+async function restoreBooking(id){if(IS_DEMO)return demoBlock();
   if(!confirm('Återställ bokningen till aktiva bokningar?'))return;
   await db.from('bookings').update({deleted_at:null}).eq('id',id);
   allArchived=allArchived.filter(b=>b.id!==id);
   renderArchiveList(allArchived);
   renderBookings();
 }
-async function deleteArchivedBooking(id){
-  if(IS_DEMO)return demoBlock();
+async function deleteArchivedBooking(id){if(IS_DEMO)return demoBlock();
   if(!confirm('Radera bokningen permanent? Det går inte att ångra.'))return;
   await db.from('orders').delete().eq('booking_id',id);
   await db.from('bookings').delete().eq('id',id);
@@ -2101,13 +2353,14 @@ async function renderMenu(keepOpen){
   menus=(menuData||[]).filter(m=>!m.archived&&!m.deleted_at);
   window._menuIds=menus.map(m=>m.id);
   if(!menus.length){sel.innerHTML='<div style="font-size:13px;color:var(--muted)">Inga menyer ännu.</div>';return;}
-  sel.innerHTML=menus.map(function(m){
+  function _menuCardHtml(m){
     var desc=m.description?'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+escHtml(m.description)+'</div>':'';
     return '<div class="bcard" id="mc_'+m.id+'">'
       +'<div class="bhead" onclick="toggleMC(this.parentElement.id.slice(3))">'
         +'<div style="flex:1">'
           +'<div style="display:flex;align-items:center;gap:8px">'
             +'<div class="bname">'+escHtml(m.name)+'</div>'
+            +(m.price?'<span style="font-size:13px;color:var(--gold);font-weight:500;white-space:nowrap">'+m.price+' kr</span>':'')
             +'<span style="font-size:12px;color:var(--gold)">Se mer ›</span>'
           +'</div>'
           +desc
@@ -2118,9 +2371,25 @@ async function renderMenu(keepOpen){
         +'<div id="mcontent_'+m.id+'"><div style="font-size:13px;color:var(--muted)">Laddar...</div></div>'
       +'</div>'
     +'</div>';
-  }).join('');
+  }
+  var _filter=window._menuCatFilter||'';
+  var _std=['Lunch','Kväll','Bröllop','Konferens'];
+  var _used=[];menus.forEach(function(m){var c=(m.menu_type||'').trim();if(c&&_used.indexOf(c)<0)_used.push(c);});
+  var _extra=_used.filter(function(c){return _std.indexOf(c)<0;}).sort(function(a,b){return a.localeCompare(b,'sv');});
+  var _chipsCats=_std.concat(_extra);
+  var _dl=document.getElementById('menucat-list');
+  if(_dl)_dl.innerHTML=_chipsCats.map(function(c){return '<option value="'+escHtml(c)+'"></option>';}).join('');
+  var _chipsEl=document.getElementById('menu-cat-chips');
+  if(_chipsEl){
+    var _chip=function(label,val){
+      var on=(_filter===val);
+      return '<button onclick="setMenuCatFilter(\''+String(val).replace(/'/g,"\\'")+'\')" class="btn '+(on?'bp':'bg')+'" style="font-size:12px;padding:4px 12px">'+escHtml(label)+'</button>';
+    };
+    _chipsEl.innerHTML=_chip('Alla','')+_chipsCats.map(function(c){return _chip(c,c);}).join('');
+  }
+  var _show=_filter?menus.filter(function(m){return (m.menu_type||'')===_filter;}):menus;
+  sel.innerHTML=_show.length?_show.map(_menuCardHtml).join(''):'<div style="font-size:13px;color:var(--muted);padding:.5rem 0">Inga menyer i kategorin "'+escHtml(_filter)+'" ännu.</div>';
   // Återöppna aktiv meny om den fanns
-  _menuLoading=false; // Återställ loading-flaggan
   if(keepOpen&&activeMenuId&&menus.find(m=>m.id===activeMenuId)){
     var elOpen=document.getElementById('mc_'+activeMenuId);
     if(elOpen)elOpen.classList.add('open');
@@ -2138,13 +2407,19 @@ async function renderMenu(keepOpen){
     btnImport.addEventListener('click',function(e){e.stopPropagation();openImportForMenu(m.id,m.name);});
     var btnRename=document.createElement('button');btnRename.className='btn bg';btnRename.style.fontSize='12px';btnRename.textContent='Byt namn';
     btnRename.addEventListener('click',function(e){e.stopPropagation();renameMenu(m.id,m.name);});
+    var btnPris=document.createElement('button');btnPris.className='btn bg';btnPris.style.fontSize='12px';btnPris.textContent=m.price?('Menypris: '+m.price+' kr'):'Sätt menypris';
+    btnPris.addEventListener('click',function(e){e.stopPropagation();setMenuPrice(m.id,m.price);});
     var btnKopiera=document.createElement('button');btnKopiera.className='btn bg';btnKopiera.style.fontSize='12px';btnKopiera.textContent='Kopiera meny';
     btnKopiera.addEventListener('click',function(e){e.stopPropagation();copyMenu(m.id);});
     var btnArkivera=document.createElement('button');btnArkivera.className='btn bg';btnArkivera.style.fontSize='12px';btnArkivera.textContent='Arkivera meny';
     btnArkivera.addEventListener('click',function(e){e.stopPropagation();archiveMenu(m.id);});
     var btnDel=document.createElement('button');btnDel.className='btn bd';btnDel.style.fontSize='12px';btnDel.textContent='Ta bort meny';
     btnDel.addEventListener('click',function(e){e.stopPropagation();deleteMenu(m.id);});
-    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnImport);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
+    var inpType=document.createElement('input');inpType.type='text';inpType.setAttribute('list','menucat-list');inpType.setAttribute('autocomplete','off');inpType.value=m.menu_type||'';inpType.placeholder='Kategori';inpType.style.fontSize='12px';inpType.style.padding='4px 8px';inpType.style.width='140px';
+    inpType.addEventListener('click',function(e){e.stopPropagation();});
+    inpType.addEventListener('change',function(e){e.stopPropagation();setMenuType(m.id,inpType.value.trim());});
+    btnsEl.appendChild(inpType);
+    btnsEl.appendChild(btnNy);btnsEl.appendChild(btnImport);btnsEl.appendChild(btnRename);btnsEl.appendChild(btnPris);btnsEl.appendChild(btnKopiera);btnsEl.appendChild(btnArkivera);btnsEl.appendChild(btnDel);
   });
 }
 
@@ -2152,7 +2427,8 @@ async function renderMenu(keepOpen){
 let _menuLoading=false;
 async function toggleMC(id){
   if(_menuLoading)return;
-  const wasOpen=activeMenuId===id;
+  const _el0=document.getElementById('mc_'+id);
+  const wasOpen=_el0?_el0.classList.contains('open'):false;
   activeMenuId=wasOpen?null:id;
   menus.forEach(function(m){
     const el=document.getElementById('mc_'+m.id);
@@ -2176,6 +2452,13 @@ async function loadMenuItems(menuId){
     return;
   }
   el.innerHTML='';
+  var _menuPrice=(menus.find(function(x){return x.id===menuId;})||{}).price;
+  if(_menuPrice){
+    var _pb=document.createElement('div');
+    _pb.style.cssText='background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.35);border-radius:8px;padding:.6rem .9rem;margin-bottom:1.25rem;font-size:13px;color:var(--dark)';
+    _pb.innerHTML='Menypris: <span style="font-weight:500;color:var(--gold)">'+_menuPrice+' kr</span> för hela menyn. Rätt-priserna visas inte för gästen.';
+    el.appendChild(_pb);
+  }
   cats.forEach(function(cat){
     // Category wrapper
     var catDiv=document.createElement('div');
@@ -2191,14 +2474,23 @@ async function loadMenuItems(menuId){
     
     var catBtns=document.createElement('div');
     catBtns.style.display='flex';catBtns.style.gap='6px';
-    
+
+    var _ci=cats.findIndex(function(c){return c.id===cat.id;});
+    var btnUp=document.createElement('button');btnUp.className='btn bg';btnUp.style.cssText='font-size:11px;padding:4px 9px';btnUp.textContent='↑';btnUp.title='Flytta upp';
+    if(_ci<=0)btnUp.disabled=true;else btnUp.addEventListener('click',function(){moveCat(cat.id,-1);});
+    var btnDown=document.createElement('button');btnDown.className='btn bg';btnDown.style.cssText='font-size:11px;padding:4px 9px';btnDown.textContent='↓';btnDown.title='Flytta ner';
+    if(_ci>=cats.length-1)btnDown.disabled=true;else btnDown.addEventListener('click',function(){moveCat(cat.id,1);});
+
     var btnAdd=document.createElement('button');btnAdd.className='btn bg';btnAdd.style.cssText='font-size:11px;padding:4px 10px';btnAdd.textContent='+ Lägg till rätt';
     btnAdd.addEventListener('click',function(){showAI(cat.id);});
+
+    var btnRenameCat=document.createElement('button');btnRenameCat.className='btn bg';btnRenameCat.style.cssText='font-size:11px;padding:4px 10px';btnRenameCat.textContent='Byt namn';
+    btnRenameCat.addEventListener('click',function(){renameCat(cat.id,cat.label);});
     
     var btnDelCat=document.createElement('button');btnDelCat.className='btn bd';btnDelCat.style.cssText='font-size:11px;padding:4px 10px';btnDelCat.textContent='Ta bort rubrik';
     btnDelCat.addEventListener('click',function(){delCat(cat.id);});
     
-    catBtns.appendChild(btnAdd);catBtns.appendChild(btnDelCat);
+    catBtns.appendChild(btnUp);catBtns.appendChild(btnDown);catBtns.appendChild(btnAdd);catBtns.appendChild(btnRenameCat);catBtns.appendChild(btnDelCat);
     catHead.appendChild(catLabel);catHead.appendChild(catBtns);
     catDiv.appendChild(catHead);
     
@@ -2229,7 +2521,7 @@ async function loadMenuItems(menuId){
       }
       
       var price=document.createElement('div');
-      price.className='menu-item-price';price.textContent=item.price?item.price+' kr':'';
+      price.className='menu-item-price';price.textContent=(item.price&&!_menuPrice)?item.price+' kr':'';
       
       var btnEdit=document.createElement('button');btnEdit.className='btn bg';btnEdit.style.cssText='font-size:11px;padding:4px 8px;flex-shrink:0';btnEdit.textContent='Redigera';
       btnEdit.addEventListener('click',function(){editItem(item.id);});
@@ -2287,9 +2579,24 @@ async function loadMenuItems(menuId){
 
 
 // ─── HULPFUNKTIONER MENY ─────────────────────────────────────────────
-function showNewMenuForm(){if(IS_DEMO)return demoBlock();var ai=document.getElementById('aiImportPanel');if(ai)ai.style.display='none';document.getElementById('newMenuForm').style.display='block';}
-function openImportForMenu(id,name){
-  if(IS_DEMO)return demoBlock();
+function showNewMenuForm(){if(IS_DEMO)return demoBlock();
+  var ai=document.getElementById('aiImportPanel');if(ai)ai.style.display='none';
+  var f=document.getElementById('newMenuForm');f.style.display='block';
+  var i=document.getElementById('nm-name');if(i)i.focus();
+}
+function toggleAIPanel(){
+  document.getElementById('newMenuForm').style.display='none';
+  var p=document.getElementById('aiImportPanel');
+  var open=p.style.display==='none';
+  p.style.display=open?'block':'none';
+  if(open){
+    cancelImport();
+    var t=document.getElementById('menu-import-text');if(t)t.value='';
+    var img=document.getElementById('menu-import-image');if(img)img.value='';
+    p.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+function openImportForMenu(id,name){if(IS_DEMO)return demoBlock();
   activeMenuId=id;
   var f=document.getElementById('newMenuForm');if(f)f.style.display='none';
   var p=document.getElementById('aiImportPanel');if(!p)return;
@@ -2318,22 +2625,36 @@ function switchImportTab(tab){
   document.getElementById('import-image-wrap').style.display=tab==='image'?'block':'none';
   ['text','image'].forEach(function(t){var btn=document.getElementById('import-tab-'+t);if(btn){btn.classList.toggle('bp',t===tab);btn.classList.toggle('bg',t!==tab);}});
 }
-function cancelImport(){_importData=null;var r=document.getElementById('import-result');if(r)r.style.display='none';}
+function cancelImport(){_importData=null;_importMenuPrice=0;var r=document.getElementById('import-result');if(r)r.style.display='none';}
 function closeQR(){var el=document.getElementById('qrOverlay');if(el)el.style.display='none';}
-async function downloadQR(){
-  if(IS_DEMO)return demoBlock();var canvas=document.querySelector('#qrCanvas canvas');if(!canvas)return;var a=document.createElement('a');a.download='qr-premeny.png';a.href=canvas.toDataURL('image/png');a.click();}
-async function createMenu(){
-  if(IS_DEMO)return demoBlock();
+async function downloadQR(){if(IS_DEMO)return demoBlock();var canvas=document.querySelector('#qrCanvas canvas');if(!canvas)return;var a=document.createElement('a');a.download='qr-premeny.png';a.href=canvas.toDataURL('image/png');a.click();}
+async function createMenu(){if(IS_DEMO)return demoBlock();
   var name=document.getElementById('nm-name').value.trim();if(!name)return;
-  var {data,error}=await db.from('menus').insert({restaurant_id:rest.id,name,description:document.getElementById('nm-desc').value.trim()}).select().single();
+  var {data,error}=await db.from('menus').insert({restaurant_id:rest.id,name,description:document.getElementById('nm-desc').value.trim(),menu_type:((document.getElementById('nm-type')?document.getElementById('nm-type').value.trim():'')||null)}).select().single();
   if(error){alert('Fel: '+error.message);return;}
   activeMenuId=data.id;
   document.getElementById('newMenuForm').style.display='none';
   document.getElementById('nm-name').value='';document.getElementById('nm-desc').value='';
-  await renderMenu();
+  var _t=document.getElementById('nm-type');if(_t)_t.value='';
+  await renderMenu(true);
 }
-async function addCat(){
-  if(IS_DEMO)return demoBlock();
+async function setMenuType(id,type){
+  var {error}=await db.from('menus').update({menu_type:(type||null)}).eq('id',id);
+  if(error){alert('Kunde inte byta kategori: '+error.message);return;}
+  await renderMenu(true);
+}
+
+async function setMenuPrice(id,current){
+  var inp=prompt('Pris för hela menyn i kr (t.ex. 395). Lämna tomt för att ta bort menypriset – då visas pris per rätt istället:', current||'');
+  if(inp===null)return;
+  var v=inp.trim()===''?null:parseInt(inp.replace(/[^0-9]/g,''),10);
+  if(v!==null&&(isNaN(v)||v<0)){alert('Ange ett giltigt pris (bara siffror).');return;}
+  var {error}=await db.from('menus').update({price:v}).eq('id',id);
+  if(error){alert('Kunde inte spara menypriset: '+error.message);return;}
+  await renderMenu(true);
+}
+function setMenuCatFilter(cat){window._menuCatFilter=cat;renderMenu(true);}
+async function addCat(){if(IS_DEMO)return demoBlock();
   var name=document.getElementById('nc-name').value.trim();if(!name||!activeMenuId)return;
   var maxSort=cats.length?Math.max(...cats.map(function(c){return c.sort_order||0;})):0;
   var {error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:name,sort_order:maxSort+1});
@@ -2347,8 +2668,7 @@ async function addCat(){
     if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
   },300);
 }
-async function saveSettings(){
-  if(IS_DEMO)return demoBlock();
+async function saveSettings(){if(IS_DEMO)return demoBlock();
   var restName=document.getElementById('set-name')?document.getElementById('set-name').value.trim():rest.name;
   var phone=document.getElementById('set-phone').value.trim();
   var email=document.getElementById('set-email').value.trim();
@@ -2368,55 +2688,88 @@ async function saveSettings(){
   if(error){if(msg){msg.className='msg merr';msg.textContent='Fel: '+error.message;}}
   else{if(msg){msg.className='msg mok';msg.textContent='Sparat!';}rest=Object.assign({},rest,{phone,contact_email:email,address,website,logo_url:logoUrl});setTimeout(function(){if(msg)msg.style.display='none';},3000);}
 }
-var _importData=null;
-async function importMenu(){
-  if(IS_DEMO)return demoBlock();
-  if(!activeMenuId){alert('Välj en meny först.');return;}
+var _importData=null;var _importMenuPrice=0;
+async function importMenu(){if(IS_DEMO)return demoBlock();
   var textVal=document.getElementById('menu-import-text').value.trim();
   var imgFile=document.getElementById('menu-import-image').files[0];
   if(!textVal&&!imgFile)return;
   document.getElementById('import-btn').disabled=true;
   document.getElementById('import-loading').style.display='block';
   try{
-    var body={text:textVal};
-    if(imgFile){var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(imgFile);});body.image=b64;body.imageType=imgFile.type;}
+    var PROMPT='Tolka denna restaurangmeny och returnera ENDAST giltig JSON (inga backticks, ingen text runtomkring) i exakt detta format:\n'
+      +'{"menuPrice":0,"categories":[{"label":"Rubrik","items":[{"name":"Rättens namn","description":"Beskrivning","price":0}]}]}\n\n'
+      +'Regler:\n'
+      +'- VIKTIGAST: utelämna ALDRIG en rätt. Varje rätt/rad i menyn måste vara med i svaret – tappa ingen rad.\n'
+      +'- Saknar menyn tydliga rubriker, dela själv in rätterna i logiska rubriker. För en svensk meny är ordningen normalt Förrätter, Varmrätter, Ost, Desserter. Rätter som Toast Skagen, räkor, soppa eller sallad är oftast förrätter; kött- och fiskrätter är varmrätter; ostbricka/ost är en egen rätt (rubrik "Ost"); kakor, glass och söta efterrätter är desserter.\n'
+      +'- Står det "X rätter" (t.ex. "3 rätter", "4 rätter") är det en fast meny där ALLA rätter serveras. Ge då VARJE serverad rätt en EGEN rubrik så att antalet rubriker blir lika många som antalet rätter. Ordning: Förrätt, Varmrätt, Ost, Dessert. En ostbricka/osttallrik är en egen rätt med rubriken "Ost" (mellan varmrätt och dessert) – slå ALDRIG ihop ost och dessert under samma rubrik. (Har en rätt flera valbara alternativ, lägg alternativen under samma rubrik.)\n'
+      +'- Är du osäker på vilken rubrik en rätt hör till: gissa rimligt och ta med den ändå – hellre fel rubrik än att tappa rätten.\n'
+      +'- "label" är en rubrik/kategori. Ord som "Förrätt", "Varmrätt", "Dessert" ska användas som rubriker – ta bort dem ur rättnamnen.\n'
+      +'- "name" ska vara rättens korta namn, INTE hela beskrivningen. Ta aldrig med prefix som "Förrätt:", "Varmrätt:" eller "Dessert:" i namnet.\n'
+      +'- "description" ska innehålla ingredienser/beskrivning. Saknas beskrivning, sätt tom sträng.\n'
+      +'- "menuPrice": om HELA menyn säljs till ett enda fast pris (t.ex. "3 rätter 399 kr", "450 kr/person"), ange det priset som heltal i kronor i "menuPrice" och sätt "price" till 0 på ALLA rätter.\n'
+      +'- Om varje rätt istället har eget pris (à la carte), sätt "menuPrice" till 0 och ange pris per rätt i "price" (heltal i kronor utan "kr").\n'
+      +'- Saknas pris helt, sätt "menuPrice" till 0 och alla "price" till 0.';
+    var messages;
+    if(imgFile){
+      var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(imgFile);});
+      messages=[{role:'user',content:[{type:'image',source:{type:'base64',media_type:imgFile.type,data:b64}},{type:'text',text:PROMPT}]}];
+    } else {
+      messages=[{role:'user',content:'Här är menyn:\n\n'+textVal+'\n\n'+PROMPT}];
+    }
     var {data:{session}}=await db.auth.getSession();
-    var resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});
-    var result=await resp.json();
-    if(!result.categories)throw new Error(result.error||'Ingen data');
-    _importData=result.categories;
+    var resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/ai-menu',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({messages:messages})});
+    var data=await resp.json();
+    if(data.error)throw new Error(typeof data.error==='string'?data.error:(data.error.message||JSON.stringify(data.error)));
+    var txt=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    if(!txt)throw new Error('Tomt svar från AI');
+    var clean=txt.replace(/```json|```/g,'').trim();
+    var parsed=null;
+    try{parsed=JSON.parse(clean);}catch(e){
+      var _s=clean.indexOf('{'),_e=clean.lastIndexOf('}');
+      if(_s>=0&&_e>_s){try{parsed=JSON.parse(clean.slice(_s,_e+1));}catch(e2){}}
+    }
+    if(!parsed)throw new Error('Kunde inte tolka AI-svaret som JSON');
+    if(!parsed.categories||!Array.isArray(parsed.categories))throw new Error('Fel format från AI');
+    _importData=parsed.categories;
+    _importMenuPrice=parseInt(parsed.menuPrice)||0;
     var ph='';
-    result.categories.forEach(function(cat){
+    if(_importMenuPrice>0){ph+='<div style="background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.35);border-radius:8px;padding:.6rem .9rem;margin-bottom:1rem;font-size:13px;color:var(--dark)">Menypris: <span style="font-weight:500;color:var(--gold)">'+_importMenuPrice+' kr</span> för hela menyn</div>';}
+    _importData.forEach(function(cat){
       ph+='<div style="margin-bottom:1rem"><div class="card-label">'+escHtml(cat.label)+'</div><div class="card" style="padding:.5rem">';
       (cat.items||[]).forEach(function(item){ph+='<div class="menu-item-row"><div class="menu-item-info"><div class="menu-item-name">'+escHtml(item.name)+'</div>'+(item.description?'<div class="menu-item-desc">'+escHtml(item.description)+'</div>':'')+'</div><div class="menu-item-price">'+(item.price?item.price+' kr':'')+'</div></div>';});
       ph+='</div></div>';
     });
     document.getElementById('import-preview-content').innerHTML=ph;
     document.getElementById('import-result').style.display='block';
-  }catch(err){alert('Fel: '+err.message);}
+  }catch(err){alert('Fel: '+(err&&err.message?err.message:JSON.stringify(err)));}
   document.getElementById('import-btn').disabled=false;
   document.getElementById('import-loading').style.display='none';
 }
 async function confirmImport(){
-  if(!_importData||!activeMenuId)return;
+  if(!_importData)return;
+  if(!activeMenuId){alert('Ingen meny vald. Öppna en meny och klicka "Läs in från foto/text".');return;}
+  var {data:existingCats}=await db.from('menu_categories').select('sort_order').eq('menu_id',activeMenuId);
+  var startSort=(existingCats&&existingCats.length)?Math.max.apply(null,existingCats.map(function(c){return c.sort_order||0;}))+1:0;
   for(var i=0;i<_importData.length;i++){
     var cat=_importData[i];
-    var maxSort=cats.length?Math.max(...cats.map(function(c){return c.sort_order||0;})):0;
-    var {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:cat.label,sort_order:maxSort+1}).select().single();
+    var {data:newCat,error}=await db.from('menu_categories').insert({restaurant_id:rest.id,menu_id:activeMenuId,label:cat.label,sort_order:startSort+i}).select().single();
     if(error||!newCat)continue;
     for(var j=0;j<(cat.items||[]).length;j++){
       var item=cat.items[j];
       await db.from('menu_items').insert({category_id:newCat.id,restaurant_id:rest.id,name:item.name,description:item.description||'',price:parseInt(item.price)||0,sort_order:j,active:true});
     }
   }
-  _importData=null;var r=document.getElementById('import-result');if(r)r.style.display='none';
+  if(_importMenuPrice>0){await db.from('menus').update({price:_importMenuPrice}).eq('id',activeMenuId);}
+  _importData=null;
+  var r=document.getElementById('import-result');if(r)r.style.display='none';
+  document.getElementById('menu-import-text').value='';
+  var imgEl=document.getElementById('menu-import-image');if(imgEl)imgEl.value='';
   var ai=document.getElementById('aiImportPanel');if(ai)ai.style.display='none';
-  await renderMenu();
+  await renderMenu(true);
 }
 
 
-async function sendOverCapacityWarning(b,n){
-  if(IS_DEMO)return;
+async function sendOverCapacityWarning(b,n){if(IS_DEMO)return;
   try{
     await db.from('bookings').update({over_capacity_warned:true}).eq('id',b.id);
     if(!rest||!rest.contact_email)return;
@@ -2460,8 +2813,7 @@ async function loadSettings(){
   if(prev&&rest.logo_url)prev.innerHTML='<img src="'+rest.logo_url+'" style="width:100%;height:100%;object-fit:contain">';
 }
 
-async function saveItem(id){
-  if(IS_DEMO)return demoBlock();
+async function saveItem(id){if(IS_DEMO)return demoBlock();
   var name=document.getElementById('ien_'+id);
   var price=document.getElementById('iep_'+id);
   var desc=document.getElementById('ied_'+id);
@@ -2474,14 +2826,12 @@ async function saveItem(id){
   if(error){alert('Fel: '+error.message);return;}
   await renderMenu(true);
 }
-async function delItem(id){
-  if(IS_DEMO)return demoBlock();
+async function delItem(id){if(IS_DEMO)return demoBlock();
   if(!confirm('Ta bort rätten?'))return;
   await db.from('menu_items').update({active:false}).eq('id',id);
   await renderMenu(true);
 }
-async function addItem(catId){
-  if(IS_DEMO)return demoBlock();
+async function addItem(catId){if(IS_DEMO)return demoBlock();
   var n=document.getElementById('ain_'+catId);
   var p=document.getElementById('aip_'+catId);
   var d=document.getElementById('aid_'+catId);
@@ -2495,15 +2845,32 @@ async function addItem(catId){
   n.value='';p.value='';d.value='';
   await renderMenu(true);
 }
-async function delCat(catId){
-  if(IS_DEMO)return demoBlock();
+async function delCat(catId){if(IS_DEMO)return demoBlock();
   if(!confirm('Ta bort rubriken och alla rätter under den?'))return;
   await db.from('menu_items').delete().eq('category_id',catId);
   await db.from('menu_categories').delete().eq('id',catId);
   await renderMenu(true);
 }
-async function renameMenu(id, currentName){
-  if(IS_DEMO)return demoBlock();
+async function renameCat(catId, current){
+  var nn=prompt('Nytt namn på rubriken:',current);
+  if(!nn||!nn.trim()||nn.trim()===current)return;
+  var {error}=await db.from('menu_categories').update({label:nn.trim()}).eq('id',catId);
+  if(error){alert('Fel: '+error.message);return;}
+  await renderMenu(true);
+}
+async function moveCat(catId, dir){
+  var idx=cats.findIndex(function(c){return c.id===catId;});
+  if(idx<0)return;
+  var swapIdx=dir<0?idx-1:idx+1;
+  if(swapIdx<0||swapIdx>=cats.length)return;
+  var arr=cats.slice();
+  var tmp=arr[idx];arr[idx]=arr[swapIdx];arr[swapIdx]=tmp;
+  for(var i=0;i<arr.length;i++){
+    await db.from('menu_categories').update({sort_order:i}).eq('id',arr[i].id);
+  }
+  await renderMenu(true);
+}
+async function renameMenu(id, currentName){if(IS_DEMO)return demoBlock();
   var newName=prompt('Nytt namn på menyn:',currentName);
   if(!newName||!newName.trim()||newName.trim()===currentName)return;
   var {error}=await db.from('menus').update({name:newName.trim()}).eq('id',id);
@@ -2512,8 +2879,7 @@ async function renameMenu(id, currentName){
   await renderMenu(true);
 }
 
-async function copyMenu(id){
-  if(IS_DEMO)return demoBlock();
+async function copyMenu(id){if(IS_DEMO)return demoBlock();
   var src=menus.find(m=>m.id===id);if(!src)return;
   var newName=prompt('Namn på den kopierade menyn:',src.name+' (kopia)');
   if(!newName||!newName.trim())return;
@@ -2531,8 +2897,7 @@ async function copyMenu(id){
   }
   await renderMenu();
 }
-async function deleteMenu(id){
-  if(IS_DEMO)return demoBlock();
+async function deleteMenu(id){if(IS_DEMO)return demoBlock();
   if(!confirm('Ta bort menyn permanent?'))return;
   await db.from('menu_categories').select('id').eq('menu_id',id).then(async function({data:cs}){
     for(var c of (cs||[])){await db.from('menu_items').delete().eq('category_id',c.id);}
@@ -2542,8 +2907,6 @@ async function deleteMenu(id){
   activeMenuId=null;
   await renderMenu();
 }
-// Demo: starta automatiskt
-autoInitDemo();
 
 function toggleLathund(){
   var b=document.getElementById('lhBody');var a=document.getElementById('lhArrow');var t=document.getElementById('lhText');
@@ -2551,6 +2914,9 @@ function toggleLathund(){
   if(b.style.display==='none'){b.style.display='';if(a)a.style.transform='';if(t)t.textContent='Dölj';}
   else{b.style.display='none';if(a)a.style.transform='rotate(-90deg)';if(t)t.textContent='Visa';}
 }
+
+// Demo: starta automatiskt
+autoInitDemo();
 </script>
 </body>
 </html>
