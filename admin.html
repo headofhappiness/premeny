@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03bj">
+<meta name="pm-build" content="2026-06-03bk">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1019,7 +1019,7 @@ async function loadGuestEditItems(bookingId){
     let q=db.from('menu_categories').select('id,label,sort_order, menu_items(id,name,active)');
     if(b&&b.menu_id) q=q.eq('menu_id',b.menu_id); else q=q.eq('restaurant_id',rest.id);
     const {data}=await q.order('sort_order');
-    _geCats=(data||[]).map(c=>({id:c.id,label:c.label,items:(c.menu_items||[]).filter(i=>i.active)}));
+    _geCats=(data||[]).map(c=>({id:c.id,label:c.label,items:(c.menu_items||[]).filter(i=>i.active)})).filter(c=>c.items.length);
   }catch(e){ _geCats=[]; }
 }
 
@@ -2417,7 +2417,7 @@ async function loadCats(){
   if(menus.length&&!activeMenuId)activeMenuId=menus[0].id;
   if(activeMenuId){
     const {data}=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',activeMenuId).order('sort_order');
-    cats=(data||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)}));
+    cats=(data||[]).filter(c=>c.active!==false).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)}));
   } else {
     cats=[];
   }
@@ -2927,8 +2927,9 @@ async function addItem(catId){
 }
 async function delCat(catId){
   if(!confirm('Ta bort rubriken och alla rätter under den?'))return;
-  await db.from('menu_items').delete().eq('category_id',catId);
-  await db.from('menu_categories').delete().eq('id',catId);
+  const e1=(await db.from('menu_items').update({active:false}).eq('category_id',catId)).error;
+  const e2=(await db.from('menu_categories').update({active:false}).eq('id',catId)).error;
+  if(e1||e2){alert('Kunde inte ta bort rubriken: '+((e2||e1).message||'okänt fel'));return;}
   await renderMenu(true);
 }
 async function renameCat(catId, current){
