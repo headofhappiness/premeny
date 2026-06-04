@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03bk">
+<meta name="pm-build" content="2026-06-03bl">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1517,26 +1517,21 @@ async function copyKitchen(id){
     const c=oi.menu_items.menu_categories?.label||'Övrigt';
     const n=oi.menu_items.name;
     if(!byCat[c])byCat[c]={};
-    byCat[c][n]=(byCat[c][n]||0)+1;
+    if(!byCat[c][n])byCat[c][n]={count:0,comments:[]};
+    byCat[c][n].count++;
+    if(oi.comment?.trim())byCat[c][n].comments.push((o.guest_name?o.guest_name+': ':'')+oi.comment.trim());
   }));
   Object.entries(byCat).forEach(([c,items])=>{
-    const tot=Object.values(items).reduce((s,x)=>s+x,0);
+    const tot=Object.values(items).reduce((s,x)=>s+x.count,0);
     text+=c.toUpperCase()+' ('+tot+' st totalt)\n';
     const maxLen=Math.max(...Object.keys(items).map(n=>n.length));
-    Object.entries(items).forEach(([n,cnt])=>{
+    Object.entries(items).forEach(([n,info])=>{
       const pad='.'.repeat(Math.max(2,maxLen-n.length+4));
-      text+='  '+n+' '+pad+' '+cnt+'\n';
+      text+='  '+n+' '+pad+' '+info.count+'\n';
+      info.comments.forEach(cm=>text+='     \u26a0 '+cm+'\n');
     });
     text+='\n';
   });
-  const al=[];
-  (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    if(oi.comment?.trim())al.push('  '+oi.menu_items?.name+': '+oi.comment+(o.guest_name?' ('+o.guest_name+')':''));
-  }));
-  if(al.length){
-    text+='KOMMENTARER & SPECIALKOST\n';
-    al.forEach(a=>text+=a+'\n');
-  }
   navigator.clipboard.writeText(text).then(()=>alert('\u2713 Sammanfattning kopierad!')).catch(()=>alert('Kunde inte kopiera.'));
 }
 
@@ -1552,8 +1547,8 @@ async function copyGuestList(id){
     const komm=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
     text+=(i+1)+'. '+o.guest_name+'\n';
     if(ratter)text+='   '+ratter+'\n';
-    if(komm)text+='   ⚠ '+komm+'\n';
-    text+='\n';
+    if(komm)text+='   \u26a0 '+komm+'\n';
+    text+='\n\n';
   });
   navigator.clipboard.writeText(text).then(()=>alert('\u2713 Gästlista kopierad!')).catch(()=>alert('Kunde inte kopiera.'));
 }
