@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-q">
+<meta name="pm-build" content="2026-06-03-demo-s">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1257,10 +1257,15 @@ function renderGuests(orders,bid){
       }).join(''):'<span style="color:#cfc6b5">–</span>';
       return '<div style="min-width:0"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a4520;margin-bottom:3px">'+escHtml(c.label)+'</div><div style="font-size:13px;line-height:1.4;color:var(--text)">'+inner+'</div></div>';
     }).join('');
-    var editRows=(o.order_items||[]).map(function(oi){
-      return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">'
-        +'<select id="ge_item_'+oi.id+'" style="flex:2;min-width:150px">'+buildOpts(oi.menu_item_id)+'</select>'
-        +'<input id="ge_cmt_'+oi.id+'" placeholder="Kommentar/specialkost" value="'+escAttr(oi.comment||'')+'" style="flex:1;min-width:140px">'
+    var editRows=(_geCats||[]).map(function(c){
+      var curItem=(o.order_items||[]).find(function(oi){return oi.category_id===c.id||(oi.menu_items&&oi.menu_items.menu_categories&&oi.menu_items.menu_categories.label===c.label);});
+      var curItemId=curItem?curItem.menu_item_id:'';
+      var curCmt=curItem?(curItem.comment||''):'';
+      var opts='<option value="">— Ingen rätt —</option>'+(c.items||[]).map(function(m){return '<option value="'+m.id+'"'+(m.id===curItemId?' selected':'')+'>'+escHtml(m.name)+'</option>';}).join('');
+      return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center">'
+        +'<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a4520;width:90px;flex-shrink:0">'+escHtml(c.label)+'</div>'
+        +'<select id="ge_cat_'+o.id+'_'+c.id+'" style="flex:2;min-width:150px">'+opts+'</select>'
+        +'<input id="gecmt_'+o.id+'_'+c.id+'" placeholder="Specialkost (valfritt)" value="'+escAttr(curCmt)+'" style="flex:1;min-width:140px">'
         +'</div>';
     }).join('');
     return `<div class="grow" style="display:block">
@@ -1274,6 +1279,7 @@ function renderGuests(orders,bid){
       <div style="display:grid;grid-template-columns:repeat(${cols.length},minmax(0,1fr));gap:14px;margin-top:10px">${cells}</div>
     </div>
     <div id="gedit_${o.id}" style="display:none;background:var(--surface2);border-radius:8px;padding:10px;margin:0 0 8px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Byt rätt, lägg till en som saknas, eller välj <strong style="font-weight:500">Ingen rätt</strong> för att ta bort den. Specialkost skrivs på raden för rätten den gäller.</div>
       ${editRows||'<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Den här gästen har inga rätter att ändra.</div>'}
       <div class="fg"><button class="btn bp" style="font-size:12px" onclick="saveGuestEdit('${o.id}','${bid}')">Spara</button><button class="btn bg" style="font-size:12px" onclick="toggleGuestEdit('${o.id}')">Avbryt</button></div>
     </div>`;
@@ -1301,13 +1307,28 @@ function toggleGuestEdit(oid){var el=document.getElementById('gedit_'+oid);if(el
 function _catOfItem(itemId){for(var i=0;i<(_geCats||[]).length;i++){var f=(_geCats[i].items||[]).find(function(m){return m.id===itemId;});if(f)return _geCats[i].id;}return null;}
 async function saveGuestEdit(oid,bid){if(IS_DEMO)return demoBlock();
   var cont=document.getElementById('gedit_'+oid);if(!cont)return;
-  var selects=cont.querySelectorAll('select[id^="ge_item_"]');
-  for(var i=0;i<selects.length;i++){
-    var sel=selects[i];var oiId=sel.id.replace('ge_item_','');var itemId=sel.value;var catId=_catOfItem(itemId);
-    var cmtEl=document.getElementById('ge_cmt_'+oiId);var cmt=cmtEl?cmtEl.value.trim():'';
-    var upd={menu_item_id:itemId,comment:cmt||null};if(catId)upd.category_id=catId;
-    var {error}=await db.from('order_items').update(upd).eq('id',oiId);
-    if(error){alert('Fel: '+error.message);return;}
+  var {data:cur}=await db.from('order_items').select('id,category_id,menu_item_id, menu_items(menu_categories(label))').eq('order_id',oid);
+  cur=cur||[];
+  for(var i=0;i<(_geCats||[]).length;i++){
+    var c=_geCats[i];
+    var selEl=document.getElementById('ge_cat_'+oid+'_'+c.id);
+    if(!selEl)continue;
+    var itemId=selEl.value;
+    var cmtEl=document.getElementById('gecmt_'+oid+'_'+c.id);
+    var cmt=cmtEl?cmtEl.value.trim():'';
+    var existing=cur.find(function(oi){return oi.category_id===c.id||(oi.menu_items&&oi.menu_items.menu_categories&&oi.menu_items.menu_categories.label===c.label);});
+    if(itemId){
+      if(existing){
+        var {error:e1}=await db.from('order_items').update({menu_item_id:itemId,category_id:c.id,comment:cmt||null}).eq('id',existing.id);
+        if(e1){alert('Fel: '+e1.message);return;}
+      }else{
+        var {error:e2}=await db.from('order_items').insert({order_id:oid,menu_item_id:itemId,category_id:c.id,comment:cmt||null});
+        if(e2){alert('Fel: '+e2.message);return;}
+      }
+    }else if(existing){
+      var {error:e3}=await db.from('order_items').delete().eq('id',existing.id);
+      if(e3){alert('Fel: '+e3.message);return;}
+    }
   }
   await reRender(bid);loadDet(bid,dtabs[bid]||'guests');
 }
