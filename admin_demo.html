@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-ab">
+<meta name="pm-build" content="2026-06-03-demo-ac">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -914,6 +914,7 @@ function renderBCard(b){
           <span style="font-size:12px;color:var(--gold);font-weight:400;letter-spacing:.02em">Se mer ›</span>
         </div>
         <div class="bmeta" style="margin-top:4px">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''}</div>
+        ${b.restaurant_filled?'<div style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:11px;font-weight:500;color:#7a5c1f;background:#f6efdd;border:1px solid #e3d2a0;border-radius:100px;padding:3px 10px">✍ Restaurangen har fyllt i beställningarna</div>':''}
         ${b.deadline?('<div style="font-size:12px;color:var(--muted);margin-top:2px">Sista beställning: '+new Date(b.deadline+'T12:00:00').getDate()+' '+months[new Date(b.deadline+'T12:00:00').getMonth()]+' '+new Date(b.deadline+'T12:00:00').getFullYear()+'</div>'):''}
         ${b.table_label?('<div style="font-size:13px;color:var(--text);margin-top:2px">🪑 Bord: <strong style="font-weight:500">'+b.table_label+'</strong></div>'):''}
         ${remindersOn?`<div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
@@ -1149,6 +1150,8 @@ async function saveBulk(bid){if(IS_DEMO)return demoBlock();
       if(el0){el0.style.display='block';el0.className='msg merr';el0.textContent='Inget antal ifyllt – skriv hur många som vill ha varje rätt.';setTimeout(()=>el0.style.display='none',4000);}
       return;
     }
+    // Markera att restaurangen fyllt i beställningar för bokningen
+    await db.from('bookings').update({restaurant_filled:true}).eq('id',bid);
     // Rita om bulk-fliken (nollställ formuläret) men håll kortet öppet på samma flik
     await loadDet(bid,'bulk');
     const el=document.getElementById('bmsg_'+bid);
