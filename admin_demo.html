@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-b">
+<meta name="pm-build" content="2026-06-03-demo-e">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -238,36 +238,32 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <!-- LATHUND: alltid synlig -->
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.25rem">
         <div onclick="toggleLathund()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px">
-          <span style="font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--dark)">Så gör du – steg för steg</span>
+          <span style="font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--dark)">Så här gör du en ny bokning</span>
           <span style="color:var(--gold);font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px;white-space:nowrap"><span id="lhText">Dölj</span> <span id="lhArrow" style="display:inline-block;transition:transform .2s">▾</span></span>
         </div>
         <div id="lhBody">
         <div style="width:28px;height:1px;background:var(--gold);margin:.4rem 0 .9rem;opacity:.7"></div>
-        <div style="display:flex;flex-direction:column;gap:.7rem;font-size:13.5px;line-height:1.55;color:var(--text)">
+        <div style="display:flex;flex-direction:column;gap:.75rem;font-size:13.5px;line-height:1.55;color:var(--text)">
           <div style="display:flex;gap:.7rem;align-items:flex-start">
-            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">1</span>
-            <div><strong>Skapa bokningen.</strong> Klicka <strong>+ Ny bokning</strong>, fyll i sällskapets namn, datum, antal gäster, sista beställningsdag osv. och klicka <strong>Skapa bokning</strong>.</div>
+            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center">1</span>
+            <div><span style="font-weight:500">Skapa bokningen</span> – klicka <span style="font-weight:500">+ Ny bokning</span>.</div>
           </div>
           <div style="display:flex;gap:.7rem;align-items:flex-start">
-            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">2</span>
-            <div><strong>Öppna bokningen.</strong> Klicka på den i listan nedan för att öppna den.</div>
+            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center">2</span>
+            <div><span style="font-weight:500">Öppna bokningen</span> – klicka på den i listan nedan.</div>
           </div>
           <div style="display:flex;gap:.7rem;align-items:flex-start">
-            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">3</span>
-            <div><strong>Skicka bekräftelse till kontaktpersonen.</strong> Klicka <strong>Skicka bekräftelse till kontaktperson</strong> så får de en bekräftelse på bokningen.</div>
+            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center">3</span>
+            <div><span style="font-weight:500">Skicka bekräftelse</span> till kontaktpersonen.</div>
           </div>
           <div style="display:flex;gap:.7rem;align-items:flex-start">
-            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">4</span>
-            <div><strong>Skicka gästlänken.</strong> Klicka <strong>Skicka länk via mejl</strong> (och/eller sms). Kontaktpersonen vidarebefordrar länken till sina gäster, som väljer sin mat.</div>
+            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center">4</span>
+            <div><span style="font-weight:500">Skicka länk</span> via mejl (och/eller sms) om gästerna ska välja mat själva. Kontaktpersonen vidarebefordrar länken till sina gäster.</div>
           </div>
-        </div>
-        <div style="margin-top:.9rem;font-size:12.5px;line-height:1.6;color:var(--muted)">
-          <strong style="color:var(--text)">Tips:</strong> dina kommande bokningar ser du i listan nedan – eller samlat under <strong>Dagsöversikt</strong>, där du kan välja en eller flera dagar.
-        </div>
-        <div style="margin-top:.8rem;padding-top:.8rem;border-top:1px dashed var(--border);font-size:12.5px;line-height:1.7;color:var(--muted)">
-          <strong style="color:var(--text)">Sköts automatiskt:</strong><br>
-          • Påminnelse till kontaktpersonen innan sista beställningsdag.<br>
-          • Sammanställning av alla val mejlas till kontaktpersonen dagen efter sista beställningsdag.
+          <div style="display:flex;gap:.7rem;align-items:flex-start">
+            <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center">5</span>
+            <div>När förväntat antal gäster svarat blir status <span style="font-weight:500;color:#3a7d44">grön – klar</span>. Du kan också ändra det manuellt själv.</div>
+          </div>
         </div>
         </div><!-- /lhBody -->
       </div>
@@ -871,20 +867,28 @@ function bStatus(b){
   const remindersOn=!!b.reminder_days;
   const guests=bOrderStats(b).guests;
   const allOrdered=remindersOn&&b.expected_guests&&guests>=b.expected_guests;
+  if(b.manual_status==='progress')return 'progress';
+  if(b.manual_status==='done')return 'done';
+  if(b.manual_status==='late')return 'late';
   if(b.completed_at||allOrdered)return 'done';
   if(closed)return 'late';
   return 'progress';
+}
+async function setStatusVal(bid,val){if(IS_DEMO)return demoBlock();
+  const b=(allBookings||[]).find(x=>x.id===bid);
+  if(!b)return;
+  const m=(val==='auto')?null:val;
+  const {error}=await db.from('bookings').update({manual_status:m}).eq('id',bid);
+  if(error){alert('Kunde inte spara: '+error.message);return;}
+  b.manual_status=m;
+  renderBookingList(allBookings);
+  if(rest&&typeof initCalendar==='function')initCalendar();
 }
 async function toggleComplete(bid,e){if(IS_DEMO)return demoBlock();
   if(e)e.stopPropagation();
   const b=(allBookings||[]).find(x=>x.id===bid);
   if(!b)return;
-  const newVal=b.completed_at?null:new Date().toISOString();
-  const {error}=await db.from('bookings').update({completed_at:newVal}).eq('id',bid);
-  if(error){alert('Kunde inte spara: '+error.message);return;}
-  b.completed_at=newVal;
-  renderBookingList(allBookings);
-  if(rest&&typeof initCalendar==='function')initCalendar();
+  await setStatusVal(bid, bStatus(b)==='done'?'auto':'done');
 }
 
 function renderBCard(b){
@@ -938,7 +942,12 @@ function renderBCard(b){
         ${reminderHtml}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-        <button onclick="toggleComplete('${b.id}',event)" title="${_status==='done'?'Klicka för att markera som pågående':'Klicka för att markera som klar'}" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;cursor:pointer;background:${STATUS_COLORS[_status]}14;border:1px solid ${STATUS_COLORS[_status]}66;border-radius:100px;padding:5px 12px"><span style="width:11px;height:11px;border-radius:50%;background:${STATUS_COLORS[_status]}"></span>${STATUS_LABELS[_status]}<span style="opacity:.55;font-weight:400;font-size:11px">${_status==='done'?'✓':'· markera klar'}</span></button>
+        <select onchange="setStatusVal('${b.id}',this.value)" onclick="event.stopPropagation()" title="Ändra status" style="font-family:inherit;font-size:12px;font-weight:500;color:var(--text);cursor:pointer;background:${STATUS_COLORS[_status]}14;border:1.5px solid ${STATUS_COLORS[_status]}66;border-radius:100px;padding:5px 10px;outline:none">
+          <option value="progress"${(b.manual_status?b.manual_status==='progress':_status==='progress')?' selected':''}>🟡 Pågående</option>
+          <option value="done"${(b.manual_status?b.manual_status==='done':_status==='done')?' selected':''}>🟢 Klar</option>
+          <option value="late"${(b.manual_status?b.manual_status==='late':_status==='late')?' selected':''}>🔴 Ej klar i tid</option>
+          <option value="auto">↺ Automatiskt</option>
+        </select>
         <span style="font-size:11px;color:var(--muted)">${closed?'Stängd för beställning':'Öppen för beställning'}</span>
       </div>
     </div>`;
@@ -1008,7 +1017,7 @@ function renderBCard(b){
     </div>
     <div id="det_${b.id}"></div>
     <div class="fg" style="margin-top:1rem;flex-wrap:wrap">
-      <button class="btn ${b.completed_at?'bg':'bo'}" style="font-size:11px;padding:5px 10px" onclick="toggleComplete('${b.id}',event)">${b.completed_at?'↩ Markera som pågående':'✓ Markera som klar'}</button>
+      <button class="btn ${_status==='done'?'bg':'bo'}" style="font-size:11px;padding:5px 10px" onclick="toggleComplete('${b.id}',event)">${_status==='done'?'↩ Markera som pågående':'✓ Markera som klar'}</button>
       ${dtab==='guests'?
         `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>
         <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut</button>
@@ -1300,6 +1309,9 @@ async function delOrder(oid,bid){if(IS_DEMO)return demoBlock();if(!confirm('Ta b
 // NY BOKNING
 let _editingBookingId=null;
 
+let _formHome=null;
+function _captureFormHome(){var f=document.getElementById('newBookingForm');if(f&&!_formHome)_formHome={parent:f.parentNode,next:f.nextSibling};}
+function _restoreFormHome(){var f=document.getElementById('newBookingForm');if(f&&_formHome){try{_formHome.parent.insertBefore(f,_formHome.next);}catch(e){_formHome.parent.appendChild(f);}}}
 function resetBookingForm(){
   _editingBookingId=null;
   ['nb-name','nb-date','nb-guests','nb-deadline','nb-contact','nb-email','nb-phone','nb-menu','nb-responsible','nb-comment','nb-table'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -1316,8 +1328,8 @@ function resetBookingForm(){
 
 function toggleNB(){
   const f=document.getElementById('newBookingForm');
-  if(f.style.display==='none'){resetBookingForm();f.style.display='block';}
-  else{f.style.display='none';}
+  if(f.style.display==='none'){_captureFormHome();_restoreFormHome();resetBookingForm();f.style.display='block';f.scrollIntoView({behavior:'smooth',block:'center'});}
+  else{f.style.display='none';_restoreFormHome();resetBookingForm();}
 }
 
 function editBooking(id,ev){
@@ -1345,8 +1357,12 @@ function editBooking(id,ev){
   const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Ändra bokning';
   const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Spara ändringar';
   const msg=document.getElementById('nb-msg');if(msg)msg.style.display='none';
-  const f=document.getElementById('newBookingForm');f.style.display='block';
-  f.scrollIntoView({behavior:'smooth',block:'center'});
+  _captureFormHome();
+  const f=document.getElementById('newBookingForm');
+  const card=document.getElementById('bc_'+id);
+  if(card&&card.parentNode){card.parentNode.insertBefore(f,card.nextSibling);}
+  f.style.display='block';
+  setTimeout(function(){f.scrollIntoView({behavior:'smooth',block:'center'});},60);
 }
 
 async function createBooking(){if(IS_DEMO)return demoBlock();
@@ -1380,7 +1396,8 @@ async function createBooking(){if(IS_DEMO)return demoBlock();
   if(error){showMsg('nb-msg','merr','Fel: '+error.message);return;}
   showMsg('nb-msg','mok',wasEdit?'✓ Bokningen uppdaterad!':'✓ Bokning skapad! Gå in i bokningen och skicka bekräftelse till kontaktpersonen samt länk till beställningssida för gästerna.');
   resetBookingForm();
-  setTimeout(()=>{document.getElementById('newBookingForm').style.display='none';},wasEdit?1500:4000);
+  _restoreFormHome();
+  setTimeout(()=>{var f=document.getElementById('newBookingForm');if(f)f.style.display='none';},wasEdit?1500:4000);
   renderBookings();
 }
 
@@ -1761,7 +1778,7 @@ async function exportGuestPDF(id){if(IS_DEMO)return demoBlock();
 // KALENDER
 async function initCalendar(){
   if(!rest)return;
-  const {data:bs}=await db.from('bookings').select('event_date,name,deadline,completed_at,reminder_days,expected_guests, orders(id, order_items(menu_items(menu_categories(label))))').eq('restaurant_id',rest.id).is('deleted_at',null);
+  const {data:bs}=await db.from('bookings').select('event_date,name,deadline,completed_at,manual_status,reminder_days,expected_guests, orders(id, order_items(menu_items(menu_categories(label))))').eq('restaurant_id',rest.id).is('deleted_at',null);
   const rank={done:1,progress:2,late:3};
   calDates={};
   (bs||[]).forEach(b=>{
