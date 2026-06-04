@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-x">
+<meta name="pm-build" content="2026-06-03-demo-y">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -972,12 +972,14 @@ function renderBCard(b){
   }
     // Sammanställning skickad
     if(b.summary_sent_log){
-      const lines=b.summary_sent_log.trim().split('\n').filter(Boolean);
+      const lines=b.summary_sent_log.trim().split('\n').filter(l=>l&&l.indexOf('extra påminnelse')===-1);
+      if(lines.length){
       const last=lines[lines.length-1];
       html+=`<div style="font-size:12px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:6px 10px;margin-bottom:.75rem;color:#3a6020;line-height:1.6">
         ✓ <strong>Skickat till kontaktperson</strong><br>
         ${lines.map(l=>'<span style="opacity:.85">'+l+'</span>').join('<br>')}
       </div>`;
+      }
     }
     if(b.reminder_sent_at){
       html+=`<div style="font-size:12px;color:#6a5030;margin-bottom:.75rem">✉ Påminnelse skickad: ${new Date(b.reminder_sent_at).toLocaleDateString('sv-SE')}</div>`;
@@ -991,6 +993,13 @@ function renderBCard(b){
         <div style="font-size:12px;color:var(--muted)">✉ Automatisk påminnelse ${b.reminder_days} dagar före sista beställningsdag · ${miss}</div>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="doReminder('${b.id}',event)">Skicka extra påminnelse nu</button>
       </div>`;
+    }
+    // Extra påminnelser skickade (logg)
+    if(b.summary_sent_log){
+      const remLines=b.summary_sent_log.trim().split('\n').filter(l=>l&&l.indexOf('extra påminnelse')>-1);
+      if(remLines.length){
+        html+=`<div style="font-size:12px;color:var(--muted);margin:-.4rem 0 .75rem;line-height:1.6">${remLines.map(l=>'✓ '+l).join('<br>')}</div>`;
+      }
     }
 
     // Detaljflikar
@@ -1007,7 +1016,7 @@ function renderBCard(b){
         <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>`
       :''}
       <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
-      <button class="btn bd" style="font-size:11px;padding:4px 9px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
+      <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="delBooking('${b.id}',event)">Arkivera bokning</button>
     </div>
     <div id="det_${b.id}"></div></div>`;
   }
@@ -1440,7 +1449,7 @@ async function createBooking(){if(IS_DEMO)return demoBlock();
 
 async function delBooking(id,ev){if(IS_DEMO)return demoBlock();
   ev.stopPropagation();
-  if(!confirm('Ta bort bokningen? Den sparas i Arkiv och kan återställas.'))return;
+  if(!confirm('Arkivera bokningen? Den flyttas till Arkiv och kan återställas när som helst.'))return;
   await db.from('bookings').update({deleted_at:new Date().toISOString()}).eq('id',id);
   allBookings=allBookings.filter(b=>b.id!==id);
   renderBookingList(allBookings);
@@ -1464,8 +1473,17 @@ async function doReminder(id,ev){if(IS_DEMO)return demoBlock();
     const j=await resp.json().catch(function(){return{};});
     if(!resp.ok||j.ok===false)throw new Error(j.error||('HTTP '+resp.status));
     const r0=(j.results&&j.results[0])||{};
-    const skickat=(r0.skickat&&r0.skickat.length)?r0.skickat.join(', '):null;
-    if(skickat)alert('Extra påminnelse skickad ('+skickat+').\n\nDen automatiska påminnelsen går ändå ut som vanligt.');
+    const skickat=(r0.skickat&&r0.skickat.length)?r0.skickat:null;
+    if(skickat){
+      const now=new Date();
+      const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+      let log=b.summary_sent_log||'';
+      if(skickat.indexOf('email')>-1)log+=ts+' extra påminnelse via mejl till '+b.contact_email+'\n';
+      if(skickat.indexOf('sms')>-1)log+=ts+' extra påminnelse via SMS till '+b.contact_phone+'\n';
+      await db.from('bookings').update({summary_sent_log:log}).eq('id',id);
+      await reRender(id);
+      alert('Extra påminnelse skickad ('+skickat.join(', ')+').\n\nDen automatiska påminnelsen går ändå ut som vanligt.');
+    }
     else alert('Ingen påminnelse skickades'+(r0.fel?': '+(Array.isArray(r0.fel)?r0.fel.join('; '):r0.fel):'.\n\nSaknar kontaktpersonen e-post/telefonnummer?'));
   }catch(e){
     alert('Kunde inte skicka påminnelsen: '+e.message);
