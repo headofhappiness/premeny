@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-g">
+<meta name="pm-build" content="2026-06-03-demo-i">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -89,7 +89,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 .trow:last-child{border-bottom:none}
 .tn{flex:1}.tbw{width:60px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
 .tb{height:100%;background:var(--gold);border-radius:2px}.tnr{font-weight:500;color:var(--gold);min-width:20px;text-align:right;font-size:13px}
-.chead{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 .4rem}
+.chead{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin:1rem 0 .4rem}
 .chead:first-child{margin-top:0}
 .abox{background:#fffbec;border:1px solid #e8d898;border-radius:10px;padding:1rem 1.1rem;margin-top:1rem}
 .ahead{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#8a7020;margin-bottom:.75rem}
@@ -109,7 +109,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 
 /* BULK */
 .bulk-sec{background:rgba(184,149,90,.05);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem}
-.bulk-head{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
+.bulk-head{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem}
 .bulk-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(184,149,90,.12)}
 .bulk-row:last-child{border-bottom:none}
 .bulk-qty{width:65px;text-align:center;padding:7px 8px;font-size:15px;font-weight:500;flex-shrink:0}
@@ -1217,7 +1217,7 @@ function renderKitchen(orders){
   Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
   return Object.entries(byCat).map(([cat,items])=>{
     const catTotal=items.reduce((s,it)=>s+it.n,0);
-    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
+    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5a4520">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
     items.map(({name,n,k})=>
       `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
         <div style="display:flex;align-items:center;gap:8px">
@@ -1274,7 +1274,7 @@ function renderGuests(orders,bid){
         var c2=(oi.comment&&oi.comment.trim())?'<div style="margin-top:4px;font-style:italic;font-size:12px;color:#5a3e00;border:1px solid #e8d49a;border-radius:6px;padding:4px 8px;line-height:1.4">⚠ '+escHtml(oi.comment.trim())+'</div>':'';
         return '<div style="margin-bottom:'+(c2?'7px':'2px')+'">'+nm+c2+'</div>';
       }).join(''):'<span style="color:#cfc6b5">–</span>';
-      return '<div style="min-width:0"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:3px">'+escHtml(c.label)+'</div><div style="font-size:13px;line-height:1.4;color:var(--text)">'+inner+'</div></div>';
+      return '<div style="min-width:0"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a4520;margin-bottom:3px">'+escHtml(c.label)+'</div><div style="font-size:13px;line-height:1.4;color:var(--text)">'+inner+'</div></div>';
     }).join('');
     var editRows=(o.order_items||[]).map(function(oi){
       return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">'
@@ -1306,7 +1306,7 @@ function renderGuests(orders,bid){
         if(match&&oi.menu_items){var n=oi.menu_items.name;if(!(n in counts)){counts[n]=0;order.push(n);}counts[n]++;}
       });});
       var inner=order.length?order.map(function(n){return '<span style="font-weight:500">'+counts[n]+'</span> '+escHtml(n);}).join('<br>'):'<span style="color:#cfc6b5">–</span>';
-      return '<div style="min-width:0"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:3px">'+escHtml(c.label)+'</div><div style="font-size:13px;line-height:1.5;color:var(--text)">'+inner+'</div></div>';
+      return '<div style="min-width:0"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a4520;margin-bottom:3px">'+escHtml(c.label)+'</div><div style="font-size:13px;line-height:1.5;color:var(--text)">'+inner+'</div></div>';
     }).join('');
     summary='<div class="grow" style="display:block;background:var(--surface2)">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
