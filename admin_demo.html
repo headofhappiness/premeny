@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-w">
+<meta name="pm-build" content="2026-06-03-demo-x">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -988,8 +988,8 @@ function renderBCard(b){
     } else {
       const miss=b.expected_guests?(b.expected_guests-n)+' av '+b.expected_guests+' saknas':n+' har svarat';
       html+=`<div class="fg" style="margin-bottom:.75rem;flex-wrap:wrap">
-        <div style="font-size:12px;color:var(--muted)">✉ Påminnelse ${b.reminder_days} dagar före sista beställningsdag · ${miss}</div>
-        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="doReminder('${b.id}',event)">Skicka nu</button>
+        <div style="font-size:12px;color:var(--muted)">✉ Automatisk påminnelse ${b.reminder_days} dagar före sista beställningsdag · ${miss}</div>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="doReminder('${b.id}',event)">Skicka extra påminnelse nu</button>
       </div>`;
     }
 
@@ -1453,9 +1453,24 @@ async function doReminder(id,ev){if(IS_DEMO)return demoBlock();
   const _g=bOrderStats(b).guests;
   if(b.expected_guests&&_g>=b.expected_guests){alert('Alla gäster har svarat!');return;}
   const miss=b.expected_guests?(b.expected_guests-_g)+' av '+b.expected_guests+' saknas':'';
-  if(!confirm('Skicka påminnelse till '+b.contact_name+'?\n\n'+miss+'\n\n(Demo: markeras som skickad)'))return;
-  await db.from('bookings').update({reminder_sent_at:new Date().toISOString()}).eq('id',id);
-  reRender(id);
+  if(!confirm('Skicka en extra påminnelse till '+(b.contact_name||'kontaktpersonen')+' nu?\n\n'+miss+'\n\nDen automatiska påminnelsen går ändå ut som vanligt.'))return;
+  const _btn=ev.target;const _orig=_btn?_btn.textContent:'';
+  if(_btn){if(_btn.disabled)return;_btn.disabled=true;_btn.textContent='Skickar...';}
+  try{
+    const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-reminders',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({bookingId:id,manual:true})
+    });
+    const j=await resp.json().catch(function(){return{};});
+    if(!resp.ok||j.ok===false)throw new Error(j.error||('HTTP '+resp.status));
+    const r0=(j.results&&j.results[0])||{};
+    const skickat=(r0.skickat&&r0.skickat.length)?r0.skickat.join(', '):null;
+    if(skickat)alert('Extra påminnelse skickad ('+skickat+').\n\nDen automatiska påminnelsen går ändå ut som vanligt.');
+    else alert('Ingen påminnelse skickades'+(r0.fel?': '+(Array.isArray(r0.fel)?r0.fel.join('; '):r0.fel):'.\n\nSaknar kontaktpersonen e-post/telefonnummer?'));
+  }catch(e){
+    alert('Kunde inte skicka påminnelsen: '+e.message);
+  }
+  if(_btn){_btn.disabled=false;_btn.textContent=_orig;}
 }
 
 // SKICKA SAMMANSTÄLLNING
