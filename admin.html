@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03bf">
+<meta name="pm-build" content="2026-06-03bh">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -932,22 +932,22 @@ function renderBCard(b){
     }
 
     // Detaljflikar
-    html+=`<div class="fg" style="margin-bottom:1rem;flex-wrap:wrap">
-      ${[['tally','Kökslista'],['bulk','Fyll i för sällskap'],['guests','Gästlista']].map(([t,l])=>
+    html+=`<div class="fg" style="margin-bottom:.75rem;flex-wrap:wrap">
+      ${[['tally','Kökslista'],['guests','Gästlista'],['bulk','Fyll i för sällskap']].map(([t,l])=>
         `<button class="dtab${dtab===t?' active':''}" onclick="switchDtab('${b.id}','${t}')">${l}</button>`).join('')}
     </div>
-    <div id="det_${b.id}"></div>
-    <div class="fg" style="margin-top:1rem;flex-wrap:wrap">
-      ${dtab==='guests'?
-        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut / PDF</button>
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>`
-      :
-        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut / PDF</button>
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>`
-      }
-      <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
-      <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
-    </div></div>`;
+    <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap;gap:6px">
+      ${dtab==='tally'?
+        `<button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="printKitchen('${b.id}')">🖨 Skriv ut kökslista</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>`
+      :dtab==='guests'?
+        `<button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="printGuestList('${b.id}')">🖨 Skriv ut gästlista</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>`
+      :''}
+      <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
+      <button class="btn bd" style="font-size:11px;padding:4px 9px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
+    </div>
+    <div id="det_${b.id}"></div></div>`;
   }
   html+=`</div>`;
   return html;
