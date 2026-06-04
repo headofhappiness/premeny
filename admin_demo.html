@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-m">
+<meta name="pm-build" content="2026-06-03-demo-q">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1003,12 +1003,10 @@ function renderBCard(b){
       <button class="btn ${_status==='done'?'bg':'bo'}" style="font-size:11px;padding:5px 10px" onclick="toggleComplete('${b.id}',event)">${_status==='done'?'↩ Markera som pågående':'✓ Markera som klar'}</button>
       ${dtab==='guests'?
         `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut</button>
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportGuestPDF('${b.id}')">📄 Ladda ner PDF</button>`
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut / PDF</button>`
       :
         `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut</button>
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="exportPDF('${b.id}')">📄 Ladda ner PDF</button>`
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut / PDF</button>`
       }
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
       <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
@@ -1922,32 +1920,38 @@ function calPrev(){calM--;if(calM<0){calM=11;calY--;}renderCal();}
 function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCal();}
 
 function buildKitchenHtml(orders){
-  const counts={};const allergies={};
+  const counts={};const allergies={};const bySallskap={};
+  const sallskapSet=new Set(orders.map(o=>o._sallskap).filter(Boolean));
+  const multi=sallskapSet.size>1;
   orders.forEach(o=>(o.order_items||[]).forEach(oi=>{
     if(!oi.menu_items||!oi.menu_items.name)return;
     const cat=oi.menu_items?.menu_categories?.label||'Övrigt';
     const name=oi.menu_items.name;
     const k=cat+'||'+name;
     counts[k]=(counts[k]||0)+1;
-    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push(o.guest_name+': '+oi.comment.trim());}
+    if(multi&&o._sallskap){if(!bySallskap[k])bySallskap[k]={};bySallskap[k][o._sallskap]=(bySallskap[k][o._sallskap]||0)+1;}
+    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((multi&&o._sallskap?o._sallskap+' · ':'')+o.guest_name+': '+oi.comment.trim());}
   }));
   if(!Object.keys(counts).length)return'<div style="font-size:13px;color:var(--muted)">Inga beställningar ännu.</div>';
   const max=Math.max(...Object.values(counts));
   const byCat={};
   Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
-  return Object.entries(byCat).map(([cat,items])=>{
+  const header=multi?`<div style="font-size:12px;color:var(--dark);margin-bottom:.75rem"><span style="color:var(--muted)">Sällskap:</span> ${[...sallskapSet].join(' · ')}</div>`:'';
+  return header+Object.entries(byCat).map(([cat,items])=>{
     const catTotal=items.reduce((s,it)=>s+it.n,0);
     return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span class="pmk-cat" style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
-    items.map(({name,n,k})=>
-      `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
+    items.map(({name,n,k})=>{
+      const brk=(multi&&bySallskap[k])?Object.entries(bySallskap[k]).map(([s,c])=>s+' '+c).join(' · '):'';
+      return `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
           <div class="pmk-bar" style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
           <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
         </div>
+        ${brk?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${brk}</div>`:''}
         ${allergies[k]?`<div class="pmk-alg" style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00"><span class="warn">⚠</span> ${allergies[k].join('<br>')}</div>`:''}
-      </div>`
-    ).join('');
+      </div>`;
+    }).join('');
   }).join('');
 }
 
@@ -1983,8 +1987,8 @@ async function renderCalResults(){
   if(!bs?.length){el.innerHTML='<div class="empty">Inga bokningar dessa datum.</div>';return;}
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
 
-  // All orders across all selected dates
-  const allOrders=bs.flatMap(b=>b.orders||[]);
+  // All orders across all selected dates (taggade med sällskap)
+  const allOrders=bs.flatMap(b=>(b.orders||[]).map(o=>Object.assign({},o,{_sallskap:b.name})));
   const totalBookings=bs.length;
   // Totalt förväntade gäster + beställda
   const totalGuests=bs.reduce((s,b)=>s+(b.expected_guests||0),0);
@@ -2005,8 +2009,10 @@ async function renderCalResults(){
     const total=b.expected_guests||0;
     const sc=total>0&&ordered>=total?'#3a7d44':ordered>0?'var(--gold)':'var(--muted)';
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;gap:8px">
-      <span style="color:var(--muted);flex:1">${ds}: <span style="color:var(--dark)">${b.name}</span>${b.event_time?' kl '+b.event_time.slice(0,5):''}</span>
-      <span style="color:${sc};font-weight:500;flex-shrink:0">${ordered}${total?' / '+total:''} beställt</span>
+      <div onclick="goToBooking('${b.id}')" title="Öppna bokningen" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex:1;cursor:pointer">
+        <span style="color:var(--muted);flex:1">${ds}: <span style="color:var(--dark)">${b.name}</span>${b.event_time?' kl '+b.event_time.slice(0,5):''} <span style="color:var(--gold)">›</span></span>
+        <span style="color:${sc};font-weight:500;flex-shrink:0">${ordered}${total?' / '+total:''} beställt</span>
+      </div>
       <button class="btn bd" style="font-size:10px;padding:3px 8px;flex-shrink:0" onclick="archiveFromCal('${b.id}')">Arkivera</button>
     </div>`;
   }).join('');
@@ -2036,8 +2042,7 @@ async function renderCalResults(){
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;margin-left:1rem">
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="copyCalKitchen()">📋 Kopiera</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="printCalKitchen()">🖨 Skriv ut</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="exportCalPDF()">📄 PDF</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="printCalKitchen()">🖨 Skriv ut / PDF</button>
       </div>
     </div>
     ${statusHtml}
