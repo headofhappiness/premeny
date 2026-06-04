@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-i">
+<meta name="pm-build" content="2026-06-03-demo-j">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -694,12 +694,10 @@ async function autoInitDemo(){
   maybeShowDemoWelcome();
 }
 function maybeShowDemoWelcome(){
-  try{if(localStorage.getItem('pm_demo_welcome_seen'))return;}catch(e){}
   var el=document.getElementById('demoWelcome');if(el)el.style.display='flex';
 }
 function closeDemoWelcome(){
   var el=document.getElementById('demoWelcome');if(el)el.style.display='none';
-  try{localStorage.setItem('pm_demo_welcome_seen','1');}catch(e){}
 }
 async function initAdmin(){
   const {data:{user}}=await db.auth.getUser();
@@ -776,33 +774,18 @@ function renderBookingList(bookings){
     renderAttention();
     return;
   }
-  list.innerHTML=bookings.map(b=>renderBCard(b)).join('');
+  const sorted=bookings.slice().sort(function(a,b){
+    const ra=bStatus(a)==='late'?0:1, rb=bStatus(b)==='late'?0:1;
+    if(ra!==rb)return ra-rb;
+    return (a.event_date||'').localeCompare(b.event_date||'');
+  });
+  list.innerHTML=sorted.map(b=>renderBCard(b)).join('');
   renderAttention();
 }
 
 function renderAttention(){
   const el=document.getElementById('attnSection');
-  if(!el)return;
-  const today=new Date();today.setHours(0,0,0,0);
-  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-  const items=[];
-  (allBookings||[]).forEach(b=>{
-    const dl=b.deadline?new Date(b.deadline+'T23:59:59'):null;
-    const closed=dl&&today>dl;
-    const n=bOrderStats(b).guests;
-    const exp=b.expected_guests||0;
-    const remindersOn=!!b.reminder_days;
-    let chip='';
-    if(remindersOn&&exp&&n>exp){chip='<span class="attn-chip over">⚠ '+(n-exp)+' fler än väntat</span>';}
-    else if(remindersOn&&closed&&exp&&n<exp){chip='<span class="attn-chip miss">⚠ '+(exp-n)+' saknas · sista beställningsdag passerad</span>';}
-    if(!chip)return;
-    const d=new Date(b.event_date);
-    const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-    items.push('<div class="attn-card" onclick="focusBooking(\''+b.id+'\')"><div class="attn-title">'+b.name+'</div><div class="attn-meta">'+ds+(b.event_time?' kl '+b.event_time.slice(0,5):'')+'</div>'+chip+'</div>');
-  });
-  if(!items.length){el.style.display='none';el.innerHTML='';return;}
-  el.style.display='';
-  el.innerHTML='<div class="attn-head">Behöver åtgärd</div><div style="font-size:12px;color:var(--muted);margin-bottom:.6rem">'+items.length+' bokning'+(items.length>1?'ar':'')+' att kolla</div>'+items.join('');
+  if(el){el.style.display='none';el.innerHTML='';}
 }
 
 function focusBooking(id){
