@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-k">
+<meta name="pm-build" content="2026-06-03-demo-l">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1589,7 +1589,18 @@ async function printKitchen(id){
   const byCat={};
   Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
 
-  const w=window.open('','_blank');
+function printHTML(html){
+  var ifr=document.createElement("iframe");
+  ifr.style.cssText="position:fixed;left:-9999px;top:0;width:800px;height:600px;border:0";
+  document.body.appendChild(ifr);
+  var d=ifr.contentWindow.document;
+  d.open();d.write(html);d.close();
+  var cw=ifr.contentWindow;
+  function cleanup(){if(ifr&&ifr.parentNode)ifr.parentNode.removeChild(ifr);}
+  cw.onafterprint=function(){setTimeout(cleanup,300);};
+  setTimeout(function(){try{cw.focus();cw.print();}catch(e){}setTimeout(cleanup,60000);},250);
+}
+
   let ph=`<html><head><title>${b.name}</title><style>
     body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
     h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
@@ -1614,7 +1625,7 @@ async function printKitchen(id){
     });
   });
   ph+='</'+'body></'+'html>';
-  w.document.write(ph);w.document.close();w.print();
+  printHTML(ph);
 }
 
 async function exportPDF(id){if(IS_DEMO)return demoBlock();
@@ -1719,7 +1730,6 @@ async function printGuestList(id){
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-  const w=window.open('','_blank');
   const cols=_guestCols(orders||[]);
   const named=(orders||[]).filter(function(o){return !_isAnonPortion(o);});
   const anon=(orders||[]).filter(_isAnonPortion);
@@ -1769,7 +1779,7 @@ async function printGuestList(id){
     ph+='</div></div>';
   }
   ph+='</'+'body></'+'html>';
-  w.document.write(ph);w.document.close();w.print();
+  printHTML(ph);
 }
 
 async function exportGuestPDF(id){if(IS_DEMO)return demoBlock();
@@ -1961,9 +1971,7 @@ function printCalKitchen(){
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const dateLabels=dates.map(d=>{const dt=new Date(d+'T12:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}).join(', ');
   const title=dates.length===1?dateLabels:dates.length+' datum: '+dateLabels;
-  const w=window.open('','_blank');
-  w.document.write('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #333;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#1a1712}.alg{background:#fff;border:1px solid #333;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#1a1712;font-style:italic}.pmk-cat{font-size:15px !important}.pmk-cat::before{content:"● ";color:#3a7d44}.pmk-bar{display:none !important}.pmk-alg{position:relative !important;background:#fff !important;border:1px solid #333 !important;color:#1a1712 !important;font-style:italic !important}.pmk-alg::before{content:"▶";position:absolute;left:-1.4rem;top:5px;color:#1a1712;font-weight:700;font-style:normal;font-size:11px}.alg .warn,.pmk-alg .warn{color:#ff6a00 !important;font-style:normal !important;font-weight:700 !important}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
-  w.document.close();w.print();
+  printHTML('<html><head><title>Kökslista</title><style>body{font-family:sans-serif;padding:2rem;font-size:13px}h2{margin-bottom:.25rem;font-size:1.2rem}p{color:#666;font-size:12px;margin:.1rem 0}.sep{border:none;border-top:2px solid #333;margin:1.5rem 0}.cat{font-weight:bold;text-transform:uppercase;font-size:10px;margin:1rem 0 .3rem;color:#1a1712}.alg{background:#fff;border:1px solid #333;border-radius:4px;padding:4px 8px;font-size:11px;margin:2px 0 6px;color:#1a1712;font-style:italic}.pmk-cat{font-size:15px !important}.pmk-cat::before{content:"● ";color:#3a7d44}.pmk-bar{display:none !important}.pmk-alg{position:relative !important;background:#fff !important;border:1px solid #333 !important;color:#1a1712 !important;font-style:italic !important}.pmk-alg::before{content:"▶";position:absolute;left:-1.4rem;top:5px;color:#1a1712;font-weight:700;font-style:normal;font-size:11px}.alg .warn,.pmk-alg .warn{color:#ff6a00 !important;font-style:normal !important;font-weight:700 !important}</style></head><bo\'+\'dy><h2>Kökslista – '+title+'</h2><p>Skrivet ut: '+new Date().toLocaleString('sv-SE')+'</p><hr style="margin:1rem 0;border:none;border-top:1px solid #eee">'+el.innerHTML+'</'+'body></'+'html>');
 }
 
 async function renderCalResults(){
