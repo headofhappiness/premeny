@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-e">
+<meta name="pm-build" content="2026-06-03-demo-f">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1247,6 +1247,10 @@ function _guestCols(orders){
   });});
   return cols.length?cols:[{id:null,label:'Rätter'}];
 }
+// Anonym portion = bulk-ifylld utan namn och utan specialönskemål
+function _isAnonPortion(o){
+  return /^Portion\s+\d+/.test(o.guest_name||'') && !(o.order_items||[]).some(function(oi){return oi.comment&&oi.comment.trim();});
+}
 function renderGuests(orders,bid){
   var buildOpts=function(selId){
     var s='';
@@ -1260,11 +1264,17 @@ function renderGuests(orders,bid){
     return s;
   };
   const cols=_guestCols(orders);
-  return sortGuestsSpecialFirst(orders).map(o=>{
-    const cm=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>(oi.menu_items?.name||'')+': '+oi.comment.trim()).join(', ');
+  const named=(orders||[]).filter(function(o){return !_isAnonPortion(o);});
+  const anon=(orders||[]).filter(_isAnonPortion);
+  var rows=sortGuestsSpecialFirst(named).map(o=>{
     var cells=cols.map(function(c){
-      var dishes=(o.order_items||[]).filter(function(oi){return (c.id&&oi.category_id===c.id)||(oi.menu_items&&oi.menu_items.menu_categories&&oi.menu_items.menu_categories.label===c.label);}).map(function(oi){return oi.menu_items?escHtml(oi.menu_items.name):'';}).filter(Boolean);
-      return '<div style="min-width:0"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:3px">'+escHtml(c.label)+'</div><div style="font-size:13px;line-height:1.4;color:'+(dishes.length?'var(--text)':'#cfc6b5')+'">'+(dishes.length?dishes.join('<br>'):'–')+'</div></div>';
+      var items=(o.order_items||[]).filter(function(oi){return (c.id&&oi.category_id===c.id)||(oi.menu_items&&oi.menu_items.menu_categories&&oi.menu_items.menu_categories.label===c.label);});
+      var inner=items.length?items.map(function(oi){
+        var nm=oi.menu_items?escHtml(oi.menu_items.name):'';
+        var c2=(oi.comment&&oi.comment.trim())?'<div style="margin-top:4px;font-style:italic;font-size:12px;color:#5a3e00;border:1px solid #e8d49a;border-radius:6px;padding:4px 8px;line-height:1.4">⚠ '+escHtml(oi.comment.trim())+'</div>':'';
+        return '<div style="margin-bottom:'+(c2?'7px':'2px')+'">'+nm+c2+'</div>';
+      }).join(''):'<span style="color:#cfc6b5">–</span>';
+      return '<div style="min-width:0"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:3px">'+escHtml(c.label)+'</div><div style="font-size:13px;line-height:1.4;color:var(--text)">'+inner+'</div></div>';
     }).join('');
     var editRows=(o.order_items||[]).map(function(oi){
       return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">'
@@ -1281,13 +1291,30 @@ function renderGuests(orders,bid){
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(${cols.length},minmax(0,1fr));gap:14px;margin-top:10px">${cells}</div>
-      ${cm?`<div style="display:flex;align-items:flex-start;gap:7px;margin-top:10px"><span style="color:#ef6c00;font-size:15px;line-height:1.3;flex-shrink:0">⚠</span><div style="font-size:13px;color:#5a3e00;font-weight:500;line-height:1.5">${escHtml(cm)}</div></div>`:''}
     </div>
     <div id="gedit_${o.id}" style="display:none;background:var(--surface2);border-radius:8px;padding:10px;margin:0 0 8px">
       ${editRows||'<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Den här gästen har inga rätter att ändra.</div>'}
       <div class="fg"><button class="btn bp" style="font-size:12px" onclick="saveGuestEdit('${o.id}','${bid}')">Spara</button><button class="btn bg" style="font-size:12px" onclick="toggleGuestEdit('${o.id}')">Avbryt</button></div>
     </div>`;
   }).join('');
+  var summary='';
+  if(anon.length){
+    var catBlocks=cols.map(function(c){
+      var counts={},order=[];
+      anon.forEach(function(o){(o.order_items||[]).forEach(function(oi){
+        var match=(c.id&&oi.category_id===c.id)||(oi.menu_items&&oi.menu_items.menu_categories&&oi.menu_items.menu_categories.label===c.label);
+        if(match&&oi.menu_items){var n=oi.menu_items.name;if(!(n in counts)){counts[n]=0;order.push(n);}counts[n]++;}
+      });});
+      var inner=order.length?order.map(function(n){return '<span style="font-weight:500">'+counts[n]+'</span> '+escHtml(n);}).join('<br>'):'<span style="color:#cfc6b5">–</span>';
+      return '<div style="min-width:0"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:3px">'+escHtml(c.label)+'</div><div style="font-size:13px;line-height:1.5;color:var(--text)">'+inner+'</div></div>';
+    }).join('');
+    summary='<div class="grow" style="display:block;background:var(--surface2)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+      +'<div style="font-size:13px;font-weight:500">Ifyllt för sällskapet <span style="color:var(--muted);font-weight:400">· '+anon.length+' portioner</span></div>'
+      +'<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delBulkPortions(\''+bid+'\')">Ta bort alla</button></div>'
+      +'<div style="display:grid;grid-template-columns:repeat('+cols.length+',minmax(0,1fr));gap:14px;margin-top:10px">'+catBlocks+'</div></div>';
+  }
+  return rows+summary;
 }
 function toggleGuestEdit(oid){var el=document.getElementById('gedit_'+oid);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function _catOfItem(itemId){for(var i=0;i<(_geCats||[]).length;i++){var f=(_geCats[i].items||[]).find(function(m){return m.id===itemId;});if(f)return _geCats[i].id;}return null;}
@@ -1305,6 +1332,15 @@ async function saveGuestEdit(oid,bid){if(IS_DEMO)return demoBlock();
 }
 
 async function delOrder(oid,bid){if(IS_DEMO)return demoBlock();if(!confirm('Ta bort?'))return;await db.from('order_items').delete().eq('order_id',oid);await db.from('orders').delete().eq('id',oid);await reRender(bid);loadDet(bid,dtabs[bid]||'guests');}
+async function delBulkPortions(bid){if(IS_DEMO)return demoBlock();
+  if(!confirm('Ta bort alla portioner som fyllts i för sällskapet? Namngivna gäster och specialönskemål påverkas inte.'))return;
+  const {data:os}=await db.from('orders').select('id,guest_name, order_items(comment)').eq('booking_id',bid);
+  const ids=(os||[]).filter(_isAnonPortion).map(function(o){return o.id;});
+  if(!ids.length){alert('Inga ifyllda portioner att ta bort.');return;}
+  await db.from('order_items').delete().in('order_id',ids);
+  await db.from('orders').delete().in('id',ids);
+  await reRender(bid);loadDet(bid,'guests');
+}
 
 // NY BOKNING
 let _editingBookingId=null;
