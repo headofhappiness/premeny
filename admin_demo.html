@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-s">
+<meta name="pm-build" content="2026-06-03-demo-u">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1000,13 +1000,12 @@ function renderBCard(b){
     </div>
     <div id="det_${b.id}"></div>
     <div class="fg" style="margin-top:1rem;flex-wrap:wrap">
-      <button class="btn ${_status==='done'?'bg':'bo'}" style="font-size:11px;padding:5px 10px" onclick="toggleComplete('${b.id}',event)">${_status==='done'?'↩ Markera som pågående':'✓ Markera som klar'}</button>
       ${dtab==='guests'?
-        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut / PDF</button>`
+        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printGuestList('${b.id}')">🖨 Skriv ut / PDF</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>`
       :
-        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut / PDF</button>`
+        `<button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="printKitchen('${b.id}')">🖨 Skriv ut / PDF</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>`
       }
       <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
       <button class="btn bd" style="font-size:11px;padding:5px 10px" onclick="delBooking('${b.id}',event)">Ta bort bokning</button>
