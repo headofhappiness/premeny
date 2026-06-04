@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-l">
+<meta name="pm-build" content="2026-06-03-demo-m">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1569,6 +1569,18 @@ async function copyGuestList(id){if(IS_DEMO)return demoBlock();
   navigator.clipboard.writeText(text).then(()=>alert('\u2713 Gästlista kopierad!')).catch(()=>alert('Kunde inte kopiera.'));
 }
 
+function printHTML(html){
+  var ifr=document.createElement("iframe");
+  ifr.style.cssText="position:fixed;left:-9999px;top:0;width:800px;height:600px;border:0";
+  document.body.appendChild(ifr);
+  var d=ifr.contentWindow.document;
+  d.open();d.write(html);d.close();
+  var cw=ifr.contentWindow;
+  function cleanup(){if(ifr&&ifr.parentNode)ifr.parentNode.removeChild(ifr);}
+  cw.onafterprint=function(){setTimeout(cleanup,300);};
+  setTimeout(function(){try{cw.focus();cw.print();}catch(e){}setTimeout(cleanup,60000);},250);
+}
+
 async function printKitchen(id){
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
   const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
@@ -1588,18 +1600,6 @@ async function printKitchen(id){
   }));
   const byCat={};
   Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
-
-function printHTML(html){
-  var ifr=document.createElement("iframe");
-  ifr.style.cssText="position:fixed;left:-9999px;top:0;width:800px;height:600px;border:0";
-  document.body.appendChild(ifr);
-  var d=ifr.contentWindow.document;
-  d.open();d.write(html);d.close();
-  var cw=ifr.contentWindow;
-  function cleanup(){if(ifr&&ifr.parentNode)ifr.parentNode.removeChild(ifr);}
-  cw.onafterprint=function(){setTimeout(cleanup,300);};
-  setTimeout(function(){try{cw.focus();cw.print();}catch(e){}setTimeout(cleanup,60000);},250);
-}
 
   let ph=`<html><head><title>${b.name}</title><style>
     body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
