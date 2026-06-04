@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03ai">
+<meta name="pm-build" content="2026-06-03ak">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -994,7 +994,7 @@ async function switchDtab(id,tab){
 async function reRender(id){
   const el=document.getElementById('bc_'+id);
   if(!el)return;
-  const {data:b}=await db.from('bookings').select('*, orders(id)').eq('id',id).single();
+  const {data:b}=await db.from('bookings').select('*, orders(id, order_items(menu_items(menu_categories(label))))').eq('id',id).single();
   if(b)el.outerHTML=renderBCard(b);
 }
 
@@ -1119,7 +1119,7 @@ function renderTally(orders){
     const catTotal=items.reduce((s,it)=>s+it.n,0);
     return `<div class="chead" style="display:flex;align-items:baseline;justify-content:space-between"><span>${c}</span><span style="font-size:11px;font-weight:600;color:var(--dark);letter-spacing:0;text-transform:none">${catTotal} st totalt</span></div>`+items.map(({name,n,k})=>
       `<div class="trow"><span class="tn">${name}</span><div class="tbw"><div class="tb" style="width:${Math.round(n/max*100)}%"></div></div><span class="tnr">${n}</span></div>`+
-      (allergies[k]?`<div style="margin:-2px 0 6px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:'')
+      (allergies[k]?`<div style="display:flex;align-items:flex-start;gap:7px;margin:-2px 0 8px"><span style="color:#ef6c00;font-size:16px;line-height:1.35;flex-shrink:0">⚠</span><div style="flex:1;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:7px 11px;font-size:13px;color:#5a3e00;font-weight:500;line-height:1.5">${allergies[k].join('<br>')}</div></div>`:'')
     ).join('');
   }).join('');
 }
@@ -1152,7 +1152,7 @@ function renderKitchen(orders){
           <div style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
           <span style="font-size:12px;color:var(--muted);width:28px;text-align:right">${n} st</span>
         </div>
-        ${allergies[k]?`<div style="margin-top:4px;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7a5c00">⚠ ${allergies[k].join('<br>')}</div>`:''}
+        ${allergies[k]?`<div style="display:flex;align-items:flex-start;gap:7px;margin-top:6px"><span style="color:#ef6c00;font-size:16px;line-height:1.35;flex-shrink:0">⚠</span><div style="flex:1;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:7px 11px;font-size:13px;color:#5a3e00;font-weight:500;line-height:1.5">${allergies[k].join('<br>')}</div></div>`:''}
       </div>`
     ).join('');
   }).join('');
@@ -1208,10 +1208,10 @@ async function saveGuestEdit(oid,bid){
     var {error}=await db.from('order_items').update(upd).eq('id',oiId);
     if(error){alert('Fel: '+error.message);return;}
   }
-  loadDet(bid,dtabs[bid]||'guests');reRender(bid);
+  await reRender(bid);loadDet(bid,dtabs[bid]||'guests');
 }
 
-async function delOrder(oid,bid){if(!confirm('Ta bort?'))return;await db.from('order_items').delete().eq('order_id',oid);await db.from('orders').delete().eq('id',oid);loadDet(bid,dtabs[bid]||'guests');reRender(bid);}
+async function delOrder(oid,bid){if(!confirm('Ta bort?'))return;await db.from('order_items').delete().eq('order_id',oid);await db.from('orders').delete().eq('id',oid);await reRender(bid);loadDet(bid,dtabs[bid]||'guests');}
 
 // NY BOKNING
 let _editingBookingId=null;
@@ -1311,9 +1311,10 @@ async function delBooking(id,ev){
 // PÅMINNELSE
 async function doReminder(id,ev){
   ev.stopPropagation();
-  const {data:b}=await db.from('bookings').select('*, orders(id)').eq('id',id).single();
-  if(b.expected_guests&&(b.orders||[]).length>=b.expected_guests){alert('Alla gäster har svarat!');return;}
-  const miss=b.expected_guests?(b.expected_guests-(b.orders||[]).length)+' av '+b.expected_guests+' saknas':'';
+  const {data:b}=await db.from('bookings').select('*, orders(id, order_items(menu_items(menu_categories(label))))').eq('id',id).single();
+  const _g=bOrderStats(b).guests;
+  if(b.expected_guests&&_g>=b.expected_guests){alert('Alla gäster har svarat!');return;}
+  const miss=b.expected_guests?(b.expected_guests-_g)+' av '+b.expected_guests+' saknas':'';
   if(!confirm('Skicka påminnelse till '+b.contact_name+'?\n\n'+miss+'\n\n(Demo: markeras som skickad)'))return;
   await db.from('bookings').update({reminder_sent_at:new Date().toISOString()}).eq('id',id);
   reRender(id);
