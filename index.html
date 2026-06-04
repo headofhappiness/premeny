@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzBmMGQwYiIgc3Ryb2tlPSIjYzlhNTVhIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSI1MCIgeT0iNjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iYm9sZCI+CiAgICA8dHNwYW4gZmlsbD0iI2M5YTU1YSI+UDwvdHNwYW4+PHRzcGFuIGZpbGw9IndoaXRlIj5NPC90c3Bhbj4KICA8L3RleHQ+Cjwvc3ZnPg==">
 <title>PreMeny – Förbeställning för sällskap</title>
-<meta name="pm-build" content="2026-06-01c">
+<meta name="pm-build" content="2026-06-04c">
 <meta name="description" content="PreMeny låter restauranger ta emot förbeställningar från sällskap – gästerna väljer sin mat i förväg och köket får en färdig sammanställning.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -63,7 +63,7 @@ h1 em{color:var(--gold)}
 .hero-cta{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
 .btn-primary{background:var(--dark);color:#fff;padding:14px 32px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:15px;font-weight:500;text-decoration:none;transition:all .25s;letter-spacing:.02em;display:inline-flex;align-items:center;gap:8px}
 .btn-primary:hover{background:var(--gold);transform:translateY(-1px)}
-.btn-ghost{background:transparent;color:var(--dark);border:2px solid var(--border);padding:12px 30px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:15px;font-weight:500;text-decoration:none;transition:all .25s;letter-spacing:.02em;display:inline-flex;align-items:center;gap:8px}
+.btn-ghost{background:rgba(184,149,90,.1);color:var(--dark);border:1.5px solid var(--gold);padding:12.5px 30px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:15px;font-weight:500;text-decoration:none;transition:all .25s;letter-spacing:.02em;display:inline-flex;align-items:center;gap:8px}
 .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
 .btn-secondary{color:var(--muted);font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .2s}
 .btn-secondary:hover{color:var(--dark)}
@@ -287,13 +287,15 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
   <div class="hero-circle"></div>
   <div class="hero-circle2"></div>
   <div class="hero-inner">
-    <div class="hero-tag fade-up">För restauranger och cateringfirmor</div>
+    <div class="hero-tag fade-up">För restauranger med större sällskap</div>
     <h1 class="fade-up">Förbeställ maten.<br><em>Utan mejlkaos.</em></h1>
-    <p class="hero-sub fade-up">PreMeny ersätter mejlkaos och manuell sammanställning. Gästerna förbeställer via en länk – ni får en klar kökslista automatiskt, med allergier markerade och inköpsplanering i god tid.</p>
+    <p class="hero-sub fade-up" style="margin-bottom:1.25rem">När hela sällskapet ska förbeställa – bröllop, konferenser, fester – sköter PreMeny det åt er. Gästerna väljer sin mat via en länk, och ni får en färdig kökslista automatiskt med specialkost markerad och tid att planera inköpen.</p>
+    <p class="fade-up" style="font-size:16px;color:var(--dark);font-weight:500;line-height:1.7;margin-bottom:2.5rem;max-width:500px">Mindre svinn <span style="color:var(--gold)">·</span> Inget mejlkaos <span style="color:var(--gold)">·</span> Ingen manuell sammanställning</p>
     <div class="hero-cta fade-up">
       <a href="https://premeny.se/bli-kund.html" class="btn-primary">Bli kund →</a>
       <a href="https://premeny.se/admin_demo.html" class="btn-ghost">Se demo</a>
     </div>
+    <p class="fade-up" style="font-size:14px;color:var(--muted);margin-top:1rem">Ett komplement till ert bordsbokningssystem – inget att installera.</p>
     <div class="hero-stats fade-up">
       <div>
         <div class="stat-num">2 min</div>
@@ -338,13 +340,13 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
         <div class="step-num">03</div>
         <div class="step-icon">🍽</div>
         <div class="step-title">Gästerna beställer</div>
-        <div class="step-desc">Inga appar, ingen inloggning. Gästen öppnar länken, väljer sin mat och anger eventuella allergier.</div>
+        <div class="step-desc">Inga appar, ingen inloggning. Gästen öppnar länken, väljer sin mat och anger eventuell specialkost.</div>
       </div>
       <div class="step">
         <div class="step-num">04</div>
         <div class="step-icon">✅</div>
         <div class="step-title">Köket är redo</div>
-        <div class="step-desc">Se kökslistan live – antal per rätt, allergier tydligt markerade. Ett klick kopierar allt till köket eller skriv ut.</div>
+        <div class="step-desc">Se kökslistan live – antal per rätt, specialkost tydligt markerad. Ett klick kopierar allt till köket eller skriv ut.</div>
       </div>
     </div>
   </div>
@@ -363,8 +365,8 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
       </div>
       <div class="feature-card">
         <div class="feature-icon">⚠️</div>
-        <div class="feature-title">Allergier tydligt markerade</div>
-        <div class="feature-desc">Gäster med allergi eller specialkost syns med orange markering – både på kökslistan per rätt och i gästlistan. Ingenting missas.</div>
+        <div class="feature-title">Specialkost tydligt markerad</div>
+        <div class="feature-desc">Gäster med specialkost syns med orange markering – både på kökslistan per rätt och i gästlistan. Ingenting missas.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🪑</div>
@@ -406,15 +408,15 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
     <div class="for-who-grid">
       <div>
         <div class="section-tag">Gjort för er</div>
-        <h2>För restauranger<br>och cateringfirmor</h2>
-        <p style="color:var(--muted);font-size:16px;line-height:1.7;margin-top:1rem">Idag hanterar ni sällskapsbeställningar via mejl och sammanställer dem manuellt. Med PreMeny gör gästerna jobbet själva – och ni får en klar översikt direkt. Enklare, snabbare, bättre.</p>
+        <h2>För restauranger med<br>större sällskap</h2>
+        <p style="color:var(--muted);font-size:16px;line-height:1.7;margin-top:1rem"><strong style="color:var(--text);font-weight:500">Ett komplement till ert bordsbokningssystem – inte en ersättning.</strong> Bokningssystemet bokar bordet. PreMeny tar hand om steget efteråt: när hela sällskapet ska välja sin mat. Gästerna förbeställer själva via en länk, och ni får en färdig kökslista med specialkost markerad.</p>
+        <p style="color:var(--muted);font-size:15px;line-height:1.7;margin-top:.75rem">Passar er som tar emot bröllop, konferenser, julbord, fester och företagsevent – allt där ett helt sällskap ska äta samma kväll.</p>
         <ul class="for-who-list">
-          <li>Idag sammanställer ni beställningar manuellt via mejl</li>
-          <li>Allergier och specialkost är lätta att missa</li>
-          <li>Ni jagar gästers förbokningar i onödan</li>
+          <li>Idag samlar ni in sällskapets val via mejl och sammanställer manuellt</li>
+          <li>Specialkost är lätt att missa i en mejltråd</li>
+          <li>Ni påminner och jagar gäster som inte svarat</li>
           <li>Matsvinn och onödiga inköp kostar pengar</li>
-          <li>Ni vill se professionella ut mot era kunder</li>
-          <li>Ni hanterar julbord, konferenser, bröllop eller företagsevent</li>
+          <li>Köket vill veta exakt vad som ska lagas – i god tid</li>
         </ul>
       </div>
       <div>
@@ -463,7 +465,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
         <div class="price-divider"></div>
         <ul class="price-list">
           <li>Obegränsat antal bokningar och gäster</li>
-          <li>Kökslista med allergier markerade</li>
+          <li>Kökslista med specialkost markerad</li>
           <li>Automatisk påminnelse</li>
           <li>Sammanställning per dag & sällskap</li>
           <li>Summering över flera datum och sällskap</li>

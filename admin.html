@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03av">
+<meta name="pm-build" content="2026-06-03aw">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1023,7 +1023,7 @@ async function renderBulk(bookingId){
   let html=`<div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
     <strong style="color:var(--text)">Fyll i för hela sällskapet</strong><br>
     Ange hur många <strong style="font-weight:500;color:var(--text)">portioner</strong> av varje rätt sällskapet vill ha – en snabb summering till köket. Alla behöver inte ha alla rätter. Vill du ha varje gäst med namn och egna val, låt dem fylla i via gästlänken.<br><br>
-    <strong style="font-weight:500;color:var(--text)">💡 Tips:</strong> lägg in gäster med specialönskemål <strong style="font-weight:500;color:var(--text)">först</strong>. Sätt antal 1 på deras rätt, skriv namn + specialkost/önskemål och tryck Spara. Fyll sedan i resten av sällskapet. Då syns allergin på rätt person i listan. (Lämnar du namnet tomt blir raden "Portion 1, 2, 3 …".)
+    <strong style="font-weight:500;color:var(--text)">💡 Tips:</strong> lägg in gäster med specialönskemål <strong style="font-weight:500;color:var(--text)">först</strong>. Sätt antal 1 på deras rätt, skriv namn + specialkost/önskemål och tryck Spara. Fyll sedan i resten av sällskapet. Då syns specialkosten på rätt person i listan. (Lämnar du namnet tomt blir raden "Portion 1, 2, 3 …".)
   </div>`;
   const {data:_b}=await db.from('bookings').select('menu_id').eq('id',bookingId).single();
   let _q=db.from('menu_categories').select('id,label,sort_order, menu_items(id,name,description,price,active,sort_order)');
@@ -1043,7 +1043,7 @@ async function renderBulk(bookingId){
         ${item.price?`<div style="font-size:13px;color:var(--gold);font-weight:500;white-space:nowrap">${item.price} kr</div>`:''}
         <input type="number" class="bulk-qty" id="bq_${bookingId}_${item.id}" min="0" max="999" value="0" placeholder="0">
         <input type="text" class="bulk-cmt" id="bn_${bookingId}_${item.id}" placeholder="Namn (valfritt)" style="max-width:150px">
-        <input type="text" class="bulk-cmt" id="bc_${bookingId}_${item.id}" placeholder="Allergi/kommentar (valfritt)" style="max-width:200px">
+        <input type="text" class="bulk-cmt" id="bc_${bookingId}_${item.id}" placeholder="Specialkost/kommentar (valfritt)" style="max-width:200px">
       </div>`;
     });
     html+=`</div>`;
@@ -1200,7 +1200,7 @@ function renderGuests(orders,bid){
     var editRows=(o.order_items||[]).map(function(oi){
       return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">'
         +'<select id="ge_item_'+oi.id+'" style="flex:2;min-width:150px">'+buildOpts(oi.menu_item_id)+'</select>'
-        +'<input id="ge_cmt_'+oi.id+'" placeholder="Kommentar/allergi" value="'+escAttr(oi.comment||'')+'" style="flex:1;min-width:140px">'
+        +'<input id="ge_cmt_'+oi.id+'" placeholder="Kommentar/specialkost" value="'+escAttr(oi.comment||'')+'" style="flex:1;min-width:140px">'
         +'</div>';
     }).join('');
     return `<div class="grow" style="display:block">
@@ -1403,7 +1403,7 @@ async function sendSummary(id,ch){
   }));
   Object.entries(byCat).forEach(([c,items])=>{const tot=Object.values(items).reduce((s,x)=>s+x,0);text+=c+' ('+tot+' st totalt):\n';Object.entries(items).forEach(([n,cnt])=>text+='  '+n+' ×'+cnt+'\n');text+='\n';});
   const al=[];(orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{if(oi.comment?.trim())al.push(o.guest_name+' – '+oi.menu_items?.name+': '+oi.comment);}));
-  if(al.length){text+='Kommentarer & allergier:\n';al.forEach(a=>text+='  '+a+'\n');}
+  if(al.length){text+='Kommentarer & specialkost:\n';al.forEach(a=>text+='  '+a+'\n');}
   // Öppna mejl eller SMS
   if(ch==='email'){
     const {data:{session}}=await db.auth.getSession();
@@ -1483,7 +1483,7 @@ async function copyKitchen(id){
     if(oi.comment?.trim())al.push('  '+oi.menu_items?.name+': '+oi.comment+(o.guest_name?' ('+o.guest_name+')':''));
   }));
   if(al.length){
-    text+='KOMMENTARER & ALLERGIER\n';
+    text+='KOMMENTARER & SPECIALKOST\n';
     al.forEach(a=>text+=a+'\n');
   }
   navigator.clipboard.writeText(text).then(()=>alert('\u2713 Sammanfattning kopierad!')).catch(()=>alert('Kunde inte kopiera.'));
@@ -1635,7 +1635,7 @@ async function exportPDF(id){
     doc.roundedRect(margin,y,contentW,alHeight,2,2,'FD');
     doc.setFont('helvetica','bold');doc.setFontSize(10);
     doc.setTextColor(26,23,18);
-    doc.text('⚠ Kommentarer & Allergier',margin+4,y+7);y+=12;
+    doc.text('⚠ Kommentarer & Specialkost',margin+4,y+7);y+=12;
     doc.setFont('helvetica','normal');doc.setFontSize(9);
     al.forEach(a=>{doc.text('• '+a,margin+4,y);y+=6;});
     y+=4;
