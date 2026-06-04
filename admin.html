@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03al">
+<meta name="pm-build" content="2026-06-03am">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1158,6 +1158,11 @@ function renderKitchen(orders){
   }).join('');
 }
 
+// Sorterar gäster med specialönskemål (kommentar) överst
+function sortGuestsSpecialFirst(orders){
+  var has=function(o){return (o.order_items||[]).some(function(oi){return oi.comment&&oi.comment.trim();});};
+  return (orders||[]).slice().sort(function(a,b){return (has(b)?1:0)-(has(a)?1:0);});
+}
 function renderGuests(orders,bid){
   var buildOpts=function(selId){
     var s='';
@@ -1170,7 +1175,7 @@ function renderGuests(orders,bid){
     });
     return s;
   };
-  return orders.map(o=>{
+  return sortGuestsSpecialFirst(orders).map(o=>{
     const ch=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(' · ');
     const cm=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.menu_items?.name+': '+oi.comment).join(', ');
     var editRows=(o.order_items||[]).map(function(oi){
@@ -1438,7 +1443,7 @@ async function copyGuestList(id){
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()+(b.event_time?' kl '+b.event_time.slice(0,5):'');
   let text=b.name+' – Gästlista\n'+ds+'\n'+'─'.repeat(32)+'\n\n';
-  (orders||[]).forEach((o,i)=>{
+  sortGuestsSpecialFirst(orders).forEach((o,i)=>{
     const ratter=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
     const komm=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
     text+=(i+1)+'. '+o.guest_name+'\n';
@@ -1615,7 +1620,7 @@ async function printGuestList(id){
   </style></head><body>`;
   ph+=`<h1>Gästlista – ${b.name}</h1>`;
   ph+=`<div class="meta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orders?.length||0}${b.expected_guests?' av '+b.expected_guests:''} gäster · Skrivet ut: ${new Date().toLocaleString('sv-SE')}</div>`;
-  (orders||[]).forEach((o,i)=>{
+  sortGuestsSpecialFirst(orders).forEach((o,i)=>{
     const dishes=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
     const allergy=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
     ph+=`<div class="row"><span class="num">${i+1}.</span><strong>${o.guest_name}</strong>`;
@@ -1648,7 +1653,7 @@ async function exportGuestPDF(id){
   doc.setDrawColor(90,90,90);doc.setLineWidth(0.5);
   doc.line(margin,y,pageW-margin,y);y+=8;
 
-  (orders||[]).forEach((o,i)=>{
+  sortGuestsSpecialFirst(orders).forEach((o,i)=>{
     const dishes=(o.order_items||[]).map(oi=>oi.menu_items?.name).filter(Boolean).join(', ');
     const allergy=(o.order_items||[]).filter(oi=>oi.comment?.trim()).map(oi=>oi.comment).join(', ');
     checkPage(14);
