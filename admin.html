@@ -1435,6 +1435,7 @@ async function doReminder(id,ev){
 // SKICKA SAMMANSTÄLLNING
 async function sendSummary(id,ch){
   const {data:b}=await db.from('bookings').select('*').eq('id',id).single();
+  const {data:rest}=await db.from('restaurants').select('*').eq('id',b.restaurant_id).single();
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date);
