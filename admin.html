@@ -937,15 +937,6 @@ function renderBCard(b){
     sendOverCapacityWarning(b,n);
   }
     // Sammanställning skickad
-    if(b.summary_sent_log){
-      const allLines=b.summary_sent_log.trim().split('\n').filter(l=>l);
-      if(allLines.length){
-        html+=`<div style="font-size:12px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:6px 10px;margin-bottom:.75rem;color:#3a6020;line-height:1.6">
-          ✓ <strong>Skickat till kontaktperson</strong><br>
-          ${allLines.map(l=>'<span style="opacity:.85">'+l+'</span>').join('<br>')}
-        </div>`;
-      }
-    }
     if(b.reminder_sent_at){
       html+=`<div style="font-size:12px;color:#6a5030;margin-bottom:.75rem">✉ Påminnelse skickad: ${new Date(b.reminder_sent_at).toLocaleDateString('sv-SE')}</div>`;
     } else if(!b.reminder_days){
@@ -958,6 +949,15 @@ function renderBCard(b){
         <div style="font-size:12px;color:var(--muted)">✉ Automatisk påminnelse ${b.reminder_days} dagar före sista beställningsdag · ${miss}</div>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="doReminder('${b.id}',event)">Skicka extra påminnelse nu</button>
       </div>`;
+    }
+    if(b.summary_sent_log){
+      const allLines=b.summary_sent_log.trim().split('\n').filter(l=>l);
+      if(allLines.length){
+        html+=`<div style="font-size:12px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:6px 10px;margin-bottom:.75rem;color:#3a6020;line-height:1.6">
+          ✓ <strong>Skickat till kontaktperson</strong><br>
+          ${allLines.map(l=>'<span style="opacity:.85">'+l+'</span>').join('<br>')}
+        </div>`;
+      }
     }
 
     // Detaljflikar
@@ -1522,10 +1522,9 @@ async function sendSummary(id,ch){
     if(!json.ok){_restoreBtn();alert('Fel: '+(json.error||'okänt'));return;}
     const now=new Date();
     const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    await db.from('bookings').update({
-      summary_sent_at:now.toISOString(),
-      summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via mejl till '+dest+'\n'
-    }).eq('id',id);
+    const newLog=(b.summary_sent_log||'')+timeStr+' gästlänk via mejl till '+dest+'\n';
+    await db.from('bookings').update({summary_sent_at:now.toISOString(),summary_sent_log:newLog}).eq('id',id);
+    const idx1=allBookings.findIndex(x=>x.id===id);if(idx1>-1)allBookings[idx1]={...allBookings[idx1],summary_sent_log:newLog,summary_sent_at:now.toISOString()};
     _restoreBtn();
     alert('✓ Gästlänk skickad till '+dest+'!');
     reRender(id);
@@ -1543,10 +1542,9 @@ async function sendSummary(id,ch){
       if(!result.ok)throw new Error(result.error||'Okänt fel');
       const now=new Date();
       const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-      await db.from('bookings').update({
-        summary_sent_at:now.toISOString(),
-        summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via SMS till '+dest+'\n'
-      }).eq('id',id);
+      const newLogSms=(b.summary_sent_log||'')+timeStr+' gästlänk via SMS till '+dest+'\n';
+      await db.from('bookings').update({summary_sent_at:now.toISOString(),summary_sent_log:newLogSms}).eq('id',id);
+      const idx2=allBookings.findIndex(x=>x.id===id);if(idx2>-1)allBookings[idx2]={...allBookings[idx2],summary_sent_log:newLogSms,summary_sent_at:now.toISOString()};
       _restoreBtn();
       reRender(id);
       alert('✓ SMS skickat till '+dest+'!');
