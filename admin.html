@@ -5,7 +5,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03bw">
+<meta name="pm-build" content="2026-06-05a">
+<script>
+(function(){
+  var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
+  function checkVersion(){
+    fetch("/admin.html?_="+Date.now(),{cache:"no-store"})
+      .then(function(r){return r.text();})
+      .then(function(html){
+        var m=html.match(/name="pm-build"\s+content="([^"]+)"/);
+        if(m&&m[1]&&m[1]!==CURRENT){
+          var bar=document.getElementById("_update-bar");
+          if(!bar){
+            bar=document.createElement("div");
+            bar.id="_update-bar";
+            bar.style.cssText="position:fixed;top:0;left:0;right:0;background:#3a7d44;color:#fff;text-align:center;padding:10px 16px;font-size:13px;z-index:9999;cursor:pointer;font-family:Outfit,sans-serif;";
+            bar.innerHTML="🔄 En uppdatering av PreMeny finns tillgänglig. <strong>Klicka här för att ladda om.</strong>";
+            bar.onclick=function(){location.reload(true);};
+            document.body.appendChild(bar);
+          }
+        }
+      }).catch(function(){});
+  }
+  window.addEventListener("load",function(){
+    setTimeout(checkVersion,10000);
+    setInterval(checkVersion,300000);
+  });
+})();
+</script>
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
