@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05g">
+<meta name="pm-build" content="2026-06-05h">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -891,7 +891,7 @@ function renderBCard(b){
         ${_st.breakdown?'<div style="font-size:13px;color:var(--text);margin-top:6px;font-weight:400">'+_st.breakdown+'</div>':''}
         ${reminderHtml}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:6px;flex-shrink:0;min-height:100%">
         <select onchange="setStatusVal('${b.id}',this.value)" onclick="event.stopPropagation()" title="Ändra status" style="font-family:inherit;font-size:12px;font-weight:500;color:var(--text);cursor:pointer;background:${STATUS_COLORS[_status]}14;border:1.5px solid ${STATUS_COLORS[_status]}66;border-radius:100px;padding:5px 10px;outline:none">
           <option value="progress"${(b.manual_status?b.manual_status==='progress':_status==='progress')?' selected':''}>🟡 Pågående</option>
           <option value="done"${(b.manual_status?b.manual_status==='done':_status==='done')?' selected':''}>🟢 Klar</option>
