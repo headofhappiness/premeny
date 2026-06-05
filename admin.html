@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05c">
+<meta name="pm-build" content="2026-06-05d">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -924,7 +924,7 @@ function renderBCard(b){
       <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap">
         <button onclick="sendConfirmation('${b.id}')" class="btn bo" style="font-size:11px;padding:5px 12px">✉ Skicka bekräftelse till kontaktperson</button>
         <button onclick="sendSummary('${b.id}','email')" class="btn bg" style="font-size:11px;padding:5px 12px">✉ Skicka länk via mejl</button>
-        ${b.contact_phone?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:''}
+        ${b.contact_phone?(()=>{const pc=(b.contact_phone||'').replace(/[\s\-]/g,'');const ok=/^(\+467\d{8}|07\d{8})$/.test(pc);return ok?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:`<button onclick="alert('Telefonnumret \\\"${b.contact_phone}\\\" verkar inte stämma.\\n\\nAnge ett giltigt mobilnummer under Ändra bokning.')" class="btn bg" style="font-size:11px;padding:5px 12px;opacity:.5">💬 Skicka länk via sms ⚠</button>`;})():''}
         <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera länk</button>
       </div>
       <div style="font-size:11px;color:var(--muted);margin:-.4rem 0 1rem;line-height:1.6">
@@ -1533,6 +1533,14 @@ async function sendSummary(id,ch){
     reRender(id);
     return;
   } else {
+    // Validera telefonnummer innan vi försöker skicka
+    const phoneClean=(b.contact_phone||'').replace(/[\s\-]/g,'');
+    const phoneOk=/^(\+467\d{8}|07\d{8})$/.test(phoneClean);
+    if(!phoneOk){
+      alert('Telefonnumret "'+b.contact_phone+'" verkar inte stämma.\n\nAnge ett svenskt mobilnummer (t.ex. 0701234567) under Ändra bokning och försök igen.');
+      _restoreBtn();
+      return;
+    }
     const gLinkSms='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
     const {data:{session}}=await db.auth.getSession();
     try{
