@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05e">
+<meta name="pm-build" content="2026-06-05f">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -974,7 +974,7 @@ function renderBCard(b){
         `<button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="printGuestList('${b.id}')">🖨 Skriv ut gästlista</button>
         <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>`
       :''}
-      <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
+      <button class="btn bg" style="font-size:11px;padding:4px 9px;background:var(--gold);color:#fff;border-color:var(--gold)" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
       <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="delBooking('${b.id}',event)">Arkivera bokning</button>
     </div>
     <div id="det_${b.id}"></div></div>`;
