@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05h">
+<meta name="pm-build" content="2026-06-05i">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -82,7 +82,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 .dtab:hover{border-color:var(--dark);color:var(--dark)}.dtab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
 .bcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem;transition:border-color .2s}
 .bcard:hover{border-color:var(--bs)}.bcard.open{border-color:var(--gold)}
-.bhead{display:flex;justify-content:space-between;align-items:flex-start;cursor:pointer}
+.bhead{display:flex;justify-content:space-between;align-items:stretch;cursor:pointer}
 .bname{font-family:"Playfair Display",serif;font-size:1.15rem;color:var(--dark)}
 .bmeta{font-size:15px;color:var(--muted);margin-top:3px}
 .pill{border-radius:100px;padding:6px 12px;font-size:13px;font-weight:500}
@@ -891,7 +891,7 @@ function renderBCard(b){
         ${_st.breakdown?'<div style="font-size:13px;color:var(--text);margin-top:6px;font-weight:400">'+_st.breakdown+'</div>':''}
         ${reminderHtml}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:6px;flex-shrink:0;min-height:100%">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;align-self:stretch">
         <select onchange="setStatusVal('${b.id}',this.value)" onclick="event.stopPropagation()" title="Ändra status" style="font-family:inherit;font-size:12px;font-weight:500;color:var(--text);cursor:pointer;background:${STATUS_COLORS[_status]}14;border:1.5px solid ${STATUS_COLORS[_status]}66;border-radius:100px;padding:5px 10px;outline:none">
           <option value="progress"${(b.manual_status?b.manual_status==='progress':_status==='progress')?' selected':''}>🟡 Pågående</option>
           <option value="done"${(b.manual_status?b.manual_status==='done':_status==='done')?' selected':''}>🟢 Klar</option>
@@ -899,7 +899,7 @@ function renderBCard(b){
           <option value="auto">↺ Automatiskt</option>
         </select>
         <span style="font-size:11px;color:var(--muted)">${closed?'Stängd för beställning':'Öppen för beställning'}</span>
-        <button onclick="event.stopPropagation();editBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:var(--gold);color:#fff;border:none;border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500;margin-top:2px">✏ Ändra bokning</button>
+        <button onclick="event.stopPropagation();editBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:var(--gold);color:#fff;border:none;border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500;margin-top:auto">✏ Ändra bokning</button>
       </div>
     </div>`;
 
