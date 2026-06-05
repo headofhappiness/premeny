@@ -1465,7 +1465,8 @@ async function doReminder(id,ev){
     if(skickat){
       const now=new Date();
       const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-      let log=b.summary_sent_log||'';
+      const {data:freshB}=await db.from('bookings').select('summary_sent_log').eq('id',id).single();
+      let log=freshB?.summary_sent_log||'';
       if(skickat.indexOf('email')>-1)log+=ts+' extra påminnelse via mejl till '+b.contact_email+'\n';
       if(skickat.indexOf('sms')>-1)log+=ts+' extra påminnelse via SMS till '+b.contact_phone+'\n';
       await db.from('bookings').update({summary_sent_log:log}).eq('id',id);
