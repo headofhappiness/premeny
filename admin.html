@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-03bo">
+<meta name="pm-build" content="2026-06-03bp">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1575,42 +1575,25 @@ async function printKitchen(id){
   const d=new Date(b.event_date+'T12:00:00');
   const ds=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
   
-  // Count per dish
-  const counts={};const allergies={};
-  (orders||[]).forEach(o=>(o.order_items||[]).forEach(oi=>{
-    if(!oi.menu_items||!oi.menu_items.name)return;
-    const cat=oi.menu_items.menu_categories?.label||'Övrigt';
-    const name=oi.menu_items.name;
-    const k=cat+'||'+name;
-    counts[k]=(counts[k]||0)+1;
-    if(oi.comment?.trim()){if(!allergies[k])allergies[k]=[];allergies[k].push((o.guest_name||'Okänd')+': '+oi.comment.trim());}
-  }));
-  const byCat={};
-  Object.entries(counts).forEach(([k,n])=>{const[cat,name]=k.split('||');if(!byCat[cat])byCat[cat]=[];byCat[cat].push({name,n,k});});
+  // Återanvänd dagsöversiktens kökslista-stil (inget _sallskap = ingen sällskapsrad/uppdelning för en enskild bokning)
+  const body=buildKitchenHtml(orders||[]);
 
-  let ph=`<html><head><title>${b.name}</title><style>
-    body{font-family:sans-serif;padding:2rem;font-size:14px;color:#1a1712}
+  let ph=`<html><head><title>${escHtml(b.name)}</title><style>
+    body{font-family:sans-serif;padding:2rem;font-size:13px;color:#1a1712}
     h1{font-size:1.4rem;margin-bottom:.1rem;font-weight:600}
-    .meta{color:#666;font-size:13px;margin-bottom:1.5rem}
-    .cat{font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a1712;margin:1.25rem 0 .4rem;border-bottom:1px solid #999;padding-bottom:3px}
-    .cat::before{content:"● ";color:#3a7d44}
-    .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ccc;font-size:13px}
-    .alg{position:relative;background:#fff;border:1px solid #333;border-radius:4px;padding:5px 10px;font-size:11px;margin:2px 0 8px;color:#1a1712;font-style:italic}
-    .alg .warn{color:#ff6a00;font-style:normal;font-weight:700}
-    .alg::before{content:"▶";position:absolute;left:-1.4rem;top:5px;color:#1a1712;font-weight:700;font-style:normal;font-size:11px}
+    .meta{color:#666;font-size:13px;margin-bottom:1.25rem}
+    .pmk-cat{font-size:15px !important}
+    .pmk-cat::before{content:"● ";color:#3a7d44}
+    .pmk-bar{display:none !important}
+    .pmk-alg{position:relative !important;background:#fff !important;border:1px solid #333 !important;color:#1a1712 !important;font-style:italic !important}
+    .pmk-alg::before{content:"▶";position:absolute;left:-1.4rem;top:5px;color:#1a1712;font-weight:700;font-style:normal;font-size:11px}
+    .pmk-alg .warn{color:#ff6a00 !important;font-style:normal !important;font-weight:700 !important}
     @media print{body{padding:.75rem .75rem .75rem 2rem}}
   </style></head><body>`;
-  ph+=`<h1>${b.name}</h1>`;
-  ph+=b.table_label?`<div style="font-size:15px;font-weight:600;color:#1a1712;margin-bottom:.5rem">Bord: ${b.table_label}</div>`:'';
+  ph+=`<h1>${escHtml(b.name)}</h1>`;
+  ph+=b.table_label?`<div style="font-size:15px;font-weight:600;color:#1a1712;margin-bottom:.5rem">Bord: ${escHtml(b.table_label)}</div>`:'';
   ph+=`<div class="meta">${ds}${b.event_time?' kl '+b.event_time.slice(0,5):''} · ${orders?.length||0}${b.expected_guests?' av '+b.expected_guests:''} beställningar · Skrivet ut: ${new Date().toLocaleString('sv-SE')}</div>`;
-  
-  Object.entries(byCat).forEach(([cat,items])=>{
-    ph+=`<div class="cat">${cat}</div>`;
-    items.forEach(({name,n,k})=>{
-      ph+=`<div class="row"><span>${name}</span><strong>${n} st</strong></div>`;
-      if(allergies[k])ph+=allergies[k].map(a=>`<div class="alg"><span class="warn">⚠</span> ${a}</div>`).join('');
-    });
-  });
+  ph+=body;
   ph+='</'+'body></'+'html>';
   printHTML(ph);
 }
@@ -1729,10 +1712,10 @@ async function printGuestList(id){
     .gname{font-size:15px;font-weight:700;margin-bottom:7px}
     .cols{display:grid;gap:16px}
     .clab{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:#5a4520;font-weight:700;margin-bottom:3px}
-    .cval{font-size:12.5px;color:#1a1712;line-height:1.45}
+    .cval{font-size:13px;color:#1a1712;line-height:1.45}
     .cval .none{color:#bbb}
-    .cmt{margin-top:4px;font-style:italic;font-size:11px;color:#5a3e00;border:1px solid #c9a86a;border-radius:5px;padding:3px 7px}
-    .cmt .warn{color:#ef6c00;font-style:normal;font-weight:700;margin-right:3px}
+    .cmt{margin-top:4px;background:#fff;border:1px solid #333;border-radius:4px;padding:5px 10px;font-style:italic;font-size:11px;color:#1a1712}
+    .cmt .warn{color:#ff6a00;font-style:normal;font-weight:700;margin-right:3px}
     .summary{background:#faf7f0}
     @media print{body{padding:.75rem}}
   </style></head><body>`;
