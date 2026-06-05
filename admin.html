@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05l">
+<meta name="pm-build" content="2026-06-05n">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -916,7 +916,8 @@ function renderBCard(b){
       let notes='';
       if(b.responsible_staff)notes+=`<span style="margin-right:1rem">👤 <strong>Bokningsansvarig:</strong> ${b.responsible_staff}</span>`;
       if(b.internal_comment)notes+=`<span>📝 ${b.internal_comment}</span>`;
-      html+=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;margin-bottom:.75rem;font-size:13px;color:var(--muted);line-height:1.7;display:flex;align-items:center;justify-content:space-between;gap:.5rem">${notes}<button onclick="editBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:var(--gold);color:#fff;border:none;border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500;flex-shrink:0;margin-left:auto">✏ Ändra bokning</button></div>`;
+      if(notes)html+=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;margin-bottom:.5rem;font-size:13px;color:var(--muted);line-height:1.7">${notes}</div>`;
+      html+=`<div style="margin-bottom:.75rem"><button onclick="editBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:var(--gold);color:#fff;border:none;border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500">✏ Ändra bokning</button></div>`;
     }
     // Länk + QR
     html+=`<div style="font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase">Gästlänk</div>
