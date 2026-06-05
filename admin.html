@@ -1092,9 +1092,10 @@ async function renderBulk(bookingId){
 async function saveBulk(bid){
   let made=0;
   try{
-    // Fortsätt numreringen från befintliga beställningar (så namnen inte krockar mellan sparningar)
-    const {count:_existing}=await db.from('orders').select('id',{count:'exact',head:true}).eq('booking_id',bid);
-    let seq=_existing||0;
+    const {data:_existingOrders}=await db.from('orders').select('id').eq('booking_id',bid);
+    let seq=(_existingOrders||[]).length;
+    const ordersToInsert=[];
+    const itemsPerOrder=[];
     for(const cat of _bulkCats){
       for(const item of (cat.menu_items||[]).filter(i=>i.active)){
         const qty=parseInt(document.getElementById('bq_'+bid+'_'+item.id)?.value)||0;
@@ -1103,8 +1104,8 @@ async function saveBulk(bid){
         if(qty>0){
           for(let i=0;i<qty;i++){
             const gname=(i===0&&nm)?nm:('Portion '+(++seq));
-            const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:gname}).select().single();
-            await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
+            ordersToInsert.push({booking_id:bid,restaurant_id:rest.id,guest_name:gname});
+            itemsPerOrder.push({menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
             made++;
           }
         }
@@ -1115,12 +1116,15 @@ async function saveBulk(bid){
       if(el0){el0.style.display='block';el0.className='msg merr';el0.textContent='Inget antal ifyllt – skriv hur många som vill ha varje rätt.';setTimeout(()=>el0.style.display='none',4000);}
       return;
     }
-    // Markera att restaurangen fyllt i beställningar för bokningen
+    const {data:createdOrders,error:oErr}=await db.from('orders').insert(ordersToInsert).select('id');
+    if(oErr)throw new Error(oErr.message);
+    const orderItems=createdOrders.map((o,i)=>({order_id:o.id,...itemsPerOrder[i]}));
+    const {error:iErr}=await db.from('order_items').insert(orderItems);
+    if(iErr)throw new Error(iErr.message);
     await db.from('bookings').update({restaurant_filled:true}).eq('id',bid);
-    // Rita om bulk-fliken (nollställ formuläret) men håll kortet öppet på samma flik
     await loadDet(bid,'bulk');
     const el=document.getElementById('bmsg_'+bid);
-    if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+made+' beställning(ar) skapade. Fyll i nästa person eller spara resten – numreringen fortsätter.';setTimeout(()=>el.style.display='none',6000);}
+    if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+made+' beställning(ar) skapade.';setTimeout(()=>el.style.display='none',6000);}
   }catch(err){
     const el=document.getElementById('bmsg_'+bid);
     if(el){el.style.display='block';el.className='msg merr';el.textContent='Fel: '+err.message;}
