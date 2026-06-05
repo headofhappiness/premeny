@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05b">
+<meta name="pm-build" content="2026-06-05c">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -1541,8 +1541,9 @@ async function sendSummary(id,ch){
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
         body:JSON.stringify({booking:b,restaurant:rest,guestLink:gLinkSms})
       });
-      const result=await resp.json();
-      if(!result.ok)throw new Error(result.error||'Okänt fel');
+      const raw=await resp.text();
+      let result;try{result=JSON.parse(raw);}catch{throw new Error('Ogiltigt telefonnummer eller SMS-fel. Kontrollera numret i bokningen.');}
+      if(!result.ok)throw new Error(result.error||'Ogiltigt telefonnummer eller SMS-fel.');
       const now=new Date();
       const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
       const newLogSms=(b.summary_sent_log||'')+timeStr+' gästlänk via SMS till '+dest+'\n';
