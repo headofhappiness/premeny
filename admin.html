@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05f">
+<meta name="pm-build" content="2026-06-05g">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -899,6 +899,7 @@ function renderBCard(b){
           <option value="auto">↺ Automatiskt</option>
         </select>
         <span style="font-size:11px;color:var(--muted)">${closed?'Stängd för beställning':'Öppen för beställning'}</span>
+        <button onclick="event.stopPropagation();editBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:var(--gold);color:#fff;border:none;border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500;margin-top:2px">✏ Ändra bokning</button>
       </div>
     </div>`;
 
