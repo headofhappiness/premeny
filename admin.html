@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05d">
+<meta name="pm-build" content="2026-06-05e">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -1413,7 +1413,7 @@ async function createBooking(){
     deadline:document.getElementById('nb-deadline').value||null,
     contact_name:document.getElementById('nb-contact').value.trim()||null,
     contact_email:document.getElementById('nb-email').value.trim()||null,
-    contact_phone:document.getElementById('nb-phone').value.trim()||null,
+    contact_phone:(()=>{const p=document.getElementById('nb-phone').value.trim().replace(/[\s\-]/g,'');return p||null;})()|null,
     menu_id:document.getElementById('nb-menu').value||null,
     reminder_days:parseInt(document.getElementById('nb-reminder').value)||0,
     reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
