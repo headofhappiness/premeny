@@ -1469,6 +1469,8 @@ async function doReminder(id,ev){
       if(skickat.indexOf('email')>-1)log+=ts+' extra påminnelse via mejl till '+b.contact_email+'\n';
       if(skickat.indexOf('sms')>-1)log+=ts+' extra påminnelse via SMS till '+b.contact_phone+'\n';
       await db.from('bookings').update({summary_sent_log:log}).eq('id',id);
+      const idx=allBookings.findIndex(x=>x.id===id);
+      if(idx>-1)allBookings[idx]={...allBookings[idx],summary_sent_log:log};
       await reRender(id);
       alert('Extra påminnelse skickad ('+skickat.join(', ')+').\n\nDen automatiska påminnelsen går ändå ut som vanligt.');
     }
