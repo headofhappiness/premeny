@@ -1457,6 +1457,7 @@ async function doReminder(id,ev){
   const _btn=ev.target;const _orig=_btn?_btn.textContent:'';
   if(_btn){if(_btn.disabled)return;_btn.disabled=true;_btn.textContent='Skickar...';}
   try{
+    const {data:{session}}=await db.auth.getSession();
     const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-reminders',{
       method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
       body:JSON.stringify({bookingId:id,manual:true})
