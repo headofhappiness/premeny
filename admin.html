@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05n">
+<meta name="pm-build" content="2026-06-05o">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -917,7 +917,10 @@ function renderBCard(b){
       if(b.responsible_staff)notes+=`<span style="margin-right:1rem">👤 <strong>Bokningsansvarig:</strong> ${b.responsible_staff}</span>`;
       if(b.internal_comment)notes+=`<span>📝 ${b.internal_comment}</span>`;
       if(notes)html+=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;margin-bottom:.5rem;font-size:13px;color:var(--muted);line-height:1.7">${notes}</div>`;
-      html+=`<div style="margin-bottom:.75rem"><button onclick="editBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:var(--gold);color:#fff;border:none;border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500">✏ Ändra bokning</button></div>`;
+      html+=`<div style="margin-bottom:.75rem;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="editBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:var(--gold);color:#fff;border:none;border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500">✏ Ändra bokning</button>
+        <button onclick="delBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500">Arkivera bokning</button>
+      </div>`;
     }
     // Länk + QR
     html+=`<div style="font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase">Gästlänk</div>
@@ -969,13 +972,12 @@ function renderBCard(b){
     </div>
     <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap;gap:6px">
       ${dtab==='tally'?
-        `<button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="printKitchen('${b.id}')">🖨 Skriv ut kökslista</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>`
+        `<button style="font-size:11px;padding:4px 9px;background:var(--gold);color:#fff;border:1px solid var(--gold);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500" onclick="printKitchen('${b.id}')">🖨 Skriv ut kökslista</button>
+        <button style="font-size:11px;padding:4px 9px;background:var(--gold);color:#fff;border:1px solid var(--gold);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>`
       :dtab==='guests'?
-        `<button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="printGuestList('${b.id}')">🖨 Skriv ut gästlista</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>`
+        `<button style="font-size:11px;padding:4px 9px;background:var(--gold);color:#fff;border:1px solid var(--gold);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500" onclick="printGuestList('${b.id}')">🖨 Skriv ut gästlista</button>
+        <button style="font-size:11px;padding:4px 9px;background:var(--gold);color:#fff;border:1px solid var(--gold);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>`
       :''}
-      <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="delBooking('${b.id}',event)">Arkivera bokning</button>
     </div>
     <div id="det_${b.id}"></div></div>`;
   }
