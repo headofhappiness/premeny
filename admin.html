@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05a">
+<meta name="pm-build" content="2026-06-05b">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -1470,7 +1470,7 @@ async function doReminder(id,ev){
       const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
       const {data:freshB}=await db.from('bookings').select('summary_sent_log').eq('id',id).single();
       let log=freshB?.summary_sent_log||'';
-      if(skickat.indexOf('email')>-1)log+=ts+' extra påminnelse via mejl till '+b.contact_email+'\n';
+      if(skickat.indexOf('mejl')>-1||skickat.indexOf('email')>-1)log+=ts+' extra påminnelse via mejl till '+b.contact_email+'\n';
       if(skickat.indexOf('sms')>-1)log+=ts+' extra påminnelse via SMS till '+b.contact_phone+'\n';
       await db.from('bookings').update({summary_sent_log:log}).eq('id',id);
       const idx=allBookings.findIndex(x=>x.id===id);
