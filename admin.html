@@ -657,6 +657,7 @@ async function sendConfirmation(id){
     const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
     const log=(b.summary_sent_log||'')+ts+' bekräftelse via mejl till '+b.contact_email+'\n';
     await db.from('bookings').update({summary_sent_log:log,summary_sent_at:now.toISOString()}).eq('id',id);
+    const cidx=allBookings.findIndex(x=>x.id===id);if(cidx>-1)allBookings[cidx]={...allBookings[cidx],summary_sent_log:log,summary_sent_at:now.toISOString()};
     await renderBookings();
     alert('✓ Bekräftelsemejl skickat till '+b.contact_email+'!');
   }catch(err){alert('Fel: '+err.message);}
@@ -1114,6 +1115,8 @@ async function saveBulk(bid){
     const {error:iErr}=await db.from('order_items').insert(orderItems);
     if(iErr)throw new Error(iErr.message);
     await db.from('bookings').update({restaurant_filled:true}).eq('id',bid);
+    const bidx=allBookings.findIndex(x=>x.id===bid);if(bidx>-1)allBookings[bidx]={...allBookings[bidx],restaurant_filled:true};
+    await reRender(bid);
     await loadDet(bid,'bulk');
     const el=document.getElementById('bmsg_'+bid);
     if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+made+' beställning(ar) skapade.';setTimeout(()=>el.style.display='none',6000);}
@@ -2802,7 +2805,12 @@ async function saveSettings(){
   var {error}=await db.from('restaurants').update({name:restName,phone,contact_email:email,address,website,logo_url:logoUrl}).eq('id',rest.id);
   if(msg){msg.style.display='block';}
   if(error){if(msg){msg.className='msg merr';msg.textContent='Fel: '+error.message;}}
-  else{if(msg){msg.className='msg mok';msg.textContent='Sparat!';}rest=Object.assign({},rest,{phone,contact_email:email,address,website,logo_url:logoUrl});setTimeout(function(){if(msg)msg.style.display='none';},3000);}
+  else{
+    if(msg){msg.className='msg mok';msg.textContent='Sparat!';}
+    rest=Object.assign({},rest,{name:restName,phone,contact_email:email,address,website,logo_url:logoUrl});
+    document.getElementById('restName').textContent=restName;
+    setTimeout(function(){if(msg)msg.style.display='none';},3000);
+  }
 }
 var _importData=null;var _importMenuPrice=0;
 async function importMenu(){
