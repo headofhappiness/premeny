@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-ae">
+<meta name="pm-build" content="2026-06-03-demo-ai">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -465,7 +465,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         <button class="btn bp" id="import-btn" onclick="importMenu()" style="margin-top:.5rem">✦ Tolka meny</button>
         <div id="import-loading" style="display:none;margin-top:1rem;font-size:13px;color:var(--muted)"><span class="spinner"></span> Tolkar menyn med AI...</div>
         <div id="import-result" style="display:none;margin-top:1.25rem">
-          <div style="font-size:12px;font-weight:500;color:#3a6020;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:8px 12px;margin-bottom:.75rem">✓ Meny tolkad – granska och bekräfta nedan</div>
+          <div style="font-size:12px;font-weight:500;color:#3a6020;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:8px 12px;margin-bottom:.75rem">✓ Meny tolkad – granska och bekräfta nedan<div style="font-weight:400;color:#4a7035;margin-top:3px">Du kan justera menyn (rätter, priser och rubriker) när som helst efteråt.</div></div>
           <div id="import-preview-content"></div>
           <div style="display:flex;gap:8px;margin-top:1rem">
             <button class="btn bp" onclick="confirmImport()">✓ Lägg till i menyn</button>
@@ -1180,9 +1180,9 @@ function renderTally(orders){
   const max=Math.max(...Object.values(counts));
   const byCat={};
   Object.entries(counts).forEach(([k,n])=>{const[c,name]=k.split('||');if(!byCat[c])byCat[c]=[];byCat[c].push({name,n,k});});
-  return Object.entries(byCat).map(([c,items])=>{
+  return `<div style="font-size:15px;font-weight:500;color:var(--dark);margin:0 0 .85rem;padding-bottom:.45rem;border-bottom:1px solid var(--border)">Kökslista</div>`+Object.entries(byCat).map(([c,items])=>{
     const catTotal=items.reduce((s,it)=>s+it.n,0);
-    return `<div class="chead" style="display:flex;align-items:baseline;justify-content:space-between"><span>${c}</span><span style="font-size:11px;font-weight:600;color:var(--dark);letter-spacing:0;text-transform:none">${catTotal} st totalt</span></div>`+items.map(({name,n,k})=>
+    return `<div class="chead" style="display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:4px"><span>${c}</span><span style="font-size:11px;font-weight:600;color:var(--dark);letter-spacing:0;text-transform:none">${catTotal} st totalt</span></div>`+items.map(({name,n,k})=>
       `<div class="trow"><span class="tn">${name}</span><div class="tbw"><div class="tb" style="width:${Math.round(n/max*100)}%"></div></div><span class="tnr">${n}</span></div>`+
       (allergies[k]?`<div style="display:flex;align-items:flex-start;gap:7px;margin:-2px 0 8px"><span style="color:#ef6c00;font-size:16px;line-height:1.35;flex-shrink:0">⚠</span><div style="flex:1;background:#fff8e8;border:1px solid #e8d49a;border-radius:6px;padding:7px 11px;font-size:13px;color:#5a3e00;font-weight:500;line-height:1.5">${allergies[k].join('<br>')}</div></div>`:'')
     ).join('');
@@ -1979,10 +1979,10 @@ function buildKitchenHtml(orders){
   const header=sallskapSet.size?`<div style="font-size:12px;color:var(--dark);margin-bottom:.75rem"><span style="color:var(--muted)">Sällskap:</span> ${[...sallskapSet].join(' · ')}</div>`:'';
   return header+Object.entries(byCat).map(([cat,items])=>{
     const catTotal=items.reduce((s,it)=>s+it.n,0);
-    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.75rem 0 .4rem"><span class="pmk-cat" style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
+    return `<div style="display:flex;align-items:baseline;justify-content:space-between;margin:.85rem 0 .5rem;border-bottom:1.5px solid #d4ccc0;padding-bottom:5px"><span class="pmk-cat" style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">${cat}</span><span style="font-size:11px;font-weight:600;color:var(--dark)">${catTotal} st totalt</span></div>`+
     items.map(({name,n,k})=>{
       const brk=(multi&&bySallskap[k])?Object.entries(bySallskap[k]).map(([s,c])=>s+' '+c).join(' · '):'';
-      return `<div style="margin-bottom:${allergies[k]?'.6rem':'.3rem'}">
+      return `<div style="padding-bottom:6px;margin-bottom:6px;border-bottom:1px solid #e8e2d8">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:13px;color:var(--dark);flex:1">${name}</span>
           <div class="pmk-bar" style="height:3px;width:80px;background:var(--border);border-radius:2px;flex-shrink:0"><div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--gold);border-radius:2px"></div></div>
@@ -2049,8 +2049,8 @@ async function renderCalResults(){
     const total=b.expected_guests||0;
     const sc=total>0&&ordered>=total?'#3a7d44':ordered>0?'var(--gold)':'var(--muted)';
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;gap:8px">
-      <div onclick="goToBooking('${b.id}')" title="Öppna bokningen" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex:1;cursor:pointer">
-        <span style="color:var(--muted);flex:1">${ds}: <span style="color:var(--dark)">${b.name}</span>${b.event_time?' kl '+b.event_time.slice(0,5):''} <span style="color:var(--gold)">›</span></span>
+      <div onclick="goToBooking('${b.id}')" title="Klicka för att öppna bokningen i Bokningar" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex:1;cursor:pointer">
+        <span style="color:var(--muted);flex:1">${ds}: <span style="color:var(--gold);text-decoration:underline;text-underline-offset:2px">${b.name}</span>${b.event_time?' kl '+b.event_time.slice(0,5):''} <span style="color:var(--gold);font-size:11px;white-space:nowrap">Öppna ›</span></span>
         <span style="color:${sc};font-weight:500;flex-shrink:0">${ordered}${total?' / '+total:''} beställt</span>
       </div>
       <button class="btn bd" style="font-size:10px;padding:3px 8px;flex-shrink:0" onclick="archiveFromCal('${b.id}')">Arkivera</button>
@@ -2585,7 +2585,7 @@ async function loadMenuItems(menuId){
   if(_menuPrice){
     var _pb=document.createElement('div');
     _pb.style.cssText='background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.35);border-radius:8px;padding:.6rem .9rem;margin-bottom:1.25rem;font-size:13px;color:var(--dark)';
-    _pb.innerHTML='Menypris: <span style="font-weight:500;color:var(--gold)">'+_menuPrice+' kr</span> för hela menyn. Rätt-priserna visas inte för gästen.';
+    _pb.innerHTML='Menypris: <span style="font-weight:500;color:var(--gold)">'+_menuPrice+' kr</span> för hela menyn.';
     el.appendChild(_pb);
   }
   cats.forEach(function(cat){
