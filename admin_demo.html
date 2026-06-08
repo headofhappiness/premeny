@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-03-demo-al">
+<meta name="pm-build" content="2026-06-05o-demo">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -224,7 +224,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   </nav>
 
   <div class="page">
-    <div class="fb"><div><h1>Demo</h1><div class="gold-line"></div></div></div>
+    <div class="fb"><div><h1>Admin</h1><div class="gold-line"></div></div></div>
     <div class="tabs">
       <button class="tab active" id="tab-bookings" onclick="showTab('bookings')">Bokningar</button>
       <button class="tab" id="tab-calendar" onclick="showTab('calendar')">Dagsöversikt</button>
@@ -302,7 +302,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         <div class="r3">
           <div class="ff"><label>Kontaktpersonens namn</label><input type="text" id="nb-contact" placeholder="Anna Karlsson"></div>
           <div class="ff"><label>E-post <span style="font-size:11px;color:var(--muted)">(hit går bekräftelse & påminnelse)</span></label><input type="email" id="nb-email" placeholder="anna@email.se"></div>
-          <div class="ff"><label>Telefon</label><input type="tel" id="nb-phone" placeholder="+46 70 123 45 67"></div>
+          <div class="ff"><label>Telefon</label><input type="tel" id="nb-phone" placeholder="0701234567 eller +46701234567"></div>
         </div>
         <div class="r2">
           <div class="ff"><label>Meny</label>
@@ -670,6 +670,7 @@ async function sendConfirmation(id){if(IS_DEMO)return demoBlock();
     const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
     const log=(b.summary_sent_log||'')+ts+' bekräftelse via mejl till '+b.contact_email+'\n';
     await db.from('bookings').update({summary_sent_log:log,summary_sent_at:now.toISOString()}).eq('id',id);
+    const cidx=allBookings.findIndex(x=>x.id===id);if(cidx>-1)allBookings[cidx]={...allBookings[cidx],summary_sent_log:log,summary_sent_at:now.toISOString()};
     await renderBookings();
     alert('✓ Bekräftelsemejl skickat till '+b.contact_email+'!');
   }catch(err){alert('Fel: '+err.message);}
@@ -945,12 +946,16 @@ function renderBCard(b){
         ${b.contact_name||''}${b.contact_email?` · <a href="mailto:${b.contact_email}" style="color:var(--gold)">${b.contact_email}</a>`:''}${b.contact_phone?` · <a href="tel:${b.contact_phone}" style="color:var(--gold)">${b.contact_phone}</a>`:''}
       </div>`;
     }
-    // Intern kommentar
-    if(b.responsible_staff||b.internal_comment){
+    // Intern kommentar + Ändra bokning
+    {
       let notes='';
       if(b.responsible_staff)notes+=`<span style="margin-right:1rem">👤 <strong>Bokningsansvarig:</strong> ${b.responsible_staff}</span>`;
       if(b.internal_comment)notes+=`<span>📝 ${b.internal_comment}</span>`;
-      html+=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;margin-bottom:.75rem;font-size:13px;color:var(--muted);line-height:1.7">${notes}</div>`;
+      if(notes)html+=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;margin-bottom:.5rem;font-size:13px;color:var(--muted);line-height:1.7">${notes}</div>`;
+      html+=`<div style="margin-bottom:.75rem;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="editBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:var(--gold);color:#fff;border:none;border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500">✏ Ändra bokning</button>
+        <button onclick="delBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500">Arkivera bokning</button>
+      </div>`;
     }
     // Länk + QR
     html+=`<div style="font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase">Gästlänk</div>
@@ -958,7 +963,7 @@ function renderBCard(b){
       <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap">
         <button onclick="sendConfirmation('${b.id}')" class="btn bo" style="font-size:11px;padding:5px 12px">✉ Skicka bekräftelse till kontaktperson</button>
         <button onclick="sendSummary('${b.id}','email')" class="btn bg" style="font-size:11px;padding:5px 12px">✉ Skicka länk via mejl</button>
-        ${b.contact_phone?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:''}
+        ${b.contact_phone?(()=>{const pc=(b.contact_phone||'').replace(/[\s\-]/g,'');const ok=/^(\+467\d{8}|07\d{8})$/.test(pc);return ok?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:`<button onclick="alert('Telefonnumret \\\"${b.contact_phone}\\\" verkar inte stämma.\\n\\nAnge ett giltigt mobilnummer under Ändra bokning.')" class="btn bg" style="font-size:11px;padding:5px 12px;opacity:.5">💬 Skicka länk via sms ⚠</button>`;})():''}
         <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera länk</button>
       </div>
       <div style="font-size:11px;color:var(--muted);margin:-.4rem 0 1rem;line-height:1.6">
@@ -972,16 +977,6 @@ function renderBCard(b){
     sendOverCapacityWarning(b,n);
   }
     // Sammanställning skickad
-    if(b.summary_sent_log){
-      const lines=b.summary_sent_log.trim().split('\n').filter(l=>l&&l.indexOf('extra påminnelse')===-1);
-      if(lines.length){
-      const last=lines[lines.length-1];
-      html+=`<div style="font-size:12px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:6px 10px;margin-bottom:.75rem;color:#3a6020;line-height:1.6">
-        ✓ <strong>Skickat till kontaktperson</strong><br>
-        ${lines.map(l=>'<span style="opacity:.85">'+l+'</span>').join('<br>')}
-      </div>`;
-      }
-    }
     if(b.reminder_sent_at){
       html+=`<div style="font-size:12px;color:#6a5030;margin-bottom:.75rem">✉ Påminnelse skickad: ${new Date(b.reminder_sent_at).toLocaleDateString('sv-SE')}</div>`;
     } else if(!b.reminder_days){
@@ -995,11 +990,13 @@ function renderBCard(b){
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="doReminder('${b.id}',event)">Skicka extra påminnelse nu</button>
       </div>`;
     }
-    // Extra påminnelser skickade (logg)
     if(b.summary_sent_log){
-      const remLines=b.summary_sent_log.trim().split('\n').filter(l=>l&&l.indexOf('extra påminnelse')>-1);
-      if(remLines.length){
-        html+=`<div style="font-size:12px;color:var(--muted);margin:-.4rem 0 .75rem;line-height:1.6">${remLines.map(l=>'✓ '+l).join('<br>')}</div>`;
+      const allLines=b.summary_sent_log.trim().split('\n').filter(l=>l);
+      if(allLines.length){
+        html+=`<div style="font-size:12px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:6px 10px;margin-bottom:.75rem;color:#3a6020;line-height:1.6">
+          ✓ <strong>Skickat till kontaktperson</strong><br>
+          ${allLines.map(l=>'<span style="opacity:.85">'+l+'</span>').join('<br>')}
+        </div>`;
       }
     }
 
@@ -1010,14 +1007,12 @@ function renderBCard(b){
     </div>
     <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap;gap:6px">
       ${dtab==='tally'?
-        `<button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="printKitchen('${b.id}')">🖨 Skriv ut kökslista</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>`
+        `<button style="font-size:11px;padding:4px 9px;background:var(--gold);color:#fff;border:1px solid var(--gold);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500" onclick="printKitchen('${b.id}')">🖨 Skriv ut kökslista</button>
+        <button style="font-size:11px;padding:4px 9px;background:var(--gold);color:#fff;border:1px solid var(--gold);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500" onclick="copyKitchen('${b.id}')">Kopiera kökslista</button>`
       :dtab==='guests'?
-        `<button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="printGuestList('${b.id}')">🖨 Skriv ut gästlista</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>`
+        `<button style="font-size:11px;padding:4px 9px;background:var(--gold);color:#fff;border:1px solid var(--gold);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500" onclick="printGuestList('${b.id}')">🖨 Skriv ut gästlista</button>
+        <button style="font-size:11px;padding:4px 9px;background:var(--gold);color:#fff;border:1px solid var(--gold);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500" onclick="copyGuestList('${b.id}')">Kopiera gästlista</button>`
       :''}
-      <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="editBooking('${b.id}',event)">✏ Ändra bokning</button>
-      <button class="btn bg" style="font-size:11px;padding:4px 9px" onclick="delBooking('${b.id}',event)">Arkivera bokning</button>
     </div>
     <div id="det_${b.id}"></div></div>`;
   }
@@ -1127,9 +1122,10 @@ async function renderBulk(bookingId){
 async function saveBulk(bid){if(IS_DEMO)return demoBlock();
   let made=0;
   try{
-    // Fortsätt numreringen från befintliga beställningar (så namnen inte krockar mellan sparningar)
-    const {count:_existing}=await db.from('orders').select('id',{count:'exact',head:true}).eq('booking_id',bid);
-    let seq=_existing||0;
+    const {data:_existingOrders}=await db.from('orders').select('id').eq('booking_id',bid);
+    let seq=(_existingOrders||[]).length;
+    const ordersToInsert=[];
+    const itemsPerOrder=[];
     for(const cat of _bulkCats){
       for(const item of (cat.menu_items||[]).filter(i=>i.active)){
         const qty=parseInt(document.getElementById('bq_'+bid+'_'+item.id)?.value)||0;
@@ -1138,8 +1134,8 @@ async function saveBulk(bid){if(IS_DEMO)return demoBlock();
         if(qty>0){
           for(let i=0;i<qty;i++){
             const gname=(i===0&&nm)?nm:('Portion '+(++seq));
-            const {data:o}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:gname}).select().single();
-            await db.from('order_items').insert({order_id:o.id,menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
+            ordersToInsert.push({booking_id:bid,restaurant_id:rest.id,guest_name:gname});
+            itemsPerOrder.push({menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
             made++;
           }
         }
@@ -1150,12 +1146,17 @@ async function saveBulk(bid){if(IS_DEMO)return demoBlock();
       if(el0){el0.style.display='block';el0.className='msg merr';el0.textContent='Inget antal ifyllt – skriv hur många som vill ha varje rätt.';setTimeout(()=>el0.style.display='none',4000);}
       return;
     }
-    // Markera att restaurangen fyllt i beställningar för bokningen
+    const {data:createdOrders,error:oErr}=await db.from('orders').insert(ordersToInsert).select('id');
+    if(oErr)throw new Error(oErr.message);
+    const orderItems=createdOrders.map((o,i)=>({order_id:o.id,...itemsPerOrder[i]}));
+    const {error:iErr}=await db.from('order_items').insert(orderItems);
+    if(iErr)throw new Error(iErr.message);
     await db.from('bookings').update({restaurant_filled:true}).eq('id',bid);
-    // Rita om bulk-fliken (nollställ formuläret) men håll kortet öppet på samma flik
+    const bidx=allBookings.findIndex(x=>x.id===bid);if(bidx>-1)allBookings[bidx]={...allBookings[bidx],restaurant_filled:true};
+    await reRender(bid);
     await loadDet(bid,'bulk');
     const el=document.getElementById('bmsg_'+bid);
-    if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+made+' beställning(ar) skapade. Fyll i nästa person eller spara resten – numreringen fortsätter.';setTimeout(()=>el.style.display='none',6000);}
+    if(el){el.style.display='block';el.className='msg mok';el.textContent='✓ Sparat! '+made+' beställning(ar) skapade.';setTimeout(()=>el.style.display='none',6000);}
   }catch(err){
     const el=document.getElementById('bmsg_'+bid);
     if(el){el.style.display='block';el.className='msg merr';el.textContent='Fel: '+err.message;}
@@ -1373,6 +1374,8 @@ function resetBookingForm(){
   const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Skapa ny bokning';
   const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Skapa bokning';
   const msg=document.getElementById('nb-msg');if(msg)msg.style.display='none';
+  const nbMenuReset=document.getElementById('nb-menu');if(nbMenuReset)nbMenuReset.disabled=false;
+  const warnReset=document.getElementById('nb-menu-warn');if(warnReset)warnReset.remove();
 }
 
 function toggleNB(){
@@ -1396,6 +1399,23 @@ function editBooking(id,ev){
   document.getElementById('nb-email').value=b.contact_email||'';
   document.getElementById('nb-phone').value=b.contact_phone||'';
   document.getElementById('nb-menu').value=b.menu_id||'';
+  // Lås menyväljaren om beställningar finns
+  const nbMenuEl=document.getElementById('nb-menu');
+  const hasOrders=b.orders_count>0||(allBookings.find(x=>x.id===id)||{}).orders_count>0;
+  db.from('orders').select('id').eq('booking_id',id).then(({data})=>{
+    const count=(data||[]).length;
+    if(count>0){
+      nbMenuEl.disabled=true;
+      nbMenuEl.title='Kan inte byta meny – '+count+' gäst(er) har redan beställt';
+      let warn=document.getElementById('nb-menu-warn');
+      if(!warn){warn=document.createElement('div');warn.id='nb-menu-warn';warn.style.cssText='font-size:12px;color:#c0392b;margin-top:4px';nbMenuEl.parentNode.appendChild(warn);}
+      warn.textContent='⚠ Menyn kan inte bytas – '+count+' gäst(er) har redan beställt.';
+    } else {
+      nbMenuEl.disabled=false;
+      nbMenuEl.title='';
+      const warn=document.getElementById('nb-menu-warn');if(warn)warn.remove();
+    }
+  });
   document.getElementById('nb-reminder').value=String(b.reminder_days||0);
   document.getElementById('nb-remind-email').checked=(!b.reminder_channel||b.reminder_channel==='email'||b.reminder_channel==='both');
   document.getElementById('nb-remind-sms').checked=(b.reminder_channel==='sms'||b.reminder_channel==='both');
@@ -1418,6 +1438,10 @@ async function createBooking(){if(IS_DEMO)return demoBlock();
   const name=document.getElementById('nb-name').value.trim();
   const date=document.getElementById('nb-date').value;
   if(!name||!date){showMsg('nb-msg','merr','Namn och datum krävs.');return;}
+  const emailVal=document.getElementById('nb-email').value.trim();
+  const phoneVal=document.getElementById('nb-phone').value.trim();
+  if(emailVal&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)){alert('E-postadressen verkar inte stämma – saknar @ eller domän. Kontrollera formatet.');return;}
+  if(phoneVal&&!/^(\+467\d{8}|07\d{8})$/.test(phoneVal.replace(/[\s\-]/g,''))){alert('Telefonnumret verkar inte stämma.\n\nAnge ett svenskt mobilnummer med 10 siffror:\n• 0701234567\n• +46701234567\n\nInga mellanslag eller bindestreck behövs.');return;}
   const payload={
     restaurant_id:rest.id,name,event_date:date,
     event_time:document.getElementById('nb-time').value||null,
@@ -1426,7 +1450,7 @@ async function createBooking(){if(IS_DEMO)return demoBlock();
     deadline:document.getElementById('nb-deadline').value||null,
     contact_name:document.getElementById('nb-contact').value.trim()||null,
     contact_email:document.getElementById('nb-email').value.trim()||null,
-    contact_phone:document.getElementById('nb-phone').value.trim()||null,
+    contact_phone:(()=>{const p=document.getElementById('nb-phone').value.trim().replace(/[\s\-]/g,'');return p||null;})()|null,
     menu_id:document.getElementById('nb-menu').value||null,
     reminder_days:parseInt(document.getElementById('nb-reminder').value)||0,
     reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
@@ -1469,6 +1493,7 @@ async function doReminder(id,ev){if(IS_DEMO)return demoBlock();
   const _btn=ev.target;const _orig=_btn?_btn.textContent:'';
   if(_btn){if(_btn.disabled)return;_btn.disabled=true;_btn.textContent='Skickar...';}
   try{
+    const {data:{session}}=await db.auth.getSession();
     const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-reminders',{
       method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
       body:JSON.stringify({bookingId:id,manual:true})
@@ -1480,10 +1505,13 @@ async function doReminder(id,ev){if(IS_DEMO)return demoBlock();
     if(skickat){
       const now=new Date();
       const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-      let log=b.summary_sent_log||'';
-      if(skickat.indexOf('email')>-1)log+=ts+' extra påminnelse via mejl till '+b.contact_email+'\n';
+      const {data:freshB}=await db.from('bookings').select('summary_sent_log').eq('id',id).single();
+      let log=freshB?.summary_sent_log||'';
+      if(skickat.indexOf('mejl')>-1||skickat.indexOf('email')>-1)log+=ts+' extra påminnelse via mejl till '+b.contact_email+'\n';
       if(skickat.indexOf('sms')>-1)log+=ts+' extra påminnelse via SMS till '+b.contact_phone+'\n';
       await db.from('bookings').update({summary_sent_log:log}).eq('id',id);
+      const idx=allBookings.findIndex(x=>x.id===id);
+      if(idx>-1)allBookings[idx]={...allBookings[idx],summary_sent_log:log};
       await reRender(id);
       alert('Extra påminnelse skickad ('+skickat.join(', ')+').\n\nDen automatiska påminnelsen går ändå ut som vanligt.');
     }
@@ -1497,6 +1525,7 @@ async function doReminder(id,ev){if(IS_DEMO)return demoBlock();
 // SKICKA SAMMANSTÄLLNING
 async function sendSummary(id,ch){if(IS_DEMO)return demoBlock();
   const {data:b}=await db.from('bookings').select('*').eq('id',id).single();
+  const {data:rest}=await db.from('restaurants').select('*').eq('id',b.restaurant_id).single();
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const d=new Date(b.event_date);
@@ -1533,15 +1562,22 @@ async function sendSummary(id,ch){if(IS_DEMO)return demoBlock();
     if(!json.ok){_restoreBtn();alert('Fel: '+(json.error||'okänt'));return;}
     const now=new Date();
     const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    await db.from('bookings').update({
-      summary_sent_at:now.toISOString(),
-      summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via mejl till '+dest+'\n'
-    }).eq('id',id);
+    const newLog=(b.summary_sent_log||'')+timeStr+' gästlänk via mejl till '+dest+'\n';
+    await db.from('bookings').update({summary_sent_at:now.toISOString(),summary_sent_log:newLog}).eq('id',id);
+    const idx1=allBookings.findIndex(x=>x.id===id);if(idx1>-1)allBookings[idx1]={...allBookings[idx1],summary_sent_log:newLog,summary_sent_at:now.toISOString()};
     _restoreBtn();
     alert('✓ Gästlänk skickad till '+dest+'!');
     reRender(id);
     return;
   } else {
+    // Validera telefonnummer innan vi försöker skicka
+    const phoneClean=(b.contact_phone||'').replace(/[\s\-]/g,'');
+    const phoneOk=/^(\+467\d{8}|07\d{8})$/.test(phoneClean);
+    if(!phoneOk){
+      alert('Telefonnumret "'+b.contact_phone+'" verkar inte stämma.\n\nAnge ett svenskt mobilnummer (t.ex. 0701234567) under Ändra bokning och försök igen.');
+      _restoreBtn();
+      return;
+    }
     const gLinkSms='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id;
     const {data:{session}}=await db.auth.getSession();
     try{
@@ -1550,14 +1586,14 @@ async function sendSummary(id,ch){if(IS_DEMO)return demoBlock();
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
         body:JSON.stringify({booking:b,restaurant:rest,guestLink:gLinkSms})
       });
-      const result=await resp.json();
-      if(!result.ok)throw new Error(result.error||'Okänt fel');
+      const raw=await resp.text();
+      let result;try{result=JSON.parse(raw);}catch{throw new Error('Ogiltigt telefonnummer eller SMS-fel. Kontrollera numret i bokningen.');}
+      if(!result.ok)throw new Error(result.error||'Ogiltigt telefonnummer eller SMS-fel.');
       const now=new Date();
       const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-      await db.from('bookings').update({
-        summary_sent_at:now.toISOString(),
-        summary_sent_log:(b.summary_sent_log||'')+timeStr+' gästlänk via SMS till '+dest+'\n'
-      }).eq('id',id);
+      const newLogSms=(b.summary_sent_log||'')+timeStr+' gästlänk via SMS till '+dest+'\n';
+      await db.from('bookings').update({summary_sent_at:now.toISOString(),summary_sent_log:newLogSms}).eq('id',id);
+      const idx2=allBookings.findIndex(x=>x.id===id);if(idx2>-1)allBookings[idx2]={...allBookings[idx2],summary_sent_log:newLogSms,summary_sent_at:now.toISOString()};
       _restoreBtn();
       reRender(id);
       alert('✓ SMS skickat till '+dest+'!');
@@ -2815,7 +2851,12 @@ async function saveSettings(){if(IS_DEMO)return demoBlock();
   var {error}=await db.from('restaurants').update({name:restName,phone,contact_email:email,address,website,logo_url:logoUrl}).eq('id',rest.id);
   if(msg){msg.style.display='block';}
   if(error){if(msg){msg.className='msg merr';msg.textContent='Fel: '+error.message;}}
-  else{if(msg){msg.className='msg mok';msg.textContent='Sparat!';}rest=Object.assign({},rest,{phone,contact_email:email,address,website,logo_url:logoUrl});setTimeout(function(){if(msg)msg.style.display='none';},3000);}
+  else{
+    if(msg){msg.className='msg mok';msg.textContent='Sparat!';}
+    rest=Object.assign({},rest,{name:restName,phone,contact_email:email,address,website,logo_url:logoUrl});
+    document.getElementById('restName').textContent=restName;
+    setTimeout(function(){if(msg)msg.style.display='none';},3000);
+  }
 }
 var _importData=null;var _importMenuPrice=0;
 async function importMenu(){if(IS_DEMO)return demoBlock();
@@ -2898,7 +2939,7 @@ async function confirmImport(){
 }
 
 
-async function sendOverCapacityWarning(b,n){if(IS_DEMO)return;
+async function sendOverCapacityWarning(b,n){
   try{
     await db.from('bookings').update({over_capacity_warned:true}).eq('id',b.id);
     if(!rest||!rest.contact_email)return;
