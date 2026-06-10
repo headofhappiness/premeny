@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /$
+Allow: /index.html
+Allow: /bli-kund.html
+
+# Admin-, gäst- och demovyer ska inte indexeras
+Disallow: /admin.html
+Disallow: /admin_demo.html
+Disallow: /guest.html
+
+Sitemap: https://premeny.se/sitemap.xml
