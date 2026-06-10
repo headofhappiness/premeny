@@ -80,7 +80,7 @@ const demoStamp = stampMatch[1] + '-demo';
 <div class="demo-banner">
   <div style="display:flex;flex-direction:column;gap:5px;align-items:center;line-height:1.6;text-align:center">
     <div>👤 <a href="https://premeny.se/guest.html?r=demo&b=84fbc0c1-2b36-4b0c-abfd-462d8630342a" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Se hur det ser ut för dina gäster →</a></div>
-    <div>Vill du ha en personlig genomgång? <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Boka möte</a></div>
+    <div>Vill du ha en personlig genomgång? <a href="https://cal.com/lisa-jonsson-lbe4ex/demomote-med-lisa-premeny" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Boka möte</a></div>
     <div>Redo att bli kund? <a href="https://premeny.se/#demo" target="_blank" style="color:#b8955a;font-weight:500;text-decoration:none">Fyll i formuläret</a></div>
   </div>
 </div>
@@ -91,7 +91,7 @@ const demoStamp = stampMatch[1] + '-demo';
     <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Du tittar på en restaurangs egen adminvy. Klicka runt fritt – inget du gör här sparas. Så här ser det ut när ni tar emot förbeställningar från sällskap.</p>
     <div style="display:flex;flex-direction:column;gap:8px">
       <button class="btn bp" style="font-weight:500" onclick="closeDemoWelcome()">Utforska demon</button>
-      <a href="https://calendly.com/lisa-headofhappiness/mote-med-lisa-premeny" target="_blank" class="btn bg" style="text-decoration:none;font-weight:500" onclick="closeDemoWelcome()">📅 Boka en genomgång</a>
+      <a href="https://cal.com/lisa-jonsson-lbe4ex/demomote-med-lisa-premeny" target="_blank" class="btn bg" style="text-decoration:none;font-weight:500" onclick="closeDemoWelcome()">📅 Boka en genomgång</a>
       <a href="https://premeny.se/guest.html?r=demo&b=84fbc0c1-2b36-4b0c-abfd-462d8630342a" target="_blank" style="font-size:13px;color:var(--gold);text-decoration:none;font-weight:500;margin-top:.35rem">Se hur det ser ut för gästerna →</a>
     </div>
   </div>
