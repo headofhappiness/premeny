@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-05q-demo">
+<meta name="pm-build" content="2026-06-05r-demo">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1018,11 +1018,11 @@ function renderBCard(b){
       <div style="font-size:11px;color:var(--muted);margin:-.4rem 0 1rem;line-height:1.6">
         <strong>Bekräftelse</strong> = bekräftar bokningen till kontaktpersonen. <strong>Skicka länk</strong> = gästlänken som kontaktpersonen vidarebefordrar till sina gäster.
       </div>
-      <div style="background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem">
-        <div style="font-size:10px;color:var(--gold);margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase;font-weight:500">Kontaktlänk – en person fyller i för alla</div>
-        <div class="linkbox" style="margin-bottom:.5rem">${kLink}</div>
-        <button onclick="navigator.clipboard.writeText('${kLink}').then(()=>alert('Kontaktlänk kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera kontaktlänk</button>
-        <div style="font-size:11px;color:var(--muted);margin-top:.6rem;line-height:1.6">
+      <div style="background:var(--dark);border:1px solid var(--gold);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1rem">
+        <div style="font-size:11px;color:var(--gold);margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase;font-weight:500">⭐ Kontaktlänk – en person fyller i för alla</div>
+        <div class="linkbox" style="margin-bottom:.6rem;background:rgba(255,255,255,.08);border-color:rgba(184,149,90,.4);color:#f4ece0">${kLink}</div>
+        <button onclick="navigator.clipboard.writeText('${kLink}').then(()=>alert('Kontaktlänk kopierad!'))" class="btn" style="font-size:12px;padding:7px 16px;background:var(--gold);color:#fff;border:none;font-weight:500">📋 Kopiera kontaktlänk</button>
+        <div style="font-size:12px;color:#cdbfa8;margin-top:.7rem;line-height:1.6">
           Skicka den här till en kontaktperson som ska fylla i hela sällskapets val på en gång (antal per rätt) – t.ex. en lagledare eller arrangör som redan samlat in valen. Med vanliga gästlänken väljer varje gäst själv.
         </div>
       </div>`;
@@ -1051,8 +1051,13 @@ function renderBCard(b){
       const allLines=b.summary_sent_log.trim().split('\n').filter(l=>l);
       if(allLines.length){
         html+=`<div style="font-size:12px;background:#f2f8ec;border:1px solid #c8e0a8;border-radius:6px;padding:6px 10px;margin-bottom:.75rem;color:#3a6020;line-height:1.6">
-          ✓ <strong>Skickat till kontaktperson</strong><br>
+          <div onclick="var b=document.getElementById('sentlog_${b.id}');var a=document.getElementById('sentarr_${b.id}');if(b.style.display==='none'){b.style.display='block';a.textContent='▾';}else{b.style.display='none';a.textContent='▸';}" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none">
+            <span>✓ <strong>Skickat till kontaktperson</strong> <span style="opacity:.7;font-weight:400">(${allLines.length})</span></span>
+            <span id="sentarr_${b.id}" style="font-size:11px;opacity:.7">▸</span>
+          </div>
+          <div id="sentlog_${b.id}" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid #c8e0a8">
           ${allLines.map(l=>'<span style="opacity:.85">'+l+'</span>').join('<br>')}
+          </div>
         </div>`;
       }
     }
