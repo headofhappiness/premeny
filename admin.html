@@ -1362,7 +1362,7 @@ function renderGuests(orders,bid){
     }).join('');
     summary='<div class="grow" style="display:block;background:var(--surface2)">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
-      +'<div style="font-size:13px;font-weight:500">Ifyllt för sällskapet <span style="color:var(--muted);font-weight:400">· '+anon.length+' portioner</span></div>'
+      +'<div style="font-size:13px;font-weight:500">Ifyllt för sällskapet <span data-bulk-hdr="'+bid+'" data-bulk-total="'+anon.length+'" style="color:var(--muted);font-weight:400">· '+anon.length+' portioner</span></div>'
       +'<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delBulkPortions(\''+bid+'\')">Ta bort alla</button></div>'
       +'<div style="display:grid;grid-template-columns:repeat('+cols.length+',minmax(0,1fr));gap:14px;margin-top:10px">'+catBlocks+'</div>'
       +'<div style="font-size:11px;color:var(--muted);margin-top:8px">Namngivna gäster och specialkost påverkas inte.</div></div>';
@@ -1429,6 +1429,9 @@ async function adjustBulkItem(bid, itemId, catId, delta){
       const bidx=allBookings.findIndex(x=>x.id===bid);if(bidx>-1)allBookings[bidx]={...allBookings[bidx],restaurant_filled:true};
       // Update count in-place
       if(countSpan){var cur=parseInt(countSpan.textContent)||0;countSpan.textContent=cur+1;}
+      // Update total portioner label in-place
+      var hdr=document.querySelector('[data-bulk-hdr="'+bid+'"]');
+      if(hdr){var t=parseInt(hdr.dataset.bulkTotal||'0')+1;hdr.dataset.bulkTotal=t;hdr.textContent='· '+t+' portioner';}
     } else {
       // Find all anon orders for this booking, pick one that has this exact item, remove it
       // Fetch without ordering by created_at (not reliable via PostgREST without explicit column)
@@ -1461,10 +1464,11 @@ async function adjustBulkItem(bid, itemId, catId, delta){
           return;
         }
         countSpan.textContent=next;
+        // Update total portioner label in-place
+        var hdr=document.querySelector('[data-bulk-hdr="'+bid+'"]');
+        if(hdr){var t=parseInt(hdr.dataset.bulkTotal||'0')-1;hdr.dataset.bulkTotal=t;hdr.textContent='· '+t+' portioner';}
       }
     }
-    // Silent background sync of booking card counters (no visual reload)
-    reRender(bid);
   }catch(err){
     alert('Fel: '+err.message);
   }
