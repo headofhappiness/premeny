@@ -1353,7 +1353,7 @@ function renderGuests(orders,bid){
         var safeBid=escAttr(bid);
         return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
           +'<button onclick="adjustBulkItem(\''+safeBid+'\',\''+safeMid+'\',\''+safeCid+'\',-1)" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:17px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400" title="Minska">−</button>'
-          +'<span style="font-size:14px;font-weight:500;min-width:20px;text-align:center;color:var(--text)">'+it.count+'</span>'
+          +'<span data-bulk-count="'+escAttr(bid)+'_'+safeMid+'" style="font-size:14px;font-weight:500;min-width:20px;text-align:center;color:var(--text)">'+it.count+'</span>'
           +'<button onclick="adjustBulkItem(\''+safeBid+'\',\''+safeMid+'\',\''+safeCid+'\',+1)" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:17px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400" title="Öka">+</button>'
           +'<span style="font-size:13px;color:var(--text)">'+safeN+'</span>'
           +'</div>';
@@ -1412,38 +1412,59 @@ async function delBulkPortions(bid){
 
 async function adjustBulkItem(bid, itemId, catId, delta){
   // Never touch named guests or rows with specialkost comments — only anonymous portions
+  // Find the counter span and buttons for this item to update in-place (no blink)
+  const countSpan=document.querySelector('[data-bulk-count="'+bid+'_'+itemId+'"]');
   try{
     if(delta>0){
-      // Add one new anonymous portion for this item
-      const {data:existingOrders}=await db.from('orders').select('id').eq('booking_id',bid);
-      // Count existing anon orders to generate next sequence number
+      // Generate a unique Portion N — find the highest existing number and add 1
       const {data:allOrd}=await db.from('orders').select('id,guest_name,order_items(comment)').eq('booking_id',bid);
-      const anonCount=(allOrd||[]).filter(_isAnonPortion).length;
-      const seq=( (allOrd||[]).length ); // use total orders count for unique Portion N
-      const gname='Portion '+(seq+1);
+      const nums=(allOrd||[]).map(function(o){var m=/^Portion\s+(\d+)$/.exec(o.guest_name||'');return m?parseInt(m[1]):0;});
+      const nextNum=(nums.length?Math.max.apply(null,nums):0)+1;
+      const gname='Portion '+nextNum;
       const {data:newOrd,error:oErr}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:gname}).select('id').single();
       if(oErr)throw new Error(oErr.message);
       const {error:iErr}=await db.from('order_items').insert({order_id:newOrd.id,menu_item_id:itemId,category_id:catId,comment:null});
       if(iErr)throw new Error(iErr.message);
       await db.from('bookings').update({restaurant_filled:true}).eq('id',bid);
       const bidx=allBookings.findIndex(x=>x.id===bid);if(bidx>-1)allBookings[bidx]={...allBookings[bidx],restaurant_filled:true};
+      // Update count in-place
+      if(countSpan){var cur=parseInt(countSpan.textContent)||0;countSpan.textContent=cur+1;}
     } else {
-      // Remove the last anonymous portion that has exactly this item in this category
+      // Find all anon orders for this booking, pick one that has this exact item, remove it
+      // Fetch without ordering by created_at (not reliable via PostgREST without explicit column)
       const {data:allOrd}=await db.from('orders')
         .select('id,guest_name,order_items(id,comment,menu_item_id,category_id)')
-        .eq('booking_id',bid)
-        .order('created_at',{ascending:false});
-      // Find the most recently created anon order that has this item
-      const target=(allOrd||[]).find(function(o){
+        .eq('booking_id',bid);
+      // Filter to anon portions that have this item; take last in array (highest Portion N)
+      const candidates=(allOrd||[]).filter(function(o){
         if(!_isAnonPortion(o))return false;
         return (o.order_items||[]).some(function(oi){return oi.menu_item_id===itemId && oi.category_id===catId;});
       });
-      if(!target){return;} // nothing to remove
+      if(!candidates.length){return;} // nothing to remove
+      // Pick the one with the highest Portion number
+      candidates.sort(function(a,b){
+        var na=parseInt((/Portion\s+(\d+)/.exec(a.guest_name||'')||[0,0])[1]);
+        var nb=parseInt((/Portion\s+(\d+)/.exec(b.guest_name||'')||[0,0])[1]);
+        return nb-na;
+      });
+      const target=candidates[0];
       await db.from('order_items').delete().eq('order_id',target.id);
       await db.from('orders').delete().eq('id',target.id);
+      // Update count in-place
+      if(countSpan){
+        var cur=parseInt(countSpan.textContent)||0;
+        var next=cur-1;
+        if(next<=0){
+          // Row gone — do full re-render to remove it from DOM
+          await reRender(bid);
+          loadDet(bid,'guests');
+          return;
+        }
+        countSpan.textContent=next;
+      }
     }
-    await reRender(bid);
-    loadDet(bid,'guests');
+    // Silent background sync of booking card counters (no visual reload)
+    reRender(bid);
   }catch(err){
     alert('Fel: '+err.message);
   }
