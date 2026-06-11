@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Förbeställ din mat</title>
-<meta name="pm-build" content="2026-06-04d">
+<meta name="pm-build" content="2026-06-05a">
 <meta name="description" content="Välj din mat inför besöket – snabbt och enkelt via PreMeny.">
 <!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
 <meta property="og:type" content="website">
@@ -123,15 +123,39 @@ textarea{min-height:75px}
       <div class="gold-line"></div>
       <p id="guestGreeting" style="font-size:15px;color:var(--muted);line-height:1.7;margin:0 0 1.1rem"></p>
       <div class="booking-info" id="bookingInfo"></div>
-      <div class="card">
-        <div class="card-label">Ditt namn</div>
-        <input type="text" id="guestName" placeholder="Förnamn och efternamn" autocomplete="name" onblur="checkExisting()">
+
+      <!-- KONTAKTPERSON: växla till bulk -->
+      <div id="contactSwitch" style="display:none;background:rgba(184,149,90,.08);border:1px solid rgba(184,149,90,.25);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.25rem">
+        <div style="font-size:13px;color:var(--dark);font-weight:500;margin-bottom:.3rem">Är du kontaktperson för sällskapet?</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:.7rem">Du kan fylla i allas val på en gång – ange hur många portioner av varje rätt. Perfekt om du redan samlat in valen.</div>
+        <button class="btn" id="toBulkBtn" onclick="showBulk()" style="background:var(--gold);color:#fff;border:none;font-size:13px;padding:9px 18px">Fyll i för flera →</button>
       </div>
-      <div id="existingNotice" style="display:none" class="msg ok"></div>
-      <div id="courseWrap"></div>
-      <div id="guestMsgBottom" style="display:none" class="msg err"></div>
-      <button class="btn btn-primary" id="submitBtn" onclick="submitOrder()">Skicka beställning</button>
-      <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:.75rem;line-height:1.6">Vill du ändra? Öppna länken igen och skriv ditt namn.</p>
+
+      <div id="singleWrap">
+        <div class="card">
+          <div class="card-label">Ditt namn</div>
+          <input type="text" id="guestName" placeholder="Förnamn och efternamn" autocomplete="name" onblur="checkExisting()">
+        </div>
+        <div id="existingNotice" style="display:none" class="msg ok"></div>
+        <div id="courseWrap"></div>
+        <div id="guestMsgBottom" style="display:none" class="msg err"></div>
+        <button class="btn btn-primary" id="submitBtn" onclick="submitOrder()">Skicka beställning</button>
+        <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:.75rem;line-height:1.6">Vill du ändra? Öppna länken igen och skriv ditt namn.</p>
+      </div>
+
+      <!-- KONTAKTPERSON: bulk-vy -->
+      <div id="bulkWrap" style="display:none">
+        <button class="btn" onclick="hideBulk()" id="bulkBackBtn" style="background:transparent;border:1px solid var(--border);font-size:13px;padding:7px 14px;margin-bottom:1rem">← Tillbaka</button>
+        <div id="bulkInfoBox" style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
+          <strong style="color:var(--dark)">Fyll i för hela sällskapet</strong><br>
+          Ange hur många <strong style="font-weight:500;color:var(--dark)">portioner</strong> av varje rätt sällskapet vill ha. Alla behöver inte ha alla rätter.<br><br>
+          <strong style="font-weight:500;color:var(--dark)">Tips:</strong> lägg in gäster med specialkost <strong style="font-weight:500;color:var(--dark)">först</strong> – sätt antal 1, skriv namn + specialkost och spara. Fyll sedan i resten. (Lämnar du namnet tomt blir raden "Portion 1, 2, 3 …".)
+        </div>
+        <div id="bulkCourseWrap"></div>
+        <button class="btn btn-primary" id="bulkSubmitBtn" onclick="submitBulk()">Spara för sällskapet</button>
+        <div id="bulkMsg" style="display:none;margin-top:.75rem" class="msg"></div>
+      </div>
+
     </div>
 
     <!-- BEKRÄFTELSE -->
@@ -161,6 +185,7 @@ const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 const params=new URLSearchParams(location.search);
 const SLUG=params.get('r');
 const BID=params.get('b');
+const IS_CONTACT=params.get('k')==='1';
 let restaurant=null,booking=null,categories=[],gSel={},gComments={},existingOrderId=null,isClosed=false,menuPrice=null,userPicked=false;
 
 async function init(){
@@ -243,6 +268,9 @@ async function init(){
     categories=(cats||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)})).filter(c=>c.menu_items.length>0);
     categories.forEach(c=>{gSel[c.id]=null;c.menu_items.forEach(i=>{gComments[i.id]='';});});
     buildMenu();
+    if(IS_CONTACT && !isClosed){
+      document.getElementById('contactSwitch').style.display='block';
+    }
     document.getElementById('loadingState').style.display='none';
     document.getElementById('mainContent').style.display='block';
   }catch(err){showError('Något gick fel: '+err.message);}
@@ -389,6 +417,85 @@ function editOrder(){
   document.getElementById('formWrap').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function showError(m){document.getElementById('loadingState').style.display='none';const el=document.getElementById('errorState');el.style.display='block';el.textContent=m;}
+
+// ── KONTAKTPERSON: bulk-ifyllnad ──
+function showBulk(){
+  buildBulkMenu();
+  document.getElementById('singleWrap').style.display='none';
+  document.getElementById('contactSwitch').style.display='none';
+  document.getElementById('bulkWrap').style.display='block';
+  document.getElementById('bulkWrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function hideBulk(){
+  document.getElementById('bulkWrap').style.display='none';
+  document.getElementById('singleWrap').style.display='block';
+  document.getElementById('contactSwitch').style.display='block';
+}
+function buildBulkMenu(){
+  const info=document.getElementById('bulkInfoBox');
+  if(info)info.innerHTML='<strong style="color:var(--dark)">Fyll i för hela sällskapet</strong><br>Ange hur många <strong style="font-weight:500;color:var(--dark)">portioner</strong> av varje rätt sällskapet vill ha. Alla behöver inte ha alla rätter.<br><br><strong style="font-weight:500;color:var(--dark)">Tips:</strong> lägg in gäster med specialkost <strong style="font-weight:500;color:var(--dark)">först</strong> – sätt antal 1, skriv namn + specialkost och spara. Fyll sedan i resten. (Lämnar du namnet tomt blir raden "Portion 1, 2, 3 …".)';
+  const wrap=document.getElementById('bulkCourseWrap');
+  if(!categories.length){wrap.innerHTML='<p style="color:var(--muted);padding:1rem 0">Ingen meny inlagd ännu.</p>';return;}
+  wrap.innerHTML=categories.map(cat=>`
+    <div style="background:rgba(184,149,90,.05);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem">
+      <div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">${cat.label}</div>
+      ${cat.menu_items.map(item=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(184,149,90,.12);flex-wrap:wrap">
+          <div style="flex:1;min-width:120px">
+            <div style="font-size:14px;color:var(--dark)">${item.name}</div>
+            ${item.description?`<div style="font-size:11px;color:var(--muted)">${item.description}</div>`:''}
+          </div>
+          <input type="number" id="kbq_${item.id}" min="0" max="999" value="0" placeholder="0" style="width:60px;text-align:center;padding:7px 8px;font-size:15px;font-weight:500;flex-shrink:0">
+          <input type="text" id="kbn_${item.id}" placeholder="Namn (valfritt)" style="width:130px;padding:7px 10px;font-size:13px">
+          <input type="text" id="kbc_${item.id}" placeholder="Specialkost (valfritt)" style="width:150px;padding:7px 10px;font-size:13px">
+        </div>`).join('')}
+    </div>`).join('');
+}
+async function submitBulk(){
+  const btn=document.getElementById('bulkSubmitBtn');
+  const msg=document.getElementById('bulkMsg');
+  function showMsg(cls,txt){msg.style.display='block';msg.className='msg '+cls;msg.textContent=txt;}
+  if(isClosed){showMsg('err','Beställningstiden har passerat.');return;}
+  if(btn.disabled)return;
+  btn.disabled=true;btn.textContent='Sparar...';
+  let made=0;
+  try{
+    const {data:existingOrders}=await db.from('orders').select('id').eq('booking_id',BID);
+    let seq=(existingOrders||[]).length;
+    const ordersToInsert=[];
+    const itemsPerOrder=[];
+    for(const cat of categories){
+      for(const item of cat.menu_items){
+        const qty=parseInt(document.getElementById('kbq_'+item.id)?.value)||0;
+        const cmt=document.getElementById('kbc_'+item.id)?.value?.trim()||'';
+        const nm=document.getElementById('kbn_'+item.id)?.value?.trim()||'';
+        if(qty>0){
+          for(let i=0;i<qty;i++){
+            const gname=(i===0&&nm)?nm:('Portion '+(++seq));
+            ordersToInsert.push({booking_id:BID,restaurant_id:restaurant.id,guest_name:gname});
+            itemsPerOrder.push({menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
+            made++;
+          }
+        }
+      }
+    }
+    if(made===0){showMsg('err','Inget antal ifyllt – skriv hur många som vill ha varje rätt.');btn.disabled=false;btn.textContent='Spara för sällskapet';return;}
+    const {data:createdOrders,error:oErr}=await db.from('orders').insert(ordersToInsert).select('id');
+    if(oErr)throw new Error(oErr.message);
+    const orderItems=createdOrders.map((o,i)=>({order_id:o.id,...itemsPerOrder[i]}));
+    const {error:iErr}=await db.from('order_items').insert(orderItems);
+    if(iErr)throw new Error(iErr.message);
+    document.getElementById('bulkCourseWrap').innerHTML='';
+    document.getElementById('bulkSubmitBtn').style.display='none';
+    document.getElementById('bulkBackBtn').style.display='none';
+    document.getElementById('bulkInfoBox').style.display='none';
+    showMsg('ok','✓ Tack! '+made+' beställningar sparade för sällskapet. Du kan fylla i fler genom att ladda om sidan.');
+    msg.style.fontSize='15px';msg.style.padding='1rem 1.25rem';
+  }catch(err){
+    showMsg('err','Fel: '+err.message);
+    btn.disabled=false;btn.textContent='Spara för sällskapet';
+  }
+}
 init();
 </script>
 <footer style="text-align:center;padding:2rem 1rem 1.5rem;margin-top:2rem;border-top:1px solid var(--border)">
