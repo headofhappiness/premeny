@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05p">
+<meta name="pm-build" content="2026-06-05q">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -218,6 +218,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   </nav>
 
   <div class="page">
+    <div id="annBanner" style="display:none;margin-bottom:1.5rem"></div>
     <div class="fb"><div><h1>Admin</h1><div class="gold-line"></div></div></div>
     <div class="tabs">
       <button class="tab active" id="tab-bookings" onclick="showTab('bookings')">Bokningar</button>
@@ -707,6 +708,53 @@ async function initAdmin(){
     (menuList||[]).forEach(m=>{var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});
   }
   renderBookings();
+  loadAnnouncementsForCustomer();
+}
+
+// ── NYHETER (kundvy) ──
+async function loadAnnouncementsForCustomer(){
+  const banner=document.getElementById('annBanner');
+  if(!banner)return;
+  try{
+    const todayStr=new Date().toISOString().slice(0,10);
+    const {data:anns}=await db.from('announcements').select('*')
+      .eq('active',true)
+      .lte('starts_at',todayStr)
+      .gte('ends_at',todayStr)
+      .order('starts_at',{ascending:false});
+    if(!anns||!anns.length){banner.style.display='none';return;}
+    const {data:{user}}=await db.auth.getUser();
+    if(!user){banner.style.display='none';return;}
+    const {data:reads}=await db.from('announcement_reads').select('announcement_id').eq('user_id',user.id);
+    const readIds=new Set((reads||[]).map(r=>r.announcement_id));
+    const unread=anns.filter(a=>!readIds.has(a.id));
+    if(!unread.length){banner.style.display='none';return;}
+    const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    const fmtD=s=>{const d=new Date(s+'T12:00:00');return d.getDate()+' '+months[d.getMonth()];};
+    banner.innerHTML=unread.map(a=>`
+      <div style="background:linear-gradient(135deg,rgba(184,149,90,.1),rgba(184,149,90,.04));border:1px solid rgba(184,149,90,.3);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;position:relative">
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <div style="font-size:1.4rem;line-height:1.2">${a.icon||'✨'}</div>
+          <div style="flex:1;min-width:0;padding-right:24px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:.25rem">
+              <span style="font-size:15px;font-weight:500;color:var(--dark)">${a.title}</span>
+              <span style="font-size:11px;color:var(--gold);font-weight:500">${fmtD(a.starts_at)}</span>
+            </div>
+            <div style="font-size:13.5px;color:var(--text);line-height:1.6">${a.body}</div>
+            ${a.link_url?`<a href="${a.link_url}" target="_blank" style="display:inline-block;margin-top:.5rem;font-size:13px;color:var(--gold);font-weight:500;text-decoration:none">${a.link_label||'Läs mer'} →</a>`:''}
+          </div>
+        </div>
+        <button onclick="dismissAnnouncement('${a.id}')" title="Markera som läst" style="position:absolute;top:.75rem;right:.85rem;background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);line-height:1;padding:2px 6px">✕</button>
+      </div>`).join('');
+    banner.style.display='block';
+  }catch(err){banner.style.display='none';}
+}
+async function dismissAnnouncement(id){
+  try{
+    const {data:{user}}=await db.auth.getUser();
+    await db.from('announcement_reads').insert({announcement_id:id,user_id:user.id});
+  }catch(err){}
+  loadAnnouncementsForCustomer();
 }
 
 // TABS

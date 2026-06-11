@@ -4,7 +4,7 @@
 <link rel="icon" type="image/png" href="PM_logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="pm-build" content="2026-06-03a">
+<meta name="pm-build" content="2026-06-05b">
 <title>SuperAdmin – PreMeny</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -130,6 +130,35 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <div id="rpane-archived" style="display:none">
       <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Inaktiverade kunder — kan återaktiveras när som helst.</p>
       <div id="restGridArchived" class="rest-grid"></div>
+    </div>
+
+    <!-- NYHETER -->
+    <div style="margin-top:3rem;border-top:1px solid var(--border);padding-top:2rem">
+      <h1 style="font-size:1.5rem">Nyheter till kunderna</h1>
+      <div class="gold-line"></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6;max-width:600px">Publicera nyheter som visas i alla kunders admin när de loggar in – t.ex. när en ny funktion släpps. Nyheten syns under perioden du anger. Standard är 14 dagar.</p>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:2rem;max-width:640px">
+        <div class="card-label" style="margin-bottom:1rem">Skapa ny nyhet</div>
+        <div class="r2" style="margin-bottom:.85rem">
+          <div class="ff" style="max-width:90px"><label>Ikon</label><input type="text" id="an-icon" value="✨" maxlength="2" style="text-align:center;font-size:18px"></div>
+          <div class="ff"><label>Rubrik *</label><input type="text" id="an-title" placeholder="T.ex. Ny funktion: kontaktperson kan fylla i för alla"></div>
+        </div>
+        <div class="ff" style="margin-bottom:.85rem"><label>Text *</label><textarea id="an-body" rows="3" placeholder="Beskriv kort vad som är nytt och hur det hjälper kunden."></textarea></div>
+        <div class="r2" style="margin-bottom:.85rem">
+          <div class="ff"><label>Länk (valfri)</label><input type="text" id="an-link" placeholder="https://premeny.se/..."></div>
+          <div class="ff"><label>Länktext (valfri)</label><input type="text" id="an-linklabel" placeholder="Läs mer"></div>
+        </div>
+        <div class="r2" style="margin-bottom:1rem">
+          <div class="ff"><label>Visas från *</label><input type="date" id="an-starts"></div>
+          <div class="ff"><label>Visas till *</label><input type="date" id="an-ends"></div>
+        </div>
+        <div id="an-msg" style="display:none;margin-bottom:.85rem" class="msg"></div>
+        <button class="btn bp" onclick="createAnnouncement()">Publicera nyhet</button>
+      </div>
+
+      <div class="card-label" style="margin-bottom:1rem">Publicerade nyheter</div>
+      <div id="annList"><div class="spinner"></div></div>
     </div>
 
 
@@ -341,6 +370,106 @@ async function initAdmin(){
   document.getElementById('adminPage').style.display='block';
   loadStats();
   loadRestaurants();
+  loadAnnouncements();
+  initAnnDates();
+}
+
+// ── NYHETER ──────────────────────────────────────────────────────────
+function initAnnDates(){
+  const today=new Date();
+  const plus14=new Date();plus14.setDate(plus14.getDate()+14);
+  const fmt=d=>d.toISOString().slice(0,10);
+  const s=document.getElementById('an-starts'),e=document.getElementById('an-ends');
+  if(s&&!s.value)s.value=fmt(today);
+  if(e&&!e.value)e.value=fmt(plus14);
+}
+async function createAnnouncement(){
+  const icon=document.getElementById('an-icon').value.trim()||'✨';
+  const title=document.getElementById('an-title').value.trim();
+  const body=document.getElementById('an-body').value.trim();
+  const link=document.getElementById('an-link').value.trim();
+  const linkLabel=document.getElementById('an-linklabel').value.trim();
+  const starts=document.getElementById('an-starts').value;
+  const ends=document.getElementById('an-ends').value;
+  const m=document.getElementById('an-msg');
+  function showM(cls,txt){m.style.display='block';m.className='msg '+cls;m.textContent=txt;}
+  if(!title||!body){showM('merr','Fyll i både rubrik och text.');return;}
+  if(!starts||!ends){showM('merr','Ange både från- och till-datum.');return;}
+  if(ends<starts){showM('merr','Till-datum kan inte vara före från-datum.');return;}
+  try{
+    const {error}=await db.from('announcements').insert({
+      title,body,icon,
+      link_url:link||null,
+      link_label:linkLabel||null,
+      starts_at:starts,
+      ends_at:ends,
+      active:true
+    });
+    if(error)throw new Error(error.message);
+    document.getElementById('an-title').value='';
+    document.getElementById('an-body').value='';
+    document.getElementById('an-link').value='';
+    document.getElementById('an-linklabel').value='';
+    document.getElementById('an-icon').value='✨';
+    initAnnDates();
+    showM('mok','✓ Nyheten är publicerad!');
+    setTimeout(()=>m.style.display='none',4000);
+    loadAnnouncements();
+  }catch(err){showM('merr','Fel: '+err.message);}
+}
+async function loadAnnouncements(){
+  const wrap=document.getElementById('annList');
+  if(!wrap)return;
+  const {data:anns,error}=await db.from('announcements').select('*').order('starts_at',{ascending:false});
+  if(error){wrap.innerHTML='<p style="color:var(--red);font-size:13px">Kunde inte ladda nyheter: '+error.message+'</p>';return;}
+  if(!anns||!anns.length){wrap.innerHTML='<p style="color:var(--muted);font-size:13px;padding:1rem 0">Inga nyheter publicerade än.</p>';return;}
+  // läsräkning per nyhet
+  const {data:reads}=await db.from('announcement_reads').select('announcement_id');
+  const readCount={};
+  (reads||[]).forEach(r=>{readCount[r.announcement_id]=(readCount[r.announcement_id]||0)+1;});
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const fmtD=s=>{const d=new Date(s+'T12:00:00');return d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();};
+  const todayStr=new Date().toISOString().slice(0,10);
+  wrap.innerHTML=anns.map(a=>{
+    const isLive=a.active&&a.starts_at<=todayStr&&a.ends_at>=todayStr;
+    const isFuture=a.starts_at>todayStr;
+    const isPast=a.ends_at<todayStr;
+    let status,statusColor;
+    if(!a.active){status='Pausad';statusColor='#8a8070';}
+    else if(isFuture){status='Kommande';statusColor='#b0823a';}
+    else if(isPast){status='Avslutad';statusColor='#8a8070';}
+    else{status='● Visas nu';statusColor='#5a7030';}
+    const reads=readCount[a.id]||0;
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:.85rem;max-width:640px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:1.4rem;line-height:1">${a.icon||'✨'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:.3rem">
+            <span style="font-size:15px;font-weight:500;color:var(--dark)">${a.title}</span>
+            <span style="font-size:11px;color:${statusColor};font-weight:500">${status}</span>
+          </div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:.5rem">${a.body}</div>
+          ${a.link_url?`<div style="font-size:12px;color:var(--gold);margin-bottom:.5rem">🔗 ${a.link_label||a.link_url}</div>`:''}
+          <div style="font-size:11px;color:var(--muted)">${fmtD(a.starts_at)} – ${fmtD(a.ends_at)} · ${reads} kund(er) har sett</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:.85rem;flex-wrap:wrap">
+        <button class="btn bg" style="font-size:11px;padding:5px 12px" onclick="toggleAnnouncement('${a.id}',${a.active})">${a.active?'⏸ Pausa':'▶ Återaktivera'}</button>
+        <button class="btn bg" style="font-size:11px;padding:5px 12px;color:var(--red)" onclick="deleteAnnouncement('${a.id}')">🗑 Ta bort</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+async function toggleAnnouncement(id,current){
+  const {error}=await db.from('announcements').update({active:!current}).eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  loadAnnouncements();
+}
+async function deleteAnnouncement(id){
+  if(!confirm('Ta bort nyheten permanent? Den försvinner för alla kunder.'))return;
+  const {error}=await db.from('announcements').delete().eq('id',id);
+  if(error){alert('Fel: '+error.message);return;}
+  loadAnnouncements();
 }
 
 // ── GLOBAL STATS ─────────────────────────────────────────────────────
