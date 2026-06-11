@@ -147,12 +147,11 @@ textarea{min-height:75px}
       <!-- KONTAKTPERSON: bulk-vy -->
       <div id="bulkWrap" style="display:none">
         <div id="bulkInfoBox" style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
-          <strong style="color:var(--dark)">Tips:</strong> lägg in gäster med specialkost <strong style="font-weight:500;color:var(--dark)">först</strong> – sätt antal 1, skriv namn + specialkost och spara. Fyll sedan i resten av sällskapet. (Lämnar du namnet tomt blir raden "Portion 1, 2, 3 …".)
+          <strong style="color:var(--dark)">Tips:</strong> lägg in gäster med specialkost <strong style="font-weight:500;color:var(--dark)">först</strong> – sätt antal 1, skriv namn + specialkost och spara. Fyll sedan i resten av sällskapet.
         </div>
         <div id="bulkCourseWrap"></div>
         <button class="btn btn-primary" id="bulkSubmitBtn" onclick="submitBulk()">Spara för sällskapet</button>
         <div id="bulkMsg" style="display:none;margin-top:.75rem" class="msg"></div>
-        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:1.25rem;line-height:1.6">Vill du istället bara välja åt dig själv? <a href="#" onclick="hideBulk();return false;" style="color:var(--gold)">Klicka här</a></p>
       </div>
 
     </div>
@@ -442,7 +441,7 @@ function hideBulk(){
 }
 function buildBulkMenu(){
   const info=document.getElementById('bulkInfoBox');
-  if(info)info.innerHTML='<strong style="color:var(--dark)">Fyll i för hela sällskapet</strong><br>Ange hur många <strong style="font-weight:500;color:var(--dark)">portioner</strong> av varje rätt sällskapet vill ha. Alla behöver inte ha alla rätter.<br><br><strong style="font-weight:500;color:var(--dark)">Tips:</strong> lägg in gäster med specialkost <strong style="font-weight:500;color:var(--dark)">först</strong> – sätt antal 1, skriv namn + specialkost och spara. Fyll sedan i resten. (Lämnar du namnet tomt blir raden "Portion 1, 2, 3 …".)';
+  if(info)info.innerHTML='<strong style="color:var(--dark)">Fyll i för hela sällskapet</strong><br>Ange hur många <strong style="font-weight:500;color:var(--dark)">portioner</strong> av varje rätt sällskapet vill ha. Alla behöver inte ha alla rätter.<br><br><strong style="font-weight:500;color:var(--dark)">Tips:</strong> lägg in gäster med specialkost <strong style="font-weight:500;color:var(--dark)">först</strong> – sätt antal 1, skriv namn + specialkost och spara. Fyll sedan i resten.';
   const wrap=document.getElementById('bulkCourseWrap');
   if(!categories.length){wrap.innerHTML='<p style="color:var(--muted);padding:1rem 0">Ingen meny inlagd ännu.</p>';return;}
   wrap.innerHTML=categories.map(cat=>`
@@ -497,7 +496,7 @@ async function submitBulk(){
     document.getElementById('bulkCourseWrap').innerHTML='';
     document.getElementById('bulkSubmitBtn').style.display='none';
     document.getElementById('bulkInfoBox').style.display='none';
-    showMsg('ok','✓ Tack! '+made+' beställningar sparade för sällskapet. Du kan fylla i fler genom att ladda om sidan.');
+    showMsg('ok','✓ Sparat! Vill du justera något – lägg till fler rätter eller ändra – ladda bara om sidan.');
     msg.style.fontSize='15px';msg.style.padding='1rem 1.25rem';
   }catch(err){
     showMsg('err','Fel: '+err.message);
