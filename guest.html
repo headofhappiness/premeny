@@ -271,8 +271,8 @@ async function init(){
       document.getElementById('singleWrap').style.display='none';
       const greetEl2=document.getElementById('guestGreeting');
       if(greetEl2)greetEl2.style.display='none';
-      buildBulkMenu();
       document.getElementById('bulkWrap').style.display='block';
+      await loadBulkEdit();
     }
     document.getElementById('loadingState').style.display='none';
     document.getElementById('mainContent').style.display='block';
@@ -468,8 +468,9 @@ async function submitBulk(){
   btn.disabled=true;btn.textContent='Sparar...';
   let made=0;
   try{
-    const {data:existingOrders}=await db.from('orders').select('id').eq('booking_id',BID);
-    let seq=(existingOrders||[]).length;
+    const {data:existingOrders}=await db.from('orders').select('id,guest_name').eq('booking_id',BID);
+    const _nums=(existingOrders||[]).map(function(o){var m=/^Portion\s+(\d+)$/.exec(o.guest_name||'');return m?parseInt(m[1]):0;});
+    let seq=_nums.length?Math.max.apply(null,_nums):0;
     const ordersToInsert=[];
     const itemsPerOrder=[];
     for(const cat of categories){
@@ -493,16 +494,314 @@ async function submitBulk(){
     const orderItems=createdOrders.map((o,i)=>({order_id:o.id,...itemsPerOrder[i]}));
     const {error:iErr}=await db.from('order_items').insert(orderItems);
     if(iErr)throw new Error(iErr.message);
-    document.getElementById('bulkCourseWrap').innerHTML='';
-    document.getElementById('bulkSubmitBtn').style.display='none';
-    document.getElementById('bulkInfoBox').style.display='none';
-    showMsg('ok','✓ Sparat! Vill du justera något – lägg till fler rätter eller ändra – ladda bara om sidan.');
-    msg.style.fontSize='15px';msg.style.padding='1rem 1.25rem';
+    await loadBulkEdit();
   }catch(err){
     showMsg('err','Fel: '+err.message);
     btn.disabled=false;btn.textContent='Spara för sällskapet';
   }
 }
+
+// ── KONTAKTPERSON: redigeringsvy med +/- ──
+function _guestIsAnon(o){
+  return /^Portion\s+\d+$/.test(o.guest_name||'') && !(o.order_items||[]).some(function(oi){return oi.comment&&oi.comment.trim();});
+}
+
+async function loadBulkEdit(){
+  // Fetch all orders with items for this booking
+  const {data:orders}=await db.from('orders')
+    .select('id,guest_name,order_items(id,comment,menu_item_id,category_id,menu_items(id,name,menu_categories(id,label)))')
+    .eq('booking_id',BID);
+
+  const anon=(orders||[]).filter(_guestIsAnon);
+  const named=(orders||[]).filter(function(o){return !_guestIsAnon(o);});
+
+  // Build item map for anon: itemId -> {name, catId, count}
+  const itemMap={};
+  const itemOrder=[];
+  anon.forEach(function(o){
+    (o.order_items||[]).forEach(function(oi){
+      if(!oi.menu_items)return;
+      var mid=oi.menu_item_id||'';
+      if(!mid)return;
+      if(!itemMap[mid]){itemMap[mid]={name:oi.menu_items.name,catId:oi.category_id,count:0};itemOrder.push(mid);}
+      itemMap[mid].count++;
+    });
+  });
+
+  const wrap=document.getElementById('bulkCourseWrap');
+  const infoBox=document.getElementById('bulkInfoBox');
+  const submitBtn=document.getElementById('bulkSubmitBtn');
+  const msgEl=document.getElementById('bulkMsg');
+
+  if(infoBox)infoBox.style.display='none';
+  if(submitBtn)submitBtn.style.display='none';
+  if(msgEl)msgEl.style.display='none';
+
+  if(!itemOrder.length && !named.length){
+    // Nothing saved yet — show the form
+    if(infoBox)infoBox.style.display='block';
+    if(submitBtn){submitBtn.style.display='block';submitBtn.disabled=false;submitBtn.textContent='Spara för sällskapet';}
+    buildBulkMenu();
+    return;
+  }
+
+  var html='<div style="font-size:13px;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">'
+    +'<strong style="color:var(--dark)">Justera beställningen</strong><br>'
+    +'Här ser du vad som är inlagt. Ändra antal med + och −, eller redigera/ta bort namngivna gäster.'
+    +'</div>';
+
+  // ── NAMNGIVNA GÄSTER ──
+  if(named.length){
+    html+='<div style="margin-bottom:1.25rem">';
+    html+='<div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">Namngivna gäster</div>';
+    named.forEach(function(o){
+      // Build summary of what they ordered
+      var summary=categories.map(function(cat){
+        var oi=(o.order_items||[]).find(function(x){return x.category_id===cat.id;});
+        if(!oi||!oi.menu_items)return '';
+        var cmt=oi.comment&&oi.comment.trim()?'<span style="font-size:11px;color:#8a6720;font-style:italic"> · '+escGuest(oi.comment.trim())+'</span>':'';
+        return '<span style="font-size:12px;color:var(--muted);margin-right:8px">'+escGuest(cat.label)+':</span><span style="font-size:13px;color:var(--dark)">'+escGuest(oi.menu_items.name)+'</span>'+cmt;
+      }).filter(Boolean).join('<br>');
+
+      // Build edit rows (one per category)
+      var editRows=categories.map(function(cat){
+        var oi=(o.order_items||[]).find(function(x){return x.category_id===cat.id;});
+        var curItemId=oi?oi.menu_item_id:'';
+        var curCmt=oi?(oi.comment||''):'';
+        var opts='<option value="">— Ingen rätt —</option>'+cat.menu_items.map(function(m){
+          return '<option value="'+m.id+'"'+(m.id===curItemId?' selected':'')+'>'+escGuest(m.name)+'</option>';
+        }).join('');
+        return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center">'
+          +'<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:#5a4520;width:80px;flex-shrink:0">'+escGuest(cat.label)+'</div>'
+          +'<select id="gne_cat_'+o.id+'_'+cat.id+'" style="flex:2;min-width:140px;padding:6px 8px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;background:#fff">'+opts+'</select>'
+          +'<input id="gne_cmt_'+o.id+'_'+cat.id+'" value="'+escAttrGuest(curCmt)+'" placeholder="Specialkost (valfritt)" style="flex:1;min-width:130px;padding:6px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px">'
+          +'</div>';
+      }).join('');
+
+      html+='<div style="background:#fff;border:1px solid rgba(184,149,90,.25);border-radius:10px;padding:.9rem 1rem;margin-bottom:.75rem">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">'
+        +'<div style="font-size:14px;font-weight:500;color:var(--dark)">'+escGuest(o.guest_name)+'</div>'
+        +'<div style="display:flex;gap:6px;flex-shrink:0">'
+        +'<button onclick="toggleGuestEditGuest(\''+o.id+'\')" style="font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;cursor:pointer">Ändra</button>'
+        +'<button onclick="deleteNamedGuest(\''+o.id+'\')" style="font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid #e0c0c0;background:#fff8f8;color:#b05050;cursor:pointer">Ta bort</button>'
+        +'</div></div>'
+        +'<div style="line-height:1.7">'+summary+'</div>'
+        +'<div id="gnedit_'+o.id+'" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(184,149,90,.15)">'
+        +'<div style="font-size:11px;color:var(--muted);margin-bottom:.5rem">Välj rätt per kurs, eller <strong style="font-weight:500">Ingen rätt</strong> för att ta bort den. Specialkost skrivs vid rätten.</div>'
+        +editRows
+        +'<div style="display:flex;gap:8px;margin-top:.5rem">'
+        +'<button onclick="saveNamedGuest(\''+o.id+'\')" style="padding:7px 18px;border-radius:20px;border:none;background:var(--dark);color:#fff;font-size:13px;cursor:pointer">Spara</button>'
+        +'<button onclick="toggleGuestEditGuest(\''+o.id+'\')" style="padding:7px 14px;border-radius:20px;border:1px solid #d4b97a;background:#fff;color:#8a6720;font-size:13px;cursor:pointer">Avbryt</button>'
+        +'</div>'
+        +'</div>'
+        +'</div>';
+    });
+    html+='</div>';
+    // Add new named guest button
+    html+='<div style="margin-bottom:1.25rem">'
+      +'<button onclick="showAddNamedGuest()" id="addNamedBtn" style="font-size:13px;padding:7px 18px;border-radius:20px;border:1px dashed #d4b97a;background:transparent;color:#8a6720;cursor:pointer">+ Lägg till gäst med specialkost</button>'
+      +'<div id="addNamedWrap" style="display:none;margin-top:.75rem;background:#fff;border:1px solid rgba(184,149,90,.25);border-radius:10px;padding:.9rem 1rem">'
+      +'<div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:.5rem">Ny gäst</div>'
+      +'<input id="gne_newname" placeholder="Namn" style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;margin-bottom:.5rem">'
+      +categories.map(function(cat){
+        var opts='<option value="">— Ingen rätt —</option>'+cat.menu_items.map(function(m){return '<option value="'+m.id+'">'+escGuest(m.name)+'</option>';}).join('');
+        return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center">'
+          +'<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:#5a4520;width:80px;flex-shrink:0">'+escGuest(cat.label)+'</div>'
+          +'<select id="gne_new_cat_'+cat.id+'" style="flex:2;min-width:140px;padding:6px 8px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;background:#fff">'+opts+'</select>'
+          +'<input id="gne_new_cmt_'+cat.id+'" placeholder="Specialkost (valfritt)" style="flex:1;min-width:130px;padding:6px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px">'
+          +'</div>';
+      }).join('')
+      +'<div style="display:flex;gap:8px;margin-top:.5rem">'
+      +'<button onclick="saveNewNamedGuest()" style="padding:7px 18px;border-radius:20px;border:none;background:var(--dark);color:#fff;font-size:13px;cursor:pointer">Spara gäst</button>'
+      +'<button onclick="hideAddNamedGuest()" style="padding:7px 14px;border-radius:20px;border:1px solid #d4b97a;background:#fff;color:#8a6720;font-size:13px;cursor:pointer">Avbryt</button>'
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  } else {
+    // No named guests yet — show add button
+    html+='<div style="margin-bottom:1.25rem">'
+      +'<button onclick="showAddNamedGuest()" id="addNamedBtn" style="font-size:13px;padding:7px 18px;border-radius:20px;border:1px dashed #d4b97a;background:transparent;color:#8a6720;cursor:pointer">+ Lägg till gäst med specialkost</button>'
+      +'<div id="addNamedWrap" style="display:none;margin-top:.75rem;background:#fff;border:1px solid rgba(184,149,90,.25);border-radius:10px;padding:.9rem 1rem">'
+      +'<div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:.5rem">Ny gäst</div>'
+      +'<input id="gne_newname" placeholder="Namn" style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;margin-bottom:.5rem">'
+      +categories.map(function(cat){
+        var opts='<option value="">— Ingen rätt —</option>'+cat.menu_items.map(function(m){return '<option value="'+m.id+'">'+escGuest(m.name)+'</option>';}).join('');
+        return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center">'
+          +'<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:#5a4520;width:80px;flex-shrink:0">'+escGuest(cat.label)+'</div>'
+          +'<select id="gne_new_cat_'+cat.id+'" style="flex:2;min-width:140px;padding:6px 8px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;background:#fff">'+opts+'</select>'
+          +'<input id="gne_new_cmt_'+cat.id+'" placeholder="Specialkost (valfritt)" style="flex:1;min-width:130px;padding:6px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px">'
+          +'</div>';
+      }).join('')
+      +'<div style="display:flex;gap:8px;margin-top:.5rem">'
+      +'<button onclick="saveNewNamedGuest()" style="padding:7px 18px;border-radius:20px;border:none;background:var(--dark);color:#fff;font-size:13px;cursor:pointer">Spara gäst</button>'
+      +'<button onclick="hideAddNamedGuest()" style="padding:7px 14px;border-radius:20px;border:1px solid #d4b97a;background:#fff;color:#8a6720;font-size:13px;cursor:pointer">Avbryt</button>'
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  }
+
+  // ── ANONYMA PORTIONER (+ / −) ──
+  if(itemOrder.length){
+    html+='<div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">Övriga portioner</div>';
+  }
+  categories.forEach(function(cat){
+    var catItems=itemOrder.filter(function(mid){return itemMap[mid].catId===cat.id;});
+    var zeroItems=cat.menu_items.filter(function(i){return !itemMap[i.id];});
+    if(!catItems.length&&!zeroItems.length)return;
+    html+='<div style="background:rgba(184,149,90,.05);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem">';
+    html+='<div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">'+cat.label+'</div>';
+    catItems.forEach(function(mid){
+      var it=itemMap[mid];
+      var menuItem=cat.menu_items.find(function(i){return i.id===mid;});
+      var desc=menuItem&&menuItem.description?'<div style="font-size:11px;color:var(--muted)">'+menuItem.description+'</div>':'';
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(184,149,90,.12)">'
+        +'<div style="flex:1;min-width:120px"><div style="font-size:14px;color:var(--dark)">'+it.name+'</div>'+desc+'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
+        +'<button onclick="adjustGuestBulk(\''+mid+'\',\''+cat.id+'\',-1)" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400">−</button>'
+        +'<span id="gbc_'+mid+'" style="font-size:16px;font-weight:500;min-width:24px;text-align:center;color:var(--dark)">'+it.count+'</span>'
+        +'<button onclick="adjustGuestBulk(\''+mid+'\',\''+cat.id+'\',+1)" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400">+</button>'
+        +'</div></div>';
+    });
+    zeroItems.forEach(function(item){
+      var desc=item.description?'<div style="font-size:11px;color:var(--muted)">'+item.description+'</div>':'';
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(184,149,90,.12)">'
+        +'<div style="flex:1;min-width:120px"><div style="font-size:14px;color:var(--dark)">'+item.name+'</div>'+desc+'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
+        +'<button onclick="adjustGuestBulk(\''+item.id+'\',\''+cat.id+'\',-1)" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400">−</button>'
+        +'<span id="gbc_'+item.id+'" style="font-size:16px;font-weight:500;min-width:24px;text-align:center;color:var(--dark)">0</span>'
+        +'<button onclick="adjustGuestBulk(\''+item.id+'\',\''+cat.id+'\',+1)" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400">+</button>'
+        +'</div></div>';
+    });
+    html+='</div>';
+  });
+
+  wrap.innerHTML=html;
+}
+
+
+function escGuest(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function escAttrGuest(s){return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;');}
+
+function toggleGuestEditGuest(oid){
+  var el=document.getElementById('gnedit_'+oid);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+
+async function saveNamedGuest(oid){
+  if(isClosed){alert('Beställningstiden har passerat.');return;}
+  try{
+    var {data:cur}=await db.from('order_items').select('id,category_id,menu_item_id').eq('order_id',oid);
+    cur=cur||[];
+    for(var i=0;i<categories.length;i++){
+      var cat=categories[i];
+      var selEl=document.getElementById('gne_cat_'+oid+'_'+cat.id);
+      if(!selEl)continue;
+      var itemId=selEl.value;
+      var cmtEl=document.getElementById('gne_cmt_'+oid+'_'+cat.id);
+      var cmt=cmtEl?cmtEl.value.trim():'';
+      var existing=cur.find(function(x){return x.category_id===cat.id;});
+      if(itemId){
+        if(existing){
+          await db.from('order_items').update({menu_item_id:itemId,category_id:cat.id,comment:cmt||null}).eq('id',existing.id);
+        } else {
+          await db.from('order_items').insert({order_id:oid,menu_item_id:itemId,category_id:cat.id,comment:cmt||null});
+        }
+      } else if(existing){
+        await db.from('order_items').delete().eq('id',existing.id);
+      }
+    }
+    await loadBulkEdit();
+  }catch(err){alert('Fel: '+err.message);}
+}
+
+async function deleteNamedGuest(oid){
+  if(isClosed){alert('Beställningstiden har passerat.');return;}
+  if(!confirm('Ta bort den här gästen?'))return;
+  try{
+    await db.from('order_items').delete().eq('order_id',oid);
+    await db.from('orders').delete().eq('id',oid);
+    await loadBulkEdit();
+  }catch(err){alert('Fel: '+err.message);}
+}
+
+function showAddNamedGuest(){
+  var btn=document.getElementById('addNamedBtn');
+  var wrap=document.getElementById('addNamedWrap');
+  if(btn)btn.style.display='none';
+  if(wrap)wrap.style.display='block';
+}
+
+function hideAddNamedGuest(){
+  var btn=document.getElementById('addNamedBtn');
+  var wrap=document.getElementById('addNamedWrap');
+  if(btn)btn.style.display='block';
+  if(wrap)wrap.style.display='none';
+}
+
+async function saveNewNamedGuest(){
+  if(isClosed){alert('Beställningstiden har passerat.');return;}
+  var nm=(document.getElementById('gne_newname')?.value||'').trim();
+  if(!nm){alert('Ange ett namn.');return;}
+  try{
+    const {data:newOrd,error:oErr}=await db.from('orders').insert({booking_id:BID,restaurant_id:restaurant.id,guest_name:nm}).select('id').single();
+    if(oErr)throw new Error(oErr.message);
+    var items=[];
+    for(var i=0;i<categories.length;i++){
+      var cat=categories[i];
+      var itemId=(document.getElementById('gne_new_cat_'+cat.id)?.value)||'';
+      var cmt=(document.getElementById('gne_new_cmt_'+cat.id)?.value||'').trim();
+      if(itemId)items.push({order_id:newOrd.id,menu_item_id:itemId,category_id:cat.id,comment:cmt||null});
+    }
+    if(items.length){
+      const {error:iErr}=await db.from('order_items').insert(items);
+      if(iErr)throw new Error(iErr.message);
+    }
+    await loadBulkEdit();
+  }catch(err){alert('Fel: '+err.message);}
+}
+
+
+async function adjustGuestBulk(itemId, catId, delta){
+  if(isClosed){alert('Beställningstiden har passerat.');return;}
+  const countSpan=document.getElementById('gbc_'+itemId);
+  const cur=parseInt(countSpan?countSpan.textContent:'0')||0;
+  try{
+    if(delta>0){
+      // Find next Portion number
+      const {data:allOrd}=await db.from('orders').select('id,guest_name').eq('booking_id',BID);
+      const nums=(allOrd||[]).map(function(o){var m=/^Portion\s+(\d+)$/.exec(o.guest_name||'');return m?parseInt(m[1]):0;});
+      const nextNum=(nums.length?Math.max.apply(null,nums):0)+1;
+      const {data:newOrd,error:oErr}=await db.from('orders').insert({booking_id:BID,restaurant_id:restaurant.id,guest_name:'Portion '+nextNum}).select('id').single();
+      if(oErr)throw new Error(oErr.message);
+      const {error:iErr}=await db.from('order_items').insert({order_id:newOrd.id,menu_item_id:itemId,category_id:catId,comment:null});
+      if(iErr)throw new Error(iErr.message);
+      if(countSpan)countSpan.textContent=cur+1;
+    } else {
+      if(cur<=0)return;
+      // Find anon orders with this item, take highest Portion N
+      const {data:allOrd}=await db.from('orders')
+        .select('id,guest_name,order_items(id,comment,menu_item_id,category_id)')
+        .eq('booking_id',BID);
+      const candidates=(allOrd||[]).filter(function(o){
+        if(!_guestIsAnon(o))return false;
+        return (o.order_items||[]).some(function(oi){return oi.menu_item_id===itemId&&oi.category_id===catId;});
+      });
+      if(!candidates.length)return;
+      candidates.sort(function(a,b){
+        var na=parseInt((/Portion\s+(\d+)/.exec(a.guest_name||'')||[0,0])[1]);
+        var nb=parseInt((/Portion\s+(\d+)/.exec(b.guest_name||'')||[0,0])[1]);
+        return nb-na;
+      });
+      const target=candidates[0];
+      await db.from('order_items').delete().eq('order_id',target.id);
+      await db.from('orders').delete().eq('id',target.id);
+      if(countSpan)countSpan.textContent=cur-1;
+    }
+  }catch(err){
+    alert('Fel: '+err.message);
+  }
+}
+
 init();
 </script>
 <footer style="text-align:center;padding:2rem 1rem 1.5rem;margin-top:2rem;border-top:1px solid var(--border)">
