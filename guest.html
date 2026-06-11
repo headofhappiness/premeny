@@ -711,6 +711,7 @@ async function saveNamedGuest(oid){
       }
     }
     await loadBulkEdit();
+    showBulkToast('Sparat!');
   }catch(err){alert('Fel: '+err.message);}
 }
 
@@ -721,6 +722,7 @@ async function deleteNamedGuest(oid){
     await db.from('order_items').delete().eq('order_id',oid);
     await db.from('orders').delete().eq('id',oid);
     await loadBulkEdit();
+    showBulkToast('Gäst sparad!');
   }catch(err){alert('Fel: '+err.message);}
 }
 
@@ -761,6 +763,20 @@ async function saveNewNamedGuest(){
 }
 
 
+function showBulkToast(msg){
+  var t=document.getElementById('bulkToast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='bulkToast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2d6a3f;color:#fff;font-size:13px;padding:9px 20px;border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.15);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg||'Sparat!';
+  t.style.opacity='1';
+  clearTimeout(t._to);
+  t._to=setTimeout(function(){t.style.opacity='0';},2000);
+}
+
 async function adjustGuestBulk(itemId, catId, delta){
   if(isClosed){alert('Beställningstiden har passerat.');return;}
   const countSpan=document.getElementById('gbc_'+itemId);
@@ -776,6 +792,7 @@ async function adjustGuestBulk(itemId, catId, delta){
       const {error:iErr}=await db.from('order_items').insert({order_id:newOrd.id,menu_item_id:itemId,category_id:catId,comment:null});
       if(iErr)throw new Error(iErr.message);
       if(countSpan)countSpan.textContent=cur+1;
+      showBulkToast('Sparat!');
     } else {
       if(cur<=0)return;
       // Find anon orders with this item, take highest Portion N
@@ -796,6 +813,7 @@ async function adjustGuestBulk(itemId, catId, delta){
       await db.from('order_items').delete().eq('order_id',target.id);
       await db.from('orders').delete().eq('id',target.id);
       if(countSpan)countSpan.textContent=cur-1;
+      showBulkToast('Sparat!');
     }
   }catch(err){
     alert('Fel: '+err.message);

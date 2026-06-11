@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-11a">
+<meta name="pm-build" content="2026-06-11b">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -1120,7 +1120,8 @@ async function renderBulk(bookingId){
   let html=`<div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
     <strong style="color:var(--text)">Fyll i för hela sällskapet</strong><br>
     Ange hur många <strong style="font-weight:500;color:var(--text)">portioner</strong> av varje rätt sällskapet vill ha – en snabb summering till köket. Alla behöver inte ha alla rätter. Vill du ha varje gäst med namn och egna val, låt dem fylla i via gästlänken.<br><br>
-    <strong style="font-weight:500;color:var(--text)">💡 Tips:</strong> lägg in gäster med specialönskemål <strong style="font-weight:500;color:var(--text)">först</strong>. Sätt antal 1 på deras rätt, skriv namn + specialkost/önskemål och tryck Spara. Fyll sedan i resten av sällskapet. Då syns specialkosten på rätt person i listan. (Lämnar du namnet tomt blir raden "Portion 1, 2, 3 …".)
+    <strong style="font-weight:500;color:var(--text)">💡 Tips:</strong> lägg in gäster med specialönskemål <strong style="font-weight:500;color:var(--text)">först</strong>. Sätt antal 1 på deras rätt, skriv namn + specialkost/önskemål och tryck Spara. Fyll sedan i resten av sällskapet. Då syns specialkosten på rätt person i listan.<br><br>
+    <strong style="font-weight:500;color:var(--text)">Redan inlagda portioner</strong> visas i Gästlistan och justeras därifrån med + och −. Här lägger du till nya.
   </div>`;
   const {data:_b}=await db.from('bookings').select('menu_id').eq('id',bookingId).single();
   let _q=db.from('menu_categories').select('id,label,sort_order, menu_items(id,name,description,price,active,sort_order)');
