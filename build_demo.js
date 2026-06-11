@@ -120,7 +120,7 @@ ${restLine}`;
   const guarded = [
     'sendConfirmation','setStatusVal','toggleComplete','saveBulk','saveGuestEdit',
     'delOrder','delBulkPortions','createBooking','delBooking','doReminder',
-    'sendSummary','copyKitchen','copyGuestList','exportPDF','exportGuestPDF',
+    'sendSummary','sendContactLink','copyKitchen','copyGuestList','exportPDF','exportGuestPDF',
     'archiveFromCal','delBookingFromCal','exportCalPDF','archiveMenu','restoreBooking',
     'deleteArchivedBooking','showNewMenuForm','openImportForMenu','downloadQR','createMenu',
     'addCat','saveSettings','importMenu','saveItem','delItem',

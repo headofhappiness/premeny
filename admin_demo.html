@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-06-05s-demo">
+<meta name="pm-build" content="2026-06-05u-demo">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -1020,9 +1020,14 @@ function renderBCard(b){
         <strong>Bekräftelse</strong> = bekräftar bokningen till kontaktpersonen. <strong>Skicka länk</strong> = gästlänken som kontaktpersonen vidarebefordrar till sina gäster.
       </div>
       <div style="background:var(--dark);border:1px solid var(--gold);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1rem">
-        <div style="font-size:11px;color:var(--gold);margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase;font-weight:500">⭐ Kontaktlänk – en person fyller i för hela sällskapet</div>
+        <div style="font-size:11px;color:var(--gold);margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase;font-weight:500">⭐ Kontaktlänk – en person i sällskapet fyller i för hela sällskapet</div>
+        <div style="font-size:12px;color:#cdbfa8;margin-bottom:.6rem;line-height:1.5">Skickas till <strong style="color:#f4ece0">${b.contact_name||'kontaktpersonen'}</strong>${b.contact_email?` · ${b.contact_email}`:''}${b.contact_phone?` · ${b.contact_phone}`:''}</div>
         <div class="linkbox" style="margin-bottom:.6rem;background:rgba(255,255,255,.08);border-color:rgba(184,149,90,.4);color:#f4ece0">${kLink}</div>
-        <button onclick="navigator.clipboard.writeText('${kLink}').then(()=>alert('Kontaktlänk kopierad!'))" class="btn" style="font-size:12px;padding:7px 16px;background:var(--gold);color:#fff;border:none;font-weight:500">📋 Kopiera kontaktlänk</button>
+        <div class="fg" style="flex-wrap:wrap;gap:6px">
+          ${b.contact_email?`<button onclick="sendContactLink('${b.id}','email')" class="btn" style="font-size:12px;padding:7px 14px;background:var(--gold);color:#fff;border:none;font-weight:500">✉ Mejla kontaktlänk</button>`:''}
+          ${b.contact_phone?(()=>{const pc=(b.contact_phone||'').replace(/[\s\-]/g,'');const ok=/^(\+467\d{8}|07\d{8})$/.test(pc);return ok?`<button onclick="sendContactLink('${b.id}','sms')" class="btn" style="font-size:12px;padding:7px 14px;background:var(--gold);color:#fff;border:none;font-weight:500">💬 Smsa kontaktlänk</button>`:`<button onclick="alert('Telefonnumret \\\"${b.contact_phone}\\\" verkar inte stämma.\\n\\nAnge ett giltigt mobilnummer under Ändra bokning.')" class="btn" style="font-size:12px;padding:7px 14px;background:rgba(184,149,90,.4);color:#fff;border:none;font-weight:500">💬 Smsa kontaktlänk ⚠</button>`;})():''}
+          <button onclick="navigator.clipboard.writeText('${kLink}').then(()=>alert('Kontaktlänk kopierad!'))" class="btn" style="font-size:12px;padding:7px 14px;background:transparent;color:#f4ece0;border:1px solid rgba(184,149,90,.5);font-weight:500">📋 Kopiera</button>
+        </div>
         <div style="font-size:12px;color:#cdbfa8;margin-top:.7rem;line-height:1.6">
           Skicka den här till en kontaktperson som ska fylla i hela sällskapets val på en gång (antal per rätt) – t.ex. en lagledare eller arrangör som redan samlat in valen. Med vanliga gästlänken väljer varje gäst själv.
         </div>
@@ -1664,8 +1669,59 @@ async function sendSummary(id,ch){if(IS_DEMO)return demoBlock();
   }
 }
 
-
-// COPY / PRINT KITCHEN
+// SKICKA KONTAKTLÄNK (en person fyller i för hela sällskapet)
+async function sendContactLink(id,ch){if(IS_DEMO)return demoBlock();
+  const {data:b}=await db.from('bookings').select('*').eq('id',id).single();
+  const {data:rest}=await db.from('restaurants').select('*').eq('id',b.restaurant_id).single();
+  const dest=ch==='email'?b.contact_email:b.contact_phone;
+  if(!dest){
+    alert(ch==='email'?'Ingen e-post registrerad för kontaktpersonen.':'Inget telefonnummer registrerat för kontaktpersonen.');
+    return;
+  }
+  if(!confirm('Skicka kontaktlänken till '+(b.contact_name||'kontaktpersonen')+' ('+dest+')?\n\nDe kan då fylla i hela sällskapets val på en gång.'))return;
+  const _btn=event?.target;const _orig=_btn?_btn.textContent:'';
+  if(_btn){if(_btn.disabled)return;_btn.disabled=true;_btn.textContent='Skickar...';}
+  const _restoreBtn=()=>{if(_btn){_btn.disabled=false;_btn.textContent=_orig;}};
+  const kLink='https://premeny.se/guest.html?r='+rest.slug+'&b='+b.id+'&k=1';
+  const {data:{session}}=await db.auth.getSession();
+  const now=new Date();
+  const timeStr=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  try{
+    if(ch==='email'){
+      const res=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-email',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body:JSON.stringify({type:'contactlink',booking:b,restaurant:rest,guestLink:kLink})
+      });
+      const json=await res.json();
+      if(!json.ok)throw new Error(json.error||'okänt');
+      const newLog=(b.summary_sent_log||'')+timeStr+' kontaktlänk via mejl till '+dest+'\n';
+      await db.from('bookings').update({summary_sent_log:newLog}).eq('id',id);
+      const idx=allBookings.findIndex(x=>x.id===id);if(idx>-1)allBookings[idx]={...allBookings[idx],summary_sent_log:newLog};
+      _restoreBtn();reRender(id);
+      alert('✓ Kontaktlänk skickad via mejl till '+dest+'!');
+    } else {
+      const phoneClean=(b.contact_phone||'').replace(/[\s\-]/g,'');
+      if(!/^(\+467\d{8}|07\d{8})$/.test(phoneClean)){
+        alert('Telefonnumret "'+b.contact_phone+'" verkar inte stämma.\n\nAnge ett svenskt mobilnummer under Ändra bokning.');
+        _restoreBtn();return;
+      }
+      const resp=await fetch('https://gndzalmkbsfhclpoidqi.supabase.co/functions/v1/send-sms',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+        body:JSON.stringify({booking:b,restaurant:rest,guestLink:kLink,mode:'contactlink'})
+      });
+      const raw=await resp.text();
+      let result;try{result=JSON.parse(raw);}catch{throw new Error('Ogiltigt telefonnummer eller SMS-fel.');}
+      if(!result.ok)throw new Error(result.error||'SMS-fel.');
+      const newLogSms=(b.summary_sent_log||'')+timeStr+' kontaktlänk via SMS till '+dest+'\n';
+      await db.from('bookings').update({summary_sent_log:newLogSms}).eq('id',id);
+      const idx=allBookings.findIndex(x=>x.id===id);if(idx>-1)allBookings[idx]={...allBookings[idx],summary_sent_log:newLogSms};
+      _restoreBtn();reRender(id);
+      alert('✓ Kontaktlänk skickad via SMS till '+dest+'!');
+    }
+  }catch(err){_restoreBtn();alert('Fel: '+err.message);}
+}
 async function copyKitchen(id){if(IS_DEMO)return demoBlock();
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
   const {data:b}=await db.from('bookings').select('name,event_date,event_time,expected_guests,table_label').eq('id',id).single();
