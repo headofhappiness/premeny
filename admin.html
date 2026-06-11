@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-05u">
+<meta name="pm-build" content="2026-06-11a">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -1331,20 +1331,41 @@ function renderGuests(orders,bid){
   }).join('');
   var summary='';
   if(anon.length){
+    // Build per-item map: itemId -> {name, catId, count}
+    var itemMap={};
+    var itemOrder=[];
+    anon.forEach(function(o){
+      (o.order_items||[]).forEach(function(oi){
+        if(!oi.menu_items)return;
+        var mid=oi.menu_item_id||(oi.menu_items&&oi.menu_items.id)||'';
+        if(!mid)return;
+        if(!itemMap[mid]){itemMap[mid]={name:oi.menu_items.name,catId:oi.category_id,count:0};itemOrder.push(mid);}
+        itemMap[mid].count++;
+      });
+    });
     var catBlocks=cols.map(function(c){
-      var counts={},order=[];
-      anon.forEach(function(o){(o.order_items||[]).forEach(function(oi){
-        var match=(c.id&&oi.category_id===c.id)||(oi.menu_items&&oi.menu_items.menu_categories&&oi.menu_items.menu_categories.label===c.label);
-        if(match&&oi.menu_items){var n=oi.menu_items.name;if(!(n in counts)){counts[n]=0;order.push(n);}counts[n]++;}
-      });});
-      var inner=order.length?order.map(function(n){return '<span style="font-weight:500">'+counts[n]+'</span> '+escHtml(n);}).join('<br>'):'<span style="color:#cfc6b5">–</span>';
-      return '<div style="min-width:0"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a4520;margin-bottom:3px">'+escHtml(c.label)+'</div><div style="font-size:13px;line-height:1.5;color:var(--text)">'+inner+'</div></div>';
+      var colItems=itemOrder.filter(function(mid){return itemMap[mid].catId===c.id;});
+      var inner=colItems.length?colItems.map(function(mid){
+        var it=itemMap[mid];
+        var safeN=escHtml(it.name);
+        var safeMid=escAttr(mid);
+        var safeCid=escAttr(it.catId);
+        var safeBid=escAttr(bid);
+        return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
+          +'<button onclick="adjustBulkItem(\''+safeBid+'\',\''+safeMid+'\',\''+safeCid+'\',-1)" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:17px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400" title="Minska">−</button>'
+          +'<span style="font-size:14px;font-weight:500;min-width:20px;text-align:center;color:var(--text)">'+it.count+'</span>'
+          +'<button onclick="adjustBulkItem(\''+safeBid+'\',\''+safeMid+'\',\''+safeCid+'\',+1)" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:17px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400" title="Öka">+</button>'
+          +'<span style="font-size:13px;color:var(--text)">'+safeN+'</span>'
+          +'</div>';
+      }).join(''):'<span style="color:#cfc6b5">–</span>';
+      return '<div style="min-width:0"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a4520;margin-bottom:6px">'+escHtml(c.label)+'</div><div style="line-height:1.5">'+inner+'</div></div>';
     }).join('');
     summary='<div class="grow" style="display:block;background:var(--surface2)">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
       +'<div style="font-size:13px;font-weight:500">Ifyllt för sällskapet <span style="color:var(--muted);font-weight:400">· '+anon.length+' portioner</span></div>'
       +'<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delBulkPortions(\''+bid+'\')">Ta bort alla</button></div>'
-      +'<div style="display:grid;grid-template-columns:repeat('+cols.length+',minmax(0,1fr));gap:14px;margin-top:10px">'+catBlocks+'</div></div>';
+      +'<div style="display:grid;grid-template-columns:repeat('+cols.length+',minmax(0,1fr));gap:14px;margin-top:10px">'+catBlocks+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:8px">Namngivna gäster och specialkost påverkas inte.</div></div>';
   }
   return rows+summary;
 }
@@ -1387,6 +1408,45 @@ async function delBulkPortions(bid){
   await db.from('order_items').delete().in('order_id',ids);
   await db.from('orders').delete().in('id',ids);
   await reRender(bid);loadDet(bid,'guests');
+}
+
+async function adjustBulkItem(bid, itemId, catId, delta){
+  // Never touch named guests or rows with specialkost comments — only anonymous portions
+  try{
+    if(delta>0){
+      // Add one new anonymous portion for this item
+      const {data:existingOrders}=await db.from('orders').select('id').eq('booking_id',bid);
+      // Count existing anon orders to generate next sequence number
+      const {data:allOrd}=await db.from('orders').select('id,guest_name,order_items(comment)').eq('booking_id',bid);
+      const anonCount=(allOrd||[]).filter(_isAnonPortion).length;
+      const seq=( (allOrd||[]).length ); // use total orders count for unique Portion N
+      const gname='Portion '+(seq+1);
+      const {data:newOrd,error:oErr}=await db.from('orders').insert({booking_id:bid,restaurant_id:rest.id,guest_name:gname}).select('id').single();
+      if(oErr)throw new Error(oErr.message);
+      const {error:iErr}=await db.from('order_items').insert({order_id:newOrd.id,menu_item_id:itemId,category_id:catId,comment:null});
+      if(iErr)throw new Error(iErr.message);
+      await db.from('bookings').update({restaurant_filled:true}).eq('id',bid);
+      const bidx=allBookings.findIndex(x=>x.id===bid);if(bidx>-1)allBookings[bidx]={...allBookings[bidx],restaurant_filled:true};
+    } else {
+      // Remove the last anonymous portion that has exactly this item in this category
+      const {data:allOrd}=await db.from('orders')
+        .select('id,guest_name,order_items(id,comment,menu_item_id,category_id)')
+        .eq('booking_id',bid)
+        .order('created_at',{ascending:false});
+      // Find the most recently created anon order that has this item
+      const target=(allOrd||[]).find(function(o){
+        if(!_isAnonPortion(o))return false;
+        return (o.order_items||[]).some(function(oi){return oi.menu_item_id===itemId && oi.category_id===catId;});
+      });
+      if(!target){return;} // nothing to remove
+      await db.from('order_items').delete().eq('order_id',target.id);
+      await db.from('orders').delete().eq('id',target.id);
+    }
+    await reRender(bid);
+    loadDet(bid,'guests');
+  }catch(err){
+    alert('Fel: '+err.message);
+  }
 }
 
 // NY BOKNING
