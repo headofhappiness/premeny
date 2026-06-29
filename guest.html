@@ -3,827 +3,1665 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Förbeställ din mat</title>
-<meta name="pm-build" content="2026-06-05b">
-<meta name="description" content="Välj din mat inför besöket – snabbt och enkelt via PreMeny.">
-<!-- Länkförhandsvisning (WhatsApp, Facebook, iMessage m.fl.) -->
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="PreMeny">
-<meta property="og:title" content="Förbeställ din mat">
-<meta property="og:description" content="Välj din mat inför besöket – det tar bara en minut. Klicka för att komma igång.">
-<meta property="og:image" content="https://premeny.se/og-guest.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Förbeställ din mat">
-<meta name="twitter:description" content="Välj din mat inför besöket – det tar bara en minut. Klicka för att komma igång.">
-<meta name="twitter:image" content="https://premeny.se/og-guest.png">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Välj ditt pass – Åsacupen 2026</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<meta name="description" content="Välj ditt pass. Hjälp laget.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f0e8;--border:#e8e2d8;--gold:#b8955a;--dark:#1a1712;--text:#2d2a24;--muted:#8a8070;--red:#c0392b}
+:root{
+  --bg:#faf8f4;
+  --surface:#fff;
+  --surface2:#f2f9f3;
+  --border:#c4d8c4;
+  --green:#1a8c3a;
+  --green-mid:#22a847;
+  --green-light:#e8f7ec;
+  --green-pale:rgba(26,140,58,.07);
+  --dark:#111c13;
+  --text:#1e2e20;
+  --muted:#4a6a4e;
+  --amber:#e8a020;
+  --amber-light:#fff8e8;
+  --red:#c0392b;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;font-size:16px}
-.nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
-.nav-logo{font-family:"Playfair Display",serif;font-size:1.2rem;color:var(--dark)}
-.nav-logo span{color:var(--gold)}
-.nav-rest{font-size:14px;color:var(--muted)}
-.page{max-width:600px;margin:0 auto;padding:2rem 1.25rem 5rem}
-h1{font-family:"Playfair Display",serif;font-size:2rem;font-weight:400;color:var(--dark);margin-bottom:.25rem}
-.gold-line{width:32px;height:1px;background:var(--gold);margin:.5rem 0 1.25rem;opacity:.7}
-.booking-info{background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1.5rem;font-size:15px;line-height:1.8}
-.closed-banner{background:#fdf2f2;border:1.5px solid #e8c0c0;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;text-align:center;line-height:1.8}
-.closed-banner h2{font-family:"Playfair Display",serif;font-size:1.3rem;color:#8a2020;margin-bottom:.5rem;font-weight:400}
-.closed-banner p{font-size:15px;color:#8a2020}
-.closed-banner a{color:#8a2020;font-weight:500}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem}
-.card-label{font-size:15px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
-input[type=text],textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-family:"Outfit",sans-serif;font-size:16px;color:var(--text);outline:none;transition:border-color .2s;resize:none;font-weight:300}
-input:focus,textarea:focus{border-color:var(--gold);background:var(--surface)}
-textarea{min-height:75px}
-.course-section{margin-bottom:2rem}
-.course-title{font-family:"Playfair Display",serif;font-size:1.3rem;font-weight:400;color:var(--dark);margin-bottom:.2rem}
-.course-sub{font-size:15px;color:var(--muted);margin-bottom:.75rem}
-.meal{border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:var(--surface);transition:all .2s;overflow:hidden}
-.meal-top{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;cursor:pointer;user-select:none;transition:background .15s;min-height:44px}
-.meal:hover .meal-top{background:var(--surface2)}
-.meal.selected{border-color:var(--gold)}
-.meal.selected .meal-top{background:rgba(184,149,90,.05)}
-.meal.skip{border-style:dashed;border-color:#ddd8d0}
-.radio{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);margin-top:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .2s}
-.meal.selected .radio{border-color:var(--gold)}
-.dot{width:10px;height:10px;border-radius:50%;background:var(--gold);display:none}
-.meal.selected .dot{display:block}
-.meal-body{flex:1;min-width:0}
-.meal-name{font-size:16px;color:var(--dark);line-height:1.4;font-weight:400}
-.meal-desc{font-size:15px;color:var(--muted);line-height:1.7;margin-top:4px}
-.meal-price{font-size:15px;color:var(--gold);font-weight:500;font-family:"Playfair Display",serif;padding-left:8px;margin-top:2px;flex-shrink:0;white-space:nowrap}
-.meal-comment-wrap{padding:0 16px 14px 48px;display:none;animation:fadeIn .15s ease}
-.meal.selected .meal-comment-wrap{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.meal-comment-wrap label{font-size:15px;color:var(--muted);margin-bottom:5px;display:block}
-.meal-comment-wrap textarea::placeholder{color:#a09080;opacity:1}
-.meal-comment-wrap textarea{font-size:16px;min-height:60px;padding:10px 12px;border-radius:8px}
-.msg{padding:13px 16px;border-radius:10px;font-size:16px;margin-bottom:1rem;border:1px solid;line-height:1.6}
-.msg.ok{background:#f2f8ec;color:#3a6020;border-color:#c8e0a8}
+body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:400;min-height:calc(var(--vh,1vh)*100);font-size:17px;line-height:1.65}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.4rem;border-bottom:1px solid var(--border);background:rgba(250,248,244,.97);-webkit--webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);position:-webkit-sticky;position:sticky;top:0;z-index:10}
+.nav-logo{font-family:"Nunito",sans-serif;font-size:1.15rem;color:var(--dark);text-decoration:none;font-weight:700}
+
+.nav-right{display:flex;align-items:center;gap:.7rem}
+.nav-club{font-size:13px;color:#3a5a3e;font-weight:600}
+.deadline-pill{font-size:12px;background:var(--green-light);color:var(--green);border:1px solid rgba(26,140,58,.22);border-radius:100px;padding:3px 10px;font-weight:700}
+.deadline-pill.urgent{background:#fff3e0;color:#b85c00;border-color:#f0c070}
+
+/* PAGE */
+.page{max-width:560px;margin:0 auto;padding:1.75rem 1.25rem 5rem}
+
+/* URGENCY BANNER */
+.urgency-banner{background:var(--surface);border:2px solid rgba(26,140,58,.25);border-radius:14px;padding:1.1rem 1.25rem;margin-bottom:1.25rem;overflow:hidden;position:relative}
+.urgency-banner::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,140,58,.05) 0%,transparent 60%);pointer-events:none}
+.urgency-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;gap:.75rem}
+.urgency-headline{font-size:15px;font-weight:700;color:var(--dark);line-height:1.3}
+.urgency-pct{font-family:"Nunito",sans-serif;font-size:1.6rem;font-weight:700;color:var(--green);line-height:1;flex-shrink:0}
+.urgency-track{height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:.6rem}
+.urgency-fill{height:10px;border-radius:5px;background:linear-gradient(90deg,#1a8c3a,#22c55e);transition:width .6s ease}
+.urgency-bottom{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.urgency-taken{color:var(--green);font-weight:700}
+.urgency-remain{color:var(--amber);font-weight:700}
+.urgency-deadline{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:.5rem;display:flex;align-items:center;gap:.35rem}
+.urgency-deadline.soon{color:#b85c00;font-weight:700}
+.step-header{margin-bottom:1.5rem}
+h1{font-family:"Nunito",sans-serif;font-size:1.85rem;font-weight:700;color:var(--dark);margin-bottom:.2rem}
+.green-line{width:28px;height:3px;background:var(--green);margin:.4rem 0 .9rem;border-radius:2px}
+.step-sub{font-size:15px;color:var(--muted);font-weight:400;line-height:1.6}
+
+/* STEP INDICATOR */
+.step-indicator{display:flex;align-items:center;margin-bottom:1.6rem}
+.si-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;transition:all .2s;border:2px solid var(--border);background:var(--surface);color:var(--muted)}
+.si-dot.active{border-color:var(--green);background:var(--green);color:#fff}
+.si-dot.done{border-color:var(--green);background:var(--green-light);color:var(--green)}
+.si-line{flex:1;height:2px;background:var(--border);transition:background .2s}
+.si-line.done{background:var(--green)}
+.si-labels{display:flex;justify-content:space-between;margin-top:5px;margin-bottom:1.4rem}
+.si-label{font-size:11.5px;color:#3a5a3e;text-align:center;flex:1;font-weight:600;line-height:1.3}
+.si-label.active{color:var(--green);font-weight:700}
+
+/* EVENT INFO */
+.event-box{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1.4rem;font-size:14.5px;line-height:1.75;display:flex;gap:.75rem;align-items:flex-start}
+.event-icon{font-size:1.2rem;flex-shrink:0}
+
+/* CLOSED */
+.closed-banner{background:#fdf2f2;border:2px solid #e8c0c0;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.4rem;text-align:center}
+.closed-banner h2{font-family:"Nunito",sans-serif;font-size:1.25rem;color:#8a2020;font-weight:700;margin-bottom:.4rem}
+.closed-banner p{font-size:15px;color:#8a2020;line-height:1.65}
+
+/* LAG-KORT */
+.lag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:.5rem}
+.lag-card{background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:1.1rem 1rem;cursor:pointer;transition:all .18s;text-align:center;user-select:none}
+.lag-card:hover{border-color:var(--green);background:var(--green-pale);transform:translateY(-2px)}
+.lag-card.selected{border-color:var(--green);background:var(--green-pale)}
+.lag-card-name{font-size:16px;font-weight:700;color:var(--dark)}
+.lag-card-count{font-size:13px;color:#4a6a4e;margin-top:3px;font-weight:500}
+.lag-card-progress{height:4px;background:var(--border);border-radius:2px;margin-top:.7rem;overflow:hidden}
+.lag-card-bar{height:4px;background:var(--green);border-radius:2px;transition:width .4s ease}
+
+/* LAGLISTAN – URGENCY */
+.lag-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.lag-back-btn{font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:"Outfit",sans-serif;font-weight:500;display:flex;align-items:center;gap:5px;padding:0}
+.lag-back-btn:hover{color:var(--green)}
+.lag-stats-pill{font-size:12px;font-weight:700;padding:3px 11px;border-radius:100px}
+.lag-stats-ok{background:var(--green-light);color:var(--green)}
+.lag-stats-warn{background:var(--amber-light);color:var(--amber)}
+
+.child-list{display:flex;flex-direction:column;gap:7px}
+.child-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border:2px solid var(--border);border-radius:12px;background:var(--surface);cursor:pointer;transition:all .15s;user-select:none;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.child-row:hover:not(.booked){border-color:var(--green);background:var(--green-pale)}
+.child-row.selected{border-color:var(--green);background:var(--green-pale)}
+.child-row.booked{border-color:rgba(26,140,58,.4);background:rgba(26,140,58,.04);cursor:default}
+.child-row.booked:hover{transform:none}
+/* avatar */
+.child-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:"Nunito",sans-serif;transition:all .2s}
+.child-av-neutral{background:#eef3ee;color:var(--muted)}
+.child-av-selected{background:var(--green);color:#fff}
+.child-av-done{background:var(--green);color:#fff}
+.child-info{flex:1;min-width:0}
+.child-name{font-size:15px;font-weight:600;color:var(--dark)}
+.child-status-row{display:flex;align-items:center;gap:6px;margin-top:2px}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.status-dot-green{background:var(--green)}
+.status-dot-gray{background:#c8d4c8}
+.child-status-text{font-size:12.5px;font-weight:500}
+.child-status-text.done{color:var(--green)}
+.child-status-text.pending{color:var(--muted)}
+/* urgency badge */
+.urgency-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;flex-shrink:0}
+.badge-done{background:var(--green-light);color:var(--green)}
+.badge-last{background:#fff0e0;color:#c05000;border:1px solid #f0c080}
+
+/* PASS-LISTA */
+.day-header{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#2a4a2e;padding:.65rem 0 .4rem;border-bottom:2px solid var(--border);margin-bottom:.65rem;display:flex;align-items:center;justify-content:space-between}
+.pass-item{border:2px solid var(--border);border-radius:12px;margin-bottom:8px;background:var(--surface);transition:all .18s;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.pass-item:hover:not(.full) .pass-top{background:var(--surface2)}
+.pass-item.selected{border-color:var(--green)}
+.pass-item.selected .pass-top{background:rgba(26,140,58,.05)}
+.pass-item.full{opacity:.45;pointer-events:none}
+.pass-top{display:flex;align-items:flex-start;gap:11px;padding:13px 14px;cursor:pointer;user-select:none;transition:background .15s}
+.pass-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);margin-top:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .15s}
+.pass-item.selected .pass-radio{border-color:var(--green)}
+.pass-dot{width:10px;height:10px;border-radius:50%;background:var(--green);display:none}
+.pass-item.selected .pass-dot{display:block}
+.pass-body{flex:1;min-width:0}
+.pass-title{font-size:15.5px;color:var(--dark);font-weight:700;line-height:1.3}
+.pass-time{font-size:14px;color:var(--muted);margin-top:2px;font-weight:500}
+.pass-note{font-size:13.5px;color:var(--muted);margin-top:3px;font-style:italic}
+.pass-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.tag{font-size:11.5px;padding:2px 9px;border-radius:100px;font-weight:600}
+.tag-servering{background:#e8f4e8;color:#1a5c24}
+.tag-infotalt{background:#e8eef8;color:#1a2e6a}
+.tag-bygg{background:#f4ede8;color:#6a3010}
+.tag-riv{background:#f0e8f4;color:#4a1060}
+.tag-nattvakt{background:#1a2e1d;color:#9fe0a5}
+/* spots badge */
+.spots{font-size:12px;font-weight:700;border-radius:100px;padding:3px 9px;flex-shrink:0;white-space:nowrap}
+.spots-ok{background:var(--green-light);color:var(--green)}
+.spots-low{background:#fff3e0;color:#b85c00}
+.spots-full{background:#fdf2f2;color:var(--red)}
+
+/* FORM */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:1.2rem 1.3rem;margin-bottom:.85rem}
+.card-label{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#3a5a3e;margin-bottom:.9rem}
+.form-group{margin-bottom:.8rem}
+.form-label{font-size:13.5px;color:#2a4a2e;display:block;margin-bottom:5px;font-weight:600}
+input[type=text],input[type=tel]{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:13px 15px;font-family:"Outfit",sans-serif;font-size:16px;color:var(--text);outline:none;transition:border-color .2s;font-weight:400}
+input:focus{border-color:var(--green);background:var(--surface)}
+input::placeholder{color:#b8c8b8}
+
+/* SELECTED SUMMARY */
+.sel-summary{background:var(--green-pale);border:1.5px solid rgba(26,140,58,.18);border-radius:10px;padding:.9rem 1rem;margin-bottom:.85rem;font-size:14.5px;line-height:1.75}
+.sel-summary strong{color:var(--green)}
+
+/* MSG */
+.msg{padding:12px 15px;border-radius:10px;font-size:15px;margin-bottom:.85rem;border:1.5px solid;line-height:1.6;font-weight:400}
+.msg.ok{background:#f0f8ec;color:#1a5024;border-color:#b0d890}
 .msg.err{background:#fdf2f2;color:#8a2020;border-color:#e8c0c0}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:15px 24px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:all .2s;border:none;width:100%;letter-spacing:.02em;margin-top:.5rem;min-height:44px}
-.btn-primary{background:var(--dark);color:#fff}.btn-primary:hover{background:#2d2820;transform:translateY(-1px)}.btn-primary:disabled{opacity:.5;cursor:default;transform:none}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
-.done-wrap{padding:2rem 0;text-align:center}
-.done-icon{font-size:3.5rem;color:var(--gold);margin-bottom:.75rem}
-.summary-row{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);font-size:15px;gap:12px}
-.summary-row:last-child{border-bottom:none}
-.loading{text-align:center;padding:4rem;color:var(--muted);font-size:15px}
-.spinner{width:22px;height:22px;border:2px solid rgba(184,149,90,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle}
+.msg.info{background:var(--green-light);color:var(--green);border-color:rgba(26,140,58,.22)}
+
+/* BTN */
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:14px 24px;border-radius:100px;font-family:"Outfit",sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;border:none;width:100%;letter-spacing:.01em;margin-top:.25rem;min-height:50px;gap:8px}
+.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:#15752e;transform:translateY(-1px)}.btn-primary:disabled{opacity:.4;cursor:default;transform:none}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--muted);margin-top:.5rem}.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-sm{font-size:14px;padding:10px 20px;min-height:40px}
+
+/* ADD ANOTHER */
+.add-another{display:flex;align-items:center;gap:.65rem;padding:.85rem 1.1rem;border:2px dashed rgba(26,140,58,.3);border-radius:12px;color:var(--green);font-size:15px;font-weight:600;cursor:pointer;transition:all .15s;background:transparent;width:100%;font-family:"Outfit",sans-serif;margin-top:.75rem}
+.add-another:hover{background:var(--green-pale);border-color:var(--green)}
+.add-plus{width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+/* DONE */
+.done-icon{width:68px;height:68px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;color:#fff}
+.conf-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:14.5px;gap:12px}
+.conf-row:last-child{border-bottom:none}
+.conf-label{color:#3a5a3e;font-size:13.5px;min-width:80px;font-weight:600}
+
+/* FEEDBACK */
+.feedback-wrap{margin-top:1.25rem}
+.feedback-title{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:.6rem}
+.stars{display:flex;gap:6px;margin-bottom:.75rem}
+.star{font-size:1.8rem;cursor:pointer;transition:transform .1s;filter:grayscale(1);opacity:.4;user-select:none}
+.star.active{filter:none;opacity:1}
+.star:hover{transform:scale(1.15)}
+
+.staffing-scale{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.scale-end{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap}
+.scale-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:var(--bg);cursor:pointer;transition:all .15s;padding:0}
+.scale-dot:hover{border-color:var(--green);transform:scale(1.1)}
+.scale-dot.active{background:var(--green);border-color:var(--green);box-shadow:0 0 0 3px rgba(26,140,58,.15)}
+textarea.feedback-text{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:12px 14px;font-family:"Outfit",sans-serif;font-size:15px;color:var(--text);outline:none;resize:none;min-height:80px;transition:border-color .2s;font-weight:400}
+textarea.feedback-text:focus{border-color:var(--green);background:var(--surface)}
+
+/* LOADING */
+.loading{text-align:center;padding:3.5rem;color:var(--muted);font-size:15px}
+.spinner{width:20px;height:20px;border:2.5px solid rgba(26,140,58,.15);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.slide-down{animation:slideDown .22s ease}
+.pop-in{animation:popIn .2s ease}
+
 @media(max-width:600px){
   body{font-size:17px}
-  .page{padding:1.5rem 1rem 4rem}
-  h1{font-size:22px}
-  .nav-logo{font-size:1.4rem}
-  .card-label, label, .nav-rest, .course-sub, .pill, .cal-dn, .linkbox{font-size:14px}
-  .booking-info, .summary-row, .done-wrap p, .closed-banner p, .msg, .course-sub, .meal-desc, .course-title{font-size:17px}
-  .meal-name{font-size:18px}
-  .meal-desc{font-size:17px}
-  .meal-top{padding:16px 18px;min-height:50px}
-  .btn, .btn-primary, .btn-outline{font-size:17px;min-height:50px;padding:14px 22px}
-  .meal-comment-wrap textarea::placeholder{color:#a09080;opacity:1}
-.meal-comment-wrap textarea{font-size:17px}
-  .meal-comment-wrap{padding:0 12px 12px 44px}
-  .page p{font-size:17px !important}
-  .booking-info{font-size:17px !important}
-  .closed-banner h2{font-size:22px}
-  .closed-banner p{font-size:17px}
-  .summary-row{font-size:17px}
-  input,textarea,select{font-size:16px}
+  .page{padding:1.4rem 1rem 4rem}
+  h1{font-size:1.65rem}
+  .lag-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+  .btn{font-size:16.5px;min-height:52px}
+  input{font-size:16px}
+  .step-indicators{gap:.5rem}
+  .si-label{font-size:10px}
+  .si-dot{width:24px;height:24px;font-size:11px}
+  .urgency-banner{padding:.85rem 1rem}
+  .urgency-pct{font-size:1.3rem}
+  .urgency-headline{font-size:13.5px}
+  .pass-item .pass-top{padding:.75rem .85rem}
+  .pass-title{font-size:14.5px}
+  .child-row{padding:10px 12px}
+  .topbar{padding:.75rem 1rem}
+  .topbar-title{font-size:15px}
+  .spots{font-size:11px;padding:3px 9px}
+  .conf-row{flex-direction:column;gap:.25rem}
 }
+.lp-green{color:#22c55e !important;letter-spacing:0;font-size:inherit;display:inline}
+@media(max-width:900px){input,select,textarea{font-size:16px !important}}
 </style>
+<script>
+// iOS Safari 100vh fix
+function setVH(){document.documentElement.style.setProperty('--vh',window.innerHeight*.01+'px');}
+setVH(); window.addEventListener('resize',setVH);
+</script>
 </head>
 <body>
+
 <nav class="nav">
-  <div id="rest-logo-wrap" style="display:none"><img id="rest-logo-img" style="height:40px;width:auto;object-fit:contain"></div>
-  <div id="rest-logo-placeholder" class="nav-logo" id="rest-name-fallback"></div>
-  <div class="nav-rest" id="navRest"></div>
+  <div id="club-logo-wrap" style="display:none"><img id="club-logo-img" style="height:36px;width:auto;object-fit:contain"></div>
+  <a id="club-name-fallback" href="https://lagpasset.se" class="nav-logo" style="display:flex;align-items:center;gap:.35rem;font-size:1.35rem"></a>
+  <div class="nav-right">
+    <div class="nav-club" id="navClub"></div>
+    <div id="deadlinePill" style="display:none" class="deadline-pill"></div>
+  </div>
 </nav>
 
 <div class="page">
   <div id="loadingState" class="loading"><span class="spinner"></span> Laddar...</div>
   <div id="errorState" style="display:none" class="msg err"></div>
-  <div id="mainContent" style="display:none">
 
-    <!-- STÄNGD BANNER -->
+  <div id="mainContent" style="display:none">
     <div id="closedBanner" style="display:none" class="closed-banner">
-      <h2>Beställningstiden har passerat</h2>
-      <p id="closedMsg">Kontakta restaurangen för att göra ändringar.</p>
+      <h2>Anmälningstiden har passerat</h2>
+      <p id="closedMsg"></p>
+    </div>
+
+    <!-- STEG-INDIKATOR -->
+    <div class="step-indicator" id="stepIndicator">
+      <div class="si-dot active" id="sd1">1</div>
+      <div class="si-line" id="sl1"></div>
+      <div class="si-dot" id="sd2">2</div>
+    </div>
+    <div class="si-labels" id="siLabels">
+      <span class="si-label active" id="sl-1">Välj pass</span>
+      <span class="si-label" id="sl-2">Dina uppgifter</span>
     </div>
 
     <div id="guestMsg" style="display:none" class="msg"></div>
 
-    <!-- FORMULÄR -->
-    <div id="formWrap">
-      <h1>Välkommen!</h1>
-      <div class="gold-line"></div>
-      <p id="guestGreeting" style="font-size:15px;color:var(--muted);line-height:1.7;margin:0 0 1.1rem"></p>
-      <div class="booking-info" id="bookingInfo"></div>
-
-      <!-- KONTAKTPERSON: tydlig rubrik (visas i kontaktläge) -->
-      <div id="contactHeader" style="display:none;background:var(--dark);border:1px solid var(--gold);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1.25rem">
-        <div style="font-size:11px;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:.4rem">⭐ Kontaktperson</div>
-        <div style="font-size:16px;color:#f4ece0;font-weight:500;margin-bottom:.3rem">Fyll i för hela sällskapet</div>
-        <div style="font-size:13px;color:#cdbfa8;line-height:1.6">Ange hur många i sällskapet som vill ha varje rätt. Du gör allas val på en gång.</div>
+    <!-- STEG 1: VÄLJ PASS (direkt – personlig länk) -->
+    <div id="step1">
+      <div class="step-header">
+        <h1 id="step1Title">Välj ditt pass</h1>
+        <div class="green-line"></div>
+        <p class="step-sub" id="step1Sub"></p>
       </div>
+      <div class="event-box" id="eventBox"><span class="event-icon">🏆</span><span id="eventInfo"></span></div>
 
-      <div id="singleWrap">
-        <div class="card">
-          <div class="card-label">Ditt namn</div>
-          <input type="text" id="guestName" placeholder="Förnamn och efternamn" autocomplete="name" onblur="checkExisting()">
+      <!-- URGENCY BANNER -->
+      <div class="urgency-banner" id="urgencyBanner">
+        <div class="urgency-top">
+          <div class="urgency-headline" id="urgencyHeadline">Passen fylls på – välj ditt favoritpass nu</div>
+          <div class="urgency-pct" id="urgencyPct">–</div>
         </div>
-        <div id="existingNotice" style="display:none" class="msg ok"></div>
-        <div id="courseWrap"></div>
-        <div id="guestMsgBottom" style="display:none" class="msg err"></div>
-        <button class="btn btn-primary" id="submitBtn" onclick="submitOrder()">Skicka beställning</button>
-        <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:.75rem;line-height:1.6">Vill du ändra? Öppna länken igen och skriv ditt namn.</p>
-        <p id="backToBulkLink" style="display:none;font-size:12px;color:var(--muted);text-align:center;margin-top:.5rem">Är du kontaktperson? <a href="#" onclick="showBulk();return false;" style="color:var(--gold)">Fyll i för hela sällskapet</a></p>
-      </div>
-
-      <!-- KONTAKTPERSON: bulk-vy -->
-      <div id="bulkWrap" style="display:none">
-        <div id="bulkInfoBox" style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">
-          <strong style="color:var(--dark)">Tips:</strong> lägg in gäster med specialkost <strong style="font-weight:500;color:var(--dark)">först</strong> – sätt antal 1, skriv namn + specialkost och spara. Fyll sedan i resten av sällskapet.
+        <div class="urgency-track"><div class="urgency-fill" id="urgencyFill" style="width:0%"></div></div>
+        <div class="urgency-bottom">
+          <span class="urgency-taken" id="urgencyTaken">–</span>
+          <span class="urgency-remain" id="urgencyRemain">–</span>
         </div>
-        <div id="bulkCourseWrap"></div>
-        <button class="btn btn-primary" id="bulkSubmitBtn" onclick="submitBulk()">Spara för sällskapet</button>
-        <div id="bulkMsg" style="display:none;margin-top:.75rem" class="msg"></div>
+        <div class="urgency-deadline" id="urgencyDeadline"></div>
       </div>
 
+      <div id="alreadyBooked" style="display:none" class="msg info"></div>
+      <div id="passListWrap"></div>
+      <div id="confirmBar" style="display:none;position:fixed;bottom:1.25rem;left:50%;transform:translateX(-50%);width:calc(100% - 2rem);max-width:500px;background:#fff;border:2px solid var(--green);border-radius:14px;padding:.9rem 1.25rem;box-shadow:0 4px 24px rgba(26,140,58,.25);flex-direction:row;align-items:center;justify-content:space-between;gap:1rem;z-index:999">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--dark)" id="confirmBarTitle">Du har valt ett pass</div>
+          <div style="font-size:13px;color:var(--muted)" id="confirmBarSub"></div>
+        </div>
+        <button class="btn btn-primary" style="white-space:nowrap;padding:10px 22px;flex-shrink:0" onclick="confirmShiftAndProceed()">Välj detta pass →</button>
+      </div>
+      <div id="noPassMsg" style="display:none" class="msg err">Inga pass hittades. Kontakta föreningen.</div>
     </div>
 
-    <!-- BEKRÄFTELSE -->
-    <div id="doneWrap" style="display:none" class="done-wrap">
-      <div class="done-icon">✓</div>
-      <h1>Tack!</h1>
-      <div class="gold-line" style="margin:.5rem auto 1.25rem"></div>
-      <p style="color:var(--muted);font-size:15px;margin-bottom:.5rem">Din beställning är sparad.</p>
-      <div id="doneTimestamp" style="font-size:13px;color:var(--muted);margin-bottom:1.5rem"></div>
-      <div class="card" style="text-align:left"><div class="card-label">Din beställning</div><div id="confirmSummary"></div></div>
-      <div style="background:rgba(184,149,90,.07);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-top:1rem;font-size:14px;line-height:1.7;text-align:left">
-        <strong style="color:var(--dark)">Vill du ändra din beställning?</strong><br>
-        <span style="color:var(--muted)">Öppna samma länk igen, skriv ditt namn och skicka om. Du kan ändra fram till sista beställningsdagen.</span>
+    <!-- STEG 2: UPPGIFTER -->
+    <div id="step2" style="display:none" class="slide-down">
+      <div class="step-header">
+        <div class="lag-list-header">
+          <button class="lag-back-btn" onclick="goToStep1()">← Ändra pass</button>
+        </div>
+        <h1>Dina uppgifter</h1>
+        <div class="green-line"></div>
       </div>
-      <button class="btn btn-outline" style="margin-top:.75rem" onclick="editOrder()">← Ändra min beställning nu</button>
+      <div class="sel-summary" id="selSummary"></div>
+      <div class="card">
+        <div class="card-label">Kontaktuppgifter – förälder/ledare</div>
+        <div class="form-group">
+          <label class="form-label">Ditt namn</label>
+          <input type="text" id="parentName" placeholder="Förnamn och efternamn" autocomplete="name">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Ditt telefonnummer</label>
+          <input type="tel" id="parentPhone" placeholder="07X XXX XX XX" autocomplete="tel">
+        </div>
+      </div>
+      <div id="msgBottom" style="display:none" class="msg err"></div>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitBooking()">Välj det här passet ✓</button>
+      <button class="btn btn-outline" onclick="goToStep1()">← Ändra pass</button>
+      <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:.8rem;line-height:1.6">Öppna länken igen och välj barnets namn om du vill ändra.</p>
+    </div>
+  </div>
+
+  <!-- BEKRÄFTELSE -->
+  <div id="doneWrap" style="display:none" class="slide-down">
+    <div style="text-align:center;padding:1.75rem 0 1.5rem">
+      <div style="font-size:3rem;margin-bottom:.3rem">⭐</div>
+      <h1>Du är en stjärna!</h1>
+      <div class="green-line" style="margin:.4rem auto .9rem"></div>
+      <p style="color:var(--muted);font-size:15px;margin-bottom:.3rem;line-height:1.55">Tack för att du hjälper till. Ditt pass är valt – det betyder mycket för cupen.</p>
+      <div id="doneTimestamp" style="font-size:13px;color:var(--muted);margin-bottom:1.4rem;font-weight:500"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:.75rem">
+      <div class="card-label">Din bokning</div>
+      <div id="confirmSummary"></div>
+    </div>
+
+    <!-- ÄNDRA PASS – tydlig -->
+    <div style="background:var(--green-pale);border:1.5px solid rgba(26,140,58,.2);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:.75rem;text-align:center">
+      <div style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:.3rem">Vill du ändra ditt pass?</div>
+      <p style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:.9rem">Du kan byta pass fram till sista anmälningsdag – så ofta du vill.</p>
+      <button class="btn btn-primary" style="width:auto;padding:11px 28px" onclick="editBooking()">Byt pass</button>
+      <div style="margin-top:.85rem;padding-top:.85rem;border-top:1px solid rgba(26,140,58,.15)">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.6rem;line-height:1.55">Förhinder? Försök hitta en ersättare – er insats betyder så mycket!</p>
+        <button class="btn btn-outline btn-sm" style="width:auto;padding:9px 20px" onclick="openTransferModal()">Ange ersättare</button>
+      </div>
+      <div style="margin-top:.85rem;padding-top:.85rem;border-top:1px solid rgba(26,140,58,.15)">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.6rem;line-height:1.55">Blivit sjuk/fått förhinder, hittar inte ersättare och kan inte hjälpa till?</p>
+        <button class="btn btn-outline btn-sm" style="width:auto;padding:9px 20px;color:#c0392b;border-color:rgba(192,57,43,.3)" onclick="openSickReport()">Anmäl förhinder</button>
+      </div>
+    </div>
+
+    <!-- ÖVERLÅT PASS-MODAL -->
+    <div id="transferModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem">
+      <div style="background:#fff;border-radius:16px;padding:1.5rem;max-width:400px;width:100%">
+        <div style="font-size:17px;font-weight:700;color:var(--dark);margin-bottom:.4rem">Skicka vidare till ersättare</div>
+        <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:1rem">Ange ersättarens namn och telefonnummer. Passet uppdateras direkt.</p>
+        <div class="form-group">
+          <label class="form-label">Ersättarens namn</label>
+          <input type="text" id="transferName" placeholder="Förnamn Efternamn" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;box-sizing:border-box">
+        </div>
+        <div class="form-group" style="margin-top:.75rem">
+          <label class="form-label">Ersättarens telefon</label>
+          <input type="tel" id="transferPhone" placeholder="070-123 45 67" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;box-sizing:border-box">
+        </div>
+        <div class="form-group" style="margin-top:.75rem">
+          <label class="form-label">Ersättarens e-post (valfritt)</label>
+          <input type="email" id="transferEmail" placeholder="ersattare@email.se" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;box-sizing:border-box">
+        </div>
+        <div id="transferMsg" style="display:none;font-size:13px;padding:.5rem .75rem;border-radius:8px;margin-top:.5rem"></div>
+        <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem">
+          <button class="btn btn-ghost btn-sm" onclick="closeTransferModal()">Avbryt</button>
+          <button class="btn btn-primary btn-sm" onclick="submitTransfer()">Spara ersättare</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SJUKANMÄLAN-MODAL (inline) -->
+    <div id="sickModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem">
+      <div style="background:#fff;border-radius:16px;padding:1.5rem;max-width:400px;width:100%">
+        <div style="font-size:17px;font-weight:700;color:var(--dark);margin-bottom:.4rem">Anmäl förhinder</div>
+        <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:1rem">Ansvarig meddelas direkt och passet blir ledigt igen så att någon annan kan ta det. Tack för att du säger till i tid!</p>
+        <div class="form-group">
+          <label class="form-label">Anledning (valfritt)</label>
+          <textarea id="sickReason" class="feedback-text" placeholder="Ex. sjuk, jobbet krockar..." style="min-height:60px"></textarea>
+        </div>
+        <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.5rem">
+          <button class="btn btn-ghost btn-sm" onclick="closeSickReport()">Avbryt</button>
+          <button class="btn btn-primary btn-sm" style="background:#c0392b" onclick="submitSickReport()">Anmäl förhinder</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO OM FEEDBACK EFTER PASS -->
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:.9rem 1.1rem;font-size:13.5px;color:var(--muted);line-height:1.65;display:flex;gap:.6rem;align-items:flex-start">
+      <span style="font-size:1.1rem;flex-shrink:0">📩</span>
+      <span>När ditt pass är avslutat får du ett mejl där du kan lämna en kort feedback om hur det gick. Det hjälper föreningen att planera ännu bättre nästa gång.
+      <a href="#" onclick="showFeedbackPreview();return false;" id="feedbackPreviewLink" style="display:none;color:var(--green);font-weight:600;text-decoration:none;white-space:nowrap"> Se hur feedbacken ser ut →</a></span>
+    </div>
+
+    <!-- VANLIGA FRÅGOR (utfällbar) -->
+    <div class="card" style="margin-top:.75rem">
+      <div class="card-label">Vanliga frågor</div>
+      <div id="faqAccordion" style="margin-top:.4rem;display:flex;flex-direction:column;gap:.4rem"></div>
+    </div>
+
+    <!-- HAR DU EN FRÅGA? -->
+    <div class="card" style="margin-top:.75rem">
+      <div class="card-label">Hittar du inte svaret?</div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:.9rem;line-height:1.6">Frågor om pass och schema går till schemaansvarig. Gäller frågan ett specifikt område kan du välja det i listan.</p>
+      <div class="form-group" style="margin-bottom:.9rem">
+        <label class="form-label">Vad gäller frågan?</label>
+        <select id="questionArea" onchange="updateContactCard()"></select>
+      </div>
+      <div id="contactCard"></div>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
-const SUPABASE_URL='https://gndzalmkbsfhclpoidqi.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduZHphbG1rYnNmaGNscG9pZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NDAxODcsImV4cCI6MjA5NTAxNjE4N30.Om9UOmTFR8CZZKu5qyiu1YImGdVxzI3KtlgukUV3Q-s';
-const {createClient}=supabase;
-const db=createClient(SUPABASE_URL,SUPABASE_KEY);
+<!-- FEEDBACK-VY (nås via mejllänk efter passet: ?feedback=1) -->
+<div id="feedbackWrap" style="display:none" class="slide-down">
+  <div id="feedbackDemoBanner" style="display:none;background:#fff8e0;border:1.5px solid rgba(232,160,32,.35);border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;font-size:13px;color:#8a6516;line-height:1.5;text-align:center">
+    🔍 <strong>Förhandsvisning</strong> – så här ser feedbacken ut. I verkligheten får medlemmen den via mejl direkt efter att passet avslutats.
+  </div>
+  <div style="text-align:center;padding:0 0 .35rem;margin-top:-.5rem">
+    <div style="font-size:1.6rem;margin-bottom:.15rem">🙌</div>
+    <h1 style="font-size:1.3rem;margin:.1rem 0 .25rem">Tack för din insats!</h1>
+    <p style="color:var(--muted);font-size:14px;line-height:1.45;margin:0">Berätta hur vi kan bli bättre</p>
+  </div>
 
-const params=new URLSearchParams(location.search);
-const SLUG=params.get('r');
-const BID=params.get('b');
-const IS_CONTACT=params.get('k')==='1';
-let restaurant=null,booking=null,categories=[],gSel={},gComments={},existingOrderId=null,isClosed=false,menuPrice=null,userPicked=false;
-
-async function init(){
-  if(!SLUG||!BID){
-    document.getElementById('loadingState').style.display='none';
-    document.getElementById('errorState').innerHTML='<div style="text-align:center;padding:3rem 1.5rem"><div style="font-size:1.8rem;color:var(--dark);margin-bottom:.5rem;font-weight:400">Välkommen till PreMeny</div><div style="width:32px;height:1px;background:var(--gold);margin:.5rem auto 1rem;opacity:.7"></div><p style="font-size:15px;color:var(--muted);line-height:1.7;max-width:400px;margin:0 auto 1.5rem">Den här sidan används för att förbeställa mat inför ett sällskap. Du behöver en personlig länk från din restaurang eller kontaktperson.</p><a href="https://premeny.se" style="display:inline-block;background:var(--dark);color:#fff;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:500;text-decoration:none">Läs mer om PreMeny</a></div>';
-    document.getElementById('errorState').style.display='block';
-    return;
-  }
-  try{
-    const {data:rest,error:e1}=await db.from('restaurants').select('*').eq('slug',SLUG).single();
-    if(e1||!rest){showError('Restaurangen hittades inte.');return;}
-    restaurant=rest;
-    document.documentElement.style.setProperty('--gold',rest.accent_color||'#b8955a');
-    document.getElementById('navRest').textContent=rest.name;
-    if(rest.logo_url){
-      document.getElementById('rest-logo-img').src=rest.logo_url;
-      document.getElementById('rest-logo-wrap').style.display='block';
-      document.getElementById('rest-logo-placeholder').style.display='none';
-    } else {
-      document.getElementById('rest-logo-placeholder').textContent=rest.name;
-    }
-    document.title=rest.name+' – Förbeställning';
-
-    const {data:book,error:e2}=await db.from('bookings').select('*').eq('id',BID).eq('restaurant_id',rest.id).single();
-    if(e2||!book){showError('Bokningen hittades inte.');return;}
-    booking=book;
-
-    const today=new Date();today.setHours(0,0,0,0);
-    const dl=book.deadline?new Date(book.deadline+'T23:59:59'):null;
-    const isDemo=rest&&rest.slug==='demo';
-    isClosed=isDemo?false:(dl&&today>dl);
-
-    const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-    const d=new Date(book.event_date);
-    const dateStr=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-    let info='<strong>'+book.name+'</strong> – '+dateStr+(book.event_type?' – <span style="color:var(--gold)">'+book.event_type+'</span>':'')+(book.event_time?' kl '+book.event_time.slice(0,5):'');
-    if(dl&&!isClosed&&!isDemo){
-      const dlStr=dl.getDate()+' '+months[dl.getMonth()];
-      info+='<br><span style="color:#8a7020;font-size:14px">⏱ Svara gärna så snart du kan – senast '+dlStr+'</span>';
-    }
-    document.getElementById('bookingInfo').innerHTML=info;
-    var fullMonths=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
-    var greetDate=d.getDate()+' '+fullMonths[d.getMonth()];
-    var greetEl=document.getElementById('guestGreeting');
-    if(greetEl){
-      if(isClosed){greetEl.innerHTML='Inför <strong>'+book.name+'</strong> den '+greetDate+'.';}
-      else{greetEl.innerHTML='Inför <strong>'+book.name+'</strong> den '+greetDate+' vill vi gärna veta vad du önskar äta. Tack för att du fyller i nedan.';}
-    }
-
-    if(isClosed){
-      // Bygg kontaktmeddelande med restaurangens info
-      let contactMsg='Kontakta <strong>'+rest.name+'</strong>';
-      if(rest.phone) contactMsg+=' på <a href="tel:'+rest.phone+'" style="color:var(--red);font-weight:500">'+rest.phone+'</a>';
-      if(rest.contact_email) contactMsg+=' eller <a href="mailto:'+rest.contact_email+'" style="color:var(--red)">'+rest.contact_email+'</a>';
-      contactMsg+=' för att göra ändringar.';
-      document.getElementById('closedMsg').innerHTML=contactMsg;
-      document.getElementById('closedBanner').style.display='block';
-      document.getElementById('submitBtn').disabled=true;
-      document.getElementById('submitBtn').textContent='Beställning stängd';
-    }
-
-    // Load menu - use booking's specific menu if set, otherwise restaurant's first menu
-    let catsQuery;
-    if(book.menu_id){
-      catsQuery=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',book.menu_id).order('sort_order');
-      const {data:_mrow}=await db.from('menus').select('price').eq('id',book.menu_id).single();
-      if(_mrow)menuPrice=_mrow.price;
-    } else {
-      // Fallback: load first menu or all categories for restaurant
-      const {data:firstMenu}=await db.from('menus').select('id,price').eq('restaurant_id',rest.id).order('created_at').limit(1).single();
-      if(firstMenu){
-        menuPrice=firstMenu.price;
-        catsQuery=await db.from('menu_categories').select('*, menu_items(*)').eq('menu_id',firstMenu.id).order('sort_order');
-      } else {
-        catsQuery=await db.from('menu_categories').select('*, menu_items(*)').eq('restaurant_id',rest.id).order('sort_order');
-      }
-    }
-    const {data:cats}=catsQuery;
-    categories=(cats||[]).map(c=>({...c,menu_items:(c.menu_items||[]).filter(i=>i.active).sort((a,b)=>a.sort_order-b.sort_order)})).filter(c=>c.menu_items.length>0);
-    categories.forEach(c=>{gSel[c.id]=null;c.menu_items.forEach(i=>{gComments[i.id]='';});});
-    buildMenu();
-    if(IS_CONTACT && !isClosed){
-      document.getElementById('contactHeader').style.display='block';
-      document.getElementById('singleWrap').style.display='none';
-      const greetEl2=document.getElementById('guestGreeting');
-      if(greetEl2)greetEl2.style.display='none';
-      document.getElementById('bulkWrap').style.display='block';
-      await loadBulkEdit();
-    }
-    document.getElementById('loadingState').style.display='none';
-    document.getElementById('mainContent').style.display='block';
-  }catch(err){showError('Något gick fel: '+err.message);}
-}
-
-function buildMenu(){
-  const wrap=document.getElementById('courseWrap');
-  if(!categories.length){wrap.innerHTML='<p style="color:var(--muted);padding:1rem 0">Ingen meny inlagd ännu.</p>';return;}
-  var _priceBanner=(menuPrice&&booking&&booking.show_prices!==false)?`<div style="background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.35);border-radius:10px;padding:.7rem 1rem;margin-bottom:1.25rem;font-size:15px;color:var(--text)">Pris: <span style="font-weight:500;color:var(--gold)">${menuPrice} kr</span></div>`:'';
-  wrap.innerHTML=_priceBanner+categories.map(cat=>`
-    <div class="course-section">
-      <div class="course-title">${cat.label}</div>
-      <div class="course-sub">Välj ett alternativ – eller hoppa över</div>
-      <div class="meal skip${gSel[cat.id]===null?' selected':''}" id="skip_${cat.id}" onclick="pick('${cat.id}',null)">
-        <div class="meal-top">
-          <div class="radio"><div class="dot"></div></div>
-          <div class="meal-body"><div class="meal-name" style="color:var(--muted);font-size:15px">Hoppa över</div></div>
+  <div class="card">
+    <div id="feedbackForm">
+      <div class="form-group">
+        <label class="form-label">Hur var personalstyrkan på ditt pass?</label>
+        <div class="staffing-scale" id="staffingScale">
+          <span class="scale-end">För få</span>
+          <button type="button" class="scale-dot" data-val="1" onclick="setStaffing(1,this)" title="Klart för få"></button>
+          <button type="button" class="scale-dot" data-val="2" onclick="setStaffing(2,this)" title="Lite för få"></button>
+          <button type="button" class="scale-dot" data-val="3" onclick="setStaffing(3,this)" title="Lagom"></button>
+          <button type="button" class="scale-dot" data-val="4" onclick="setStaffing(4,this)" title="Lite för många"></button>
+          <button type="button" class="scale-dot" data-val="5" onclick="setStaffing(5,this)" title="Klart för många"></button>
+          <span class="scale-end">För många</span>
         </div>
       </div>
-      ${cat.menu_items.map((item,i)=>`
-        <div class="meal${gSel[cat.id]===item.id?' selected':''}" id="opt_${cat.id}_${i}">
-          <div class="meal-top" onclick="pick('${cat.id}','${item.id}')">
-            <div class="radio"><div class="dot"></div></div>
-            <div class="meal-body">
-              <div class="meal-name">${item.name}</div>
-              ${item.description?`<div class="meal-desc">${item.description}</div>`:''}
-            </div>
-            ${(item.price&&booking&&booking.show_prices!==false&&!menuPrice)?`<div class="meal-price">${item.price} kr</div>`:''}
-          </div>
-          <div class="meal-comment-wrap" id="cmtwrap_${item.id}">
-            <label>Specialkost för denna rätt (valfritt)</label>
-            <textarea placeholder="" onchange="gComments['${item.id}']=this.value">${gComments[item.id]||''}</textarea>
-          </div>
-        </div>`).join('')}
-    </div>`).join('');
-}
+      <div class="feedback-title" style="margin-top:.75rem">Hur fungerade passet överlag?</div>
+      <div class="stars" id="stars">
+        <span class="star" onclick="setStar(1)">⭐</span>
+        <span class="star" onclick="setStar(2)">⭐</span>
+        <span class="star" onclick="setStar(3)">⭐</span>
+        <span class="star" onclick="setStar(4)">⭐</span>
+        <span class="star" onclick="setStar(5)">⭐</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Vad fungerade bra?</label>
+        <textarea class="feedback-text" id="feedbackGood" placeholder="Ex. bra upplägg, lagom bemanning..."></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:.9rem">
+        <label class="form-label">Vad kan förbättras till nästa gång?</label>
+        <textarea class="feedback-text" id="feedbackImprove" placeholder="Ex. behövdes fler händer, varor tog slut, oklara instruktioner..."></textarea>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 .75rem">🔒 Din feedback är anonym – föreningen ser aldrig vem som svarat vad.</p>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;margin:0 0 1rem">
+        <p style="font-size:12.5px;color:#6a8a6e;line-height:1.55;margin:0">LagPasset utvecklas tillsammans med en förälder i Åsa IF och är gratis för vår förening. Lämna feedback och hjälp oss göra både systemet och Åsacupen bättre framöver. 🙌</p>
+      </div>
+      <button class="btn btn-primary" style="width:auto;padding:11px 28px" onclick="submitFeedback()">Skicka feedback</button>
+    </div>
+    <div id="feedbackDone" style="display:none">
+      <div class="msg ok" style="margin-bottom:1rem">Tack för din feedback! Det hjälper oss att bli bättre till nästa gång.</div>
+      <div id="volunteerBlock" style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:1.25rem 1.3rem">
+        <div style="font-size:1.3rem;margin-bottom:.4rem">🙋</div>
+        <p style="font-size:15px;font-weight:700;color:var(--dark);line-height:1.5;margin:0 0 .75rem">🙌 Inför Åsacupen nästa år behöver vi bli fler som hjälps åt att planera!</p>
+        <p style="font-size:13.5px;color:var(--text);line-height:1.6;margin:0 0 1rem">Kan du tänka dig att vara med? Lämna ditt namn och telefonnummer så hör vi av oss så vi kan prata vidare.</p>
+        <div class="form-group" style="margin-bottom:.75rem">
+          <label class="form-label">Namn</label>
+          <input type="text" id="volunteerName" class="form-input" placeholder="Ditt namn">
+        </div>
+        <div class="form-group" style="margin-bottom:.9rem">
+          <label class="form-label">Telefon</label>
+          <input type="tel" id="volunteerPhone" class="form-input" placeholder="07X XXX XX XX">
+        </div>
+        <div class="form-group" style="margin-bottom:.9rem">
+          <label class="form-label">Vad kan du tänka dig att hjälpa till med? <span style="font-weight:400;color:var(--muted)">(frivilligt)</span></label>
+          <textarea id="volunteerRole" class="form-input" rows="3" placeholder="T.ex. planering, tidtagning, servering..." style="resize:vertical"></textarea>
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" style="padding:10px 24px" onclick="submitVolunteer()">Ja, jag vill vara med!</button>
+          <button class="btn btn-ghost btn-sm" onclick="skipVolunteer()">Nej tack</button>
+        </div>
+        <div id="volunteerDone" style="display:none;margin-top:.75rem;font-size:13.5px;color:var(--green);font-weight:600">✓ Tack! Vi hör av oss inför nästa år.</div>
+        <div id="volunteerErr" style="display:none;margin-top:.75rem;font-size:13px;color:var(--red)"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-function pick(catId,itemId){
-  userPicked=true;
-  gSel[catId]=itemId;
-  const cat=categories.find(c=>c.id===catId);
-  if(!cat)return;
-  document.getElementById('skip_'+catId)?.classList.toggle('selected',itemId===null);
-  cat.menu_items.forEach((item,i)=>{
-    document.getElementById('opt_'+catId+'_'+i)?.classList.toggle('selected',gSel[catId]===item.id);
-  });
-}
-
-async function checkExisting(){
-  const name=document.getElementById('guestName').value.trim().toLowerCase();
-  if(!name||!BID)return;
-  const {data:ex}=await db.from('orders').select('*, order_items(*)').eq('booking_id',BID).ilike('guest_name',name).maybeSingle();
-  const notice=document.getElementById('existingNotice');
-  if(ex){
-    existingOrderId=ex.id;
-    notice.style.display='block';
-    notice.textContent='✓ Du har redan beställt. Gör ändringar nedan och skicka om.';
-    // Förfyll bara den tidigare beställningen om gästen inte redan börjat välja själv
-    if(!userPicked){
-      categories.forEach(cat=>{
-        const oi=(ex.order_items||[]).find(o=>o.category_id===cat.id);
-        gSel[cat.id]=oi?oi.menu_item_id:null;
-        if(oi)gComments[oi.menu_item_id]=oi.comment||'';
-      });
-      buildMenu();
-    }
-  }else{
-    notice.style.display='none';
-    // Rensa bara om vi laddat någon annans beställning OCH gästen inte redan valt själv
-    if(existingOrderId&&!userPicked){
-      categories.forEach(c=>{gSel[c.id]=null;c.menu_items.forEach(i=>{gComments[i.id]='';});});
-      buildMenu();
-    }
-    existingOrderId=null;
-  }
-}
-
-async function submitOrder(){
-  if(isClosed)return;
-  const name=document.getElementById('guestName').value.trim();
-  const msg=document.getElementById('guestMsg');
-  const msgBottom=document.getElementById('guestMsgBottom');
-  function showErr(txt){
-    msg.style.display='block';msg.className='msg err';msg.textContent=txt;
-    if(msgBottom){msgBottom.style.display='block';msgBottom.textContent=txt;}
-    msg.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }
-  if(!name){showErr('Ange ditt namn.');document.getElementById('guestName').focus();return;}
-  if(!categories.some(c=>gSel[c.id]!==null)){showErr('Välj minst en rätt.');return;}
-  if(msgBottom)msgBottom.style.display='none';
-  const btn=document.getElementById('submitBtn');
-  btn.disabled=true;btn.textContent='Sparar...';
-  try{
-    categories.forEach(cat=>{
-      const selId=gSel[cat.id];
-      if(selId===null)return; // Hoppa över = ingen kommentar att spara
-      const ta=document.querySelector('#cmtwrap_'+selId+' textarea');
-      if(ta)gComments[selId]=ta.value;
+<script>
+// Visa feedback-vyn om man kommer via mejllänk (?feedback=1)
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const isDemo = !params.get('token'); // riktig version har token i URL
+  if(params.get('feedback')==='1'){
+    window.addEventListener('DOMContentLoaded',()=>{
+      const main = document.getElementById('mainContent');
+      const done = document.getElementById('doneWrap');
+      const si = document.getElementById('stepIndicator');
+      const sil = document.getElementById('siLabels');
+      if(main) main.style.display='none';
+      if(done) done.style.display='none';
+      if(si) si.style.display='none';
+      if(sil) sil.style.display='none';
+      const fb = document.getElementById('feedbackWrap');
+      if(fb) fb.style.display='block';
     });
-    let orderId=existingOrderId;
-    if(orderId){
-      await db.from('orders').update({guest_name:name,updated_at:new Date().toISOString()}).eq('id',orderId);
-      await db.from('order_items').delete().eq('order_id',orderId);
-    }else{
-      const {data:o}=await db.from('orders').insert({booking_id:BID,restaurant_id:restaurant.id,guest_name:name}).select().single();
-      orderId=o.id;
-    }
-    const items=categories.filter(c=>gSel[c.id]).map(c=>({order_id:orderId,menu_item_id:gSel[c.id],category_id:c.id,comment:gComments[gSel[c.id]]||''}));
-    if(items.length)await db.from('order_items').insert(items);
-    let summary='';
-    categories.forEach(cat=>{
-      if(gSel[cat.id]){
-        const item=cat.menu_items.find(i=>i.id===gSel[cat.id]);
-        if(item)summary+=`<div class="summary-row"><div><div>${item.name}</div>${gComments[gSel[cat.id]]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${gComments[gSel[cat.id]]}</div>`:''}</div>${(item.price&&booking&&booking.show_prices!==false&&!menuPrice)?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
-      }
-    });
-    document.getElementById('confirmSummary').innerHTML=summary;
-    // Show timestamp
-    const now=new Date();
-    const ts=now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    const tsEl=document.getElementById('doneTimestamp');
-    if(tsEl)tsEl.textContent='Skickad '+ts;
-    document.getElementById('formWrap').style.display='none';
-    document.getElementById('doneWrap').style.display='block';
-    msg.style.display='none';
-  }catch(err){
-    msg.style.display='block';msg.className='msg err';msg.textContent='Fel: '+err.message;
-    btn.disabled=false;btn.textContent='Skicka beställning';
   }
-}
+  // I demo: visa länken "Se hur feedbacken ser ut"
+  if(isDemo){
+    window.addEventListener('DOMContentLoaded',()=>{
+      const link = document.getElementById('feedbackPreviewLink');
+      if(link) link.style.display='inline';
+    });
+  }
+})();
 
-function editOrder(){
+// Demo: visa feedback-vyn som förhandsvisning
+function showFeedbackPreview(){
   document.getElementById('doneWrap').style.display='none';
-  document.getElementById('formWrap').style.display='block';
-  // Återställ knappen
-  const btn=document.getElementById('submitBtn');
-  btn.disabled=false;btn.textContent='Skicka beställning';
-  // Dölj felmeddelanden
-  const msg=document.getElementById('guestMsg');
-  const msgB=document.getElementById('guestMsgBottom');
-  if(msg)msg.style.display='none';
-  if(msgB)msgB.style.display='none';
-  // Scrolla upp till toppen av formuläret
-  document.getElementById('formWrap').scrollIntoView({behavior:'smooth',block:'start'});
+  const banner = document.getElementById('feedbackDemoBanner');
+  if(banner) banner.style.display='block';
+  document.getElementById('feedbackWrap').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-function showError(m){document.getElementById('loadingState').style.display='none';const el=document.getElementById('errorState');el.style.display='block';el.textContent=m;}
+</script>
 
-// ── KONTAKTPERSON: bulk-ifyllnad ──
-function showBulk(){
-  buildBulkMenu();
-  document.getElementById('singleWrap').style.display='none';
-  document.getElementById('contactHeader').style.display='block';
-  document.getElementById('bulkWrap').style.display='block';
-  document.getElementById('contactHeader').scrollIntoView({behavior:'smooth',block:'start'});
+<script>
+// ════════════════════════════════════════════════
+// DEMO DATA  (ersätts med Supabase i produktion)
+// ════════════════════════════════════════════════
+const DEMO = {
+  club:{ name:"Åsa IF", logo_url:null, accent:"#1a8c3a" },
+  person:{ name:"Maria Lindgren", team:"FJ" }, // sätts via token i personlig länk
+  event:{ name:"Åsacupen 2026", deadline:"2026-06-18", reminder_days:5, contact_email:"kansli@asaif.com" },
+
+  // Kontaktpersoner (sätts av admin i Inställningar) — för frågor från medlemmar
+  contacts:[
+    { area:"Schemaansvarig (frågor om pass & schema)", name:"Karin Svensson", email:"karin.svensson@asaif.com", phone:"070-123 45 67", isScheduler:true },
+    { area:"Allmänt om cupen", name:"Karin Svensson",  email:"karin.svensson@asaif.com", phone:"070-123 45 67" },
+    { area:"Servering",        name:"Maria Lindqvist", email:"maria.l@asaif.com",       phone:"073-234 56 78" },
+    { area:"Parkering",        name:"Johan Berg",      email:"johan.berg@asaif.com",    phone:"076-345 67 89" },
+    { area:"Bygg & Riv",       name:"Anders Holm",     email:"anders.holm@asaif.com",   phone:"070-456 78 90" },
+  ],
+
+  // Vanliga frågor (sätts av admin) — visas utfällbart vid passet
+  faq:[
+    { q:"Vad ska jag ha på mig?", a:"Klä dig efter väder – du står mestadels utomhus. Föreningen bjuder på väst eller förkläde vid serveringspass." },
+    { q:"Var checkar jag in?", a:"Anmäl dig vid infotältet vid arenans huvudentré minst 10 minuter innan ditt pass börjar." },
+    { q:"Hur länge är ett pass?", a:"De flesta pass är 4 timmar. Exakt tid står på ditt valda pass." },
+    { q:"Vad gör jag om jag blir sjuk?", a:"Använd knappen Anmäl förhinder på din bokning så larmas ansvarig direkt och passet kan fyllas av någon annan." },
+  ],
+
+  // Lag med barn — quota = antal pass laget ska ta (auto: 1/barn, kan justeras manuellt)
+  teams:[
+    { id:"FJ",  name:"FJ – Flickjuniorer", quota:23,
+      children:[
+        {id:"c01",name:"Emma Lindgren"},{id:"c02",name:"Sara Bergström"},
+        {id:"c03",name:"Maja Karlsson"},{id:"c04",name:"Lova Eriksson"},
+        {id:"c05",name:"Frida Nilsson"},{id:"c06",name:"Tilda Johansson"},
+        {id:"c07",name:"Molly Larsson"},{id:"c08",name:"Klara Persson"},
+        {id:"c09",name:"Vera Svensson"},{id:"c10",name:"Nora Gustafsson"},
+        {id:"c11",name:"Stella Pettersson"},{id:"c12",name:"Elsa Andersson"},
+        {id:"c13",name:"Wilma Olsson"},{id:"c14",name:"Astrid Lindqvist"},
+        {id:"c15",name:"Isabelle Hansson"},{id:"c16",name:"Alva Björk"},
+        {id:"c17",name:"Ebba Holm"},{id:"c18",name:"Ida Strand"},
+        {id:"c19",name:"Julia Forsberg"},{id:"c20",name:"Lisa Engström"},
+        {id:"c21",name:"Ella Lundgren"},{id:"c22",name:"Matilda Ek"},
+        {id:"c23",name:"Agnes Blom"},
+      ]
+    },
+    { id:"P13", name:"P13", quota:8,
+      children:[{id:"p01",name:"P13 barn 1"},{id:"p02",name:"P13 barn 2"},{id:"p03",name:"P13 barn 3"},{id:"p04",name:"P13 barn 4"},{id:"p05",name:"P13 barn 5"},{id:"p06",name:"P13 barn 6"},{id:"p07",name:"P13 barn 7"},{id:"p08",name:"P13 barn 8"}]
+    },
+    { id:"P15", name:"P15", quota:6,
+      children:[{id:"q01",name:"P15 barn 1"},{id:"q02",name:"P15 barn 2"},{id:"q03",name:"P15 barn 3"},{id:"q04",name:"P15 barn 4"},{id:"q05",name:"P15 barn 5"},{id:"q06",name:"P15 barn 6"}]
+    },
+    { id:"P18", name:"P18", quota:10,
+      children:[{id:"r01",name:"P18 barn 1"},{id:"r02",name:"P18 barn 2"},{id:"r03",name:"P18 barn 3"},{id:"r04",name:"P18 barn 4"},{id:"r05",name:"P18 barn 5"},{id:"r06",name:"P18 barn 6"},{id:"r07",name:"P18 barn 7"},{id:"r08",name:"P18 barn 8"},{id:"r09",name:"P18 barn 9"},{id:"r10",name:"P18 barn 10"}]
+    },
+    { id:"F15", name:"F15", quota:9,
+      children:[{id:"f01",name:"F15 barn 1"},{id:"f02",name:"F15 barn 2"},{id:"f03",name:"F15 barn 3"},{id:"f04",name:"F15 barn 4"},{id:"f05",name:"F15 barn 5"},{id:"f06",name:"F15 barn 6"},{id:"f07",name:"F15 barn 7"},{id:"f08",name:"F15 barn 8"},{id:"f09",name:"F15 barn 9"}]
+    },
+    { id:"F16", name:"F16", quota:10,
+      children:[{id:"g01",name:"F16 barn 1"},{id:"g02",name:"F16 barn 2"},{id:"g03",name:"F16 barn 3"},{id:"g04",name:"F16 barn 4"},{id:"g05",name:"F16 barn 5"},{id:"g06",name:"F16 barn 6"},{id:"g07",name:"F16 barn 7"},{id:"g08",name:"F16 barn 8"},{id:"g09",name:"F16 barn 9"},{id:"g10",name:"F16 barn 10"}]
+    },
+  ],
+
+  shifts:[
+    // FJ – 6 pass att välja på
+    {id:"i01",title:"Infotält",            day:"Fredag",       time:"09:00–13:00",  type:"infotalt", teams:["FJ","P15"],total:3, taken:2, note:"Tag gärna cykel", location:"Infotältet vid huvudentrén", contactName:"Karin Svensson", contactPhone:"070-123 45 67"},
+    {id:"i04",title:"Infotält",            day:"Lördag",       time:"07:00–11:00",  type:"infotalt", teams:["FJ","P15"],total:3, taken:3, location:"Infotältet vid huvudentrén", contactName:"Karin Svensson", contactPhone:"070-123 45 67"},
+    {id:"i08",title:"Infotält",            day:"Söndag",       time:"07:00–11:00",  type:"infotalt", teams:["FJ","P15"],total:3, taken:1, location:"Infotältet vid huvudentrén", contactName:"Karin Svensson", contactPhone:"070-123 45 67"},
+    {id:"s06",title:"Servering",           day:"Lördag",       time:"09:00–13:00",  type:"servering",teams:["FJ","P18","P13"],total:5,taken:4, location:"Kiosken vid plan 2", contactName:"Maria Lindqvist", contactPhone:"073-234 56 78"},
+    {id:"s08",title:"Servering – matsal", day:"Lördag",       time:"16:30–20:30",  type:"servering",teams:["FJ","P18"],total:4,taken:2,note:"Matsalen", location:"Matsalen, Frillesåsskolan", contactName:"Maria Lindqvist", contactPhone:"073-234 56 78"},
+    {id:"b01",title:"Bygg – tält & bord", day:"Torsdag",      time:"18:00 – klart",type:"bygg",     teams:["FJ","F15","F16","P13","P15","P18"],total:6,taken:2,note:"Ta med arbetshandskar", location:"Samling vid materialboden", contactName:"Anders Holm", contactPhone:"070-456 78 90"},
+    {id:"b02",title:"Riv – tält & bord",  day:"Söndag",       time:"17:00 – klart",type:"riv",      teams:["FJ","F15","F16","P13","P15","P18"],total:6,taken:0,note:"Kan du ta med släp? Skriv i kommentar.", location:"Samling vid materialboden", contactName:"Anders Holm", contactPhone:"070-456 78 90"},
+    {id:"n01",title:"Nattvakt Frillesås", day:"Lördag natt",  time:"21:00 – 02:00",type:"nattvakt", teams:["FJ"],      total:4, taken:3,note:"Kaffe & mackor finns", location:"Klubbstugan", contactName:"Johan Berg", contactPhone:"076-345 67 89"},
+    {id:"n02",title:"Nattvakt Frillesås", day:"Söndag tidigt",time:"02:00 – 07:00",type:"nattvakt", teams:["FJ"],      total:4, taken:1,note:"Kaffe & mackor finns"},
+    // P13
+    {id:"p13s1",title:"Servering",        day:"Fredag",       time:"12:30–17:00",  type:"servering",teams:["P13"],    total:4, taken:3},
+    {id:"p13s2",title:"Servering",        day:"Lördag",       time:"09:00–13:00",  type:"servering",teams:["P13"],    total:4, taken:2},
+    {id:"p13s3",title:"Servering",        day:"Söndag",       time:"06:45–11:00",  type:"servering",teams:["P13"],    total:3, taken:1},
+    // P15
+    {id:"p15i1",title:"Infotält",         day:"Fredag",       time:"13:00–17:00",  type:"infotalt", teams:["P15","FJ"],total:3,taken:2},
+    {id:"p15i2",title:"Infotält",         day:"Lördag",       time:"10:30–14:30",  type:"infotalt", teams:["P15","FJ"],total:2,taken:1},
+    {id:"p15i3",title:"Infotält",         day:"Söndag",       time:"11:00–15:00",  type:"infotalt", teams:["P15","FJ"],total:3,taken:0},
+    // P18
+    {id:"p18s1",title:"Servering",        day:"Fredag",       time:"08:30–12:45",  type:"servering",teams:["P18"],    total:4, taken:3},
+    {id:"p18s2",title:"Servering",        day:"Lördag",       time:"06:45–11:00",  type:"servering",teams:["P18"],    total:4, taken:4},
+    {id:"p18s3",title:"Servering",        day:"Söndag",       time:"09:30–13:30",  type:"servering",teams:["P18"],    total:5, taken:2},
+    // F15
+    {id:"f15s1",title:"Servering",        day:"Fredag",       time:"08:30–12:45",  type:"servering",teams:["F15"],    total:3, taken:2},
+    {id:"f15s2",title:"Servering",        day:"Lördag",       time:"09:00–13:00",  type:"servering",teams:["F15"],    total:3, taken:1},
+    {id:"f15s3",title:"Servering",        day:"Söndag",       time:"13:15–17:30",  type:"servering",teams:["F15"],    total:3, taken:0,note:"Sista passet – hjälp stänga ned"},
+    // F16
+    {id:"f16s1",title:"Servering",        day:"Fredag",       time:"08:30–12:45",  type:"servering",teams:["F16"],    total:3, taken:2},
+    {id:"f16s2",title:"Servering",        day:"Lördag",       time:"12:45–17:00",  type:"servering",teams:["F16"],    total:4, taken:3},
+    {id:"f16s3",title:"Servering",        day:"Söndag",       time:"09:30–13:30",  type:"servering",teams:["F16"],    total:3, taken:1},
+  ]
+};
+
+// ════════════════════════════════════════════════
+// SUPABASE
+// ════════════════════════════════════════════════
+const SUPABASE_URL = 'https://acqwpmigracdzkjrddwk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjcXdwbWlncmFjZHpranJkZHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4OTc1MTUsImV4cCI6MjA5NjQ3MzUxNX0.xx4t5mUkHNJanGdhy7HKSdolkYZKP6cCHQM72ktmrac';
+
+async function sbFetch(table, params) {
+  params = params || '';
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + params, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  if (!res.ok) throw new Error('Supabase error: ' + res.status);
+  return res.json();
 }
-function hideBulk(){
-  document.getElementById('bulkWrap').style.display='none';
-  document.getElementById('contactHeader').style.display='none';
-  document.getElementById('singleWrap').style.display='block';
-  const bl=document.getElementById('backToBulkLink');
-  if(bl)bl.style.display='block';
-  const greetEl3=document.getElementById('guestGreeting');
-  if(greetEl3)greetEl3.style.display='block';
-  document.getElementById('singleWrap').scrollIntoView({behavior:'smooth',block:'start'});
+async function sbInsert(table, data) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Supabase insert error: ' + res.status);
+  return res.json();
 }
-function buildBulkMenu(){
-  const info=document.getElementById('bulkInfoBox');
-  if(info)info.innerHTML='<strong style="color:var(--dark)">Fyll i för hela sällskapet</strong><br>Ange hur många <strong style="font-weight:500;color:var(--dark)">portioner</strong> av varje rätt sällskapet vill ha. Alla behöver inte ha alla rätter.<br><br><strong style="font-weight:500;color:var(--dark)">Tips:</strong> lägg in gäster med specialkost <strong style="font-weight:500;color:var(--dark)">först</strong> – sätt antal 1, skriv namn + specialkost och spara. Fyll sedan i resten.';
-  const wrap=document.getElementById('bulkCourseWrap');
-  if(!categories.length){wrap.innerHTML='<p style="color:var(--muted);padding:1rem 0">Ingen meny inlagd ännu.</p>';return;}
-  wrap.innerHTML=categories.map(cat=>`
-    <div style="background:rgba(184,149,90,.05);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem">
-      <div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">${cat.label}</div>
-      ${cat.menu_items.map(item=>`
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(184,149,90,.12);flex-wrap:wrap">
-          <div style="flex:1;min-width:120px">
-            <div style="font-size:14px;color:var(--dark)">${item.name}</div>
-            ${item.description?`<div style="font-size:11px;color:var(--muted)">${item.description}</div>`:''}
+async function sbDelete(table, filter) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + filter, {
+    method: 'DELETE',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  if (!res.ok) throw new Error('Supabase delete error: ' + res.status);
+}
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+let currentTeam = null; // sätts via personlig länk
+let currentChild = null;
+let currentShift = null;
+let isClosed = false;
+let starRating = 0;
+const bookedMap = {}; // childId → {shift, parentName, parentPhone}
+
+// Token-läge: riktig deltagare via personlig länk
+let LIVE = null; // { participant, event, shifts:[], bookings:[] }
+
+// Simulera lite förbokade barn för urgency-känsla
+bookedMap["c01"] = {shift:DEMO.shifts[5], parentName:"Maria Lindgren",   parentPhone:"070-111 22 33"};
+bookedMap["c04"] = {shift:DEMO.shifts[12],parentName:"Eva Eriksson",  parentPhone:"070-444 55 66"};
+bookedMap["c07"] = {shift:DEMO.shifts[22],parentName:"Emil Amnäs",      parentPhone:"070-777 88 99"};
+bookedMap["c10"] = {shift:DEMO.shifts[16],parentName:"Sara Gagner",     parentPhone:"070-100 20 30"};
+bookedMap["c15"] = {shift:DEMO.shifts[1], parentName:"Peter Tingstrand",parentPhone:"070-200 30 40"};
+bookedMap["c20"] = {shift:DEMO.shifts[8], parentName:"Maja Jonsson",    parentPhone:"070-300 40 50"};
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+function init(){
+  const d = DEMO;
+  document.documentElement.style.setProperty('--green', d.club.accent||'#1a8c3a');
+  document.getElementById('navClub').textContent = d.club.name;
+  document.title = d.club.name + ' – ' + d.event.name;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dl = new Date(d.event.deadline + 'T23:59:59');
+  isClosed = today > dl;
+
+  const mo=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const dlStr = dl.getDate()+' '+mo[dl.getMonth()];
+  const daysLeft = Math.ceil((dl-today)/(1000*60*60*24));
+
+  const pill = document.getElementById('deadlinePill');
+  pill.style.display = 'block';
+  if(isClosed){ pill.textContent='Stängd '+dlStr; pill.className='deadline-pill'; pill.style.background='#fdf2f2'; pill.style.color='var(--red)'; }
+  else if(daysLeft<=5){ pill.textContent=daysLeft+' dagar kvar'; pill.className='deadline-pill urgent'; }
+  else{ pill.textContent='Sista dag: '+dlStr; }
+
+  const fullMo=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  document.getElementById('eventInfo').innerHTML =
+    '<strong>'+d.event.name+'</strong> · ' +
+    (isClosed ? '<span style="color:var(--red)">Anmälan stängd</span>' : '<span style="color:var(--green);font-weight:600">Sista anmälningsdag '+dl.getDate()+' '+fullMo[dl.getMonth()]+'</span>');
+
+  const person = DEMO.person || {name:'', team:'FJ'};
+  currentTeam = DEMO.teams.find(t=>t.id===person.team) || DEMO.teams[0];
+  currentChild = currentTeam.children[0] || null;
+  const greeting = person.name ? 'Hej '+person.name+'! Välj ett pass nedan.' : 'Välj ditt pass nedan.';
+  const sub = document.getElementById('step1Sub');
+  if(sub) sub.textContent = greeting;
+
+  if(isClosed) document.getElementById('closedBanner').style.display='block';
+
+  // ── URGENCY BANNER ──
+  const totalSlots = DEMO.shifts.reduce((s,sh)=>s+sh.total,0);
+  const totalTaken = DEMO.shifts.reduce((s,sh)=>s+sh.taken,0);
+  const totalFree  = totalSlots - totalTaken;
+  const pct        = Math.round(totalTaken/totalSlots*100);
+
+  document.getElementById('urgencyPct').textContent  = pct+'%';
+  document.getElementById('urgencyFill').style.width = pct+'%';
+  document.getElementById('urgencyTaken').textContent= totalTaken+' av '+totalSlots+' pass bokade';
+  document.getElementById('urgencyRemain').textContent = totalFree+' platser kvar totalt';
+
+  document.getElementById('urgencyHeadline').textContent =
+    pct>=80 ? '⚠️ Nästan fullt – välj ditt pass nu!'
+    : pct>=60 ? '🔥 Mer än hälften av passen är redan bokade'
+    : pct>=40 ? 'Passen fylls på – välj ditt favoritpass nu'
+    : 'Välj ditt pass och hjälp laget!';
+
+  const dlEl = document.getElementById('urgencyDeadline');
+  if(isClosed){
+    dlEl.textContent='⛔ Anmälningstiden har passerat';
+    dlEl.className='urgency-deadline soon';
+  } else if(daysLeft<=3){
+    dlEl.textContent='⏰ Bara '+daysLeft+' dag'+(daysLeft===1?'':'ar')+' kvar att välja!';
+    dlEl.className='urgency-deadline soon';
+  } else {
+    dlEl.textContent='⏱ Sista dag att välja: '+dlStr;
+    dlEl.className='urgency-deadline';
+  }
+
+  renderPassList();
+  document.getElementById('loadingState').style.display='none';
+  document.getElementById('mainContent').style.display='block';
+}
+
+// ════════════════════════════════════════════════
+// STEG 1 — LAGVAL
+// ════════════════════════════════════════════════
+function renderLagGrid(){
+  const grid = document.getElementById('lagGrid');
+  grid.innerHTML = DEMO.teams.map(t=>{
+    const booked = t.children.filter(c=>bookedMap[c.id]).length;
+    const pct = Math.round(booked/t.quota*100);
+    return `<div class="lag-card${currentTeam?.id===t.id?' selected':''}" onclick="selectTeam('${t.id}')">
+      <div class="lag-card-name">${t.name}</div>
+      <div class="lag-card-count">${booked} / ${t.quota} pass valda</div>
+      <div class="lag-card-progress"><div class="lag-card-bar" style="width:${Math.min(pct,100)}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function selectTeam(teamId){
+  currentTeam = DEMO.teams.find(t=>t.id===teamId);
+  currentChild = null; currentShift = null;
+  renderPassList();
+  setStep(2);
+  renderChildList();
+  document.getElementById('step2Title').textContent = currentTeam.name;
+  updateLagStats();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateLagStats(){
+  if(!currentTeam) return;
+  const booked = currentTeam.children.filter(c=>bookedMap[c.id]).length;
+  const remaining = currentTeam.quota - booked;
+  const pill = document.getElementById('lagStatsPill');
+  if(!pill) return; // elementet finns inte i enbarnsflödet
+  pill.textContent = remaining>0 ? remaining+' pass kvar att välja' : 'Alla pass valda ✓';
+  pill.className = 'lag-stats-pill '+(remaining>0?'lag-stats-warn':'lag-stats-ok');
+}
+
+// ════════════════════════════════════════════════
+// STEG 2 — BARNLISTA MED URGENCY
+// ════════════════════════════════════════════════
+function renderChildList(){
+  if(!currentTeam) return;
+  const list = document.getElementById('childList');
+  if(!list) return;
+  const children = currentTeam.children;
+  const totalBooked = children.filter(c=>bookedMap[c.id]).length;
+
+  list.innerHTML = children.map((c,i)=>{
+    const b = bookedMap[c.id];
+    const isSel = currentChild?.id===c.id;
+    const initials = c.name.split(' ').map(w=>w[0]).slice(0,2).join('');
+    // Urgency: sista X barn utan pass
+    return `<div class="child-row${isSel?' selected':''}${b?' booked':''}" onclick="${b?'':("pickChild('"+c.id+"')")}">
+      <div class="child-av ${b?'child-av-done':(isSel?'child-av-selected':'child-av-neutral')}">${b?'✓':initials}</div>
+      <div class="child-info">
+        <div class="child-name">${c.name}</div>
+        <div class="child-status-row">
+          <div class="status-dot ${b?'status-dot-green':'status-dot-gray'}"></div>
+          <span class="child-status-text ${b?'done':'pending'}">${b ? b.shift.title+' · '+b.shift.day : 'Inget pass valt ännu'}</span>
+        </div>
+      </div>
+      ${b ? '<span class="urgency-badge badge-done">Klart ✓</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function pickChild(childId){
+  currentChild = null;
+  DEMO.teams.forEach(t=>{ const c=t.children.find(ch=>ch.id===childId); if(c){ currentChild=c; currentTeam=t; }});
+  currentShift = null;
+  renderChildList();
+  goToStep2();
+  renderPassList();
+  const badge = document.getElementById('step3ChildBadge');
+  const sub3  = document.getElementById('step3Sub');
+  if(badge) badge.textContent = currentChild.name + ' · ' + currentTeam.name;
+  if(sub3)  sub3.textContent  = 'Visar pass tillgängliga för '+currentTeam.name+'. Klicka för att välja.';
+  const b = bookedMap[currentChild.id];
+  const notice = document.getElementById('alreadyBooked');
+  if(b){ notice.style.display='block'; notice.textContent='Du har redan valt: '+b.shift.title+' '+b.shift.day+' '+b.shift.time+'. Du kan byta pass nedan.'; currentShift=b.shift; }
+  else notice.style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ════════════════════════════════════════════════
+// STEG 3 — PASSLISTA
+// ════════════════════════════════════════════════
+const TAG_CFG={servering:{l:'Servering',c:'tag-servering'},infotalt:{l:'Infotält',c:'tag-infotalt'},bygg:{l:'Bygg',c:'tag-bygg'},riv:{l:'Riv',c:'tag-riv'},nattvakt:{l:'Nattvakt',c:'tag-nattvakt'}};
+const DAY_ORDER=['Torsdag','Fredag','Lördag','Lördag natt','Söndag tidigt','Söndag'];
+
+function renderPassList(){
+  if(!currentTeam) return;
+  const applicable = DEMO.shifts.filter(s=>s.teams.includes(currentTeam.id));
+  if(!applicable.length){ document.getElementById('noPassMsg').style.display='block'; document.getElementById('passListWrap').innerHTML=''; return; }
+  document.getElementById('noPassMsg').style.display='none';
+
+  const byDay={};
+  applicable.forEach(s=>{if(!byDay[s.day])byDay[s.day]=[];byDay[s.day].push(s);});
+
+  let html='';
+  DAY_ORDER.forEach(day=>{
+    if(!byDay[day]) return;
+    html+='<div class="day-header">'+day+'</div>';
+    byDay[day].forEach(s=>{
+      const free=s.total-s.taken, full=free<=0, low=!full&&free<=2;
+      const pct=Math.round(s.taken/s.total*100);
+      const tc=TAG_CFG[s.type]||{l:s.type,c:'tag-servering'};
+      const sel=currentShift?.id===s.id;
+      // Urgency label
+      const spotsLabel = full ? 'Fullt' : free===1 ? '1 plats kvar!' : free+' platser kvar';
+      const spotsCls   = full ? 'spots-full' : low ? 'spots-low' : 'spots-ok';
+      // Taken bar color
+      const barColor = pct>=100?'#c0392b':pct>=67?'#e8a020':'#1a8c3a';
+      html+=`<div class="pass-item${sel?' selected':''}${full?' full':''}" id="pi_${s.id}">
+        <div class="pass-top" onclick="${full?'':'selectShift(\''+s.id+'\')'}">
+          <div class="pass-radio"><div class="pass-dot"></div></div>
+          <div class="pass-body">
+            <div class="pass-title">${s.title}</div>
+            <div class="pass-time">${s.time}</div>
+            ${s.note?'<div class="pass-note">'+s.note+'</div>':''}
+            <div class="pass-tags"><span class="tag ${tc.c}">${tc.l}</span></div>
+            <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+              <div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;max-width:100px">
+                <div style="height:5px;width:${pct}%;background:${barColor};border-radius:3px;transition:width .3s"></div>
+              </div>
+              <span style="font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap">${s.taken} av ${s.total} tagna</span>
+            </div>
           </div>
-          <input type="number" id="kbq_${item.id}" min="0" max="999" value="0" placeholder="0" style="width:60px;text-align:center;padding:7px 8px;font-size:15px;font-weight:500;flex-shrink:0">
-          <input type="text" id="kbn_${item.id}" placeholder="Namn (valfritt)" style="width:130px;padding:7px 10px;font-size:13px">
-          <input type="text" id="kbc_${item.id}" placeholder="Specialkost (valfritt)" style="width:150px;padding:7px 10px;font-size:13px">
-        </div>`).join('')}
-    </div>`).join('');
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;padding-left:8px">
+            <span class="spots ${spotsCls}">${spotsLabel}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+  });
+  document.getElementById('passListWrap').innerHTML=html;
 }
-async function submitBulk(){
-  const btn=document.getElementById('bulkSubmitBtn');
-  const msg=document.getElementById('bulkMsg');
-  function showMsg(cls,txt){msg.style.display='block';msg.className='msg '+cls;msg.textContent=txt;}
-  if(isClosed){showMsg('err','Beställningstiden har passerat.');return;}
-  if(btn.disabled)return;
-  btn.disabled=true;btn.textContent='Sparar...';
-  let made=0;
-  try{
-    const {data:existingOrders}=await db.from('orders').select('id,guest_name').eq('booking_id',BID);
-    const _nums=(existingOrders||[]).map(function(o){var m=/^Portion\s+(\d+)$/.exec(o.guest_name||'');return m?parseInt(m[1]):0;});
-    let seq=_nums.length?Math.max.apply(null,_nums):0;
-    const ordersToInsert=[];
-    const itemsPerOrder=[];
-    for(const cat of categories){
-      for(const item of cat.menu_items){
-        const qty=parseInt(document.getElementById('kbq_'+item.id)?.value)||0;
-        const cmt=document.getElementById('kbc_'+item.id)?.value?.trim()||'';
-        const nm=document.getElementById('kbn_'+item.id)?.value?.trim()||'';
-        if(qty>0){
-          for(let i=0;i<qty;i++){
-            const gname=(i===0&&nm)?nm:('Portion '+(++seq));
-            ordersToInsert.push({booking_id:BID,restaurant_id:restaurant.id,guest_name:gname});
-            itemsPerOrder.push({menu_item_id:item.id,category_id:cat.id,comment:(i===0?cmt:'')});
-            made++;
-          }
-        }
-      }
-    }
-    if(made===0){showMsg('err','Inget antal ifyllt – skriv hur många som vill ha varje rätt.');btn.disabled=false;btn.textContent='Spara för sällskapet';return;}
-    const {data:createdOrders,error:oErr}=await db.from('orders').insert(ordersToInsert).select('id');
-    if(oErr)throw new Error(oErr.message);
-    const orderItems=createdOrders.map((o,i)=>({order_id:o.id,...itemsPerOrder[i]}));
-    const {error:iErr}=await db.from('order_items').insert(orderItems);
-    if(iErr)throw new Error(iErr.message);
-    await loadBulkEdit();
-  }catch(err){
-    showMsg('err','Fel: '+err.message);
-    btn.disabled=false;btn.textContent='Spara för sällskapet';
+
+let pendingShiftId = null;
+
+function _showConfirmBar(shiftId, title, sub){
+  pendingShiftId = shiftId;
+  document.querySelectorAll('.pass-item').forEach(el => el.classList.remove('selected'));
+  const item = document.getElementById('pi_' + shiftId);
+  if(item) item.classList.add('selected');
+  const bar = document.getElementById('confirmBar');
+  if(bar){
+    bar.style.display = 'flex';
+    document.getElementById('confirmBarTitle').textContent = title || 'Valt pass';
+    document.getElementById('confirmBarSub').textContent = sub || '';
   }
 }
 
-// ── KONTAKTPERSON: redigeringsvy med +/- ──
-function _guestIsAnon(o){
-  return /^Portion\s+\d+$/.test(o.guest_name||'') && !(o.order_items||[]).some(function(oi){return oi.comment&&oi.comment.trim();});
+function selectShift(shiftId){
+  const s = DEMO.shifts ? DEMO.shifts.find(x=>x.id===shiftId) : null;
+  _showConfirmBar(shiftId, s ? s.title : '', s ? s.time : '');
 }
 
-async function loadBulkEdit(){
-  // Fetch all orders with items for this booking
-  const {data:orders}=await db.from('orders')
-    .select('id,guest_name,order_items(id,comment,menu_item_id,category_id,menu_items(id,name,menu_categories(id,label)))')
-    .eq('booking_id',BID);
+function selectLiveShift(shiftId){
+  const s = LIVE && LIVE.shifts ? LIVE.shifts.find(x=>x.id===shiftId) : null;
+  _showConfirmBar(shiftId, s ? s.title : '', s ? (s.time_start||'').slice(0,5) + '–' + (s.time_end||'').slice(0,5) : '');
+}
 
-  const anon=(orders||[]).filter(_guestIsAnon);
-  const named=(orders||[]).filter(function(o){return !_guestIsAnon(o);});
+function confirmShiftAndProceed(){
+  if(!pendingShiftId) return;
+  const bar = document.getElementById('confirmBar');
+  if(bar) bar.style.display = 'none';
+  // Kolla om live eller demo
+  if(LIVE && LIVE.shifts && LIVE.shifts.find(x=>x.id===pendingShiftId)){
+    pickLiveShift(pendingShiftId);
+  } else {
+    pickShift(pendingShiftId);
+  }
+}
 
-  // Build item map for anon: itemId -> {name, catId, count}
-  const itemMap={};
-  const itemOrder=[];
-  anon.forEach(function(o){
-    (o.order_items||[]).forEach(function(oi){
-      if(!oi.menu_items)return;
-      var mid=oi.menu_item_id||'';
-      if(!mid)return;
-      if(!itemMap[mid]){itemMap[mid]={name:oi.menu_items.name,catId:oi.category_id,count:0};itemOrder.push(mid);}
-      itemMap[mid].count++;
+function pickShift(shiftId){
+  // Steg 1→2
+  currentShift = DEMO.shifts.find(s=>s.id===shiftId);
+  document.querySelectorAll('.pass-item').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('pi_'+shiftId)?.classList.add('selected');
+  // Prefill namn/tel om tidigare bokat
+  const prev = bookedMap[currentChild?.id];
+  if(prev){ document.getElementById('parentName').value=prev.parentName; document.getElementById('parentPhone').value=prev.parentPhone; }
+  // Uppdatera summary
+  const s=currentShift;
+  document.getElementById('selSummary').innerHTML =
+    '<strong>'+s.title+'</strong> · '+s.day+' · '+s.time+
+    (s.note?'<br><span style="font-size:13px;color:var(--muted)">'+s.note+'</span>':'')+
+    '<br><span style="font-size:13px;color:var(--muted)">'+currentChild.name+' · '+currentTeam.name+'</span>';
+  setTimeout(()=>{goToStep2();window.scrollTo({top:0,behavior:'smooth'});},180);
+}
+
+// ════════════════════════════════════════════════
+// STEG 4 — BOKA
+// ════════════════════════════════════════════════
+async function submitBooking(){
+  if(LIVE){ return submitLiveBooking(); }
+  if(isClosed) return;
+  const name=document.getElementById('parentName').value.trim();
+  const phone=document.getElementById('parentPhone').value.trim();
+  const msgB=document.getElementById('msgBottom');
+  function showErr(t){msgB.style.display='block';msgB.textContent=t;}
+  if(!name){showErr('Ange ditt namn.');document.getElementById('parentName').focus();return;}
+  if(!phone){showErr('Ange ditt telefonnummer.');document.getElementById('parentPhone').focus();return;}
+
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='Sparar...';
+  await new Promise(r=>setTimeout(r,500));
+
+  // Frigör ev. tidigare pass
+  const prev=bookedMap[currentChild.id];
+  if(prev){prev.shift.taken=Math.max(0,prev.shift.taken-1);}
+  bookedMap[currentChild.id]={shift:currentShift,parentName:name,parentPhone:phone};
+  currentShift.taken++;
+
+  msgB.style.display='none';
+  showConfirmation(name,phone);
+  renderChildList();
+  updateLagStats();
+  btn.disabled=false;btn.textContent='Välj det här passet ✓';
+}
+
+function showConfirmation(name,phone){
+  const s=currentShift, c=currentChild, t=currentTeam;
+  const locationRow = s.location ? `<div class="conf-row"><span class="conf-label">Plats</span><strong>${s.location}</strong></div>` : '';
+  const contactRow = s.contactName ? `<div class="conf-row"><span class="conf-label">Kontakt vid passet</span><strong>${s.contactName}${s.contactPhone?` · <a href="tel:${s.contactPhone.replace(/\s/g,'')}" style="color:var(--green);text-decoration:none">${s.contactPhone}</a>`:''}</strong></div>` : '';
+  document.getElementById('confirmSummary').innerHTML=`
+    <div class="conf-row"><span class="conf-label">Barn</span><strong>${c.name} (${t.name})</strong></div>
+    <div class="conf-row"><span class="conf-label">Pass</span><strong>${s.title}</strong></div>
+    <div class="conf-row"><span class="conf-label">Dag</span><strong>${s.day}</strong></div>
+    <div class="conf-row"><span class="conf-label">Tid</span><strong>${s.time}</strong></div>
+    ${locationRow}
+    ${contactRow}
+    <div class="conf-row"><span class="conf-label">Förälder</span><strong>${name}</strong></div>
+    <div class="conf-row"><span class="conf-label">Telefon</span><strong>${phone}</strong></div>
+  `;
+  const now=new Date();
+  document.getElementById('doneTimestamp').textContent='Valt '+now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+
+  document.getElementById('mainContent').style.display='none';
+  document.getElementById('stepIndicator').style.display='none';
+  document.getElementById('siLabels').style.display='none';
+  document.getElementById('doneWrap').style.display='block';
+  fillQuestionAreas();
+  fillFaqAccordion();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function bookAnotherChild(){
+  const next=currentTeam?.children.find(c=>!bookedMap[c.id]);
+  currentChild=null;currentShift=null;
+  document.getElementById('doneWrap').style.display='none';
+  document.getElementById('mainContent').style.display='block';
+  document.getElementById('stepIndicator').style.display='flex';
+  document.getElementById('siLabels').style.display='flex';
+  renderChildList();updateLagStats();
+  setStep(1);window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function editBooking(){
+  document.getElementById('doneWrap').style.display='none';
+  document.getElementById('mainContent').style.display='block';
+  document.getElementById('stepIndicator').style.display='flex';
+  document.getElementById('siLabels').style.display='flex';
+  document.getElementById('msgBottom').style.display='none';
+  renderChildList();updateLagStats();
+  setStep(2);window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ════════════════════════════════════════════════
+// FEEDBACK
+// ════════════════════════════════════════════════
+function setStar(n){
+  starRating=n;
+  document.querySelectorAll('.star').forEach((s,i)=>{
+    s.classList.toggle('active',i<n);
+  });
+}
+
+function setStaffing(val, el){
+  document.querySelectorAll('.scale-dot').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  window._staffing = val;
+}
+
+async function submitFeedback(){
+  const good=document.getElementById('feedbackGood').value.trim();
+  const improve=document.getElementById('feedbackImprove').value.trim();
+  if(!starRating&&!good&&!improve&&!window._staffing){ alert('Fyll i minst betyget eller ett textfält.'); return; }
+
+  // Bygg kommentar av de två textfälten
+  let comment = '';
+  if(good) comment += 'Bra: ' + good;
+  if(improve) comment += (comment ? '\n' : '') + 'Förbättring: ' + improve;
+  if(starRating) comment += (comment ? '\n' : '') + 'Betyg: ' + starRating + '/5';
+
+  // Spara till databasen om vi har token + bokning
+  if(LIVE){
+    try {
+      const myBooking = LIVE.bookings.find(b => b.participant_id === LIVE.participant.id);
+      await sbInsert('feedback', {
+        shift_id: myBooking ? myBooking.shift_id : null,
+        participant_id: LIVE.participant.id,
+        rating: starRating || null,
+        staffing_score: window._staffing || null,
+        good: good || null,
+        improve: improve || null,
+        comment: comment || null
+      });
+    } catch(e){
+      console.error('Feedback-fel:', e);
+      // Visa ändå tack — feedback ska aldrig kännas trasig för användaren
+    }
+  }
+
+  document.getElementById('feedbackForm').style.display='none';
+  document.getElementById('feedbackDone').style.display='block';
+}
+
+// ════════════════════════════════════════════════
+// INTRESSEANMÄLAN – planera nästa år
+// ════════════════════════════════════════════════
+async function submitVolunteer(){
+  const name = (document.getElementById('volunteerName').value || '').trim();
+  const phone = (document.getElementById('volunteerPhone').value || '').trim();
+  const roleEl = document.getElementById('volunteerRole');
+  const role = roleEl ? (roleEl.value || '').trim() : '';
+  const err = document.getElementById('volunteerErr');
+  const done = document.getElementById('volunteerDone');
+  if(!name || !phone){ err.textContent = 'Fyll i både namn och telefon.'; err.style.display='block'; return; }
+  err.style.display='none';
+  const eventId = LIVE ? (LIVE.event ? LIVE.event.id : (LIVE.participant ? LIVE.participant.event_id : null)) : null;
+  try {
+    await sbInsert('volunteer_interest', { event_id: eventId, name, phone, role: role || null });
+    document.getElementById('volunteerBlock').querySelector('.btn.btn-primary').disabled = true;
+    document.getElementById('volunteerBlock').querySelector('.btn.btn-ghost').disabled = true;
+    done.style.display = 'block';
+  } catch(e){
+    err.textContent = 'Något gick fel – försök igen.';
+    err.style.display = 'block';
+    console.error('Volunteer-fel:', e);
+  }
+}
+function skipVolunteer(){
+  document.getElementById('volunteerBlock').style.display = 'none';
+}
+
+// ════════════════════════════════════════════════
+// FRÅGA TILL ANSVARIG
+// ════════════════════════════════════════════════
+function fillQuestionAreas(){
+  const sel = document.getElementById('questionArea');
+  const _contactList = (LIVE && LIVE.contacts) ? LIVE.contacts : [];
+  if(!sel) return;
+  if(!_contactList.length){ sel.innerHTML = '<option>Inga kontaktpersoner inlagda</option>'; return; }
+  sel.innerHTML = _contactList.map((k,i)=>`<option value="${i}">${k.area} – ${k.name}</option>`).join('');
+  updateContactCard();
+}
+
+function updateContactCard(){
+  const sel = document.getElementById('questionArea');
+  const card = document.getElementById('contactCard');
+  const _contactList2 = (LIVE && LIVE.contacts) ? LIVE.contacts : [];
+  if(!sel || !card || !_contactList2.length) return;
+  const k = _contactList2[parseInt(sel.value)||0];
+  const subject = encodeURIComponent(`Fråga om ${DEMO.event.name} – ${k.area}`);
+  const phoneHtml = k.phone
+    ? `<div style="margin-top:.65rem;font-size:13px;color:var(--muted)">Akut? Ring <a href="tel:${k.phone.replace(/\s/g,'')}" style="color:var(--dark);font-weight:600;text-decoration:none">${k.phone}</a></div>`
+    : '';
+  card.innerHTML = `
+    <div style="background:var(--green-pale);border:1.5px solid rgba(26,140,58,.2);border-radius:12px;padding:1.1rem 1.25rem">
+      <div style="font-size:14px;color:var(--dark);font-weight:600;margin-bottom:.15rem">${k.name}</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:.85rem">${k.area}</div>
+      <a class="btn btn-primary btn-sm" style="width:auto;padding:10px 24px;text-decoration:none;display:inline-block" href="mailto:${k.email}?subject=${subject}">✉️ Mejla ${k.name.split(' ')[0]}</a>
+      <div style="font-size:12px;color:var(--muted);margin-top:.55rem">Mejl är bästa vägen in – du får svar så snart som möjligt.</div>
+      ${phoneHtml}
+    </div>`;
+}
+
+// ════════════════════════════════════════════════
+// VANLIGA FRÅGOR (FAQ)
+// ════════════════════════════════════════════════
+function fillFaqAccordion(){
+  const el = document.getElementById('faqAccordion');
+  if(!el) return;
+  const rawList = (LIVE && LIVE.faq && LIVE.faq.length) ? LIVE.faq : [];
+  if(!rawList.length){ el.innerHTML = ''; return; }
+  el.innerHTML = rawList.map((f,i)=>{
+    const q = f.question || f.q || '';
+    const a = f.answer || f.a || '';
+    return `<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <button type="button" onclick="toggleFaq(${i})" style="width:100%;text-align:left;background:var(--bg);border:none;padding:.8rem .95rem;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;color:var(--dark);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:.5rem">
+        <span>${q}</span>
+        <span id="faq-arrow-${i}" style="color:var(--green);flex-shrink:0;transition:transform .2s">▾</span>
+      </button>
+      <div id="faq-body-${i}" style="display:none;padding:0 .95rem .85rem;font-size:13.5px;color:var(--muted);line-height:1.6">${a}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFaq(i){
+  const body = document.getElementById('faq-body-'+i);
+  const arrow = document.getElementById('faq-arrow-'+i);
+  const open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  if(arrow) arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+// ════════════════════════════════════════════════
+// SJUKANMÄLAN / FÖRHINDER
+// ════════════════════════════════════════════════
+function openTransferModal(){
+  document.getElementById('transferName').value = '';
+  document.getElementById('transferPhone').value = '';
+  document.getElementById('transferMsg').style.display = 'none';
+  const m = document.getElementById('transferModal');
+  m.style.display = 'flex';
+}
+
+function closeTransferModal(){
+  document.getElementById('transferModal').style.display = 'none';
+}
+
+async function submitTransfer(){
+  const name = document.getElementById('transferName').value.trim();
+  const phone = document.getElementById('transferPhone').value.trim();
+  const msg = document.getElementById('transferMsg');
+  if(!name){ msg.style.cssText='display:block;background:#fef3f2;color:#c0392b'; msg.textContent='Ange ersättarens namn.'; return; }
+  const myBooking = LIVE.bookings.find(b => b.participant_id === LIVE.participant.id);
+  if(!myBooking){ msg.style.cssText='display:block;background:#fef3f2;color:#c0392b'; msg.textContent='Kunde inte hitta din bokning.'; return; }
+  try {
+    // Uppdatera bokningen med ersättarens uppgifter
+    const res = await fetch(SUPABASE_URL + '/rest/v1/bookings?id=eq.' + myBooking.id, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ 
+        display_name: name, 
+        display_phone: phone,
+        display_email: document.getElementById('transferEmail').value.trim() || null
+      })
     });
+    if(res.ok){
+      msg.style.cssText='display:block;background:#f0fdf4;color:#1a8c3a';
+      msg.textContent='✓ Ersättaren är sparad! Passet är nu registrerat på ' + name + '.';
+      myBooking.display_name = name;
+      myBooking.display_phone = phone;
+      setTimeout(() => closeTransferModal(), 2000);
+    } else {
+      msg.style.cssText='display:block;background:#fef3f2;color:#c0392b';
+      msg.textContent='Något gick fel. Försök igen.';
+    }
+  } catch(e){
+    msg.style.cssText='display:block;background:#fef3f2;color:#c0392b';
+    msg.textContent='Kunde inte spara. Kontrollera anslutningen.';
+  }
+}
+
+function openSickReport(){
+  const m = document.getElementById('sickModal');
+  if(m) m.style.display = 'flex';
+}
+function closeSickReport(){
+  const m = document.getElementById('sickModal');
+  if(m) m.style.display = 'none';
+}
+async function submitSickReport(){
+  // I LIVE-läge: ta bort bokningen och skicka mejl
+  if(LIVE){
+    const myBooking = LIVE.bookings.find(b => b.participant_id === LIVE.participant.id);
+    const myShift = myBooking ? LIVE.shifts.find(s => s.id === myBooking.shift_id) : null;
+    const reason = (document.getElementById('sickReason') && document.getElementById('sickReason').value.trim()) || '';
+    if(myBooking){
+      await sbDelete('bookings', '?id=eq.' + myBooking.id).catch(e => console.error('Kunde inte ta bort bokning:', e));
+      LIVE.bookings = LIVE.bookings.filter(b => b.id !== myBooking.id);
+    }
+    // Skicka mejl till admin och stationsansvarig
+    if(myShift){
+      const personName = LIVE.participant.name || 'En deltagare';
+      const shiftLabel = myShift.title + ' · ' + (myShift.date||'') + ' ' + (myShift.time_start||'').slice(0,5) + '–' + (myShift.time_end||'').slice(0,5);
+      const msg = personName + ' har anmält förhinder för passet:\n' + shiftLabel + (reason ? '\n\nAnledning: ' + reason : '') + '\n\nPasset är nu ledigt igen.';
+      const evName = (LIVE.event && LIVE.event.name) || 'eventet';
+      const clubName = (window._CLUB && window._CLUB.name) || ((LIVE.event && LIVE.event.club_name) || 'Föreningen');
+      // Hitta stationsansvarig
+      const stationContacts = (LIVE.contacts||[]).filter(c => c.stations && c.stations.some(st => st.toLowerCase() === (myShift.title||'').toLowerCase()));
+      const recipients = [];
+      // Admin
+      if(LIVE.event && LIVE.event.club_id){
+        try {
+          const clubs = await sbFetch('clubs', '?id=eq.' + LIVE.event.club_id + '&select=contact_email,name');
+          if(clubs.length && clubs[0].contact_email) recipients.push({ name:'Admin', email: clubs[0].contact_email });
+        } catch(e){}
+      }
+      // Stationsansvarig
+      stationContacts.forEach(c => { if(c.email) recipients.push({ name: c.name, email: c.email }); });
+      if(recipients.length){
+        fetch(SUPABASE_URL + '/functions/v1/send-links', {
+          method:'POST',
+          headers:{ Authorization:'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json' },
+          body: JSON.stringify({ mode:'message', includeButton:false, subject:'🤒 Förhinder: ' + shiftLabel, recipients, message: msg, eventName: evName, clubName })
+        }).catch(e => console.error('Sjukanmälan mejl fel:', e));
+      }
+    }
+  }
+  closeSickReport();
+  const c = currentChild;
+  if(c && bookedMap[c.id]) delete bookedMap[c.id];
+  // Visa bekräftelse i bokningskortet, dölj resten
+  document.getElementById('confirmSummary').innerHTML =
+    `<div style="text-align:center;padding:.5rem 0">
+      <div style="font-size:2rem;margin-bottom:.4rem">✓</div>
+      <div style="font-size:15px;font-weight:600;color:var(--dark);margin-bottom:.3rem">Förhinder anmält</div>
+      <div style="font-size:13.5px;color:var(--muted);line-height:1.6">Ansvarig har meddelats och passet är nu ledigt igen. Tack för att du sa till!</div>
+    </div>`;
+  // Dölj ändra-pass-rutan, FAQ och frågeformuläret
+  const wrap = document.getElementById('doneWrap');
+  wrap.querySelectorAll(':scope > div').forEach(el=>{
+    const keep = el.querySelector('#confirmSummary') || el.id==='moreChildrenWrap';
+    if(!keep) el.style.display='none';
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ════════════════════════════════════════════════
+// STEG-NAVIGERING
+// ════════════════════════════════════════════════
+// Navigering hanteras av goToStep1/goToStep2 nedan
+
+function setStep(n){
+  ['step1','step2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=(i+1===n)?'block':'none';
+  });
+  [1,2].forEach(i=>{
+    const d=document.getElementById('sd'+i);
+    const l=document.getElementById('sl-'+i);
+    if(d){ d.className='si-dot'+(i<n?' done':i===n?' active':''); }
+    if(l){ l.className='si-label'+(i===n?' active':''); }
+  });
+  const line=document.getElementById('sl1');
+  if(line) line.className='si-line'+(n>1?' done':'');
+}
+
+function goToStep1(){
+  currentShift=null;
+  setStep(1);
+  renderPassList();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goToStep2(){
+  if(!currentShift) return;
+  setStep(2);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ════════════════════════════════════════════════
+// TOKEN-LÄGE — riktig deltagare via personlig länk
+// ════════════════════════════════════════════════
+async function initLive(token){
+  try {
+    document.getElementById('loadingState').style.display='block';
+    // Hämta deltagaren via token
+    const parts = await sbFetch('participants', '?token=eq.' + encodeURIComponent(token) + '&select=*,events(*)');
+    if(!parts.length){
+      document.getElementById('loadingState').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--red)">Länken är ogiltig eller har gått ut. Kontakta din förening.</div>';
+      return;
+    }
+    const participant = parts[0];
+    const eventId = participant.event_id;
+    const event = participant.events || (await sbFetch('events', '?id=eq.' + eventId))[0];
+
+    // Hämta alla pass för eventet + bokningar + slots
+    const shifts = await sbFetch('shifts', '?event_id=eq.' + eventId + '&order=date.asc,time_start.asc');
+    const shiftIds = shifts.map(s => s.id);
+    const [bookings, shiftSlots] = await Promise.all([
+      shiftIds.length ? sbFetch('bookings', '?shift_id=in.(' + shiftIds.join(',') + ')') : Promise.resolve([]),
+      shiftIds.length ? sbFetch('shift_slots', '?shift_id=in.(' + shiftIds.join(',') + ')&order=slot_number.asc') : Promise.resolve([])
+    ]);
+
+    const contacts = await sbFetch('contacts', '?event_id=eq.' + eventId + '&order=area.asc').catch(() => []);
+    const faq = await sbFetch('faq', '?club_id=eq.' + (event.club_id||'') + '&is_active=eq.true&order=created_at.asc').catch(() => []);
+    LIVE = { participant, event, shifts, bookings, shiftSlots, contacts, faq };
+    renderLiveView();
+  } catch(e){
+    console.error('Live-fel:', e);
+    document.getElementById('loadingState').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--red)">Kunde inte ladda dina pass. Försök igen senare.</div>';
+  }
+}
+
+function liveDayLabel(dateStr){
+  const dayNames = ['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'];
+  const d = new Date(dateStr);
+  return dayNames[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth()+1);
+}
+
+function renderLiveView(){
+  const p = LIVE.participant, ev = LIVE.event;
+  document.documentElement.style.setProperty('--green', '#1a8c3a');
+  document.getElementById('navClub').textContent = 'Åsa IF';
+  document.title = 'Åsa IF – ' + ev.name;
+
+  // Deadline
+  const today = new Date(); today.setHours(0,0,0,0);
+  const fullMo=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  document.getElementById('eventInfo').innerHTML = '<strong>' + ev.name + '</strong>';
+
+  // Hälsning
+  const sub = document.getElementById('step1Sub');
+  if(sub) sub.textContent = 'Hej ' + p.name + '! Välj ett pass nedan.';
+
+  // Min nuvarande bokning
+  const myBooking = LIVE.bookings.find(b => b.participant_id === p.id);
+
+  // Urgency
+  const totalSlots = LIVE.shifts.reduce((s,sh)=>{
+    const sc = (LIVE.shiftSlots||[]).filter(sl=>sl.shift_id===sh.id).length;
+    return s + (sc || sh.slots);
+  }, 0);
+  const totalTaken = LIVE.bookings.length;
+  const pct = totalSlots>0 ? Math.round(totalTaken/totalSlots*100) : 0;
+  const setT = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  setT('urgencyPct', pct+'%');
+  const uf = document.getElementById('urgencyFill'); if(uf) uf.style.width = pct+'%';
+  setT('urgencyTaken', totalTaken+' av '+totalSlots+' pass bokade');
+  setT('urgencyRemain', (totalSlots-totalTaken)+' platser kvar totalt');
+  setT('urgencyHeadline', pct>=80?'⚠️ Nästan fullt – välj ditt pass nu!':pct>=40?'Passen fylls på – välj ditt pass':'Välj ditt pass och hjälp till!');
+
+  renderLivePassList();
+  // Visa notis om personen redan har ett bokat pass
+  const myExisting = LIVE.bookings.find(b => b.participant_id === p.id);
+  if(myExisting){
+    const bookedShift = LIVE.shifts.find(s => s.id === myExisting.shift_id);
+    if(bookedShift){
+      const notice = document.getElementById('alreadyBooked');
+      if(notice){
+        const tid = bookedShift.time_start.slice(0,5)+'–'+bookedShift.time_end.slice(0,5);
+        notice.style.display = 'block';
+        notice.textContent = 'Du har redan valt: '+bookedShift.title+' · '+liveDayLabel(bookedShift.date)+' · '+tid+'. Du kan byta pass nedan om du vill ändra.';
+      }
+    }
+  }
+  document.getElementById('loadingState').style.display='none';
+  // Om länken har en action-hash och personen är bokad — visa bekräftelsesidan direkt
+  const _actionHash = ['#sick','#transfer','#change'].includes(window.location.hash);
+  if(_actionHash && myExisting){
+    const bookedShift = LIVE.shifts.find(s => s.id === myExisting.shift_id);
+    if(bookedShift){
+      currentShift = bookedShift;
+      const name = myExisting.display_name || p.name || '';
+      const phone = myExisting.display_phone || p.phone || '';
+      showLiveConfirmation(name, phone);
+      return;
+    }
+  }
+  document.getElementById('mainContent').style.display='block';
+  setStep(1);
+}
+
+function renderLivePassList(){
+  const wrap = document.getElementById('passListWrap');
+  const myBooking = LIVE.bookings.find(b => b.participant_id === LIVE.participant.id);
+  const myShiftId = myBooking ? myBooking.shift_id : null;
+
+  // Gruppera per dag
+  const byDay = {};
+  LIVE.shifts.forEach(s=>{
+    const day = liveDayLabel(s.date);
+    if(!byDay[day]) byDay[day]=[];
+    byDay[day].push(s);
   });
 
-  const wrap=document.getElementById('bulkCourseWrap');
-  const infoBox=document.getElementById('bulkInfoBox');
-  const submitBtn=document.getElementById('bulkSubmitBtn');
-  const msgEl=document.getElementById('bulkMsg');
+  const personTeam = (LIVE.participant && LIVE.participant.team) || '';
+  const shiftHasMyTeam = (shiftId) => {
+    if(!personTeam) return true;
+    return (LIVE.shiftSlots||[]).some(sl => sl.shift_id === shiftId && sl.team === personTeam);
+  };
 
-  if(infoBox)infoBox.style.display='none';
-  if(submitBtn)submitBtn.style.display='none';
-  if(msgEl)msgEl.style.display='none';
+  document.getElementById('noPassMsg').style.display='none';
+  let html = '';
+  Object.keys(byDay).forEach(day=>{
+    const myShifts = byDay[day].filter(s => shiftHasMyTeam(s.id)).sort((a,b) => (a.title+a.time_start).localeCompare(b.title+b.time_start));
+    // Visa bara pass som tillhör personens lag
+    if(myShifts.length === 0) return;
+    html += '<div class="day-header">' + day + '</div>';
+    myShifts.forEach(s=>{
+      const taken = LIVE.bookings.filter(b => b.shift_id === s.id).length;
+      const slotCount = (LIVE.shiftSlots||[]).filter(sl=>sl.shift_id===s.id).length;
+      const free = (slotCount || s.slots) - taken;
+      const total = (LIVE.shiftSlots||[]).filter(sl=>sl.shift_id===s.id).length || s.slots;
+      const full = free <= 0 && s.id !== myShiftId;
+      const low = !full && free <= 2;
+      const pct = total>0 ? Math.round(taken/total*100) : 0;
+      const sel = s.id === myShiftId;
+      const spotsLabel = sel ? 'Ditt pass ✓' : full ? 'Fullt' : free===1 ? '1 plats kvar!' : free+' platser kvar';
+      const spotsCls = sel ? 'spots-ok' : full ? 'spots-full' : low ? 'spots-low' : 'spots-ok';
+      const barColor = pct>=100?'#c0392b':pct>=67?'#e8a020':'#1a8c3a';
+      const tid = s.time_start.slice(0,5)+'–'+s.time_end.slice(0,5);
+      html += '<div class="pass-item' + (sel?' selected':'') + (full?' full':'') + '" id="pi_'+s.id+'">' +
+        '<div class="pass-top" onclick="' + (full?'':'selectLiveShift(\''+s.id+'\')') + '">' +
+        '<div class="pass-radio"><div class="pass-dot"></div></div>' +
+        '<div class="pass-body">' +
+        '<div class="pass-title">' + s.title + '</div>' +
+        '<div class="pass-time">' + tid + '</div>' +
+        (s.location?'<div class="pass-note">📍 '+s.location+'</div>':'') +
+        (s.notes?'<div class="pass-note">'+s.notes+'</div>':'') +
+        '<div style="margin-top:8px;display:flex;align-items:center;gap:8px">' +
+        '<div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;max-width:100px">' +
+        '<div style="height:5px;width:'+pct+'%;background:'+barColor+';border-radius:3px"></div></div>' +
+        '<span style="font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap">'+taken+' av '+total+' tagna</span>' +
+        '</div></div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;padding-left:8px">' +
+        '<span class="spots '+spotsCls+'">'+spotsLabel+'</span></div>' +
+        '</div></div>';
+    });
+  });
+  wrap.innerHTML = html;
+}
 
-  if(!itemOrder.length && !named.length){
-    // Nothing saved yet — show the form
-    if(infoBox)infoBox.style.display='block';
-    if(submitBtn){submitBtn.style.display='block';submitBtn.disabled=false;submitBtn.textContent='Spara för sällskapet';}
-    buildBulkMenu();
+function pickLiveShift(shiftId){
+  currentShift = LIVE.shifts.find(s=>s.id===shiftId);
+  document.querySelectorAll('.pass-item').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('pi_'+shiftId)?.classList.add('selected');
+  // Prefill
+  const myBooking = LIVE.bookings.find(b => b.participant_id === LIVE.participant.id);
+  document.getElementById('parentName').value = LIVE.participant.name || '';
+  document.getElementById('parentPhone').value = LIVE.participant.phone || '';
+  const s = currentShift;
+  document.getElementById('selSummary').innerHTML =
+    '<strong>'+s.title+'</strong> · '+liveDayLabel(s.date)+' · '+s.time_start.slice(0,5)+'–'+s.time_end.slice(0,5) +
+    (s.location?'<br><span style="font-size:13px;color:var(--muted)">📍 '+s.location+'</span>':'') +
+    '<br><span style="font-size:13px;color:var(--muted)">'+LIVE.participant.name+' · '+(LIVE.participant.team||'')+'</span>';
+  setTimeout(()=>{goToStep2();window.scrollTo({top:0,behavior:'smooth'});},180);
+}
+
+async function submitLiveBooking(){
+  const name = document.getElementById('parentName').value.trim();
+  const phone = document.getElementById('parentPhone').value.trim();
+  const msgB = document.getElementById('msgBottom');
+  function showErr(t){ msgB.style.display='block'; msgB.textContent=t; }
+  if(!name){ showErr('Ange ditt namn.'); return; }
+  if(!phone){ showErr('Ange ditt telefonnummer.'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='Sparar...';
+
+  try {
+    // Ta bort ev. tidigare bokning för denna deltagare
+    const prev = LIVE.bookings.find(b => b.participant_id === LIVE.participant.id);
+    if(prev){
+      await sbDelete('bookings', '?id=eq.' + prev.id);
+      LIVE.bookings = LIVE.bookings.filter(b => b.id !== prev.id);
+    }
+    // Skapa ny bokning
+    const result = await sbInsert('bookings', {
+      shift_id: currentShift.id,
+      participant_id: LIVE.participant.id
+    });
+    if(result && result.length) LIVE.bookings.push(result[0]);
+    // Uppdatera deltagarens telefon om ändrad
+    if(phone !== LIVE.participant.phone){
+      await fetch(SUPABASE_URL + '/rest/v1/participants?id=eq.' + LIVE.participant.id, {
+        method:'PATCH',
+        headers:{ 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json' },
+        body: JSON.stringify({ phone: phone })
+      });
+      LIVE.participant.phone = phone;
+    }
+    msgB.style.display='none';
+    showLiveConfirmation(name, phone);
+    // Skicka tackmejl (blockerar inte bokningen om det misslyckas)
+    sendThanksEmail(name, phone);
+  } catch(e){
+    console.error(e);
+    showErr('Kunde inte spara bokningen. Försök igen.');
+  }
+  btn.disabled=false; btn.textContent='Välj det här passet ✓';
+}
+
+async function sendThanksEmail(name, phone){
+  try {
+    const s = currentShift;
+    const tid = s.time_start.slice(0,5) + '–' + s.time_end.slice(0,5);
+    await fetch(SUPABASE_URL + '/functions/v1/send-links', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        mode: 'thanks',
+        recipient: { name: name, email: LIVE.participant.email, token: LIVE.participant.token || '' },
+        eventName: (LIVE.event && LIVE.event.name) || 'eventet',
+        clubName: (LIVE.event && LIVE.event.club_name) || '',
+        baseUrl: window.location.origin + '/guest.html',
+        shift: {
+          title: s.title,
+          time: liveDayLabel(s.date) + ' · ' + tid,
+          location: s.location,
+          contact_name: s.contact_name,
+          contact_phone: s.contact_phone
+        }
+      })
+    });
+  } catch(e){
+    console.error('Tackmejl kunde inte skickas:', e);
+    // Tyst fel — bokningen är ändå sparad
+  }
+}
+
+function showLiveConfirmation(name, phone){
+  const s = currentShift, p = LIVE.participant;
+  const tid = s.time_start.slice(0,5)+'–'+s.time_end.slice(0,5);
+  const locationRow = s.location ? '<div class="conf-row"><span class="conf-label">Plats</span><strong>'+s.location+'</strong></div>' : '';
+  const contactRow = s.contact_name ? '<div class="conf-row"><span class="conf-label">Kontakt vid passet</span><strong>'+s.contact_name+(s.contact_phone?' · <a href="tel:'+s.contact_phone.replace(/\s/g,'')+'" style="color:var(--green);text-decoration:none">'+s.contact_phone+'</a>':'')+'</strong></div>' : '';
+  document.getElementById('confirmSummary').innerHTML =
+    '<div class="conf-row"><span class="conf-label">Deltagare</span><strong>'+p.name+(p.team?' ('+p.team+')':'')+'</strong></div>' +
+    '<div class="conf-row"><span class="conf-label">Pass</span><strong>'+s.title+'</strong></div>' +
+    '<div class="conf-row"><span class="conf-label">Dag</span><strong>'+liveDayLabel(s.date)+'</strong></div>' +
+    '<div class="conf-row"><span class="conf-label">Tid</span><strong>'+tid+'</strong></div>' +
+    locationRow + contactRow +
+    '<div class="conf-row"><span class="conf-label">Namn</span><strong>'+name+'</strong></div>' +
+    '<div class="conf-row"><span class="conf-label">Telefon</span><strong>'+phone+'</strong></div>';
+  const now = new Date();
+  document.getElementById('doneTimestamp').textContent = 'Valt '+now.toLocaleDateString('sv-SE')+' kl '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('mainContent').style.display='none';
+  document.getElementById('stepIndicator').style.display='none';
+  document.getElementById('siLabels').style.display='none';
+  document.getElementById('doneWrap').style.display='block';
+  if(typeof fillQuestionAreas==='function') fillQuestionAreas();
+  if(typeof fillFaqAccordion==='function') fillFaqAccordion();
+  window.scrollTo({top:0,behavior:'smooth'});
+  // Öppna rätt modal om hash finns i URL
+  const _hash = window.location.hash;
+  if(_hash === '#transfer') setTimeout(() => { if(typeof openTransferModal==='function') openTransferModal(); }, 400);
+  else if(_hash === '#sick') setTimeout(() => { if(typeof openSickReport==='function') openSickReport(); }, 400);
+  else if(_hash === '#change') setTimeout(() => { if(typeof editBooking==='function') editBooking(); }, 400);
+}
+
+// ════════════════════════════════════════════════
+// STARTPUNKT — token = riktig vy, annars demo
+// ════════════════════════════════════════════════
+async function bootstrap(){
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const isFeedback = params.get('feedback')==='1';
+
+  if(isFeedback){
+    // Dölj spinner direkt
+    const ls = document.getElementById('loadingState');
+    if(ls) ls.style.display='none';
+    // Feedback-vyn visas redan av separat script.
+    // Om token finns: ladda deltagaren så feedbacken kan sparas mot rätt pass.
+    if(token){
+      try {
+        const parts = await sbFetch('participants', '?token=eq.' + encodeURIComponent(token) + '&select=*');
+        if(parts.length){
+          const participant = parts[0];
+          const bookings = await sbFetch('bookings', '?participant_id=eq.' + participant.id);
+          LIVE = { participant, bookings, shifts:[], event:null };
+        }
+      } catch(e){ console.error('Feedback-laddning fel:', e); }
+    }
     return;
   }
 
-  var html='<div style="font-size:13px;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;background:rgba(184,149,90,.06);border:1px solid rgba(184,149,90,.18);border-radius:8px;padding:.75rem 1rem">'
-    +'<strong style="color:var(--dark)">Justera beställningen</strong><br>'
-    +'Här ser du vad som är inlagt. Ändra antal med + och −, eller redigera/ta bort namngivna gäster.'
-    +'</div>';
-
-  // ── NAMNGIVNA GÄSTER ──
-  if(named.length){
-    html+='<div style="margin-bottom:1.25rem">';
-    html+='<div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">Namngivna gäster</div>';
-    named.forEach(function(o){
-      // Build summary of what they ordered
-      var summary=categories.map(function(cat){
-        var oi=(o.order_items||[]).find(function(x){return x.category_id===cat.id;});
-        if(!oi||!oi.menu_items)return '';
-        var cmt=oi.comment&&oi.comment.trim()?'<span style="font-size:11px;color:#8a6720;font-style:italic"> · '+escGuest(oi.comment.trim())+'</span>':'';
-        return '<span style="font-size:12px;color:var(--muted);margin-right:8px">'+escGuest(cat.label)+':</span><span style="font-size:13px;color:var(--dark)">'+escGuest(oi.menu_items.name)+'</span>'+cmt;
-      }).filter(Boolean).join('<br>');
-
-      // Build edit rows (one per category)
-      var editRows=categories.map(function(cat){
-        var oi=(o.order_items||[]).find(function(x){return x.category_id===cat.id;});
-        var curItemId=oi?oi.menu_item_id:'';
-        var curCmt=oi?(oi.comment||''):'';
-        var opts='<option value="">— Ingen rätt —</option>'+cat.menu_items.map(function(m){
-          return '<option value="'+m.id+'"'+(m.id===curItemId?' selected':'')+'>'+escGuest(m.name)+'</option>';
-        }).join('');
-        return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center">'
-          +'<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:#5a4520;width:80px;flex-shrink:0">'+escGuest(cat.label)+'</div>'
-          +'<select id="gne_cat_'+o.id+'_'+cat.id+'" style="flex:2;min-width:140px;padding:6px 8px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;background:#fff">'+opts+'</select>'
-          +'<input id="gne_cmt_'+o.id+'_'+cat.id+'" value="'+escAttrGuest(curCmt)+'" placeholder="Specialkost (valfritt)" style="flex:1;min-width:130px;padding:6px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px">'
-          +'</div>';
-      }).join('');
-
-      html+='<div style="background:#fff;border:1px solid rgba(184,149,90,.25);border-radius:10px;padding:.9rem 1rem;margin-bottom:.75rem">'
-        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">'
-        +'<div style="font-size:14px;font-weight:500;color:var(--dark)">'+escGuest(o.guest_name)+'</div>'
-        +'<div style="display:flex;gap:6px;flex-shrink:0">'
-        +'<button onclick="toggleGuestEditGuest(\''+o.id+'\')" style="font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;cursor:pointer">Ändra</button>'
-        +'<button onclick="deleteNamedGuest(\''+o.id+'\')" style="font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid #e0c0c0;background:#fff8f8;color:#b05050;cursor:pointer">Ta bort</button>'
-        +'</div></div>'
-        +'<div style="line-height:1.7">'+summary+'</div>'
-        +'<div id="gnedit_'+o.id+'" style="display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(184,149,90,.15)">'
-        +'<div style="font-size:11px;color:var(--muted);margin-bottom:.5rem">Välj rätt per kurs, eller <strong style="font-weight:500">Ingen rätt</strong> för att ta bort den. Specialkost skrivs vid rätten.</div>'
-        +editRows
-        +'<div style="display:flex;gap:8px;margin-top:.5rem">'
-        +'<button onclick="saveNamedGuest(\''+o.id+'\')" style="padding:7px 18px;border-radius:20px;border:none;background:var(--dark);color:#fff;font-size:13px;cursor:pointer">Spara</button>'
-        +'<button onclick="toggleGuestEditGuest(\''+o.id+'\')" style="padding:7px 14px;border-radius:20px;border:1px solid #d4b97a;background:#fff;color:#8a6720;font-size:13px;cursor:pointer">Avbryt</button>'
-        +'</div>'
-        +'</div>'
-        +'</div>';
-    });
-    html+='</div>';
-    // Add new named guest button
-    html+='<div style="margin-bottom:1.25rem">'
-      +'<button onclick="showAddNamedGuest()" id="addNamedBtn" style="font-size:13px;padding:7px 18px;border-radius:20px;border:1px dashed #d4b97a;background:transparent;color:#8a6720;cursor:pointer">+ Lägg till gäst med specialkost</button>'
-      +'<div id="addNamedWrap" style="display:none;margin-top:.75rem;background:#fff;border:1px solid rgba(184,149,90,.25);border-radius:10px;padding:.9rem 1rem">'
-      +'<div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:.5rem">Ny gäst</div>'
-      +'<input id="gne_newname" placeholder="Namn" style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;margin-bottom:.5rem">'
-      +categories.map(function(cat){
-        var opts='<option value="">— Ingen rätt —</option>'+cat.menu_items.map(function(m){return '<option value="'+m.id+'">'+escGuest(m.name)+'</option>';}).join('');
-        return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center">'
-          +'<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:#5a4520;width:80px;flex-shrink:0">'+escGuest(cat.label)+'</div>'
-          +'<select id="gne_new_cat_'+cat.id+'" style="flex:2;min-width:140px;padding:6px 8px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;background:#fff">'+opts+'</select>'
-          +'<input id="gne_new_cmt_'+cat.id+'" placeholder="Specialkost (valfritt)" style="flex:1;min-width:130px;padding:6px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px">'
-          +'</div>';
-      }).join('')
-      +'<div style="display:flex;gap:8px;margin-top:.5rem">'
-      +'<button onclick="saveNewNamedGuest()" style="padding:7px 18px;border-radius:20px;border:none;background:var(--dark);color:#fff;font-size:13px;cursor:pointer">Spara gäst</button>'
-      +'<button onclick="hideAddNamedGuest()" style="padding:7px 14px;border-radius:20px;border:1px solid #d4b97a;background:#fff;color:#8a6720;font-size:13px;cursor:pointer">Avbryt</button>'
-      +'</div>'
-      +'</div>'
-      +'</div>';
+  if(token){
+    initLive(token);
   } else {
-    // No named guests yet — show add button
-    html+='<div style="margin-bottom:1.25rem">'
-      +'<button onclick="showAddNamedGuest()" id="addNamedBtn" style="font-size:13px;padding:7px 18px;border-radius:20px;border:1px dashed #d4b97a;background:transparent;color:#8a6720;cursor:pointer">+ Lägg till gäst med specialkost</button>'
-      +'<div id="addNamedWrap" style="display:none;margin-top:.75rem;background:#fff;border:1px solid rgba(184,149,90,.25);border-radius:10px;padding:.9rem 1rem">'
-      +'<div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:.5rem">Ny gäst</div>'
-      +'<input id="gne_newname" placeholder="Namn" style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;margin-bottom:.5rem">'
-      +categories.map(function(cat){
-        var opts='<option value="">— Ingen rätt —</option>'+cat.menu_items.map(function(m){return '<option value="'+m.id+'">'+escGuest(m.name)+'</option>';}).join('');
-        return '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center">'
-          +'<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:#5a4520;width:80px;flex-shrink:0">'+escGuest(cat.label)+'</div>'
-          +'<select id="gne_new_cat_'+cat.id+'" style="flex:2;min-width:140px;padding:6px 8px;font-size:13px;border:1px solid #d4b97a;border-radius:6px;background:#fff">'+opts+'</select>'
-          +'<input id="gne_new_cmt_'+cat.id+'" placeholder="Specialkost (valfritt)" style="flex:1;min-width:130px;padding:6px 10px;font-size:13px;border:1px solid #d4b97a;border-radius:6px">'
-          +'</div>';
-      }).join('')
-      +'<div style="display:flex;gap:8px;margin-top:.5rem">'
-      +'<button onclick="saveNewNamedGuest()" style="padding:7px 18px;border-radius:20px;border:none;background:var(--dark);color:#fff;font-size:13px;cursor:pointer">Spara gäst</button>'
-      +'<button onclick="hideAddNamedGuest()" style="padding:7px 14px;border-radius:20px;border:1px solid #d4b97a;background:#fff;color:#8a6720;font-size:13px;cursor:pointer">Avbryt</button>'
-      +'</div>'
-      +'</div>'
-      +'</div>';
-  }
-
-  // ── ANONYMA PORTIONER (+ / −) ──
-  if(itemOrder.length){
-    html+='<div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">Övriga portioner</div>';
-  }
-  categories.forEach(function(cat){
-    var catItems=itemOrder.filter(function(mid){return itemMap[mid].catId===cat.id;});
-    var zeroItems=cat.menu_items.filter(function(i){return !itemMap[i.id];});
-    if(!catItems.length&&!zeroItems.length)return;
-    html+='<div style="background:rgba(184,149,90,.05);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem">';
-    html+='<div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">'+cat.label+'</div>';
-    catItems.forEach(function(mid){
-      var it=itemMap[mid];
-      var menuItem=cat.menu_items.find(function(i){return i.id===mid;});
-      var desc=menuItem&&menuItem.description?'<div style="font-size:11px;color:var(--muted)">'+menuItem.description+'</div>':'';
-      html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(184,149,90,.12)">'
-        +'<div style="flex:1;min-width:120px"><div style="font-size:14px;color:var(--dark)">'+it.name+'</div>'+desc+'</div>'
-        +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
-        +'<button onclick="adjustGuestBulk(\''+mid+'\',\''+cat.id+'\',-1)" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400">−</button>'
-        +'<span id="gbc_'+mid+'" style="font-size:16px;font-weight:500;min-width:24px;text-align:center;color:var(--dark)">'+it.count+'</span>'
-        +'<button onclick="adjustGuestBulk(\''+mid+'\',\''+cat.id+'\',+1)" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400">+</button>'
-        +'</div></div>';
-    });
-    zeroItems.forEach(function(item){
-      var desc=item.description?'<div style="font-size:11px;color:var(--muted)">'+item.description+'</div>':'';
-      html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(184,149,90,.12)">'
-        +'<div style="flex:1;min-width:120px"><div style="font-size:14px;color:var(--dark)">'+item.name+'</div>'+desc+'</div>'
-        +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
-        +'<button onclick="adjustGuestBulk(\''+item.id+'\',\''+cat.id+'\',-1)" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400">−</button>'
-        +'<span id="gbc_'+item.id+'" style="font-size:16px;font-weight:500;min-width:24px;text-align:center;color:var(--dark)">0</span>'
-        +'<button onclick="adjustGuestBulk(\''+item.id+'\',\''+cat.id+'\',+1)" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #d4b97a;background:#fff8ee;color:#8a6720;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1;font-weight:400">+</button>'
-        +'</div></div>';
-    });
-    html+='</div>';
-  });
-
-  wrap.innerHTML=html;
-}
-
-
-function escGuest(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-function escAttrGuest(s){return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;');}
-
-function toggleGuestEditGuest(oid){
-  var el=document.getElementById('gnedit_'+oid);
-  if(el)el.style.display=el.style.display==='none'?'block':'none';
-}
-
-async function saveNamedGuest(oid){
-  if(isClosed){alert('Beställningstiden har passerat.');return;}
-  try{
-    var {data:cur}=await db.from('order_items').select('id,category_id,menu_item_id').eq('order_id',oid);
-    cur=cur||[];
-    for(var i=0;i<categories.length;i++){
-      var cat=categories[i];
-      var selEl=document.getElementById('gne_cat_'+oid+'_'+cat.id);
-      if(!selEl)continue;
-      var itemId=selEl.value;
-      var cmtEl=document.getElementById('gne_cmt_'+oid+'_'+cat.id);
-      var cmt=cmtEl?cmtEl.value.trim():'';
-      var existing=cur.find(function(x){return x.category_id===cat.id;});
-      if(itemId){
-        if(existing){
-          await db.from('order_items').update({menu_item_id:itemId,category_id:cat.id,comment:cmt||null}).eq('id',existing.id);
-        } else {
-          await db.from('order_items').insert({order_id:oid,menu_item_id:itemId,category_id:cat.id,comment:cmt||null});
-        }
-      } else if(existing){
-        await db.from('order_items').delete().eq('id',existing.id);
-      }
-    }
-    await loadBulkEdit();
-    showBulkToast('Sparat!');
-  }catch(err){alert('Fel: '+err.message);}
-}
-
-async function deleteNamedGuest(oid){
-  if(isClosed){alert('Beställningstiden har passerat.');return;}
-  if(!confirm('Ta bort den här gästen?'))return;
-  try{
-    await db.from('order_items').delete().eq('order_id',oid);
-    await db.from('orders').delete().eq('id',oid);
-    await loadBulkEdit();
-    showBulkToast('Gäst sparad!');
-  }catch(err){alert('Fel: '+err.message);}
-}
-
-function showAddNamedGuest(){
-  var btn=document.getElementById('addNamedBtn');
-  var wrap=document.getElementById('addNamedWrap');
-  if(btn)btn.style.display='none';
-  if(wrap)wrap.style.display='block';
-}
-
-function hideAddNamedGuest(){
-  var btn=document.getElementById('addNamedBtn');
-  var wrap=document.getElementById('addNamedWrap');
-  if(btn)btn.style.display='block';
-  if(wrap)wrap.style.display='none';
-}
-
-async function saveNewNamedGuest(){
-  if(isClosed){alert('Beställningstiden har passerat.');return;}
-  var nm=(document.getElementById('gne_newname')?.value||'').trim();
-  if(!nm){alert('Ange ett namn.');return;}
-  try{
-    const {data:newOrd,error:oErr}=await db.from('orders').insert({booking_id:BID,restaurant_id:restaurant.id,guest_name:nm}).select('id').single();
-    if(oErr)throw new Error(oErr.message);
-    var items=[];
-    for(var i=0;i<categories.length;i++){
-      var cat=categories[i];
-      var itemId=(document.getElementById('gne_new_cat_'+cat.id)?.value)||'';
-      var cmt=(document.getElementById('gne_new_cmt_'+cat.id)?.value||'').trim();
-      if(itemId)items.push({order_id:newOrd.id,menu_item_id:itemId,category_id:cat.id,comment:cmt||null});
-    }
-    if(items.length){
-      const {error:iErr}=await db.from('order_items').insert(items);
-      if(iErr)throw new Error(iErr.message);
-    }
-    await loadBulkEdit();
-  }catch(err){alert('Fel: '+err.message);}
-}
-
-
-function showBulkToast(msg){
-  var t=document.getElementById('bulkToast');
-  if(!t){
-    t=document.createElement('div');
-    t.id='bulkToast';
-    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2d6a3f;color:#fff;font-size:13px;padding:9px 20px;border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.15);opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999';
-    document.body.appendChild(t);
-  }
-  t.textContent=msg||'Sparat!';
-  t.style.opacity='1';
-  clearTimeout(t._to);
-  t._to=setTimeout(function(){t.style.opacity='0';},2000);
-}
-
-async function adjustGuestBulk(itemId, catId, delta){
-  if(isClosed){alert('Beställningstiden har passerat.');return;}
-  const countSpan=document.getElementById('gbc_'+itemId);
-  const cur=parseInt(countSpan?countSpan.textContent:'0')||0;
-  try{
-    if(delta>0){
-      // Find next Portion number
-      const {data:allOrd}=await db.from('orders').select('id,guest_name').eq('booking_id',BID);
-      const nums=(allOrd||[]).map(function(o){var m=/^Portion\s+(\d+)$/.exec(o.guest_name||'');return m?parseInt(m[1]):0;});
-      const nextNum=(nums.length?Math.max.apply(null,nums):0)+1;
-      const {data:newOrd,error:oErr}=await db.from('orders').insert({booking_id:BID,restaurant_id:restaurant.id,guest_name:'Portion '+nextNum}).select('id').single();
-      if(oErr)throw new Error(oErr.message);
-      const {error:iErr}=await db.from('order_items').insert({order_id:newOrd.id,menu_item_id:itemId,category_id:catId,comment:null});
-      if(iErr)throw new Error(iErr.message);
-      if(countSpan)countSpan.textContent=cur+1;
-      showBulkToast('Sparat!');
-    } else {
-      if(cur<=0)return;
-      // Find anon orders with this item, take highest Portion N
-      const {data:allOrd}=await db.from('orders')
-        .select('id,guest_name,order_items(id,comment,menu_item_id,category_id)')
-        .eq('booking_id',BID);
-      const candidates=(allOrd||[]).filter(function(o){
-        if(!_guestIsAnon(o))return false;
-        return (o.order_items||[]).some(function(oi){return oi.menu_item_id===itemId&&oi.category_id===catId;});
-      });
-      if(!candidates.length)return;
-      candidates.sort(function(a,b){
-        var na=parseInt((/Portion\s+(\d+)/.exec(a.guest_name||'')||[0,0])[1]);
-        var nb=parseInt((/Portion\s+(\d+)/.exec(b.guest_name||'')||[0,0])[1]);
-        return nb-na;
-      });
-      const target=candidates[0];
-      await db.from('order_items').delete().eq('order_id',target.id);
-      await db.from('orders').delete().eq('id',target.id);
-      if(countSpan)countSpan.textContent=cur-1;
-      showBulkToast('Sparat!');
-    }
-  }catch(err){
-    alert('Fel: '+err.message);
+    init(); // demo-läge
   }
 }
-
-init();
+window.addEventListener('DOMContentLoaded', bootstrap);
 </script>
-<footer style="text-align:center;padding:2rem 1rem 1.5rem;margin-top:2rem;border-top:1px solid var(--border)">
-  <a href="https://premeny.se" target="_blank" style="font-size:12px;color:var(--muted);text-decoration:none;letter-spacing:.04em">Powered by <span style="color:var(--gold)">PreMeny.se</span></a>
+
+<div style="max-width:480px;margin:2rem auto 0;padding:0 1.25rem">
+  <div style="background:#faf6f0;border-radius:14px;padding:1.25rem 1.5rem;text-align:center">
+    <div style="font-weight:700;color:#111c13;font-size:14.5px;margin-bottom:.35rem">Frågor eller synpunkter på LagPasset?</div>
+    <div style="font-size:13px;color:#6a8a6e;margin-bottom:.65rem">Vi utvecklar LagPasset tillsammans med er – hör gärna av dig</div>
+    <div style="display:flex;justify-content:center;gap:1.25rem;flex-wrap:wrap">
+      <a href="mailto:hej@lagpasset.se" style="color:#1a8c3a;font-weight:700;font-size:13.5px;text-decoration:none">hej@lagpasset.se</a>
+      <span style="color:#ccc">·</span>
+      <a href="tel:0708200894" style="color:#1a8c3a;font-weight:700;font-size:13.5px;text-decoration:none">0708 200 894</a>
+    </div>
+  </div>
+</div>
+
+<footer style="text-align:center;padding:1.5rem 1rem 1.5rem;margin-top:1.5rem;border-top:1px solid var(--border)">
+  <a href="https://lagpasset.se" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;text-decoration:none">
+    <span style="font-size:12px;color:var(--muted)">drivs av</span>
+    <img src="logo.png" alt="LagPasset" style="height:20px;width:auto">
+  </a>
 </footer>
 </body>
 </html>
