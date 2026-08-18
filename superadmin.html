@@ -193,7 +193,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <div class="r2">
       <div class="ff"><label>Plan</label>
         <select id="nr-plan">
-          <option value="early_bird">Early Bird – 349 kr/mån</option>
+          <option value="early_bird">Standard – 295 kr/mån</option>
           <option value="small">Small – 499 kr/mån</option>
           <option value="medium">Medium – 799 kr/mån</option>
           <option value="large">Large – 1199 kr/mån</option>
@@ -509,7 +509,7 @@ async function loadRestaurants(){
   });
   (allOrders||[]).forEach(o=>{orderCounts[o.restaurant_id]=(orderCounts[o.restaurant_id]||0)+1;});
 
-  const planLabels={early_bird:'Early Bird',small:'Small',medium:'Medium',large:'Large'};
+  const planLabels={early_bird:'Standard',small:'Small',medium:'Medium',large:'Large'};
   const planClass={early_bird:'plan-early',small:'plan-small',medium:'plan-medium',large:'plan-large'};
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const now=new Date();
@@ -763,7 +763,7 @@ async function createRestaurant(){
 async function openEditRest(id){
   const {data:r}=await db.from('restaurants').select('*').eq('id',id).single();
   if(!r)return;
-  const planOpts={early_bird:'Early Bird – 349 kr/mån',small:'Small – 499 kr/mån',medium:'Medium – 799 kr/mån',large:'Large – 1199 kr/mån'};
+  const planOpts={early_bird:'Standard – 295 kr/mån',small:'Small – 499 kr/mån',medium:'Medium – 799 kr/mån',large:'Large – 1199 kr/mån'};
   document.getElementById('editRestContent').innerHTML=`
     <div class="r2">
       <div class="ff"><label>Namn</label><input type="text" id="er-name" value="${r.name}"></div>
@@ -892,7 +892,7 @@ async function loadArchivedRestaurants(){
   grid.innerHTML='<div style="font-size:13px;color:var(--muted)">Laddar...</div>';
   const {data:rests}=await db.from('restaurants').select('*').eq('active',false).order('created_at',{ascending:false});
   if(!rests?.length){grid.innerHTML='<div style="font-size:14px;color:var(--muted);padding:1rem">Inga arkiverade kunder.</div>';return;}
-  const planLabels={early_bird:'Early Bird',small:'Small',medium:'Medium',large:'Large'};
+  const planLabels={early_bird:'Standard',small:'Small',medium:'Medium',large:'Large'};
   const planClass={early_bird:'plan-early',small:'plan-small',medium:'plan-medium',large:'plan-large'};
   grid.innerHTML=rests.map(r=>`
     <div class="rest-card" style="opacity:.7">
