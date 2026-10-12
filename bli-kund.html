@@ -136,9 +136,8 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 
 const REQUIRED=['company','orgnr','address','zip','city','invoice_email','contact_name','contact_email','contact_mobile','restaurant_phone'];
 
-/* Byt garna till ett eget PreMeny-formular i Formspree. Tills dess
-   landar anmalningarna i samma inkorg, med PreMeny i amnesraden. */
-const FORMSPREE='https://formspree.io/f/xljryoap';
+/* Formspree-formularet "Premeny bli kund". */
+const FORMSPREE='https://formspree.io/f/mwlvqjeq';
 function val(id){return (document.getElementById(id).value||'').trim();}
 function showMsg(t,cls){const m=document.getElementById('msg');m.textContent=t;m.className='msg '+cls;m.scrollIntoView({behavior:'smooth',block:'center'});}
 function validEmail(e){return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);}
