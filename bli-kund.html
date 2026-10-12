@@ -136,6 +136,9 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 
 const REQUIRED=['company','orgnr','address','zip','city','invoice_email','contact_name','contact_email','contact_mobile','restaurant_phone'];
 
+/* Byt garna till ett eget PreMeny-formular i Formspree. Tills dess
+   landar anmalningarna i samma inkorg, med PreMeny i amnesraden. */
+const FORMSPREE='https://formspree.io/f/xljryoap';
 function val(id){return (document.getElementById(id).value||'').trim();}
 function showMsg(t,cls){const m=document.getElementById('msg');m.textContent=t;m.className='msg '+cls;m.scrollIntoView({behavior:'smooth',block:'center'});}
 function validEmail(e){return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);}
@@ -160,19 +163,23 @@ async function submitSignup(){
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Skickar...';
   document.getElementById('msg').className='msg';
   try{
-    const resp=await fetch(SUPABASE_URL+'/functions/v1/send-email',{
+    /* Formspree, samma losning som fa-ett-forslag pa headofhappiness.se.
+       Oberoende av om Supabase-projektet ar igang eller pausat. */
+    const resp=await fetch(FORMSPREE,{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_KEY},
-      body:JSON.stringify({type:'signup',booking:payload})
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(Object.assign({
+        _subject:'PreMeny – ny kundanmälan: '+(payload.company||'okänt företag'),
+        _replyto:payload.contact_email
+      },payload))
     });
-    const result=await resp.json();
-    if(!result.ok)throw new Error(result.error||'Okänt fel');
+    if(!resp.ok)throw new Error('kunde inte skicka ('+resp.status+')');
     document.getElementById('formState').style.display='none';
     document.getElementById('doneState').style.display='block';
     window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
     btn.disabled=false;btn.textContent='Skicka in & bli kund';
-    showMsg('Något gick fel: '+err.message+'. Försök igen, eller mejla info@premeny.se.','err');
+    showMsg('Något gick fel: '+err.message+'. Försök igen, eller mejla uppgifterna till info@premeny.se så ordnar vi det.','err');
   }
 }
 </script>
