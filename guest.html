@@ -178,12 +178,51 @@ textarea{min-height:75px}
 const SUPABASE_URL='https://gndzalmkbsfhclpoidqi.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduZHphbG1rYnNmaGNscG9pZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NDAxODcsImV4cCI6MjA5NTAxNjE4N30.Om9UOmTFR8CZZKu5qyiu1YImGdVxzI3KtlgukUV3Q-s';
 const {createClient}=supabase;
-const db=createClient(SUPABASE_URL,SUPABASE_KEY);
+let db=createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const params=new URLSearchParams(location.search);
 const SLUG=params.get('r');
 const BID=params.get('b');
 const IS_CONTACT=params.get('k')==='1';
+
+/* ---------- demon ----------
+   Demosidan ska fungera aven nar Supabase-projektet ar pausat, sa
+   dess data ligger har i stallet for i databasen. Attrappen harmar
+   Supabases kedja, vilket gor att inget anropsstalle behover andras.
+   Datumet raknas fram vid varje besok sa demon aldrig ser gammal ut. */
+const DEMO_DATA={"restaurant":{"id":"80caaaf8-3eaa-4e42-b8dd-b78deef24040","slug":"demo","name":"DemoRestaurang","logo_url":null,"accent_color":"#b8955a"},"booking":{"id":"84fbc0c1-2b36-4b0c-abfd-462d8630342a","name":"Svensson 50-år","event_time":"18:00:00","show_prices":true,"menu_id":null,"event_type":null},"categories":[{"id":"c1","label":"Förrätter","sort_order":0,"menu_items":[{"id":"i1","category_id":"c1","name":"Rökt lax","description":"Crème fraiche, kapris, rödlök, dill, rostat surdegsbröd","price":190,"sort_order":1,"active":true},{"id":"i2","category_id":"c1","name":"Gratinerade pilgrimsmusslor","description":"Vitlökssmör, persilja, citrondressing, grillat bröd","price":225,"sort_order":2,"active":true},{"id":"i3","category_id":"c1","name":"Getostgratäng","description":"Ugnsrostad getost, honung, valnötter, ruccola, päroncoulis","price":165,"sort_order":3,"active":true},{"id":"i4","category_id":"c1","name":"Toast med räkor","description":"Handskalade räkor, majonnäs, citron, dill, romsås","price":175,"sort_order":4,"active":true},{"id":"i5","category_id":"c1","name":"Råbiff","description":"Senap, cornichoner, kapris, äggula, friterad schalottenlök","price":265,"sort_order":5,"active":true}]},{"id":"c2","label":"Huvudrätter","sort_order":1,"menu_items":[{"id":"i6","category_id":"c2","name":"Smörstekt torskrygg","description":"Beurre blanc, gurka, löjrom, sockerärtor, potatispuré","price":325,"sort_order":1,"active":true},{"id":"i7","category_id":"c2","name":"Grillad entrecôte","description":"Pommes frites, bearnaisesås, confierad tomat, rosmarin","price":395,"sort_order":2,"active":true},{"id":"i8","category_id":"c2","name":"Kycklinggryta","description":"Vitvin, champinjoner, gräddsås, serveras med ris","price":295,"sort_order":3,"active":true},{"id":"i9","category_id":"c2","name":"Kronärtskocka med ost","description":"Bakad kronärtskocka, färskost, persillade, rostad tomat","price":245,"sort_order":4,"active":true},{"id":"i10","category_id":"c2","name":"Musslor i vitvinssås","description":"Vitlök, schalottenlök, vitt vin, grädde, pommes frites","price":275,"sort_order":5,"active":true},{"id":"i11","category_id":"c2","name":"Hamburgare","description":"Cheddar, picklad gurka, karamelliserad lök, aioli, pommes frites","price":235,"sort_order":6,"active":true}]},{"id":"c3","label":"Dessert","sort_order":2,"menu_items":[{"id":"i12","category_id":"c3","name":"Crème brûlée","description":"Klassisk med vanilj, flamberad sockerkrust","price":105,"sort_order":1,"active":true},{"id":"i13","category_id":"c3","name":"Choklad- och kolakaka","description":"Brownie, saltad karamellkräm, vaniljglass, rostade mandlar","price":125,"sort_order":2,"active":true},{"id":"i14","category_id":"c3","name":"Hallonparfait","description":"Hallonsorbet, smörkaka, vit choklad, kardemumma","price":115,"sort_order":3,"active":true},{"id":"i15","category_id":"c3","name":"Citronsorbet","description":"Äpple, citronkompott, vispad äppelgelé","price":115,"sort_order":4,"active":true},{"id":"i16","category_id":"c3","name":"Friterad camembert","description":"Hjortronsylt, friterad persilja, lingonsallad","price":135,"sort_order":5,"active":true}]}]};
+(function(){
+  if(SLUG!=="demo")return;
+  const om=function(dagar){const d=new Date();d.setDate(d.getDate()+dagar);return d.toISOString().slice(0,10);};
+  DEMO_DATA.booking.event_date=om(24);
+  DEMO_DATA.booking.deadline=om(10);
+  DEMO_DATA.booking.id=BID||DEMO_DATA.booking.id;
+  const svar=function(s){
+    if(s.tabell==="restaurants")return{data:DEMO_DATA.restaurant,error:null};
+    if(s.tabell==="bookings")return{data:DEMO_DATA.booking,error:null};
+    if(s.tabell==="menus")return{data:null,error:null};
+    if(s.tabell==="menu_categories")return{data:DEMO_DATA.categories,error:null};
+    if(s.tabell==="orders")return s.skriv?{data:{id:"demo-order"},error:null}:{data:null,error:null};
+    return{data:s.enstaka?null:[],error:null};
+  };
+  const fraga=function(tabell){
+    const s={tabell:tabell,enstaka:false,skriv:false};
+    const kedja={
+      select:function(){return kedja;},eq:function(){return kedja;},
+      ilike:function(){return kedja;},order:function(){return kedja;},
+      limit:function(){return kedja;},
+      single:function(){s.enstaka=true;return kedja;},
+      maybeSingle:function(){s.enstaka=true;return kedja;},
+      insert:function(){s.skriv=true;return kedja;},
+      update:function(){s.skriv=true;return kedja;},
+      delete:function(){s.skriv=true;return kedja;},
+      then:function(ok,nej){return Promise.resolve(svar(s)).then(ok,nej);}
+    };
+    return kedja;
+  };
+  db={from:fraga};
+})();
+
 let restaurant=null,booking=null,categories=[],gSel={},gComments={},existingOrderId=null,isClosed=false,menuPrice=null,userPicked=false;
 
 async function init(){
