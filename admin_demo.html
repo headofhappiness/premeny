@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-11-13k-demo">
+<meta name="pm-build" content="2026-11-13l-demo">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -157,7 +157,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   input,textarea,select{font-size:16px}
 }
 </style>
-<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13k"><script src="ui-clarity.js?v=2026-11-13k"></script>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13l"><script src="ui-clarity.js?v=2026-11-13l"></script>
 </head>
 <body>
 
@@ -629,7 +629,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>window.MFA_ENFORCED=true; /* true = ingen "hoppa över" (servern kräver aal2 sedan 2026-11-13) */</script>
-<script src="mfa.js?v=2026-11-13k"></script>
+<script src="mfa.js?v=2026-11-13l"></script>
 <script>
 // ─── HJÄLPFUNKTIONER ────────────────────────────────────────────────
 function showMsg(id,cls,txt){var el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=txt;}
@@ -1239,8 +1239,8 @@ function renderBCard(b){
         <div style="font-size:15px;color:var(--text);line-height:1.5"><strong style="font-weight:600">1. Bekräfta bokningen</strong><br><span style="color:var(--muted);font-size:14px">Skickar en bokningsbekräftelse till kontaktpersonen.</span></div>
         <button onclick="sendConfirmation('${b.id}')" class="btn bg" style="${_btn}">✉ Skicka bekräftelse</button>
       </div>
-      <div style="font-size:16px;font-weight:600;color:var(--dark);margin:1.1rem 0 .15rem">2. Låt gästerna välja mat – två sätt</div>
-      <div style="font-size:14px;color:var(--muted);margin-bottom:.65rem;line-height:1.5">Länken skickas till kontaktpersonen: <strong style="color:var(--text);font-weight:500">${b.contact_name||'kontaktpersonen'}</strong>${b.contact_email?` · ${b.contact_email}`:''}${b.contact_phone?` · ${b.contact_phone}`:''}</div>
+      <div style="font-size:16px;font-weight:600;color:var(--dark);margin:1.1rem 0 .15rem">2. Så får ni in gästernas val – tre sätt</div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:.65rem;line-height:1.5">Länkarna skickas till kontaktpersonen: <strong style="color:var(--text);font-weight:500">${b.contact_name||'kontaktpersonen'}</strong>${b.contact_email?` · ${b.contact_email}`:''}${b.contact_phone?` · ${b.contact_phone}`:''}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:1rem">
         <div style="${_card}">
           <div style="${_head}">👥 Gästlänk – varje gäst väljer själv</div>
@@ -1253,13 +1253,20 @@ function renderBCard(b){
           </div>
         </div>
         <div style="${_card}">
-          <div style="${_head}">⭐ Kontaktlänk – en person fyller i för alla</div>
-          <div style="${_txt}">En person (t.ex. en lagledare eller arrangör) fyller i hela sällskapets val på en gång – antal per rätt. Bra när valen redan är insamlade.</div>
+          <div style="${_head}">⭐ Kontaktlänk – en person i sällskapet fyller i för alla</div>
+          <div style="${_txt}">En person i sällskapet (t.ex. en lagledare eller arrangör) fyller i hela sällskapets val på en gång – antal per rätt. Bra när hen redan samlat in valen.</div>
           <div class="linkbox" style="margin:0;word-break:break-all">${kLink}</div>
           <div class="fg" style="flex-wrap:wrap;gap:6px;margin-top:auto">
             ${b.contact_email?`<button onclick="sendContactLink('${b.id}','email')" class="btn bp" style="${_btn}">✉ Mejla kontaktlänk</button>`:''}
             ${b.contact_phone?(_smsOk?`<button onclick="sendContactLink('${b.id}','sms')" class="btn bp" style="${_btn}">💬 Sms:a kontaktlänk</button>`:`<button onclick="${_badSms}" class="btn bp" style="${_btn};opacity:.55">💬 Sms:a kontaktlänk ⚠</button>`):''}
             <button onclick="navigator.clipboard.writeText('${kLink}').then(()=>alert('Kontaktlänk kopierad!'))" class="btn bg" style="${_btn}">📋 Kopiera</button>
+          </div>
+        </div>
+        <div style="${_card}">
+          <div style="${_head}">✍ Fyll i själv – ni lägger in valen</div>
+          <div style="${_txt}">Restaurangen fyller i hela sällskapets val direkt, t.ex. när ni fått dem per telefon eller mejl. Ange antal per rätt, eller namn och val per gäst.</div>
+          <div class="fg" style="flex-wrap:wrap;gap:6px;margin-top:auto">
+            <button onclick="fillInMyself('${b.id}')" class="btn bp" style="${_btn}">✍ Fyll i för sällskapet</button>
           </div>
         </div>
       </div>`;
@@ -1301,7 +1308,7 @@ function renderBCard(b){
 
     // Detaljflikar
     html+=`<div class="fg" style="margin-bottom:.75rem;flex-wrap:wrap">
-      ${[['tally','Kökslista'],['guests','Gästlista'],['bulk','Fyll i för sällskap']].map(([t,l])=>
+      ${[['tally','Kökslista'],['guests','Gästlista'],['bulk','Fyll i för sällskapet']].map(([t,l])=>
         `<button class="dtab${dtab===t?' active':''}" onclick="switchDtab('${b.id}','${t}')">${l}</button>`).join('')}
     </div>
     <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap;gap:6px">
@@ -1340,6 +1347,11 @@ async function toggleB(id){
   if(!dtabs[id])dtabs[id]='tally';
   await reRender(id);
   if(openB[id]){prewarmSend();loadDet(id,dtabs[id]);}
+}
+
+async function fillInMyself(id){
+  await switchDtab(id,'bulk');
+  setTimeout(function(){var e=document.getElementById('det_'+id);if(e)e.scrollIntoView({behavior:'smooth',block:'start'});},350);
 }
 
 async function switchDtab(id,tab){
