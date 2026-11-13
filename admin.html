@@ -6,9 +6,9 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://gndzalmkbsfhclpoidqi.supabase.co wss://gndzalmkbsfhclpoidqi.supabase.co https://challenges.cloudflare.com; frame-src 'self' about: https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-11-13r">
-<script src="update-check.js?v=2026-11-13r"></script>
-<script src="pm-captcha.js?v=2026-11-13r"></script>
+<meta name="pm-build" content="2026-11-13t">
+<script src="update-check.js?v=2026-11-13t"></script>
+<script src="pm-captcha.js?v=2026-11-13t"></script>
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -146,7 +146,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   input,textarea,select{font-size:16px}
 }
 </style>
-<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13r"><script src="ui-clarity.js?v=2026-11-13r"></script>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13t"><script src="ui-clarity.js?v=2026-11-13t"></script>
 </head>
 <body>
 
@@ -600,7 +600,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>window.MFA_ENFORCED=true; /* true = ingen "hoppa över" (servern kräver aal2 sedan 2026-11-13) */</script>
-<script src="mfa.js?v=2026-11-13r"></script>
+<script src="mfa.js?v=2026-11-13t"></script>
 <script>
 // ─── HJÄLPFUNKTIONER ────────────────────────────────────────────────
 function showMsg(id,cls,txt){var el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=txt;}
@@ -1165,11 +1165,14 @@ function renderBCard(b){
     const _pc=(b.contact_phone||'').replace(/[\s\-]/g,'');
     const _smsOk=/^(\+467\d{8}|07\d{8})$/.test(_pc);
     const _badSms=`alert('Telefonnumret ${String(b.contact_phone||'').replace(/[^0-9+\-\s()]/g,'')} verkar inte stämma.\\n\\nAnge ett giltigt mobilnummer under Ändra bokning.')`;
-    const _card='background:var(--surface);border:1px solid var(--bs);border-radius:12px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.6rem';
-    const _head='font-size:16px;font-weight:600;color:var(--dark);line-height:1.35';
+    const _card='background:var(--surface);border:1px solid var(--bs);border-radius:12px;overflow:hidden;display:flex;flex-direction:column';
+    const _head='font-size:16px;font-weight:600;line-height:1.35;padding:11px 14px';
+    const _body='padding:.9rem 1.1rem 1rem;display:flex;flex-direction:column;gap:.6rem;flex:1';
     const _txt='font-size:14px;color:var(--muted);line-height:1.55';
     const _btn='font-size:14px;padding:8px 14px';
-    html+=`<div style="margin:1rem 0 .5rem;padding:.75rem .95rem;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    const _btn2=_btn+';background:var(--tegel);border-color:var(--tegel);color:#fff';
+    const _btn3=_btn+';background:var(--persika);border-color:var(--persika);color:#4a2418';
+    html+=`<div style="margin:1rem 0 .5rem;padding:.75rem .95rem;background:var(--sand);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
         <div style="font-size:15px;color:var(--text);line-height:1.5"><strong style="font-weight:600">1. Bekräfta bokningen</strong><br><span style="color:var(--muted);font-size:14px">Skickar en bokningsbekräftelse till kontaktpersonen.</span></div>
         <button onclick="sendConfirmation('${b.id}')" class="btn bg" style="${_btn}">✉ Skicka bekräftelse</button>
       </div>
@@ -1177,7 +1180,8 @@ function renderBCard(b){
       <div style="font-size:14px;color:var(--muted);margin-bottom:.65rem;line-height:1.5">Länkarna skickas till kontaktpersonen: <strong style="color:var(--text);font-weight:500">${escHtml(b.contact_name||'kontaktpersonen')}</strong>${b.contact_email?` · ${escHtml(b.contact_email)}`:''}${b.contact_phone?` · ${escHtml(b.contact_phone)}`:''}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:1rem">
         <div style="${_card}">
-          <div style="${_head}">👥 Gästlänk – varje gäst väljer själv</div>
+          <div style="${_head};background:var(--navy);color:#FBF7EF">👥 Gästlänk – varje gäst väljer själv</div>
+          <div style="${_body}">
           <div style="${_txt}">Det vanligaste. Kontaktpersonen vidarebefordrar länken till alla gäster, och var och en väljer sin egen mat.</div>
           <div class="linkbox" style="margin:0;word-break:break-all">${gLink}</div>
           <div class="fg" style="flex-wrap:wrap;gap:6px;margin-top:auto">
@@ -1185,22 +1189,27 @@ function renderBCard(b){
             ${b.contact_phone?(_smsOk?`<button onclick="sendSummary('${b.id}','sms')" class="btn bp" style="${_btn}">💬 Sms:a länk</button>`:`<button onclick="${_badSms}" class="btn bp" style="${_btn};opacity:.55">💬 Sms:a länk ⚠</button>`):''}
             <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="${_btn}">📋 Kopiera</button>
           </div>
-        </div>
-        <div style="${_card}">
-          <div style="${_head}">⭐ Kontaktlänk – en person i sällskapet fyller i för alla</div>
-          <div style="${_txt}">En person i sällskapet (t.ex. en lagledare eller arrangör) fyller i hela sällskapets val på en gång – antal per rätt. Bra när hen redan samlat in valen.</div>
-          <div class="linkbox" style="margin:0;word-break:break-all">${kLink}</div>
-          <div class="fg" style="flex-wrap:wrap;gap:6px;margin-top:auto">
-            ${b.contact_email?`<button onclick="sendContactLink('${b.id}','email')" class="btn bp" style="${_btn}">✉ Mejla kontaktlänk</button>`:''}
-            ${b.contact_phone?(_smsOk?`<button onclick="sendContactLink('${b.id}','sms')" class="btn bp" style="${_btn}">💬 Sms:a kontaktlänk</button>`:`<button onclick="${_badSms}" class="btn bp" style="${_btn};opacity:.55">💬 Sms:a kontaktlänk ⚠</button>`):''}
-            <button onclick="navigator.clipboard.writeText('${kLink}').then(()=>alert('Kontaktlänk kopierad!'))" class="btn bg" style="${_btn}">📋 Kopiera</button>
           </div>
         </div>
         <div style="${_card}">
-          <div style="${_head}">✍ Fyll i själv – ni lägger in valen</div>
+          <div style="${_head};background:var(--tegel);color:#fff">⭐ Kontaktlänk – en person i sällskapet fyller i för alla</div>
+          <div style="${_body}">
+          <div style="${_txt}">En person i sällskapet (t.ex. en lagledare eller arrangör) fyller i hela sällskapets val på en gång – antal per rätt. Bra när hen redan samlat in valen.</div>
+          <div class="linkbox" style="margin:0;word-break:break-all">${kLink}</div>
+          <div class="fg" style="flex-wrap:wrap;gap:6px;margin-top:auto">
+            ${b.contact_email?`<button onclick="sendContactLink('${b.id}','email')" class="btn" style="${_btn2}">✉ Mejla kontaktlänk</button>`:''}
+            ${b.contact_phone?(_smsOk?`<button onclick="sendContactLink('${b.id}','sms')" class="btn" style="${_btn2}">💬 Sms:a kontaktlänk</button>`:`<button onclick="${_badSms}" class="btn" style="${_btn2};opacity:.55">💬 Sms:a kontaktlänk ⚠</button>`):''}
+            <button onclick="navigator.clipboard.writeText('${kLink}').then(()=>alert('Kontaktlänk kopierad!'))" class="btn bg" style="${_btn}">📋 Kopiera</button>
+          </div>
+          </div>
+        </div>
+        <div style="${_card}">
+          <div style="${_head};background:var(--persika);color:#4a2418">✍ Fyll i själv – ni lägger in valen</div>
+          <div style="${_body}">
           <div style="${_txt}">Restaurangen fyller i hela sällskapets val direkt, t.ex. när ni fått dem per telefon eller mejl. Ange antal per rätt, eller namn och val per gäst.</div>
           <div class="fg" style="flex-wrap:wrap;gap:6px;margin-top:auto">
-            <button onclick="fillInMyself('${b.id}')" class="btn bp" style="${_btn}">✍ Fyll i för sällskapet</button>
+            <button onclick="fillInMyself('${b.id}')" class="btn" style="${_btn3}">✍ Fyll i för sällskapet</button>
+          </div>
           </div>
         </div>
       </div>`;

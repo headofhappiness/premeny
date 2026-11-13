@@ -19,7 +19,20 @@
     for(var i=0;i<30&&contrastWhite(c)<6;i++){c=c.map(function(v){return Math.round(v*0.92);});}
     return 'rgb('+c[0]+','+c[1]+','+c[2]+')';
   }
+  function contrast(a,b){var la=lum(a),lb=lum(b);return (Math.max(la,lb)+0.05)/(Math.min(la,lb)+0.05);}
+  /* Härled ur kundens accentfärg: text som alltid går att läsa på den (vit eller mörk), en mörkare hover och en svag tint */
+  function brand(hex){
+    var c=parse(hex);if(!c)return;
+    var on=contrast(c,[255,255,255])>=4.5?'#ffffff':'#1a1712';
+    var hov='rgb('+c.map(function(v){return Math.round(v*0.86);}).join(',')+')';
+    var tint='rgba('+c.join(',')+',0.10)';
+    root.style.setProperty('--on-accent',on);
+    root.style.setProperty('--accent-hover',hov);
+    root.style.setProperty('--accent-tint',tint);
+  }
+  var lastGold=null;
   function setGoldInk(hex){
+    if(hex!==lastGold){lastGold=hex;brand(hex);}
     var v=ink(hex);if(!v||v===last)return;
     last=v;root.style.setProperty('--gold-ink',v);
   }
