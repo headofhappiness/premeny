@@ -52,20 +52,18 @@ input:focus{border-color:var(--gold)}
       </ul>
       <div id="err" class="msg err"></div>
       <div class="ff"><label for="name">Restaurangens namn</label><input type="text" id="name" maxlength="80" autocomplete="organization" placeholder="T.ex. Brunsbo Gästgiveri"></div>
-      <div class="ff"><label for="email">E-post <span style="font-size:11px">(blir ert användarnamn)</span></label><input type="email" id="email" autocomplete="email" placeholder="namn@restaurang.se"></div>
-      <div class="ff"><label for="pass">Lösenord <span style="font-size:11px">(minst 8 tecken)</span></label>
-        <div class="pw"><input type="password" id="pass" autocomplete="new-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')signup()"><button type="button" id="eye" onclick="togglePass()" aria-label="Visa lösenord">👁</button></div>
-      </div>
+      <div class="ff"><label for="email">E-post <span style="font-size:11px">(blir ert användarnamn)</span></label><input type="email" id="email" autocomplete="email" placeholder="namn@restaurang.se" onkeydown="if(event.key==='Enter')signup()"></div>
       <div id="captchaBox" style="display:none;margin:.25rem 0 .75rem"></div>
       <button class="btn" id="btn" onclick="signup()">Skapa konto</button>
+      <p class="small" style="margin-top:.75rem">Inget lösenord att komma på – vi mejlar en länk som loggar in er.</p>
       <p class="small">Har ni redan ett konto? <a href="admin.html">Logga in</a><br>Hellre en personlig genomgång? <a href="https://cal.com/lisa-jonsson-lbe4ex/demomote-med-lisa-premeny" target="_blank">Boka demo</a></p>
     </div>
 
     <div id="doneWrap" class="done">
       <div class="icon">✉️</div>
       <h1>Kolla din inkorg</h1>
-      <p>Vi har skickat ett bekräftelsemejl till <span class="em" id="doneEmail"></span>.</p>
-      <p>Klicka på länken i mejlet så skapar du din restaurang och startar de 30 dagarna. Hittar du inget mejl – titta i skräpposten.</p>
+      <p>Vi har skickat en länk till <span class="em" id="doneEmail"></span>.</p>
+      <p>Klicka på den – i den här webbläsaren – så skapar du din restaurang och startar de 30 dagarna. Hittar du inget mejl – titta i skräpposten. Länken fungerar en gång och en stund.</p>
       <p class="small" style="margin-top:1.25rem">Fel adress? <a href="registrera.html">Börja om</a></p>
     </div>
 
@@ -73,7 +71,7 @@ input:focus{border-color:var(--gold)}
       <div class="icon">👋</div>
       <h1>Du har redan ett konto</h1>
       <p>Det finns redan ett konto för <span class="em" id="existsEmail"></span>.</p>
-      <p><a href="admin.html" style="color:var(--gold);font-weight:500">Logga in här →</a> eller välj "Glömt lösenord?" om du inte kommer ihåg det.</p>
+      <p><a href="admin.html" style="color:var(--gold);font-weight:500">Logga in här →</a> – du får en inloggningslänk till din e-post.</p>
     </div>
 
   </div>
@@ -92,10 +90,6 @@ let captchaToken=null;
 
 function showErr(t){const e=document.getElementById('err');e.textContent=t;e.style.display='block';}
 function clearErr(){document.getElementById('err').style.display='none';}
-function togglePass(){
-  const i=document.getElementById('pass'),b=document.getElementById('eye');
-  if(i.type==='password'){i.type='text';b.textContent='🙈';}else{i.type='password';b.textContent='👁';}
-}
 function onCaptcha(t){captchaToken=t;}
 if(TURNSTILE_SITEKEY){
   const box=document.getElementById('captchaBox');
@@ -108,31 +102,28 @@ async function signup(){
   clearErr();
   const name=document.getElementById('name').value.trim();
   const email=document.getElementById('email').value.trim();
-  const pass=document.getElementById('pass').value;
   if(name.length<2){showErr('Skriv restaurangens namn.');return;}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('E-postadressen verkar inte stämma.');return;}
-  if(pass.length<8){showErr('Lösenordet måste vara minst 8 tecken.');return;}
   if(TURNSTILE_SITEKEY&&!captchaToken){showErr('Bekräfta att du inte är en robot.');return;}
-  const btn=document.getElementById('btn');btn.disabled=true;btn.textContent='Skapar konto...';
+  const btn=document.getElementById('btn');btn.disabled=true;btn.textContent='Skickar länk...';
   try{localStorage.setItem('pm_signup_name',name);}catch(e){}
-  const opts={emailRedirectTo:location.origin+'/admin.html'};
+  // Inget lösenord: en engångslänk till e-posten skapar kontot (om det är nytt) och loggar in.
+  // Finns adressen redan loggas personen i stället in med samma länk – inget avslöjas om vilka adresser som finns.
+  const opts={emailRedirectTo:location.origin+'/admin.html',shouldCreateUser:true};
   if(captchaToken)opts.captchaToken=captchaToken;
-  const {data,error}=await db.auth.signUp({email,password:pass,options:opts});
+  let error=null;
+  try{const r=await db.auth.signInWithOtp({email,options:opts});error=r.error;}catch(e){error={message:String(e&&e.message||e)};}
   btn.disabled=false;btn.textContent='Skapa konto';
   if(error){
     const m=(error.message||'').toLowerCase();
-    if(m.includes('rate limit')||m.includes('too many'))showErr('För många försök just nu. Vänta en stund och försök igen.');
-    else if(m.includes('password'))showErr('Lösenordet godkändes inte – välj ett längre och svårare lösenord.');
+    if(error.status===429||m.includes('rate limit')||m.includes('too many')||m.includes('seconds'))showErr('För många försök just nu. Vänta en minut och försök igen.');
     else if(m.includes('invalid')&&m.includes('email'))showErr('E-postadressen godkändes inte.');
     else showErr('Något gick fel: '+error.message);
     return;
   }
   document.getElementById('formWrap').style.display='none';
-  // Finns adressen redan returnerar Supabase ett "lyckat" svar utan identiteter
-  const exists=data&&data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0;
-  if(data&&data.session){location.href='admin.html';return;}
-  if(exists){document.getElementById('existsEmail').textContent=email;document.getElementById('existsWrap').style.display='block';}
-  else{document.getElementById('doneEmail').textContent=email;document.getElementById('doneWrap').style.display='block';}
+  document.getElementById('doneEmail').textContent=email;
+  document.getElementById('doneWrap').style.display='block';
 }
 </script>
 </body>

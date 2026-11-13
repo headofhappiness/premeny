@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-11-13d-demo">
+<meta name="pm-build" content="2026-11-13e-demo">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -166,31 +166,12 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
     <p style="font-size:14px;color:var(--muted);margin:.25rem 0 1.5rem">Välkommen att hantera era förbeställningar.</p>
     <div id="loginMsg" style="display:none" class="msg merr"></div>
     <div id="loginForm">
-      <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="ff">
-        <label>Lösenord</label>
-        <div style="position:relative">
-          <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding-right:44px">
-          <button type="button" onclick="togglePassVis()" id="passToggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0;line-height:1">👁</button>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
-        <input type="checkbox" id="rememberMe" style="width:16px;height:16px;accent-color:var(--gold);cursor:pointer">
-        <label for="rememberMe" style="font-size:13px;color:var(--muted);cursor:pointer">Kom ihåg mig</label>
-      </div>
-      <button class="btn bp bfull" style="padding:13px" onclick="doLogin()">Logga in</button>
-      <div style="margin-top:1rem;text-align:center">
-        <button onclick="forgotPassword()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline">Glömt lösenord?</button>
-      </div>
+      <div class="ff"><label>E-post</label><input type="email" id="loginEmail" placeholder="din@email.se" autocomplete="email" onkeydown="if(event.key==='Enter')sendMagicLink()"></div>
+      <button class="btn bp bfull" id="magicBtn" style="padding:13px" onclick="sendMagicLink()">Skicka inloggningslänk</button>
+      <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin:.75rem 0 0;text-align:center">Vi mejlar en länk – klicka på den så är du inne. Inget lösenord att komma ihåg. Därefter bekräftar du med din autentiseringsapp.</p>
       <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center;font-size:13px;color:var(--muted)">
         Ny här? <a href="registrera.html" style="color:var(--gold);font-weight:500;text-decoration:none">Starta 30 dagar gratis →</a>
       </div>
-    </div>
-    <div id="resetForm" style="display:none">
-      <p style="font-size:14px;color:var(--muted);margin-bottom:1rem">Ange ditt nya lösenord.</p>
-      <div class="ff"><label>Nytt lösenord</label><input type="password" id="newPass1" placeholder="••••••••" onkeydown="if(event.key==='Enter')doResetPassword()"></div>
-      <div class="ff"><label>Upprepa lösenord</label><input type="password" id="newPass2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doResetPassword()"></div>
-      <button class="btn bp bfull" style="padding:13px" onclick="doResetPassword()">Spara nytt lösenord</button>
     </div>
   </div>
 </div>
@@ -674,23 +655,37 @@ let rest=null,cats=[],menus=[],activeMenuId=null,openB={},dtabs={};
 let calY=new Date().getFullYear(),calM=new Date().getMonth(),calDates={},calSel=new Set();
 
 // AUTH
-async function doLogin(){
+// Inloggning med länk (ingen lösenordsval): Supabase mejlar en engångslänk som loggar in
+async function sendMagicLink(){
+  const m=document.getElementById('loginMsg');
   const email=document.getElementById('loginEmail').value.trim();
-  const pass=document.getElementById('loginPass').value;
-  const remember=document.getElementById('rememberMe')?.checked;
-  if(remember&&email)localStorage.setItem('premeny_saved_email',email);
-  const {error}=await db.auth.signInWithPassword({email,password:pass});
-  if(error){const m=document.getElementById('loginMsg');m.style.display='block';m.textContent='Fel e-post eller lösenord.';return;}
-  initAdmin();
+  const fel=function(t){m.style.display='block';m.className='msg merr';m.textContent=t;};
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){fel('Skriv din e-postadress först.');return;}
+  const btn=document.getElementById('magicBtn');
+  btn.disabled=true;btn.textContent='Skickar...';
+  const igen=function(ms){setTimeout(function(){btn.disabled=false;btn.textContent='Skicka ny länk';},ms);};
+  let error=null;
+  try{
+    const r=await db.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/admin.html',shouldCreateUser:false}});
+    error=r.error;
+  }catch(e){error={message:String(e&&e.message||e)};}
+  const txt=(error&&error.message||'').toLowerCase();
+  if(error&&(error.status===429||txt.includes('rate limit')||txt.includes('seconds')||txt.includes('too many'))){
+    fel('Vänta en minut innan du ber om en ny länk.');igen(60000);return;
+  }
+  // Okänd adress ger "signups not allowed" – visa samma svar som vid lyckat utskick så att ingen kan se vilka adresser som finns
+  if(error&&!txt.includes('signups not allowed')&&!txt.includes('not allowed')){
+    fel('Kunde inte skicka länken: '+error.message);btn.disabled=false;btn.textContent='Skicka inloggningslänk';return;
+  }
+  try{localStorage.setItem('premeny_saved_email',email);}catch(e){}
+  btn.textContent='✓ Länk skickad';
+  m.style.display='block';m.className='msg mok';
+  m.textContent='✓ Om '+email+' finns hos oss har vi skickat en inloggningslänk. Öppna den i den här webbläsaren. Hittar du inget mejl – titta i skräpposten. Ny här? Starta 30 dagar gratis längst ned.';
+  igen(60000);
 }
 // Fyll i sparad e-post
-const savedEmail=localStorage.getItem('premeny_saved_email');
-if(savedEmail){
-  const emailEl=document.getElementById('loginEmail');
-  const remEl=document.getElementById('rememberMe');
-  if(emailEl)emailEl.value=savedEmail;
-  if(remEl)remEl.checked=true;
-}
+const savedEmail=(function(){try{return localStorage.getItem('premeny_saved_email');}catch(e){return null;}})();
+if(savedEmail){const emailEl=document.getElementById('loginEmail');if(emailEl)emailEl.value=savedEmail;}
 
 // Kommer användaren från en länk i ett mejl? (bekräftelse av nytt konto) -> logga in automatiskt.
 // Återställningslänkar (type=recovery) hanteras separat nedan.
@@ -699,15 +694,6 @@ let _autoInitDone=false;
 
 // Kolla om användaren kommer från återställningslänk
 db.auth.onAuthStateChange((event, session) => {
-  if (event === 'PASSWORD_RECOVERY') {
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('resetForm').style.display = 'block';
-    const m = document.getElementById('loginMsg');
-    m.style.display = 'block';
-    m.className = 'msg mok';
-    m.textContent = 'Ange ditt nya lösenord nedan.';
-    return;
-  }
   if (_fromEmailLink && !_autoInitDone && session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
     _autoInitDone = true;
     try { history.replaceState(null, '', location.pathname); } catch (e) {}
@@ -715,36 +701,19 @@ db.auth.onAuthStateChange((event, session) => {
   }
 });
 
-function togglePassVis(){
-  const inp=document.getElementById('loginPass');
-  const btn=document.getElementById('passToggle');
-  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
-  else{inp.type='password';btn.textContent='👁';}
-}
-
-async function doResetPassword(){
-  const p1 = document.getElementById('newPass1').value;
-  const p2 = document.getElementById('newPass2').value;
-  const m = document.getElementById('loginMsg');
-  m.style.display = 'block';
-  if(!p1 || p1.length < 6){ m.className='msg merr'; m.textContent='Lösenordet måste vara minst 6 tecken.'; return; }
-  if(p1 !== p2){ m.className='msg merr'; m.textContent='Lösenorden matchar inte.'; return; }
-  const {error} = await db.auth.updateUser({password: p1});
-  if(error){ m.className='msg merr'; m.textContent='Fel: '+error.message; return; }
-  m.className='msg mok'; m.textContent='✓ Lösenordet är uppdaterat! Loggar in...';
-  setTimeout(() => { initAdmin(); }, 1500);
-}
-
-async function forgotPassword(){
-  const email=document.getElementById('loginEmail').value.trim();
-  if(!email){
-    const m=document.getElementById('loginMsg');m.style.display='block';m.className='msg merr';m.textContent='Ange din e-postadress först.';return;
-  }
-  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/admin.html'});
-  const m=document.getElementById('loginMsg');m.style.display='block';
-  if(error){m.className='msg merr';m.textContent='Fel: '+error.message;}
-  else{m.className='msg mok';m.textContent='✓ Återställningslänk skickad till '+email;}
-}
+// Länk med token_hash (robust mot mejlskannrar som annars kan "förbruka" engångslänken)
+(function(){
+  const q=new URLSearchParams(location.search);
+  const th=q.get('token_hash'),ty=q.get('type')||'email';
+  if(!th)return;
+  (async function(){
+    const {error}=await db.auth.verifyOtp({token_hash:th,type:ty});
+    try{history.replaceState(null,'',location.pathname);}catch(e){}
+    if(ty==='recovery')return;
+    if(error){const m=document.getElementById('loginMsg');m.style.display='block';m.className='msg merr';m.textContent='Länken har gått ut eller är redan använd. Skicka en ny länk nedan.';return;}
+    _autoInitDone=true;initAdmin();
+  })();
+})();
 async function sendConfirmation(id){if(IS_DEMO)return demoBlock();
   const b=allBookings.find(x=>x.id===id);
   if(!b){alert('Bokning hittades inte.');return;}
