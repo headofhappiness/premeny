@@ -777,7 +777,7 @@ let _mfaPassed=false;
 async function autoInitDemo(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('adminPage').style.display='block';
-  const {data:r}=await db.from('restaurants').select('*').eq('slug',DEMO_SLUG).single();
+  const {data:r}=await db.from('guest_restaurants').select('*').eq('slug',DEMO_SLUG).single();
   if(!r){document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte. Kontakta premeny.se</div>';return;}
   rest=r;
   document.getElementById('restName').textContent=r.name+' (Demo)';

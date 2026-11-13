@@ -178,11 +178,15 @@ textarea{min-height:75px}
 const SUPABASE_URL='https://gndzalmkbsfhclpoidqi.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduZHphbG1rYnNmaGNscG9pZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NDAxODcsImV4cCI6MjA5NTAxNjE4N30.Om9UOmTFR8CZZKu5qyiu1YImGdVxzI3KtlgukUV3Q-s';
 const {createClient}=supabase;
-let db=createClient(SUPABASE_URL,SUPABASE_KEY);
-
 const params=new URLSearchParams(location.search);
 const SLUG=params.get('r');
 const BID=params.get('b');
+/* Gästen identifieras av bokningens länk-id: det skickas med som rubrik och databasen släpper
+   bara igenom just den bokningens beställningar (se guest_hdr_*-policyerna). */
+let db=createClient(SUPABASE_URL,SUPABASE_KEY,{
+  global:{headers:{'x-booking-id':BID||''}},
+  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+});
 const IS_CONTACT=params.get('k')==='1';
 
 /* ---------- demon ----------
@@ -198,8 +202,8 @@ const DEMO_DATA={"restaurant":{"id":"80caaaf8-3eaa-4e42-b8dd-b78deef24040","slug
   DEMO_DATA.booking.deadline=om(10);
   DEMO_DATA.booking.id=BID||DEMO_DATA.booking.id;
   const svar=function(s){
-    if(s.tabell==="restaurants")return{data:DEMO_DATA.restaurant,error:null};
-    if(s.tabell==="bookings")return{data:DEMO_DATA.booking,error:null};
+    if(s.tabell==="restaurants"||s.tabell==="guest_restaurants")return{data:DEMO_DATA.restaurant,error:null};
+    if(s.tabell==="bookings"||s.tabell==="guest_bookings")return{data:DEMO_DATA.booking,error:null};
     if(s.tabell==="menus")return{data:null,error:null};
     if(s.tabell==="menu_categories")return{data:DEMO_DATA.categories,error:null};
     if(s.tabell==="orders")return s.skriv?{data:{id:"demo-order"},error:null}:{data:null,error:null};
@@ -233,7 +237,7 @@ async function init(){
     return;
   }
   try{
-    const {data:rest,error:e1}=await db.from('restaurants').select('*').eq('slug',SLUG).single();
+    const {data:rest,error:e1}=await db.from('guest_restaurants').select('*').eq('slug',SLUG).single();
     if(e1||!rest){showError('Restaurangen hittades inte.');return;}
     restaurant=rest;
     document.documentElement.style.setProperty('--gold',rest.accent_color||'#b8955a');
@@ -247,7 +251,7 @@ async function init(){
     }
     document.title=rest.name+' – Förbeställning';
 
-    const {data:book,error:e2}=await db.from('bookings').select('*').eq('id',BID).eq('restaurant_id',rest.id).single();
+    const {data:book,error:e2}=await db.from('guest_bookings').select('*').eq('id',BID).eq('restaurant_id',rest.id).single();
     if(e2||!book){showError('Bokningen hittades inte.');return;}
     booking=book;
 
