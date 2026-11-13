@@ -3,8 +3,9 @@
 <head>
 <link rel="icon" type="image/png" href="PM_logo.png">
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://gndzalmkbsfhclpoidqi.supabase.co wss://gndzalmkbsfhclpoidqi.supabase.co; frame-src 'self' about: https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="pm-build" content="2026-11-13l">
+<meta name="pm-build" content="2026-11-13m">
 <title>SuperAdmin – PreMeny</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -59,8 +60,8 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 .month-bar-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s}
 @media(max-width:600px){.r2,.r3{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr 1fr}.page{padding:1.5rem 1rem 4rem}}
 </style>
-<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13l"><script src="ui-clarity.js?v=2026-11-13l"></script>
-<script src="update-check.js?v=2026-11-13l"></script>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13m"><script src="ui-clarity.js?v=2026-11-13m"></script>
+<script src="update-check.js?v=2026-11-13m"></script>
 </head>
 <body>
 
@@ -329,7 +330,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>window.MFA_ENFORCED=true; /* true = ingen "hoppa över" (servern kräver aal2 sedan 2026-11-13) */</script>
-<script src="mfa.js?v=2026-11-13l"></script>
+<script src="mfa.js?v=2026-11-13m"></script>
 <script>
 const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
 const SKEY='sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
@@ -538,8 +539,8 @@ async function loadRestaurants(){
     <div class="rest-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:10px;height:10px;border-radius:50%;background:${r.accent_color||'#b8955a'};flex-shrink:0"></div>
-          <div class="rest-name">${r.name}</div>
+          <div style="width:10px;height:10px;border-radius:50%;background:${safeColor(r.accent_color)};flex-shrink:0"></div>
+          <div class="rest-name">${escapeHtml(r.name)}</div>
         </div>
         <span style="width:8px;height:8px;border-radius:50%;background:${r.active?'#3a7d44':'#c0392b'};display:inline-block;flex-shrink:0;margin-top:6px"></span>
       </div>
@@ -576,10 +577,10 @@ async function loadRestaurants(){
       </div>
       <!-- Se mer expanderbart -->
       <div id="rdet_${r.id}" style="display:none;margin-bottom:.75rem;font-size:13px;border-top:1px solid var(--border);padding-top:.75rem">
-        ${r.phone?'<div style="color:var(--muted)">📞 '+r.phone+'</div>':''}
-        ${r.contact_email?'<div style="color:var(--muted)">✉ '+r.contact_email+'</div>':''}
-        ${r.address?'<div style="color:var(--muted)">📍 '+r.address+'</div>':''}
-        ${r.website?'<div style="color:var(--muted)">🌐 '+r.website+'</div>':''}
+        ${r.phone?'<div style="color:var(--muted)">📞 '+escapeHtml(r.phone)+'</div>':''}
+        ${r.contact_email?'<div style="color:var(--muted)">✉ '+escapeHtml(r.contact_email)+'</div>':''}
+        ${r.address?'<div style="color:var(--muted)">📍 '+escapeHtml(r.address)+'</div>':''}
+        ${r.website?'<div style="color:var(--muted)">🌐 '+escapeHtml(r.website)+'</div>':''}
         <div style="margin-top:.5rem;color:var(--muted)">Plan: <strong style="color:var(--text)">${planLabels[r.plan]||r.plan}</strong>${r.plan==='trial'&&r.trial_ends_at?(new Date(r.trial_ends_at)<now?' · <span style="color:#a05050">provet slut '+new Date(r.trial_ends_at).toISOString().slice(0,10)+'</span>':' · slutar '+new Date(r.trial_ends_at).toISOString().slice(0,10)):''}</div>
         <div style="color:var(--muted)">Skapad: <strong style="color:var(--text)">${r.created_at?new Date(r.created_at).toLocaleDateString('sv-SE'):'-'}</strong></div>
         <div style="color:var(--muted)">ID: <code style="font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:4px">${r.id}</code></div>
@@ -589,13 +590,13 @@ async function loadRestaurants(){
         <button class="btn bo" style="font-size:11px;padding:4px 10px" onclick="window.open('admin.html?as=${r.id}','_blank')" title="Öppnar restaurangens bokningar, skrivskyddat">👁 Se bokningar</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleRestDetail('${r.id}')">Se mer ›</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleRestNote('${r.id}')">📝 Notering</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openStats('${r.id}','${r.name.replace(/'/g,"\\'")}')">📊 Statistik</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openWelcomeModal(this)" data-id="${r.id}" data-name="${r.name}" data-email="${r.contact_email||''}">✉ Välkomstmejl</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openMenuModal(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">🍽 Meny</button>
-        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="saResetMfa(this)" data-id="${r.id}" data-name="${r.name}">🔐 Nollställ 2FA</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openStats(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${escAttrSM(r.name)}">📊 Statistik</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openWelcomeModal(this)" data-id="${r.id}" data-name="${escAttrSM(r.name)}" data-email="${escAttrSM(r.contact_email||'')}">✉ Välkomstmejl</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openMenuModal(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${escAttrSM(r.name)}">🍽 Meny</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="saResetMfa(this)" data-id="${r.id}" data-name="${escAttrSM(r.name)}">🔐 Nollställ 2FA</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openEditRest('${r.id}')">Redigera</button>
         <button class="btn ${r.active?'bd':'bg'}" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',${r.active})">${r.active?'Arkivera':'Återaktivera'}</button>
-        <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteRestPermanent(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">Radera</button>
+        <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteRestPermanent(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${escAttrSM(r.name)}">Radera</button>
       </div>
     </div>`);
   grid.innerHTML=htmlList.join('');
@@ -759,7 +760,7 @@ async function createRestaurant(){
         msgEl.innerHTML='Kontot skapades men kopplingen misslyckades: <strong>'+linkErr.message+'</strong>';
       } else {
         msgEl.className='msg mok';
-        msgEl.innerHTML='✓ <strong>'+name+'</strong> och adminkonto skapat!<br><span style="font-size:12px;color:#3a6020">Klicka nu <strong>✉ Välkomstmejl</strong> på restaurangkortet för att skicka inloggningsuppgifter till kunden.</span>';
+        msgEl.innerHTML='✓ <strong>'+escapeHtml(name)+'</strong> och adminkonto skapat!<br><span style="font-size:12px;color:#3a6020">Klicka nu <strong>✉ Välkomstmejl</strong> på restaurangkortet för att skicka inloggningsuppgifter till kunden.</span>';
       }
     } else {
       msgEl.className='msg merr';
@@ -795,7 +796,7 @@ async function openEditRest(id){
   const trialEndVal=r.trial_ends_at?new Date(r.trial_ends_at).toISOString().slice(0,10):'';
   document.getElementById('editRestContent').innerHTML=`
     <div class="r2">
-      <div class="ff"><label>Namn</label><input type="text" id="er-name" value="${r.name}"></div>
+      <div class="ff"><label>Namn</label><input type="text" id="er-name" value="${escAttrSM(r.name)}"></div>
       <div class="ff"><label>Slug</label><input type="text" id="er-slug" value="${r.slug}"></div>
     </div>
     <div class="r2">
@@ -804,17 +805,17 @@ async function openEditRest(id){
     </div>
     <div class="r2">
       <div class="ff"><label>Accentfärg</label><div style="display:flex;gap:8px;align-items:center">
-        <input type="color" id="er-color" value="${r.accent_color||'#b8955a'}" style="width:44px;height:38px;padding:2px;border-radius:6px;cursor:pointer;flex-shrink:0">
-        <input type="text" id="er-color-text" value="${r.accent_color||'#b8955a'}" style="font-family:monospace;font-size:13px" oninput="document.getElementById('er-color').value=this.value">
+        <input type="color" id="er-color" value="${safeColor(r.accent_color)}" style="width:44px;height:38px;padding:2px;border-radius:6px;cursor:pointer;flex-shrink:0">
+        <input type="text" id="er-color-text" value="${safeColor(r.accent_color)}" style="font-family:monospace;font-size:13px" oninput="document.getElementById('er-color').value=this.value">
       </div></div>
     </div>
     <div class="r2">
-      <div class="ff"><label>Telefon</label><input type="tel" id="er-phone" value="${r.phone||''}"></div>
-      <div class="ff"><label>Kontakt-e-post <span style="font-size:11px;color:var(--muted);font-weight:400">(visas för gästerna)</span></label><input type="email" id="er-email" value="${r.contact_email||''}"></div>
+      <div class="ff"><label>Telefon</label><input type="tel" id="er-phone" value="${escAttrSM(r.phone||'')}"></div>
+      <div class="ff"><label>Kontakt-e-post <span style="font-size:11px;color:var(--muted);font-weight:400">(visas för gästerna)</span></label><input type="email" id="er-email" value="${escAttrSM(r.contact_email||'')}"></div>
     </div>
     <div class="r2">
-      <div class="ff"><label>Adress</label><input type="text" id="er-address" value="${r.address||''}"></div>
-      <div class="ff"><label>Webbplats</label><input type="text" id="er-website" value="${r.website||''}"></div>
+      <div class="ff"><label>Adress</label><input type="text" id="er-address" value="${escAttrSM(r.address||'')}"></div>
+      <div class="ff"><label>Webbplats</label><input type="text" id="er-website" value="${escAttrSM(r.website||'')}"></div>
     </div>
     <div style="border-top:1px solid var(--border);margin:.5rem 0 .75rem;padding-top:.75rem">
       <div class="ff"><label>Inloggnings-e-post <span style="font-size:11px;color:var(--muted);font-weight:400">(kundens användarnamn · hit skickas välkomstmejlet)</span></label>
@@ -939,15 +940,15 @@ async function loadArchivedRestaurants(){
   grid.innerHTML=rests.map(r=>`
     <div class="rest-card" style="opacity:.7">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
-        <div class="rest-name">${r.name}</div>
+        <div class="rest-name">${escapeHtml(r.name)}</div>
         <span style="width:8px;height:8px;border-radius:50%;background:#c0392b;display:inline-block;margin-top:6px"></span>
       </div>
       <div class="rest-slug">premeny.se/${r.slug}</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:.75rem">
         <span class="plan-badge ${planClass[r.plan]||'plan-early'}">${planLabels[r.plan]||r.plan}</span>
-        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openMenuModal(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">🍽 Meny</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openMenuModal(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${escAttrSM(r.name)}">🍽 Meny</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',false)">Återaktivera</button>
-        <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteRestPermanent('${r.id}','${r.name.replace(/'/g,"\'")}')">Radera permanent</button>
+        <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteRestPermanent(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${escAttrSM(r.name)}">Radera permanent</button>
       </div>
     </div>`).join('');
 }
@@ -1058,7 +1059,7 @@ function previewWelcomeEmail(){
     </div>
     <div style="padding:2rem 2rem 0">
       <div style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${gold};margin-bottom:.4rem">Välkommen!</div>
-      <h1 style="font-family:Georgia,serif;font-size:1.7rem;font-weight:400;color:${dark};margin:0 0 .2rem">${name}</h1>
+      <h1 style="font-family:Georgia,serif;font-size:1.7rem;font-weight:400;color:${dark};margin:0 0 .2rem">${escapeHtml(name)}</h1>
       <div style="width:28px;height:1px;background:${gold};margin:.6rem 0 1.5rem;opacity:.7"></div>
       <p style="font-size:15px;line-height:1.8;margin:0 0 1.5rem">
         Hej!<br><br>
@@ -1067,7 +1068,7 @@ function previewWelcomeEmail(){
     </div>
     <div style="margin:0 2rem 1.5rem;background:${bg};border:1px solid ${border};border-radius:12px;padding:1.25rem 1.5rem;font-size:14px;line-height:2.2">
       <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:${gold};margin-bottom:.5rem">Dina inloggningsuppgifter</div>
-      <div><span style="color:${muted}">E-post:</span>&nbsp;&nbsp;<strong>${email}</strong></div>
+      <div><span style="color:${muted}">E-post:</span>&nbsp;&nbsp;<strong>${escapeHtml(email)}</strong></div>
       <div><span style="color:${muted}">Lösenord:</span>&nbsp;&nbsp;<strong style="font-family:monospace">${pass}</strong></div>
       <div><span style="color:${muted}">Admin-länk:</span>&nbsp;&nbsp;<a href="https://premeny.se/admin.html" style="color:${gold}">premeny.se/admin.html</a></div>
     </div>
@@ -1142,7 +1143,7 @@ async function sendWelcomeEmail(){
     const result = await resp.json();
     if(!result.ok) throw new Error(result.error||'Okänt fel');
     msg.style.display='block'; msg.className='msg mok';
-    msg.innerHTML='✓ Välkomstmejl skickat till <strong>'+email+'</strong>!';
+    msg.innerHTML='✓ Välkomstmejl skickat till <strong>'+escapeHtml(email)+'</strong>!';
   }catch(err){
     msg.style.display='block'; msg.className='msg merr'; msg.textContent='Fel: '+err.message;
   }
@@ -1190,6 +1191,7 @@ async function saveRestNote(id){
   if(box)box.style.display=val?'':'none';
   var ed=document.getElementById('rnoteedit_'+id);if(ed)ed.style.display='none';
 }
+function safeColor(c){return /^#[0-9a-fA-F]{3,8}$/.test(String(c||''))?String(c):'#b8955a';}
 function escapeHtml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // ── MENY-HANTERARE (samma datamodell som kund-admin) ────────────────

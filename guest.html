@@ -2,6 +2,7 @@
 <html lang="sv">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://gndzalmkbsfhclpoidqi.supabase.co wss://gndzalmkbsfhclpoidqi.supabase.co; frame-src 'self' about: https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Förbeställ din mat</title>
 <meta name="pm-build" content="2026-06-05b">
@@ -96,7 +97,7 @@ textarea{min-height:75px}
   input,textarea,select{font-size:16px}
 }
 </style>
-<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13l"><script src="ui-clarity.js?v=2026-11-13l"></script>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13m"><script src="ui-clarity.js?v=2026-11-13m"></script>
 </head>
 <body>
 <nav class="nav">
@@ -264,7 +265,7 @@ async function init(){
     const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
     const d=new Date(book.event_date);
     const dateStr=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-    let info='<strong>'+book.name+'</strong> – '+dateStr+(book.event_type?' – <span style="color:var(--gold)">'+book.event_type+'</span>':'')+(book.event_time?' kl '+book.event_time.slice(0,5):'');
+    let info='<strong>'+escGuest(book.name)+'</strong> – '+dateStr+(book.event_type?' – <span style="color:var(--gold)">'+escGuest(book.event_type)+'</span>':'')+(book.event_time?' kl '+book.event_time.slice(0,5):'');
     if(dl&&!isClosed&&!isDemo){
       const dlStr=dl.getDate()+' '+months[dl.getMonth()];
       info+='<br><span style="color:#8a7020;font-size:14px">⏱ Svara gärna så snart du kan – senast '+dlStr+'</span>';
@@ -274,15 +275,15 @@ async function init(){
     var greetDate=d.getDate()+' '+fullMonths[d.getMonth()];
     var greetEl=document.getElementById('guestGreeting');
     if(greetEl){
-      if(isClosed){greetEl.innerHTML='Inför <strong>'+book.name+'</strong> den '+greetDate+'.';}
-      else{greetEl.innerHTML='Inför <strong>'+book.name+'</strong> den '+greetDate+' vill vi gärna veta vad du önskar äta. Tack för att du fyller i nedan.';}
+      if(isClosed){greetEl.innerHTML='Inför <strong>'+escGuest(book.name)+'</strong> den '+greetDate+'.';}
+      else{greetEl.innerHTML='Inför <strong>'+escGuest(book.name)+'</strong> den '+greetDate+' vill vi gärna veta vad du önskar äta. Tack för att du fyller i nedan.';}
     }
 
     if(isClosed){
       // Bygg kontaktmeddelande med restaurangens info
-      let contactMsg='Kontakta <strong>'+rest.name+'</strong>';
-      if(rest.phone) contactMsg+=' på <a href="tel:'+rest.phone+'" style="color:var(--red);font-weight:500">'+rest.phone+'</a>';
-      if(rest.contact_email) contactMsg+=' eller <a href="mailto:'+rest.contact_email+'" style="color:var(--red)">'+rest.contact_email+'</a>';
+      let contactMsg='Kontakta <strong>'+escGuest(rest.name)+'</strong>';
+      if(rest.phone) contactMsg+=' på <a href="tel:'+escAttrGuest(rest.phone)+'" style="color:var(--red);font-weight:500">'+escGuest(rest.phone)+'</a>';
+      if(rest.contact_email) contactMsg+=' eller <a href="mailto:'+escAttrGuest(rest.contact_email)+'" style="color:var(--red)">'+escGuest(rest.contact_email)+'</a>';
       contactMsg+=' för att göra ändringar.';
       document.getElementById('closedMsg').innerHTML=contactMsg;
       document.getElementById('closedBanner').style.display='block';
@@ -329,7 +330,7 @@ function buildMenu(){
   var _priceBanner=(menuPrice&&booking&&booking.show_prices!==false)?`<div style="background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.35);border-radius:10px;padding:.7rem 1rem;margin-bottom:1.25rem;font-size:15px;color:var(--text)">Pris: <span style="font-weight:500;color:var(--gold)">${menuPrice} kr</span></div>`:'';
   wrap.innerHTML=_priceBanner+categories.map(cat=>`
     <div class="course-section">
-      <div class="course-title">${cat.label}</div>
+      <div class="course-title">${escGuest(cat.label)}</div>
       <div class="course-sub">Välj ett alternativ – eller hoppa över</div>
       <div class="meal skip${gSel[cat.id]===null?' selected':''}" id="skip_${cat.id}" onclick="pick('${cat.id}',null)">
         <div class="meal-top">
@@ -342,8 +343,8 @@ function buildMenu(){
           <div class="meal-top" onclick="pick('${cat.id}','${item.id}')">
             <div class="radio"><div class="dot"></div></div>
             <div class="meal-body">
-              <div class="meal-name">${item.name}</div>
-              ${item.description?`<div class="meal-desc">${item.description}</div>`:''}
+              <div class="meal-name">${escGuest(item.name)}</div>
+              ${item.description?`<div class="meal-desc">${escGuest(item.description)}</div>`:''}
             </div>
             ${(item.price&&booking&&booking.show_prices!==false&&!menuPrice)?`<div class="meal-price">${item.price} kr</div>`:''}
           </div>
@@ -431,7 +432,7 @@ async function submitOrder(){
     categories.forEach(cat=>{
       if(gSel[cat.id]){
         const item=cat.menu_items.find(i=>i.id===gSel[cat.id]);
-        if(item)summary+=`<div class="summary-row"><div><div>${item.name}</div>${gComments[gSel[cat.id]]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${gComments[gSel[cat.id]]}</div>`:''}</div>${(item.price&&booking&&booking.show_prices!==false&&!menuPrice)?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
+        if(item)summary+=`<div class="summary-row"><div><div>${escGuest(item.name)}</div>${gComments[gSel[cat.id]]?`<div style="font-size:13px;color:var(--muted);margin-top:2px">${escGuest(gComments[gSel[cat.id]])}</div>`:''}</div>${(item.price&&booking&&booking.show_prices!==false&&!menuPrice)?`<span style="color:var(--gold);white-space:nowrap">${item.price} kr</span>`:''}</div>`;
       }
     });
     document.getElementById('confirmSummary').innerHTML=summary;
@@ -490,12 +491,12 @@ function buildBulkMenu(){
   if(!categories.length){wrap.innerHTML='<p style="color:var(--muted);padding:1rem 0">Ingen meny inlagd ännu.</p>';return;}
   wrap.innerHTML=categories.map(cat=>`
     <div style="background:rgba(184,149,90,.05);border:1px solid rgba(184,149,90,.2);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem">
-      <div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">${cat.label}</div>
+      <div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#5a4520;margin-bottom:.75rem">${escGuest(cat.label)}</div>
       ${cat.menu_items.map(item=>`
         <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(184,149,90,.12);flex-wrap:wrap">
           <div style="flex:1;min-width:120px">
-            <div style="font-size:14px;color:var(--dark)">${item.name}</div>
-            ${item.description?`<div style="font-size:11px;color:var(--muted)">${item.description}</div>`:''}
+            <div style="font-size:14px;color:var(--dark)">${escGuest(item.name)}</div>
+            ${item.description?`<div style="font-size:11px;color:var(--muted)">${escGuest(item.description)}</div>`:''}
           </div>
           <input type="number" id="kbq_${item.id}" min="0" max="999" value="0" placeholder="0" style="width:60px;text-align:center;padding:7px 8px;font-size:15px;font-weight:500;flex-shrink:0">
           <input type="text" id="kbn_${item.id}" placeholder="Namn (valfritt)" style="width:130px;padding:7px 10px;font-size:13px">
