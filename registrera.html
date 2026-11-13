@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prova PreMeny gratis i 30 dagar</title>
+<meta name="description" content="Skapa ett konto och prova PreMeny gratis i 30 dagar. Gästerna förbeställer maten själva och ni får en färdig kökslista. Inget kort, ingen bindningstid.">
+<link rel="icon" type="image/png" href="PM_logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf8f4;--surface:#fff;--border:#e8e2d8;--gold:#b8955a;--dark:#1a1712;--text:#2d2a24;--muted:#8a8070;--red:#c0392b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;font-weight:300;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem 1rem}
+.wrap{width:100%;max-width:440px}
+.logo{font-family:"Playfair Display",serif;font-size:2.2rem;color:var(--dark);text-align:center;margin-bottom:.25rem}
+.logo span{color:var(--gold)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem 1.75rem;margin-top:1rem;box-shadow:0 8px 30px rgba(26,23,18,.05)}
+h1{font-family:"Playfair Display",serif;font-weight:400;font-size:1.6rem;line-height:1.25;color:var(--dark);margin-bottom:.5rem}
+.sub{font-size:14.5px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem}
+.checks{list-style:none;margin:0 0 1.25rem;font-size:14px;line-height:1.9;color:var(--text)}
+.checks li:before{content:"✓";color:var(--gold);font-weight:500;margin-right:8px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;letter-spacing:.02em}
+.ff{margin-bottom:.9rem}
+input[type=text],input[type=email],input[type=password]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:16px;color:var(--text);outline:none}
+input:focus{border-color:var(--gold)}
+.pw{position:relative}
+.pw button{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;line-height:1}
+.btn{width:100%;background:var(--dark);color:#fff;border:none;border-radius:100px;padding:14px;font-family:inherit;font-size:16px;font-weight:500;cursor:pointer;margin-top:.25rem}
+.btn:hover{background:#2d2820}.btn:disabled{opacity:.6;cursor:default}
+.msg{padding:11px 14px;border-radius:10px;font-size:13.5px;line-height:1.55;margin-bottom:1rem;display:none}
+.msg.err{background:#fdf2f2;color:#8a2020;border:1px solid #e8c0c0}
+.small{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:1rem;text-align:center}
+.small a{color:var(--gold);text-decoration:none;font-weight:500}
+.done{display:none;text-align:center}
+.done .icon{font-size:2.4rem;margin-bottom:.5rem}
+.done p{font-size:15px;line-height:1.7;color:var(--text);margin-bottom:.75rem}
+.done .em{font-weight:500;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo"><a href="/" style="color:inherit;text-decoration:none">Pre<span>Meny</span></a></div>
+  <div class="card">
+
+    <div id="formWrap">
+      <h1>Prova PreMeny gratis i 30 dagar</h1>
+      <p class="sub">Gästerna förbeställer maten själva – ni får en färdig kökslista. Skapa ett konto så är ni igång på några minuter.</p>
+      <ul class="checks">
+        <li>Hela systemet ingår (utom sms under provet)</li>
+        <li>Inget kort och ingen bindningstid</li>
+        <li>Därefter 295 kr/mån ex. moms – om ni vill fortsätta</li>
+      </ul>
+      <div id="err" class="msg err"></div>
+      <div class="ff"><label for="name">Restaurangens namn</label><input type="text" id="name" maxlength="80" autocomplete="organization" placeholder="T.ex. Brunsbo Gästgiveri"></div>
+      <div class="ff"><label for="email">E-post <span style="font-size:11px">(blir ert användarnamn)</span></label><input type="email" id="email" autocomplete="email" placeholder="namn@restaurang.se"></div>
+      <div class="ff"><label for="pass">Lösenord <span style="font-size:11px">(minst 8 tecken)</span></label>
+        <div class="pw"><input type="password" id="pass" autocomplete="new-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')signup()"><button type="button" id="eye" onclick="togglePass()" aria-label="Visa lösenord">👁</button></div>
+      </div>
+      <div id="captchaBox" style="display:none;margin:.25rem 0 .75rem"></div>
+      <button class="btn" id="btn" onclick="signup()">Skapa konto</button>
+      <p class="small">Har ni redan ett konto? <a href="admin.html">Logga in</a><br>Hellre en personlig genomgång? <a href="https://cal.com/lisa-jonsson-lbe4ex/demomote-med-lisa-premeny" target="_blank">Boka demo</a></p>
+    </div>
+
+    <div id="doneWrap" class="done">
+      <div class="icon">✉️</div>
+      <h1>Kolla din inkorg</h1>
+      <p>Vi har skickat ett bekräftelsemejl till <span class="em" id="doneEmail"></span>.</p>
+      <p>Klicka på länken i mejlet så skapar du din restaurang och startar de 30 dagarna. Hittar du inget mejl – titta i skräpposten.</p>
+      <p class="small" style="margin-top:1.25rem">Fel adress? <a href="registrera.html">Börja om</a></p>
+    </div>
+
+    <div id="existsWrap" class="done">
+      <div class="icon">👋</div>
+      <h1>Du har redan ett konto</h1>
+      <p>Det finns redan ett konto för <span class="em" id="existsEmail"></span>.</p>
+      <p><a href="admin.html" style="color:var(--gold);font-weight:500">Logga in här →</a> eller välj "Glömt lösenord?" om du inte kommer ihåg det.</p>
+    </div>
+
+  </div>
+  <p class="small" style="margin-top:1.25rem"><a href="villkor.html" target="_blank" style="font-weight:400">Villkor och integritet</a> &nbsp;·&nbsp; PreMeny ingår i Head of Happiness AB</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
+const SKEY='sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
+// Skydd mot massregistrering: fyll i Cloudflare Turnstile-sitenyckeln här NÄR Turnstile
+// är påslaget i Supabase (Authentication → Attack Protection). Tomt = ingen captcha.
+const TURNSTILE_SITEKEY='';
+const db=supabase.createClient(SURL,SKEY);
+let captchaToken=null;
+
+function showErr(t){const e=document.getElementById('err');e.textContent=t;e.style.display='block';}
+function clearErr(){document.getElementById('err').style.display='none';}
+function togglePass(){
+  const i=document.getElementById('pass'),b=document.getElementById('eye');
+  if(i.type==='password'){i.type='text';b.textContent='🙈';}else{i.type='password';b.textContent='👁';}
+}
+function onCaptcha(t){captchaToken=t;}
+if(TURNSTILE_SITEKEY){
+  const box=document.getElementById('captchaBox');
+  box.style.display='block';
+  box.innerHTML='<div class="cf-turnstile" data-sitekey="'+TURNSTILE_SITEKEY+'" data-callback="onCaptcha"></div>';
+  const s=document.createElement('script');s.src='https://challenges.cloudflare.com/turnstile/v0/api.js';s.async=true;document.head.appendChild(s);
+}
+
+async function signup(){
+  clearErr();
+  const name=document.getElementById('name').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const pass=document.getElementById('pass').value;
+  if(name.length<2){showErr('Skriv restaurangens namn.');return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('E-postadressen verkar inte stämma.');return;}
+  if(pass.length<8){showErr('Lösenordet måste vara minst 8 tecken.');return;}
+  if(TURNSTILE_SITEKEY&&!captchaToken){showErr('Bekräfta att du inte är en robot.');return;}
+  const btn=document.getElementById('btn');btn.disabled=true;btn.textContent='Skapar konto...';
+  try{localStorage.setItem('pm_signup_name',name);}catch(e){}
+  const opts={emailRedirectTo:location.origin+'/admin.html'};
+  if(captchaToken)opts.captchaToken=captchaToken;
+  const {data,error}=await db.auth.signUp({email,password:pass,options:opts});
+  btn.disabled=false;btn.textContent='Skapa konto';
+  if(error){
+    const m=(error.message||'').toLowerCase();
+    if(m.includes('rate limit')||m.includes('too many'))showErr('För många försök just nu. Vänta en stund och försök igen.');
+    else if(m.includes('password'))showErr('Lösenordet godkändes inte – välj ett längre och svårare lösenord.');
+    else if(m.includes('invalid')&&m.includes('email'))showErr('E-postadressen godkändes inte.');
+    else showErr('Något gick fel: '+error.message);
+    return;
+  }
+  document.getElementById('formWrap').style.display='none';
+  // Finns adressen redan returnerar Supabase ett "lyckat" svar utan identiteter
+  const exists=data&&data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0;
+  if(data&&data.session){location.href='admin.html';return;}
+  if(exists){document.getElementById('existsEmail').textContent=email;document.getElementById('existsWrap').style.display='block';}
+  else{document.getElementById('doneEmail').textContent=email;document.getElementById('doneWrap').style.display='block';}
+}
+</script>
+</body>
+</html>

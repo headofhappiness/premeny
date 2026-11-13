@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-11-13a-demo">
+<meta name="pm-build" content="2026-11-13b-demo">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -182,12 +182,34 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <div style="margin-top:1rem;text-align:center">
         <button onclick="forgotPassword()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline">Glömt lösenord?</button>
       </div>
+      <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center;font-size:13px;color:var(--muted)">
+        Ny här? <a href="registrera.html" style="color:var(--gold);font-weight:500;text-decoration:none">Starta 30 dagar gratis →</a>
+      </div>
     </div>
     <div id="resetForm" style="display:none">
       <p style="font-size:14px;color:var(--muted);margin-bottom:1rem">Ange ditt nya lösenord.</p>
       <div class="ff"><label>Nytt lösenord</label><input type="password" id="newPass1" placeholder="••••••••" onkeydown="if(event.key==='Enter')doResetPassword()"></div>
       <div class="ff"><label>Upprepa lösenord</label><input type="password" id="newPass2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doResetPassword()"></div>
       <button class="btn bp bfull" style="padding:13px" onclick="doResetPassword()">Spara nytt lösenord</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING: inloggad och e-postverifierad användare utan restaurang skapar sin restaurang (30 dagars prov) -->
+<div id="onboardPage" style="display:none">
+  <div class="login-wrap">
+    <div style="font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--dark);margin-bottom:.25rem">Pre<span style="color:var(--gold)">Meny</span></div>
+    <h2 style="margin:.5rem 0 .25rem">Välkommen! Skapa er restaurang</h2>
+    <p style="font-size:14px;color:var(--muted);margin:.25rem 0 1.25rem;line-height:1.6">Ni får <strong style="font-weight:500">30 dagar gratis</strong> – inget kort och ingen bindningstid. Inloggad som <span id="ob-email" style="color:var(--text)"></span>.</p>
+    <div id="obMsg" style="display:none" class="msg merr"></div>
+    <div class="ff"><label>Restaurangens namn</label><input type="text" id="ob-name" maxlength="80" placeholder="T.ex. Brunsbo Gästgiveri" onkeydown="if(event.key==='Enter')createMyRestaurant()"></div>
+    <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text);line-height:1.55;cursor:pointer;margin:.25rem 0 1rem;text-align:left">
+      <input type="checkbox" id="ob-terms" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:var(--gold)">
+      <span>Jag har läst och godkänner <a href="villkor.html#villkor" target="_blank" style="color:var(--gold)">användarvillkoren</a>, <a href="villkor.html#integritet" target="_blank" style="color:var(--gold)">integritetspolicyn</a> och <a href="villkor.html#bitrade" target="_blank" style="color:var(--gold)">personuppgiftsbiträdesavtalet</a>.</span>
+    </label>
+    <button class="btn bp bfull" id="ob-btn" style="padding:13px" onclick="createMyRestaurant()">Starta mina 30 dagar gratis</button>
+    <div style="margin-top:1rem;text-align:center">
+      <button onclick="doLogout()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline">Logga ut</button>
     </div>
   </div>
 </div>
@@ -224,6 +246,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   </nav>
 
   <div class="page">
+    <div id="trialBanner" style="display:none;margin-bottom:1.25rem"></div>
     <div id="annBanner" style="display:none;margin-bottom:1.5rem"></div>
     <div class="fb"><div><h1>Admin</h1><div class="gold-line"></div></div></div>
     <div class="tabs">
@@ -662,6 +685,11 @@ if(savedEmail){
   if(remEl)remEl.checked=true;
 }
 
+// Kommer användaren från en länk i ett mejl? (bekräftelse av nytt konto) -> logga in automatiskt.
+// Återställningslänkar (type=recovery) hanteras separat nedan.
+const _fromEmailLink=/[#?&](access_token|code)=/.test(location.hash+location.search)&&!/type=recovery/.test(location.hash+location.search);
+let _autoInitDone=false;
+
 // Kolla om användaren kommer från återställningslänk
 db.auth.onAuthStateChange((event, session) => {
   if (event === 'PASSWORD_RECOVERY') {
@@ -671,6 +699,12 @@ db.auth.onAuthStateChange((event, session) => {
     m.style.display = 'block';
     m.className = 'msg mok';
     m.textContent = 'Ange ditt nya lösenord nedan.';
+    return;
+  }
+  if (_fromEmailLink && !_autoInitDone && session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+    _autoInitDone = true;
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    initAdmin();
   }
 });
 
@@ -759,11 +793,24 @@ async function initAdmin(){
   if(!user)return;
   const {data:arRows,error:arErr}=await db.from('restaurant_admins').select('restaurant_id').eq('user_id',user.id).limit(1);
   const ar = arRows && arRows[0];
-  if(arErr||!ar){
+  if(arErr){
     const msg=document.getElementById('loginMsg');
     msg.style.display='block';
-    msg.textContent='Debug: user.id='+user.id+' fel='+(arErr?.message||'ingen rad hittad');
+    msg.textContent='Kunde inte läsa kontot: '+arErr.message;
     await db.auth.signOut();
+    return;
+  }
+  if(!ar){
+    // Superadmin har ingen restaurang här – hänvisa till rätt sida
+    if(user.email==='lisa@headofhappiness.se'){
+      const msg=document.getElementById('loginMsg');
+      msg.style.display='block';
+      msg.textContent='Det här är superadmin-kontot – logga in via superadmin.html.';
+      await db.auth.signOut();
+      return;
+    }
+    // Ny, e-postverifierad användare: skapa restaurang (30 dagars prov)
+    showOnboarding(user);
     return;
   }
   const {data:r,error:rErr}=await db.from('restaurants').select('*').eq('id',ar.restaurant_id).single();
@@ -795,9 +842,97 @@ async function initAdmin(){
     nbMenu.innerHTML='<option value="">Välj meny...</option>';
     (menuList||[]).forEach(m=>{var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});
   }
+  applyPlanState();
   renderBookings();
   loadCustomers();
   loadAnnouncementsForCustomer();
+}
+
+// ── ONBOARDING (självregistrering) ──
+function showOnboarding(user){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('adminPage').style.display='none';
+  document.getElementById('onboardPage').style.display='block';
+  document.getElementById('ob-email').textContent=user.email||'';
+  const obBtn=document.getElementById('ob-btn');if(obBtn){obBtn.disabled=false;obBtn.textContent='Starta mina 30 dagar gratis';}
+  let pre='';try{pre=localStorage.getItem('pm_signup_name')||'';}catch(e){}
+  const inp=document.getElementById('ob-name');
+  if(pre&&!inp.value)inp.value=pre;
+}
+async function createMyRestaurant(){
+  const name=document.getElementById('ob-name').value.trim();
+  const terms=document.getElementById('ob-terms').checked;
+  const btn=document.getElementById('ob-btn');
+  document.getElementById('obMsg').style.display='none';
+  if(name.length<2){showMsg('obMsg','merr','Skriv restaurangens namn.');return;}
+  if(!terms){showMsg('obMsg','merr','Du behöver godkänna villkoren för att fortsätta.');return;}
+  btn.disabled=true;btn.textContent='Skapar...';
+  const {error}=await db.rpc('create_my_restaurant',{p_name:name,p_accept_terms:true});
+  if(error){
+    btn.disabled=false;btn.textContent='Starta mina 30 dagar gratis';
+    const m=error.message||'';
+    let txt='Något gick fel: '+m;
+    if(m.indexOf('EMAIL_NOT_CONFIRMED')>-1)txt='Din e-postadress är inte bekräftad än. Klicka på länken i bekräftelsemejlet och försök igen.';
+    else if(m.indexOf('INVALID_NAME')>-1)txt='Namnet ska vara 2–80 tecken.';
+    else if(m.indexOf('TERMS_NOT_ACCEPTED')>-1)txt='Du behöver godkänna villkoren.';
+    else if(m.indexOf('ALREADY_HAS_RESTAURANT')>-1){
+      txt='Du har redan en restaurang – laddar den...';
+      showMsg('obMsg','mok',txt);
+      setTimeout(function(){document.getElementById('onboardPage').style.display='none';initAdmin();},800);
+      return;
+    }
+    showMsg('obMsg','merr',txt);
+    return;
+  }
+  try{localStorage.removeItem('pm_signup_name');}catch(e){}
+  document.getElementById('onboardPage').style.display='none';
+  initAdmin();
+}
+
+// ── PROVPERIOD / PLAN ──
+// plan: 'trial' (30 dagar, inga sms) | 'active' (betalande) | 'internal' (test/egna). Låst = provperioden slut.
+function planState(r){
+  if(!r)return {kind:'none',locked:false,days:null};
+  if(r.plan==='trial'){
+    const ends=r.trial_ends_at?new Date(r.trial_ends_at).getTime():null;
+    return {kind:'trial',locked:ends!==null&&ends<Date.now(),days:ends===null?null:Math.max(0,Math.ceil((ends-Date.now())/86400000))};
+  }
+  if(r.plan==='expired')return {kind:'expired',locked:true,days:0};
+  return {kind:r.plan||'active',locked:false,days:null};
+}
+function smsBlocked(){return planState(rest).kind==='trial';}
+
+const _LOCK_FNS=['sendConfirmation','setStatusVal','toggleComplete','saveBulk','saveGuestEdit','delOrder','delBulkPortions','createBooking','delBooking','doReminder','sendSummary','sendContactLink','archiveFromCal','delBookingFromCal','archiveMenu','restoreBooking','deleteArchivedBooking','showNewMenuForm','openImportForMenu','createMenu','addCat','importMenu','saveItem','delItem','addItem','delCat','renameMenu','copyMenu','deleteMenu','toggleNB','editBooking','showCustomerForm','saveCustomer','delCustomer'];
+let _writesLocked=false;
+function lockWrites(){
+  if(_writesLocked)return;_writesLocked=true;
+  _LOCK_FNS.forEach(function(n){
+    if(typeof window[n]!=='function')return;
+    window[n]=function(){alert('Provperioden har gått ut – ändringar kan inte sparas.\n\nHör av er till info@premeny.se för att fortsätta (295 kr/mån ex. moms, ingen bindningstid).');return false;};
+  });
+}
+function applyPlanState(){
+  const st=planState(rest);
+  const b=document.getElementById('trialBanner');
+  if(b){
+    if(st.kind==='trial'&&!st.locked){
+      const left=st.days===null?'':'<strong style="font-weight:600">Provperiod – '+st.days+' dag'+(st.days===1?'':'ar')+' kvar.</strong> ';
+      b.style.cssText='display:block;margin-bottom:1.25rem;background:rgba(184,149,90,.1);border:1px solid rgba(184,149,90,.35);border-radius:12px;padding:.9rem 1.1rem;font-size:13.5px;line-height:1.6;color:var(--text)';
+      b.innerHTML=left+'Hela systemet ingår – utom sms (mejl fungerar som vanligt). Vill ni fortsätta efter provperioden kostar det 295 kr/mån ex. moms, utan bindningstid – hör av er till <a href="mailto:info@premeny.se" style="color:var(--gold);font-weight:500">info@premeny.se</a>.';
+    }else if(st.locked){
+      b.style.cssText='display:block;margin-bottom:1.25rem;background:#fdf2f2;border:1px solid #e8c0c0;border-radius:12px;padding:.9rem 1.1rem;font-size:13.5px;line-height:1.6;color:#8a2020';
+      b.innerHTML='<strong style="font-weight:600">Provperioden har gått ut.</strong> Ni kan fortfarande se alla bokningar, och era gäster kan beställa via sina länkar, men inga ändringar kan sparas. Hör av er till <a href="mailto:info@premeny.se" style="color:#8a2020;font-weight:600">info@premeny.se</a> för att fortsätta (295 kr/mån ex. moms, ingen bindningstid).';
+    }else{b.style.display='none';}
+  }
+  if(st.kind==='trial'){
+    const cb=document.getElementById('nb-remind-sms');
+    if(cb){
+      cb.disabled=true;cb.checked=false;
+      const lab=cb.parentElement;
+      if(lab){lab.title='SMS ingår inte under provperioden';lab.style.opacity='.55';if(!lab.querySelector('.sms-note'))lab.insertAdjacentHTML('beforeend','<span class="sms-note" style="font-size:11px;color:var(--muted)"> (ingår ej i provperioden)</span>');}
+    }
+  }
+  if(st.locked)lockWrites();
 }
 
 // ── NYHETER (kundvy) ──
@@ -1920,6 +2055,7 @@ async function doReminder(id,ev){if(IS_DEMO)return demoBlock();
 
 // SKICKA SAMMANSTÄLLNING
 async function sendSummary(id,ch){if(IS_DEMO)return demoBlock();
+  if(ch==='sms'&&smsBlocked()){alert('SMS ingår inte under provperioden. Skicka länken via mejl i stället.');return;}
   const {data:b}=await db.from('bookings').select('*').eq('id',id).single();
   const {data:rest}=await db.from('restaurants').select('*').eq('id',b.restaurant_id).single();
   const {data:orders}=await db.from('orders').select('*, order_items(*, menu_items(name, menu_categories(label)))').eq('booking_id',id);
@@ -1999,6 +2135,7 @@ async function sendSummary(id,ch){if(IS_DEMO)return demoBlock();
 
 // SKICKA KONTAKTLÄNK (en person fyller i för hela sällskapet)
 async function sendContactLink(id,ch){if(IS_DEMO)return demoBlock();
+  if(ch==='sms'&&smsBlocked()){alert('SMS ingår inte under provperioden. Skicka länken via mejl i stället.');return;}
   const {data:b}=await db.from('bookings').select('*').eq('id',id).single();
   const {data:rest}=await db.from('restaurants').select('*').eq('id',b.restaurant_id).single();
   const dest=ch==='email'?b.contact_email:b.contact_phone;

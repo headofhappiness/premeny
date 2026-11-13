@@ -193,10 +193,9 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
     <div class="r2">
       <div class="ff"><label>Plan</label>
         <select id="nr-plan">
-          <option value="early_bird">Standard – 295 kr/mån</option>
-          <option value="small">Small – 499 kr/mån</option>
-          <option value="medium">Medium – 799 kr/mån</option>
-          <option value="large">Large – 1199 kr/mån</option>
+          <option value="trial">Provperiod – 30 dagar gratis, inga sms</option>
+          <option value="active">Betalande – 295 kr/mån</option>
+          <option value="internal">Intern / test – inga begränsningar</option>
         </select>
       </div>
       <div class="ff"><label>Accentfärg</label>
@@ -509,8 +508,8 @@ async function loadRestaurants(){
   });
   (allOrders||[]).forEach(o=>{orderCounts[o.restaurant_id]=(orderCounts[o.restaurant_id]||0)+1;});
 
-  const planLabels={early_bird:'Standard',small:'Small',medium:'Medium',large:'Large'};
-  const planClass={early_bird:'plan-early',small:'plan-small',medium:'plan-medium',large:'plan-large'};
+  const planLabels={trial:'Provperiod',active:'Betalande',internal:'Intern',early_bird:'Standard (gammal)'};
+  const planClass={trial:'plan-medium',active:'plan-small',internal:'plan-early',early_bird:'plan-early'};
   const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   const now=new Date();
   const thisMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
@@ -570,7 +569,7 @@ async function loadRestaurants(){
         ${r.contact_email?'<div style="color:var(--muted)">✉ '+r.contact_email+'</div>':''}
         ${r.address?'<div style="color:var(--muted)">📍 '+r.address+'</div>':''}
         ${r.website?'<div style="color:var(--muted)">🌐 '+r.website+'</div>':''}
-        <div style="margin-top:.5rem;color:var(--muted)">Plan: <strong style="color:var(--text)">${planLabels[r.plan]||r.plan}</strong></div>
+        <div style="margin-top:.5rem;color:var(--muted)">Plan: <strong style="color:var(--text)">${planLabels[r.plan]||r.plan}</strong>${r.plan==='trial'&&r.trial_ends_at?(new Date(r.trial_ends_at)<now?' · <span style="color:#a05050">provet slut '+new Date(r.trial_ends_at).toISOString().slice(0,10)+'</span>':' · slutar '+new Date(r.trial_ends_at).toISOString().slice(0,10)):''}</div>
         <div style="color:var(--muted)">Skapad: <strong style="color:var(--text)">${r.created_at?new Date(r.created_at).toLocaleDateString('sv-SE'):'-'}</strong></div>
         <div style="color:var(--muted)">ID: <code style="font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:4px">${r.id}</code></div>
       </div>
@@ -716,6 +715,7 @@ async function createRestaurant(){
       name,slug,
       accent_color:document.getElementById('nr-color').value,
       plan:document.getElementById('nr-plan').value,
+      ...(document.getElementById('nr-plan').value==='trial'?{trial_started_at:new Date().toISOString(),trial_ends_at:new Date(Date.now()+30*86400000).toISOString()}:{}),
       phone:document.getElementById('nr-phone').value.trim()||null,
       contact_email:document.getElementById('nr-email').value.trim()||null,
       address:document.getElementById('nr-address').value.trim()||null,
@@ -763,7 +763,10 @@ async function createRestaurant(){
 async function openEditRest(id){
   const {data:r}=await db.from('restaurants').select('*').eq('id',id).single();
   if(!r)return;
-  const planOpts={early_bird:'Standard – 295 kr/mån',small:'Small – 499 kr/mån',medium:'Medium – 799 kr/mån',large:'Large – 1199 kr/mån'};
+  // OBS: för att låsa en restaurang – sätt Provperiod och ett slutdatum som passerat (då spärras även sms).
+  const planOpts={trial:'Provperiod – inga sms',active:'Betalande – 295 kr/mån',internal:'Intern / test – inga begränsningar'};
+  if(r.plan==='early_bird')planOpts.early_bird='Standard (gammal)';
+  const trialEndVal=r.trial_ends_at?new Date(r.trial_ends_at).toISOString().slice(0,10):'';
   document.getElementById('editRestContent').innerHTML=`
     <div class="r2">
       <div class="ff"><label>Namn</label><input type="text" id="er-name" value="${r.name}"></div>
@@ -771,6 +774,9 @@ async function openEditRest(id){
     </div>
     <div class="r2">
       <div class="ff"><label>Plan</label><select id="er-plan">${Object.entries(planOpts).map(([v,l])=>`<option value="${v}"${r.plan===v?' selected':''}>${l}</option>`).join('')}</select></div>
+      <div class="ff"><label>Provperioden slutar <span style="font-size:11px;color:var(--muted);font-weight:400">(gäller plan Provperiod – ändra datumet för att förlänga)</span></label><input type="date" id="er-trial-end" value="${trialEndVal}"></div>
+    </div>
+    <div class="r2">
       <div class="ff"><label>Accentfärg</label><div style="display:flex;gap:8px;align-items:center">
         <input type="color" id="er-color" value="${r.accent_color||'#b8955a'}" style="width:44px;height:38px;padding:2px;border-radius:6px;cursor:pointer;flex-shrink:0">
         <input type="text" id="er-color-text" value="${r.accent_color||'#b8955a'}" style="font-family:monospace;font-size:13px" oninput="document.getElementById('er-color').value=this.value">
@@ -851,10 +857,20 @@ async function changeLoginEmail(id){
 }
 
 async function saveEditRest(id){
+  const newPlan=document.getElementById('er-plan').value;
+  const endStr=document.getElementById('er-trial-end').value; // yyyy-mm-dd eller tomt
+  const trialFields={};
+  if(newPlan==='trial'){
+    // Slutdatum = sista dagen kl 23:59 (svensk tid, ungefär) – tomt datum = 30 dagar från idag
+    trialFields.trial_ends_at=endStr?new Date(endStr+'T23:59:00').toISOString():new Date(Date.now()+30*86400000).toISOString();
+    const {data:cur}=await db.from('restaurants').select('trial_started_at').eq('id',id).single();
+    if(!cur||!cur.trial_started_at)trialFields.trial_started_at=new Date().toISOString();
+  }
   const {error}=await db.from('restaurants').update({
+    ...trialFields,
     name:document.getElementById('er-name').value.trim(),
     slug:document.getElementById('er-slug').value.trim().toLowerCase(),
-    plan:document.getElementById('er-plan').value,
+    plan:newPlan,
     accent_color:document.getElementById('er-color').value,
     phone:document.getElementById('er-phone').value.trim()||null,
     contact_email:document.getElementById('er-email').value.trim()||null,
@@ -892,8 +908,8 @@ async function loadArchivedRestaurants(){
   grid.innerHTML='<div style="font-size:13px;color:var(--muted)">Laddar...</div>';
   const {data:rests}=await db.from('restaurants').select('*').eq('active',false).order('created_at',{ascending:false});
   if(!rests?.length){grid.innerHTML='<div style="font-size:14px;color:var(--muted);padding:1rem">Inga arkiverade kunder.</div>';return;}
-  const planLabels={early_bird:'Standard',small:'Small',medium:'Medium',large:'Large'};
-  const planClass={early_bird:'plan-early',small:'plan-small',medium:'plan-medium',large:'plan-large'};
+  const planLabels={trial:'Provperiod',active:'Betalande',internal:'Intern',early_bird:'Standard (gammal)'};
+  const planClass={trial:'plan-medium',active:'plan-small',internal:'plan-early',early_bird:'plan-early'};
   grid.innerHTML=rests.map(r=>`
     <div class="rest-card" style="opacity:.7">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">
