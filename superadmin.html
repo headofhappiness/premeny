@@ -4,7 +4,7 @@
 <link rel="icon" type="image/png" href="PM_logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="pm-build" content="2026-06-05b">
+<meta name="pm-build" content="2026-11-13g">
 <title>SuperAdmin – PreMeny</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -59,6 +59,8 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 .month-bar-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s}
 @media(max-width:600px){.r2,.r3{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr 1fr}.page{padding:1.5rem 1rem 4rem}}
 </style>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13g"><script src="ui-clarity.js?v=2026-11-13g"></script>
+<script src="update-check.js?v=2026-11-13g"></script>
 </head>
 <body>
 
@@ -327,7 +329,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>window.MFA_ENFORCED=true; /* true = ingen "hoppa över" (servern kräver aal2 sedan 2026-11-13) */</script>
-<script src="mfa.js?v=2026-11-13c"></script>
+<script src="mfa.js?v=2026-11-13g"></script>
 <script>
 const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
 const SKEY='sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
@@ -584,6 +586,7 @@ async function loadRestaurants(){
       </div>
 
       <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+        <button class="btn bo" style="font-size:11px;padding:4px 10px" onclick="window.open('admin.html?as=${r.id}','_blank')" title="Öppnar restaurangens bokningar, skrivskyddat">👁 Se bokningar</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleRestDetail('${r.id}')">Se mer ›</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="toggleRestNote('${r.id}')">📝 Notering</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openStats('${r.id}','${r.name.replace(/'/g,"\\'")}')">📊 Statistik</button>

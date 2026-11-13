@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-11-13e-demo">
+<meta name="pm-build" content="2026-11-13g-demo">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -157,6 +157,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   input,textarea,select{font-size:16px}
 }
 </style>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13g"><script src="ui-clarity.js?v=2026-11-13g"></script>
 </head>
 <body>
 
@@ -628,7 +629,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>window.MFA_ENFORCED=true; /* true = ingen "hoppa över" (servern kräver aal2 sedan 2026-11-13) */</script>
-<script src="mfa.js?v=2026-11-13c"></script>
+<script src="mfa.js?v=2026-11-13g"></script>
 <script>
 // ─── HJÄLPFUNKTIONER ────────────────────────────────────────────────
 function showMsg(id,cls,txt){var el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=txt;}
@@ -774,6 +775,11 @@ async function initAdmin(){
   }
   const {data:{user}}=await db.auth.getUser();
   if(!user)return;
+  // Superadmin kan titta på en restaurang (skrivskyddat): admin.html?as=<restaurang-id>
+  const _asId=(new URLSearchParams(location.search).get('as')||'').trim();
+  if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(_asId)){
+    return startViewAs(_asId);
+  }
   const {data:arRows,error:arErr}=await db.from('restaurant_admins').select('restaurant_id').eq('user_id',user.id).limit(1);
   const ar = arRows && arRows[0];
   if(arErr){
@@ -804,9 +810,14 @@ async function initAdmin(){
     await db.auth.signOut();
     return;
   }
+  return startRestaurant(r,false);
+}
+
+async function startRestaurant(r,viewAs){
   rest=r;
   document.getElementById('restName').textContent=r.name;
   document.documentElement.style.setProperty('--gold',r.accent_color||'#b8955a');
+  if(typeof setGoldInk==='function')setGoldInk(r.accent_color||'#b8955a');
   // Kundens logga i navbar om den finns – då döljs PreMeny-texten (flyttas till sidfot)
   var navLogo=document.getElementById('nav-logo-wrap');
   var brandText=document.querySelector('.nav .logo');
@@ -828,7 +839,38 @@ async function initAdmin(){
   applyPlanState();
   renderBookings();
   loadCustomers();
-  loadAnnouncementsForCustomer();
+  if(!viewAs)loadAnnouncementsForCustomer();
+}
+
+// ── SUPERADMIN: SE SOM RESTAURANG (skrivskyddat) ──
+async function startViewAs(rid){
+  const fail=function(t){const m=document.getElementById('loginMsg');m.style.display='block';m.className='msg merr';m.textContent=t;};
+  const {data:r,error}=await db.from('restaurants').select('*').eq('id',rid).single();
+  if(error||!r){fail('Du har inte behörighet att se den här restaurangen, eller så finns den inte. (Bara superadmin kan titta på andra restauranger.)');return;}
+  enableViewAsMode(r);
+  return startRestaurant(r,true);
+}
+function enableViewAsMode(r){
+  window._viewAs=true;
+  const stopp={data:null,error:{message:'Skrivskyddat läge – du tittar som superadmin och kan inte ändra något.'},status:403};
+  const kedja=function(){const p=new Proxy(function(){},{get:function(_,k){if(k==='then')return function(ok,nej){return Promise.resolve(stopp).then(ok,nej);};return function(){return p;};},apply:function(){return p;}});return p;};
+  const fromOrig=db.from.bind(db);
+  db.from=function(t){const q=fromOrig(t);['insert','update','upsert','delete'].forEach(function(m){q[m]=function(){return kedja();};});return q;};
+  db.rpc=function(){return kedja();};
+  const fetchOrig=window.fetch.bind(window);
+  window.fetch=function(u,o){
+    const url=typeof u==='string'?u:(u&&u.url)||'';
+    if(url.indexOf('/functions/v1/')>-1)return Promise.resolve(new Response(JSON.stringify({ok:false,error:'Skrivskyddat läge'}),{status:403,headers:{'Content-Type':'application/json'}}));
+    return fetchOrig(u,o);
+  };
+  _viewAsMsg='Du tittar som superadmin – skrivskyddat läge.\n\nInget kan ändras eller skickas härifrån.';
+  lockWrites();
+  const bar=document.createElement('div');
+  bar.id='viewAsBar';
+  bar.setAttribute('style','position:sticky;top:0;z-index:50;background:#1a1712;color:#fff;padding:12px 18px;font-size:15px;line-height:1.5;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap');
+  bar.innerHTML='<span>👁 <strong style="font-weight:600">Du tittar som superadmin på '+(r.name||'').replace(/[<>&"]/g,'')+'</strong> – skrivskyddat, inget kan ändras eller skickas.</span><a href="superadmin.html" style="color:#fff;font-weight:600;text-decoration:underline;white-space:nowrap">← Tillbaka till superadmin</a>';
+  document.body.insertBefore(bar,document.body.firstChild);
+  document.title='Som '+(r.name||'restaurang')+' – PreMeny';
 }
 
 // ── ONBOARDING (självregistrering) ──
@@ -887,11 +929,12 @@ function smsBlocked(){return planState(rest).kind==='trial';}
 
 const _LOCK_FNS=['sendConfirmation','setStatusVal','toggleComplete','saveBulk','saveGuestEdit','delOrder','delBulkPortions','createBooking','delBooking','doReminder','sendSummary','sendContactLink','archiveFromCal','delBookingFromCal','archiveMenu','restoreBooking','deleteArchivedBooking','showNewMenuForm','openImportForMenu','createMenu','addCat','importMenu','saveItem','delItem','addItem','delCat','renameMenu','copyMenu','deleteMenu','toggleNB','editBooking','showCustomerForm','saveCustomer','delCustomer'];
 let _writesLocked=false;
+let _viewAsMsg=null;
 function lockWrites(){
   if(_writesLocked)return;_writesLocked=true;
   _LOCK_FNS.forEach(function(n){
     if(typeof window[n]!=='function')return;
-    window[n]=function(){alert('Provperioden har gått ut – ändringar kan inte sparas.\n\nHör av er till info@premeny.se för att fortsätta (295 kr/mån ex. moms, ingen bindningstid).');return false;};
+    window[n]=function(){if(_viewAsMsg){alert(_viewAsMsg);return false;}alert('Provperioden har gått ut – ändringar kan inte sparas.\n\nHör av er till info@premeny.se för att fortsätta (295 kr/mån ex. moms, ingen bindningstid).');return false;};
   });
 }
 function applyPlanState(){
@@ -3652,6 +3695,17 @@ function toggleLathund(){
   if(b.style.display==='none'){b.style.display='';if(a)a.style.transform='';if(t)t.textContent='Dölj';}
   else{b.style.display='none';if(a)a.style.transform='rotate(-90deg)';if(t)t.textContent='Visa';}
 }
+
+// Redan inloggad? Gå vidare utan ny länk (tvåstegsverifieringen kontrolleras i initAdmin)
+(async function(){
+  try{
+    if(typeof IS_DEMO!=='undefined')return; // demon startar sig själv och ska aldrig använda en riktig session
+    if(_autoInitDone)return;
+    if(/[#?&](access_token|code|token_hash|error)=/.test(location.hash+location.search))return;
+    const {data:{session}}=await db.auth.getSession();
+    if(session&&!_autoInitDone){_autoInitDone=true;initAdmin();}
+  }catch(e){}
+})();
 
 // Demo: starta automatiskt
 autoInitDemo();

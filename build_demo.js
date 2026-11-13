@@ -37,8 +37,8 @@ must(stampMatch, 'hittade ingen pm-build-stämpel');
 const demoStamp = stampMatch[1] + '-demo';
 
 {
-  const scriptRe = /<script>\s*\(function\(\)\{[\s\S]*?checkVersion[\s\S]*?\}\)\(\);\s*<\/script>\s*/;
-  must(scriptRe.test(html), 'hittade inte version-check-scriptet att ta bort');
+  const scriptRe = /<script src="update-check\.js[^"]*"><\/script>\s*/;
+  must(scriptRe.test(html), 'hittade inte update-check.js att ta bort');
   html = html.replace(scriptRe, '');
 }
 {
