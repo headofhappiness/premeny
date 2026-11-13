@@ -5,8 +5,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-11-13j">
-<script src="update-check.js?v=2026-11-13j"></script>
+<meta name="pm-build" content="2026-11-13k">
+<script src="update-check.js?v=2026-11-13k"></script>
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -144,7 +144,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   input,textarea,select{font-size:16px}
 }
 </style>
-<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13j"><script src="ui-clarity.js?v=2026-11-13j"></script>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13k"><script src="ui-clarity.js?v=2026-11-13k"></script>
 </head>
 <body>
 
@@ -597,7 +597,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>window.MFA_ENFORCED=true; /* true = ingen "hoppa över" (servern kräver aal2 sedan 2026-11-13) */</script>
-<script src="mfa.js?v=2026-11-13j"></script>
+<script src="mfa.js?v=2026-11-13k"></script>
 <script>
 // ─── HJÄLPFUNKTIONER ────────────────────────────────────────────────
 function showMsg(id,cls,txt){var el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=txt;}
@@ -1154,31 +1154,41 @@ function renderBCard(b){
         <button onclick="delBooking('${b.id}',event)" style="font-size:11px;padding:4px 12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:100px;cursor:pointer;font-family:inherit;font-weight:500">Arkivera bokning</button>
       </div>`;
     }
-    // Länk + QR
+    // Länk + QR – steg 1: bekräfta bokningen. Steg 2: två likvärdiga sätt att låta gästerna välja mat.
     const kLink=gLink+'&k=1';
-    html+=`<div style="font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase">Gästlänk – varje gäst väljer själv</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.5">Kontaktpersonen vidarebefordrar länken till sina gäster.</div>
-      <div class="linkbox">${gLink}</div>
-      <div class="fg" style="margin-bottom:1rem;flex-wrap:wrap">
-        <button onclick="sendConfirmation('${b.id}')" class="btn bo" style="font-size:11px;padding:5px 12px">✉ Skicka bekräftelse till kontaktperson</button>
-        <button onclick="sendSummary('${b.id}','email')" class="btn bg" style="font-size:11px;padding:5px 12px">✉ Skicka länk via mejl</button>
-        ${b.contact_phone?(()=>{const pc=(b.contact_phone||'').replace(/[\s\-]/g,'');const ok=/^(\+467\d{8}|07\d{8})$/.test(pc);return ok?`<button onclick="sendSummary('${b.id}','sms')" class="btn bg" style="font-size:11px;padding:5px 12px">💬 Skicka länk via sms</button>`:`<button onclick="alert('Telefonnumret \\\"${b.contact_phone}\\\" verkar inte stämma.\\n\\nAnge ett giltigt mobilnummer under Ändra bokning.')" class="btn bg" style="font-size:11px;padding:5px 12px;opacity:.5">💬 Skicka länk via sms ⚠</button>`;})():''}
-        <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="font-size:11px;padding:5px 12px">📋 Kopiera länk</button>
+    const _pc=(b.contact_phone||'').replace(/[\s\-]/g,'');
+    const _smsOk=/^(\+467\d{8}|07\d{8})$/.test(_pc);
+    const _badSms=`alert('Telefonnumret ${b.contact_phone} verkar inte stämma.\\n\\nAnge ett giltigt mobilnummer under Ändra bokning.')`;
+    const _card='background:var(--surface);border:1px solid var(--bs);border-radius:12px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.6rem';
+    const _head='font-size:16px;font-weight:600;color:var(--dark);line-height:1.35';
+    const _txt='font-size:14px;color:var(--muted);line-height:1.55';
+    const _btn='font-size:14px;padding:8px 14px';
+    html+=`<div style="margin:1rem 0 .5rem;padding:.75rem .95rem;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="font-size:15px;color:var(--text);line-height:1.5"><strong style="font-weight:600">1. Bekräfta bokningen</strong><br><span style="color:var(--muted);font-size:14px">Skickar en bokningsbekräftelse till kontaktpersonen.</span></div>
+        <button onclick="sendConfirmation('${b.id}')" class="btn bg" style="${_btn}">✉ Skicka bekräftelse</button>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin:-.4rem 0 1rem;line-height:1.6">
-        <strong>Bekräftelse</strong> = bekräftar bokningen till kontaktpersonen. <strong>Skicka länk</strong> = gästlänken som kontaktpersonen vidarebefordrar till sina gäster.
-      </div>
-      <div style="background:var(--dark);border:1px solid var(--gold);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1rem">
-        <div style="font-size:11px;color:var(--gold);margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase;font-weight:500">⭐ Kontaktlänk – en person i sällskapet fyller i för hela sällskapet</div>
-        <div style="font-size:12px;color:#cdbfa8;margin-bottom:.6rem;line-height:1.5">Skickas till <strong style="color:#f4ece0">${b.contact_name||'kontaktpersonen'}</strong>${b.contact_email?` · ${b.contact_email}`:''}${b.contact_phone?` · ${b.contact_phone}`:''}</div>
-        <div class="linkbox" style="margin-bottom:.6rem;background:rgba(255,255,255,.08);border-color:rgba(184,149,90,.4);color:#f4ece0">${kLink}</div>
-        <div class="fg" style="flex-wrap:wrap;gap:6px">
-          ${b.contact_email?`<button onclick="sendContactLink('${b.id}','email')" class="btn" style="font-size:12px;padding:7px 14px;background:var(--gold);color:#fff;border:none;font-weight:500">✉ Mejla kontaktlänk</button>`:''}
-          ${b.contact_phone?(()=>{const pc=(b.contact_phone||'').replace(/[\s\-]/g,'');const ok=/^(\+467\d{8}|07\d{8})$/.test(pc);return ok?`<button onclick="sendContactLink('${b.id}','sms')" class="btn" style="font-size:12px;padding:7px 14px;background:var(--gold);color:#fff;border:none;font-weight:500">💬 Smsa kontaktlänk</button>`:`<button onclick="alert('Telefonnumret \\\"${b.contact_phone}\\\" verkar inte stämma.\\n\\nAnge ett giltigt mobilnummer under Ändra bokning.')" class="btn" style="font-size:12px;padding:7px 14px;background:rgba(184,149,90,.4);color:#fff;border:none;font-weight:500">💬 Smsa kontaktlänk ⚠</button>`;})():''}
-          <button onclick="navigator.clipboard.writeText('${kLink}').then(()=>alert('Kontaktlänk kopierad!'))" class="btn" style="font-size:12px;padding:7px 14px;background:transparent;color:#f4ece0;border:1px solid rgba(184,149,90,.5);font-weight:500">📋 Kopiera</button>
+      <div style="font-size:16px;font-weight:600;color:var(--dark);margin:1.1rem 0 .15rem">2. Låt gästerna välja mat – två sätt</div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:.65rem;line-height:1.5">Länken skickas till kontaktpersonen: <strong style="color:var(--text);font-weight:500">${b.contact_name||'kontaktpersonen'}</strong>${b.contact_email?` · ${b.contact_email}`:''}${b.contact_phone?` · ${b.contact_phone}`:''}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:1rem">
+        <div style="${_card}">
+          <div style="${_head}">👥 Gästlänk – varje gäst väljer själv</div>
+          <div style="${_txt}">Det vanligaste. Kontaktpersonen vidarebefordrar länken till alla gäster, och var och en väljer sin egen mat.</div>
+          <div class="linkbox" style="margin:0;word-break:break-all">${gLink}</div>
+          <div class="fg" style="flex-wrap:wrap;gap:6px;margin-top:auto">
+            <button onclick="sendSummary('${b.id}','email')" class="btn bp" style="${_btn}">✉ Mejla länk</button>
+            ${b.contact_phone?(_smsOk?`<button onclick="sendSummary('${b.id}','sms')" class="btn bp" style="${_btn}">💬 Sms:a länk</button>`:`<button onclick="${_badSms}" class="btn bp" style="${_btn};opacity:.55">💬 Sms:a länk ⚠</button>`):''}
+            <button onclick="navigator.clipboard.writeText('${gLink}').then(()=>alert('Kopierad!'))" class="btn bg" style="${_btn}">📋 Kopiera</button>
+          </div>
         </div>
-        <div style="font-size:12px;color:#cdbfa8;margin-top:.7rem;line-height:1.6">
-          Skicka den här till en kontaktperson som ska fylla i hela sällskapets val på en gång (antal per rätt) – t.ex. en lagledare eller arrangör som redan samlat in valen. Med vanliga gästlänken väljer varje gäst själv.
+        <div style="${_card}">
+          <div style="${_head}">⭐ Kontaktlänk – en person fyller i för alla</div>
+          <div style="${_txt}">En person (t.ex. en lagledare eller arrangör) fyller i hela sällskapets val på en gång – antal per rätt. Bra när valen redan är insamlade.</div>
+          <div class="linkbox" style="margin:0;word-break:break-all">${kLink}</div>
+          <div class="fg" style="flex-wrap:wrap;gap:6px;margin-top:auto">
+            ${b.contact_email?`<button onclick="sendContactLink('${b.id}','email')" class="btn bp" style="${_btn}">✉ Mejla kontaktlänk</button>`:''}
+            ${b.contact_phone?(_smsOk?`<button onclick="sendContactLink('${b.id}','sms')" class="btn bp" style="${_btn}">💬 Sms:a kontaktlänk</button>`:`<button onclick="${_badSms}" class="btn bp" style="${_btn};opacity:.55">💬 Sms:a kontaktlänk ⚠</button>`):''}
+            <button onclick="navigator.clipboard.writeText('${kLink}').then(()=>alert('Kontaktlänk kopierad!'))" class="btn bg" style="${_btn}">📋 Kopiera</button>
+          </div>
         </div>
       </div>`;
 
