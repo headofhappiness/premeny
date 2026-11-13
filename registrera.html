@@ -2,7 +2,7 @@
 <html lang="sv">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://gndzalmkbsfhclpoidqi.supabase.co wss://gndzalmkbsfhclpoidqi.supabase.co; frame-src 'self' about: https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://gndzalmkbsfhclpoidqi.supabase.co wss://gndzalmkbsfhclpoidqi.supabase.co https://challenges.cloudflare.com; frame-src 'self' about: https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prova PreMeny gratis i 30 dagar</title>
 <meta name="description" content="Skapa ett konto och prova PreMeny gratis i 30 dagar. Gästerna förbeställer maten själva och ni får en färdig kökslista. Inget kort, ingen bindningstid.">
@@ -37,7 +37,7 @@ input:focus{border-color:var(--gold)}
 .done p{font-size:15px;line-height:1.7;color:var(--text);margin-bottom:.75rem}
 .done .em{font-weight:500;word-break:break-all}
 </style>
-<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13m"><script src="ui-clarity.js?v=2026-11-13m"></script>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13o"><script src="ui-clarity.js?v=2026-11-13o"></script>
 </head>
 <body>
 <div class="wrap">
@@ -81,24 +81,16 @@ input:focus{border-color:var(--gold)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="pm-captcha.js?v=2026-11-13o"></script>
 <script>
 const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
 const SKEY='sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
-// Skydd mot massregistrering: fyll i Cloudflare Turnstile-sitenyckeln här NÄR Turnstile
-// är påslaget i Supabase (Authentication → Attack Protection). Tomt = ingen captcha.
-const TURNSTILE_SITEKEY='';
 const db=supabase.createClient(SURL,SKEY);
-let captchaToken=null;
 
 function showErr(t){const e=document.getElementById('err');e.textContent=t;e.style.display='block';}
 function clearErr(){document.getElementById('err').style.display='none';}
-function onCaptcha(t){captchaToken=t;}
-if(TURNSTILE_SITEKEY){
-  const box=document.getElementById('captchaBox');
-  box.style.display='block';
-  box.innerHTML='<div class="cf-turnstile" data-sitekey="'+TURNSTILE_SITEKEY+'" data-callback="onCaptcha"></div>';
-  const s=document.createElement('script');s.src='https://challenges.cloudflare.com/turnstile/v0/api.js';s.async=true;document.head.appendChild(s);
-}
+// Robotskydd (Cloudflare Turnstile): se pm-captcha.js
+pmCaptcha.mount('captchaBox');
 
 async function signup(){
   clearErr();
@@ -106,8 +98,8 @@ async function signup(){
   const email=document.getElementById('email').value.trim();
   if(name.length<2){showErr('Skriv restaurangens namn.');return;}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('E-postadressen verkar inte stämma.');return;}
-  if(TURNSTILE_SITEKEY&&!captchaToken){showErr('Bekräfta att du inte är en robot.');return;}
   const btn=document.getElementById('btn');btn.disabled=true;btn.textContent='Skickar länk...';
+  const captchaToken=await pmCaptcha.wait(6000);
   try{localStorage.setItem('pm_signup_name',name);}catch(e){}
   // Inget lösenord: en engångslänk till e-posten skapar kontot (om det är nytt) och loggar in.
   // Finns adressen redan loggas personen i stället in med samma länk – inget avslöjas om vilka adresser som finns.
@@ -116,8 +108,10 @@ async function signup(){
   let error=null;
   try{const r=await db.auth.signInWithOtp({email,options:opts});error=r.error;}catch(e){error={message:String(e&&e.message||e)};}
   btn.disabled=false;btn.textContent='Skapa konto';
+  pmCaptcha.reset();
   if(error){
     const m=(error.message||'').toLowerCase();
+    if(pmCaptcha.isCaptchaError(error)){showErr('Vi kunde inte bekräfta att du är en människa. Vänta en stund tills rutan ovan är klar, eller ladda om sidan, och försök igen.');return;}
     if(error.status===429||m.includes('rate limit')||m.includes('too many')||m.includes('seconds'))showErr('För många försök just nu. Vänta en minut och försök igen.');
     else if(m.includes('invalid')&&m.includes('email'))showErr('E-postadressen godkändes inte.');
     else showErr('Något gick fel: '+error.message);

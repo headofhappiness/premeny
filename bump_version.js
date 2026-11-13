@@ -30,7 +30,7 @@ for (const f of ['admin.html', 'superadmin.html']) {
 for (const f of ['admin.html', 'superadmin.html', 'guest.html', 'landing.html', 'registrera.html']) {
   const p = path.join(dir, f);
   let h = fs.readFileSync(p, 'utf8');
-  const re = /(ui-clarity\.css|ui-clarity\.js|update-check\.js|mfa\.js)\?v=[^"']*/g;
+  const re = /(ui-clarity\.css|ui-clarity\.js|update-check\.js|mfa\.js|pm-captcha\.js)\?v=[^"']*/g;
   const ny = h.replace(re, '$1?v=' + stamp);
   if (ny !== h) fs.writeFileSync(p, ny);
 }
