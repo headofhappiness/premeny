@@ -106,6 +106,11 @@ const demoStamp = stampMatch[1] + '-demo';
   const demoConsts =
 `const IS_DEMO=true;
 const DEMO_SLUG='demo';
+const DEMO_CUSTOMERS=[
+  {id:'dc1',name:'Volvo – konferenser',contact_name:'Helena Berg',contact_email:'helena.berg@volvo.com',contact_phone:'0701234567',note:'Bokar konferensmiddag två gånger per år. Vill ha ett vegetariskt alternativ.'},
+  {id:'dc2',name:'Familjen Johansson',contact_name:'Sara Johansson',contact_email:'sara.johansson@gmail.com',contact_phone:'0709876543',note:'Firar alltid födelsedagar hos oss.'},
+  {id:'dc3',name:'Golfklubben – damklubben',contact_name:'Eva Lind',contact_email:'eva.lind@example.se',contact_phone:'0705551122',note:''}
+];
 function demoBlock(){
   const t=document.getElementById('demoToast');
   if(t){t.style.display='block';clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},2500);}
@@ -124,7 +129,8 @@ ${restLine}`;
     'archiveFromCal','delBookingFromCal','exportCalPDF','archiveMenu','restoreBooking',
     'deleteArchivedBooking','showNewMenuForm','openImportForMenu','downloadQR','createMenu',
     'addCat','saveSettings','importMenu','saveItem','delItem',
-    'addItem','delCat','renameMenu','copyMenu','deleteMenu'
+    'addItem','delCat','renameMenu','copyMenu','deleteMenu',
+    'saveCustomer','delCustomer'
   ];
   const GUARD = 'if(IS_DEMO)return demoBlock();';
   for(const fn of guarded){
@@ -154,6 +160,7 @@ async function autoInitDemo(){
   const nbMenu=document.getElementById('nb-menu');
   if(nbMenu){nbMenu.innerHTML='<option value="">Välj meny...</option>';(menuList||[]).forEach(function(m){var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});}
   renderBookings();
+  loadCustomers();
   maybeShowDemoWelcome();
 }
 function maybeShowDemoWelcome(){

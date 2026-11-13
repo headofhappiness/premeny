@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-06-11b">
+<meta name="pm-build" content="2026-11-13a">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -224,6 +224,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
       <button class="tab active" id="tab-bookings" onclick="showTab('bookings')">Bokningar</button>
       <button class="tab" id="tab-calendar" onclick="showTab('calendar')">Dagsöversikt</button>
       <button class="tab" id="tab-menu" onclick="showTab('menu')">Menyer</button>
+      <button class="tab" id="tab-customers" onclick="showTab('customers')">Stamkunder</button>
       <button class="tab" id="tab-archive" onclick="showTab('archive')">Arkiv</button>
       <button class="tab" id="tab-settings" onclick="showTab('settings')">⚙ Inställningar</button>
     </div>
@@ -294,10 +295,25 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           <div class="ff"><label>Antal gäster (förväntat)</label><input type="number" id="nb-guests" placeholder="30" min="1"></div>
           <div class="ff"><label>Sista beställningsdag</label><input type="date" id="nb-deadline"></div>
         </div>
+        <div class="ff" style="margin-bottom:.5rem">
+          <label>Hämta stamkund <span style="font-size:11px;color:var(--muted)">(fyller i kontaktuppgifterna åt dig)</span></label>
+          <input type="text" id="nb-saved" list="savedCustList" placeholder="Sök bland sparade stamkunder..." autocomplete="off" oninput="pickCustomer()">
+          <datalist id="savedCustList"></datalist>
+          <div id="nb-saved-hint" style="display:none;font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5"></div>
+        </div>
         <div class="r3">
           <div class="ff"><label>Kontaktpersonens namn</label><input type="text" id="nb-contact" placeholder="Anna Karlsson"></div>
           <div class="ff"><label>E-post <span style="font-size:11px;color:var(--muted)">(hit går bekräftelse & påminnelse)</span></label><input type="email" id="nb-email" placeholder="anna@email.se"></div>
           <div class="ff"><label>Telefon</label><input type="tel" id="nb-phone" placeholder="0701234567 eller +46701234567"></div>
+        </div>
+        <div class="ff" style="margin-top:-.25rem">
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);cursor:pointer">
+            <input type="checkbox" id="nb-save-cust" onchange="toggleSaveCust()" style="width:18px;height:18px;accent-color:var(--gold)"> Spara kontaktpersonen som stamkund
+          </label>
+          <div id="nb-save-cust-wrap" style="display:none;margin-top:.5rem">
+            <label>Namn på stamkunden <span style="font-size:11px;color:var(--muted)">(så hittar du den igen)</span></label>
+            <input type="text" id="nb-save-cust-name" placeholder="T.ex. Volvo eller Anna Karlsson" maxlength="200">
+          </div>
         </div>
         <div class="r2">
           <div class="ff"><label>Meny</label>
@@ -468,6 +484,37 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- STAMKUNDER -->
+    <div id="pane-customers" style="display:none">
+      <div class="fb">
+        <div><h3 style="margin-bottom:.25rem">Stamkunder</h3><div class="gold-line"></div></div>
+        <button class="btn bp nb-btn" onclick="showCustomerForm()">+ Ny stamkund</button>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:.75rem;line-height:1.55">Spara kunder som bokar ofta. När du skapar en ny bokning väljer du dem under <strong style="font-weight:500">Hämta stamkund</strong>, så fylls kontaktuppgifterna i åt dig.</p>
+      <div id="customerForm" style="display:none" class="card">
+        <div class="card-label" id="cf-title">Ny stamkund</div>
+        <div class="r2">
+          <div class="ff"><label>Kund / sällskap *</label><input type="text" id="cf-name" placeholder="T.ex. Volvo eller Familjen Karlsson" maxlength="200"></div>
+          <div class="ff"><label>Kontaktperson</label><input type="text" id="cf-contact" placeholder="Anna Karlsson" maxlength="200"></div>
+        </div>
+        <div class="r2">
+          <div class="ff"><label>E-post</label><input type="email" id="cf-email" placeholder="anna@email.se" maxlength="254"></div>
+          <div class="ff"><label>Telefon</label><input type="tel" id="cf-phone" placeholder="0701234567 eller +46701234567"></div>
+        </div>
+        <div class="ff"><label>Notering <span style="font-size:11px;color:var(--muted)">(syns bara för er)</span></label><textarea id="cf-note" placeholder="T.ex. vill ofta ha ett vegetariskt alternativ, bokar julbord i november..." maxlength="2000"></textarea></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn bp" id="cf-save-btn" onclick="saveCustomer()">Spara</button>
+          <button class="btn bg" onclick="hideCustomerForm()">Avbryt</button>
+        </div>
+        <div id="cf-msg" class="msg" style="display:none;margin-top:.75rem"></div>
+      </div>
+      <div style="position:relative;margin-bottom:.75rem">
+        <input type="text" id="customerSearch" placeholder="Sök bland stamkunder..." oninput="renderCustomers()" style="padding-left:36px;background:var(--surface)">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none">🔍</span>
+      </div>
+      <div id="customerList"></div>
     </div>
 
     <!-- ARKIV -->
@@ -708,6 +755,7 @@ async function initAdmin(){
     (menuList||[]).forEach(m=>{var o=document.createElement('option');o.value=m.id;o.textContent=m.name;nbMenu.appendChild(o);});
   }
   renderBookings();
+  loadCustomers();
   loadAnnouncementsForCustomer();
 }
 
@@ -759,12 +807,13 @@ async function dismissAnnouncement(id){
 
 // TABS
 function showTab(tab){
-  ['bookings','calendar','menu','archive','settings'].forEach(t=>{
+  ['bookings','calendar','menu','customers','archive','settings'].forEach(t=>{
     document.getElementById('pane-'+t).style.display=t===tab?'block':'none';
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
   });
   if(tab==='calendar')initCalendar();
   if(tab==='menu')renderMenu();
+  if(tab==='customers')loadCustomers();
   if(tab==='archive')renderArchive();
   if(tab==='settings')loadSettings();
 }
@@ -1471,6 +1520,184 @@ async function adjustBulkItem(bid, itemId, catId, delta){
   }
 }
 
+// ── STAMKUNDER ──
+let allCustomers=[];
+let _editingCustomerId=null;
+let _pickedCustomerId=null;
+let _custByLabel={};
+let _custLoadErr='';
+
+function _custEmailOk(e){return !e||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
+function _custPhoneOk(p){return !p||/^(\+467\d{8}|07\d{8})$/.test(p.replace(/[\s\-]/g,''));}
+function _custLabel(c){return c.name+(c.contact_name&&c.contact_name.toLowerCase()!==c.name.toLowerCase()?' · '+c.contact_name:'');}
+
+async function loadCustomers(){
+  _custLoadErr='';
+  if(typeof DEMO_CUSTOMERS!=='undefined'){
+    allCustomers=DEMO_CUSTOMERS.slice();
+  }else{
+    if(!rest)return;
+    const {data,error}=await db.from('saved_customers').select('*').eq('restaurant_id',rest.id).order('name');
+    if(error){_custLoadErr=error.message;allCustomers=[];}
+    else allCustomers=data||[];
+  }
+  fillCustomerPicker();
+  renderCustomers();
+}
+
+function fillCustomerPicker(){
+  const dl=document.getElementById('savedCustList');
+  const inp=document.getElementById('nb-saved');
+  if(!dl||!inp)return;
+  _custByLabel={};
+  const counts={};
+  allCustomers.forEach(c=>{const k=_custLabel(c).toLowerCase();counts[k]=(counts[k]||0)+1;});
+  allCustomers.forEach(c=>{
+    let l=_custLabel(c);
+    if(counts[l.toLowerCase()]>1)l+=' ('+(c.contact_email||c.contact_phone||c.id.slice(0,4))+')';
+    c._label=l;_custByLabel[l.toLowerCase()]=c;
+  });
+  dl.innerHTML=allCustomers.map(c=>'<option value="'+escHtml(c._label)+'"></option>').join('');
+  inp.disabled=!allCustomers.length;
+  inp.placeholder=allCustomers.length?'Sök bland sparade stamkunder...':'Inga stamkunder än – kryssa i rutan nedan för att spara den första';
+}
+
+function pickCustomer(){
+  const inp=document.getElementById('nb-saved');
+  const hint=document.getElementById('nb-saved-hint');
+  const c=_custByLabel[(inp.value||'').trim().toLowerCase()];
+  if(!c){_pickedCustomerId=null;hint.style.display='none';return;}
+  _pickedCustomerId=c.id;
+  document.getElementById('nb-contact').value=c.contact_name||'';
+  document.getElementById('nb-email').value=c.contact_email||'';
+  document.getElementById('nb-phone').value=c.contact_phone||'';
+  hint.innerHTML='✓ Uppgifterna är ifyllda från <strong style="font-weight:500">'+escHtml(c.name)+'</strong>.'+(c.note?'<br>Notering: '+escHtml(c.note):'');
+  hint.style.display='block';
+}
+
+function toggleSaveCust(){
+  const on=document.getElementById('nb-save-cust').checked;
+  document.getElementById('nb-save-cust-wrap').style.display=on?'block':'none';
+  if(on){
+    const nm=document.getElementById('nb-save-cust-name');
+    if(!nm.value){
+      const picked=_pickedCustomerId?allCustomers.find(x=>x.id===_pickedCustomerId):null;
+      nm.value=picked?picked.name:(document.getElementById('nb-contact').value.trim()||document.getElementById('nb-name').value.trim());
+    }
+  }
+}
+
+// Anropas från createBooking när rutan "Spara som stamkund" är ikryssad. Returnerar en text till användaren.
+async function saveCustomerFromBooking(c){
+  const nameVal=(document.getElementById('nb-save-cust-name').value||'').trim()||c.contact_name||c.booking_name||'';
+  if(!nameVal)return 'Stamkund sparades inte (namn saknas).';
+  if(!c.contact_name&&!c.contact_email&&!c.contact_phone)return 'Stamkund sparades inte (inga kontaktuppgifter ifyllda).';
+  let existing=_pickedCustomerId?allCustomers.find(x=>x.id===_pickedCustomerId):null;
+  if(!existing&&c.contact_email)existing=allCustomers.find(x=>(x.contact_email||'').toLowerCase()===c.contact_email.toLowerCase());
+  if(!existing)existing=allCustomers.find(x=>x.name.toLowerCase()===nameVal.toLowerCase()&&(x.contact_name||'').toLowerCase()===(c.contact_name||'').toLowerCase());
+  const upd={contact_name:c.contact_name,contact_email:c.contact_email,contact_phone:c.contact_phone,updated_at:new Date().toISOString()};
+  if(existing){
+    if(existing.id===_pickedCustomerId)upd.name=nameVal;
+    const {error}=await db.from('saved_customers').update(upd).eq('id',existing.id).eq('restaurant_id',rest.id);
+    if(error)throw error;
+    await loadCustomers();
+    return 'Stamkunden "'+(upd.name||existing.name)+'" uppdaterades.';
+  }
+  const {error}=await db.from('saved_customers').insert({...upd,name:nameVal,restaurant_id:rest.id});
+  if(error)throw error;
+  await loadCustomers();
+  return '"'+nameVal+'" sparades som stamkund.';
+}
+
+function renderCustomers(){
+  const list=document.getElementById('customerList');
+  if(!list)return;
+  if(_custLoadErr){list.innerHTML='<div class="empty">Stamkunder kunde inte hämtas: '+escHtml(_custLoadErr)+'</div>';return;}
+  if(!allCustomers.length){list.innerHTML='<div class="empty">Inga stamkunder sparade ännu.<br>Klicka <strong>+ Ny stamkund</strong>, eller kryssa i <strong>Spara kontaktpersonen som stamkund</strong> när du skapar en bokning.</div>';return;}
+  const q=((document.getElementById('customerSearch')||{}).value||'').trim().toLowerCase();
+  const rows=q?allCustomers.filter(c=>[c.name,c.contact_name,c.contact_email,c.contact_phone,c.note].some(v=>(v||'').toLowerCase().includes(q))):allCustomers;
+  if(!rows.length){list.innerHTML='<div class="empty">Inga träffar på "'+escHtml(q)+'".</div>';return;}
+  list.innerHTML=rows.map(c=>{
+    const meta=[c.contact_name,c.contact_email,c.contact_phone].filter(Boolean).map(escHtml).join(' · ');
+    return '<div class="bcard"><div class="bhead" style="cursor:default;flex-wrap:wrap;gap:8px">'
+      +'<div style="flex:1;min-width:200px">'
+      +'<div class="bname">'+escHtml(c.name)+'</div>'
+      +(meta?'<div class="bmeta">'+meta+'</div>':'')
+      +(c.note?'<div class="bmeta" style="margin-top:4px;font-style:italic">'+escHtml(c.note)+'</div>':'')
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap">'
+      +'<button class="btn bp" style="font-size:12px;padding:6px 12px;min-height:0" onclick="bookWithCustomer(\''+c.id+'\')">Ny bokning</button>'
+      +'<button class="btn bg" style="font-size:12px;padding:6px 12px;min-height:0" onclick="editCustomer(\''+c.id+'\')">Ändra</button>'
+      +'<button class="btn bd" style="font-size:12px;padding:6px 12px;min-height:0" onclick="delCustomer(\''+c.id+'\')">Ta bort</button>'
+      +'</div></div></div>';
+  }).join('');
+}
+
+function showCustomerForm(c){
+  _editingCustomerId=c?c.id:null;
+  document.getElementById('cf-name').value=c?c.name:'';
+  document.getElementById('cf-contact').value=c?(c.contact_name||''):'';
+  document.getElementById('cf-email').value=c?(c.contact_email||''):'';
+  document.getElementById('cf-phone').value=c?(c.contact_phone||''):'';
+  document.getElementById('cf-note').value=c?(c.note||''):'';
+  document.getElementById('cf-title').textContent=c?'Ändra stamkund':'Ny stamkund';
+  document.getElementById('cf-save-btn').textContent=c?'Spara ändringar':'Spara';
+  document.getElementById('cf-msg').style.display='none';
+  const f=document.getElementById('customerForm');
+  f.style.display='block';
+  f.scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('cf-name').focus();
+}
+function hideCustomerForm(){
+  _editingCustomerId=null;
+  document.getElementById('customerForm').style.display='none';
+}
+function editCustomer(id){
+  const c=allCustomers.find(x=>x.id===id);
+  if(c)showCustomerForm(c);
+}
+
+async function saveCustomer(){
+  const name=document.getElementById('cf-name').value.trim();
+  const contact=document.getElementById('cf-contact').value.trim();
+  const email=document.getElementById('cf-email').value.trim();
+  const phoneRaw=document.getElementById('cf-phone').value.trim();
+  const note=document.getElementById('cf-note').value.trim();
+  if(!name){showMsg('cf-msg','merr','Ange ett namn på kunden eller sällskapet.');return;}
+  if(!_custEmailOk(email)){showMsg('cf-msg','merr','E-postadressen verkar inte stämma – saknar @ eller domän.');return;}
+  if(!_custPhoneOk(phoneRaw)){showMsg('cf-msg','merr','Telefonnumret verkar inte stämma. Ange ett svenskt mobilnummer, t.ex. 0701234567 eller +46701234567.');return;}
+  const row={name,contact_name:contact||null,contact_email:email||null,contact_phone:phoneRaw.replace(/[\s\-]/g,'')||null,note:note||null,updated_at:new Date().toISOString()};
+  let error;
+  if(_editingCustomerId){
+    ({error}=await db.from('saved_customers').update(row).eq('id',_editingCustomerId).eq('restaurant_id',rest.id));
+  }else{
+    ({error}=await db.from('saved_customers').insert({...row,restaurant_id:rest.id}));
+  }
+  if(error){showMsg('cf-msg','merr','Fel: '+error.message);return;}
+  hideCustomerForm();
+  await loadCustomers();
+}
+
+async function delCustomer(id){
+  const c=allCustomers.find(x=>x.id===id);
+  if(!c)return;
+  if(!confirm('Ta bort stamkunden "'+c.name+'"?\n\nBokningar som redan är gjorda påverkas inte.'))return;
+  const {error}=await db.from('saved_customers').delete().eq('id',id).eq('restaurant_id',rest.id);
+  if(error){alert('Fel: '+error.message);return;}
+  await loadCustomers();
+}
+
+function bookWithCustomer(id){
+  const c=allCustomers.find(x=>x.id===id);
+  if(!c)return;
+  showTab('bookings');
+  const f=document.getElementById('newBookingForm');
+  if(f.style.display!=='none'&&_editingBookingId)toggleNB(); // stäng pågående redigering
+  if(f.style.display==='none')toggleNB();
+  document.getElementById('nb-saved').value=c._label||c.name;
+  pickCustomer();
+}
+
 // NY BOKNING
 let _editingBookingId=null;
 
@@ -1486,6 +1713,12 @@ function resetBookingForm(){
   document.getElementById('nb-remind-email').checked=true;
   document.getElementById('nb-remind-sms').checked=false;
   document.getElementById('nb-show-prices').checked=true;
+  _pickedCustomerId=null;
+  const savedInp=document.getElementById('nb-saved');if(savedInp)savedInp.value='';
+  const savedHint=document.getElementById('nb-saved-hint');if(savedHint)savedHint.style.display='none';
+  const saveCust=document.getElementById('nb-save-cust');if(saveCust)saveCust.checked=false;
+  const saveCustName=document.getElementById('nb-save-cust-name');if(saveCustName)saveCustName.value='';
+  const saveCustWrap=document.getElementById('nb-save-cust-wrap');if(saveCustWrap)saveCustWrap.style.display='none';
   const lbl=document.querySelector('#newBookingForm .card-label');if(lbl)lbl.textContent='Skapa ny bokning';
   const btn=document.getElementById('nb-save-btn');if(btn)btn.textContent='Skapa bokning';
   const msg=document.getElementById('nb-msg');if(msg)msg.style.display='none';
@@ -1565,7 +1798,7 @@ async function createBooking(){
     deadline:document.getElementById('nb-deadline').value||null,
     contact_name:document.getElementById('nb-contact').value.trim()||null,
     contact_email:document.getElementById('nb-email').value.trim()||null,
-    contact_phone:(()=>{const p=document.getElementById('nb-phone').value.trim().replace(/[\s\-]/g,'');return p||null;})()|null,
+    contact_phone:(()=>{const p=document.getElementById('nb-phone').value.trim().replace(/[\s\-]/g,'');return p||null;})(),
     menu_id:document.getElementById('nb-menu').value||null,
     reminder_days:parseInt(document.getElementById('nb-reminder').value)||0,
     reminder_channel:(document.getElementById('nb-remind-email').checked&&document.getElementById('nb-remind-sms').checked?'both':document.getElementById('nb-remind-sms').checked?'sms':'email'),
@@ -1582,7 +1815,14 @@ async function createBooking(){
     ({error}=await db.from('bookings').insert(payload));
   }
   if(error){showMsg('nb-msg','merr','Fel: '+error.message);return;}
-  showMsg('nb-msg','mok',wasEdit?'✓ Bokningen uppdaterad!':'✓ Bokning skapad! Gå in i bokningen och skicka bekräftelse till kontaktpersonen samt länk till beställningssida för gästerna.');
+  // Stamkund sparas först när själva bokningen lyckats – ett fel här stoppar aldrig bokningen
+  let custNote='';
+  const saveCustEl=document.getElementById('nb-save-cust');
+  if(saveCustEl&&saveCustEl.checked){
+    try{custNote=' '+await saveCustomerFromBooking({contact_name:payload.contact_name,contact_email:payload.contact_email,contact_phone:payload.contact_phone,booking_name:payload.name});}
+    catch(e){custNote=' (Stamkunden kunde inte sparas: '+(e&&e.message?e.message:e)+')';}
+  }
+  showMsg('nb-msg','mok',wasEdit?'✓ Bokningen uppdaterad!'+custNote:'✓ Bokning skapad! Gå in i bokningen och skicka bekräftelse till kontaktpersonen samt länk till beställningssida för gästerna.'+custNote);
   resetBookingForm();
   _restoreFormHome();
   setTimeout(()=>{var f=document.getElementById('newBookingForm');if(f)f.style.display='none';},wasEdit?1500:4000);
