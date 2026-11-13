@@ -87,7 +87,7 @@ async function init(){
     return;
   }
   try{
-    const {data:rest,error}=await db.from('restaurants').select('*').eq('slug',SLUG).eq('active',true).single();
+    const {data:rest,error}=await db.from('guest_restaurants').select('*').eq('slug',SLUG).single();
     if(error||!rest){showError('Restaurangen hittades inte.');return;}
 
     document.documentElement.style.setProperty('--gold',rest.accent_color||'#b8955a');
