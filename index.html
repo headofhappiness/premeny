@@ -3,6 +3,7 @@
 <head>
 <link rel="icon" type="image/png" href="PM_logo.png">
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://formspree.io; form-action 'self' https://formspree.io; frame-src 'none'; object-src 'none'; base-uri 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzBmMGQwYiIgc3Ryb2tlPSIjYzlhNTVhIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSI1MCIgeT0iNjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iYm9sZCI+CiAgICA8dHNwYW4gZmlsbD0iI2M5YTU1YSI+UDwvdHNwYW4+PHRzcGFuIGZpbGw9IndoaXRlIj5NPC90c3Bhbj4KICA8L3RleHQ+Cjwvc3ZnPg==">
 <title>PreMeny – Förbeställning för sällskap</title>
@@ -105,6 +106,18 @@ h2{font-family:"Playfair Display",serif;font-size:clamp(2rem,4vw,3rem);font-weig
 .feature-icon{font-size:1.75rem;margin-bottom:1rem}
 .feature-title{font-size:17px;font-weight:500;color:var(--dark);margin-bottom:.5rem}
 .feature-desc{font-size:14px;color:var(--muted);line-height:1.6}
+.fgroups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.75rem;margin-top:3rem;align-items:start}
+.fgroup{display:flex;flex-direction:column;gap:1rem}
+.fgroup-label{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.1rem}
+.fdot{width:12px;height:12px;border-radius:50%;background:var(--fc)}
+.fcard{background:#fff;border:1px solid #e3dccf;border-top:5px solid var(--fc);border-radius:14px;padding:1.4rem 1.4rem 1.5rem}
+.ficon{width:44px;height:44px;border-radius:11px;background:var(--fc);color:var(--fon);display:flex;align-items:center;justify-content:center;margin-bottom:.9rem}
+.ftitle{font-size:18px;font-weight:600;color:#1a1712;margin-bottom:.45rem;line-height:1.3}
+.fdesc{font-size:16px;color:#3d3830;line-height:1.6}
+.g-gast{--fc:#B8955A;--fon:#1a1712}.g-gast .fgroup-label{color:#7a5a1c}
+.g-kok{--fc:#1a1712;--fon:#E8D5A8}.g-kok .fgroup-label{color:#1a1712}
+.g-drift{--fc:#2F4A3F;--fon:#F2EBD9}.g-drift .fgroup-label{color:#2F4A3F}
+@media(max-width:900px){.fgroups{grid-template-columns:1fr;gap:2.25rem}}
 
 /* ── FOR WHO ── */
 .for-who{background:linear-gradient(135deg,#f5f0e8,#ede5d4)}
@@ -251,6 +264,23 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
   .hero-stats{gap:1rem}
   .stat-num{font-size:2rem}
 }
+
+/* ── Tydlighet (samma mål som verktyget): kraftigare text, mörkare grå, läsbart guld, inga mikroskopiska texter ── */
+:root{--muted:#4a4238;--gold-ink:#7a5a1c;--wordmark-gold:#9a7433}
+body{font-weight:400}
+p,li,.step-desc,.feature-desc,.fdesc,.price-per,.section-sub,.hero-sub{font-weight:400}
+.section-tag,.hero-tag,.price-label{font-size:14px;color:var(--gold-ink)}
+.fgroup-label{font-size:14px}
+em{color:var(--gold-ink)!important}
+.nav-logo span,.logo span,.footer-logo span{color:var(--wordmark-gold)}
+.hero-tag{font-weight:600}
+a{text-underline-offset:3px}
+
+/* Mörka ytor (CTA, prisrutan, sidfot): ljus guld och ljus text, inte den mörka guldtonen */
+.cta-section em,.price-card.featured em,footer em{color:#E8D5A8!important}
+.cta-section [style*="rgba(240,235,226"],footer [style*="rgba(240,235,226"],footer p,footer .org-nr,footer span{color:rgba(240,235,226,.86)!important}
+.cta-section [style*="font-size:13px"],footer p,footer .org-nr{font-size:14px!important}
+.cta-section a[style*="underline"]{color:rgba(240,235,226,.9)!important}
 </style>
 </head>
 <body>
@@ -262,8 +292,8 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
     <a href="#features">Funktioner</a>
     <a href="#pricing">Pris</a>
     <a href="https://premeny.se/admin.html" class="btn-nav" style="background:transparent;border:2px solid var(--border);color:var(--dark);font-weight:500;margin-right:4px">Logga in</a>
-    <a href="https://premeny.se/bli-kund.html" class="btn-nav btn-book">Bli kund</a>
-  </div>
+    <a href="https://premeny.se/registrera.html" class="btn-nav btn-book">Prova gratis</a>
+</div>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Meny">
     <span></span><span></span><span></span>
   </button>
@@ -276,7 +306,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
   <a href="https://premeny.se/admin.html" onclick="toggleMenu()">Logga in</a>
   <a href="https://premeny.se/admin_demo.html" onclick="toggleMenu()">Se demo</a>
   <a href="https://cal.com/lisa-jonsson-lbe4ex/demomote-med-lisa-premeny" target="_blank" onclick="toggleMenu()">Boka demo</a>
-  <a href="https://premeny.se/bli-kund.html" class="btn-nav btn-book">Bli kund</a>
+  <a href="https://premeny.se/registrera.html" class="btn-nav btn-book">Prova gratis</a>
 </div>
 
 </nav>
@@ -293,10 +323,10 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
     <p class="hero-sub fade-up" style="margin-bottom:1.25rem">När sällskapet ska förbeställa – stort som litet, golfsällskap, familjemiddagar, konferenser, bröllop – sköter PreMeny det åt er. Gästerna väljer sin mat via en länk eller QR-kod och ni får en färdig kökslista automatiskt med specialkost markerad och tid att planera inköpen.</p>
     <p class="fade-up" style="font-size:16px;color:var(--dark);font-weight:500;line-height:1.7;margin-bottom:2.5rem;max-width:500px">Mindre svinn <span style="color:var(--gold)">·</span> Inget mejlkaos <span style="color:var(--gold)">·</span> Ingen manuell sammanställning</p>
     <div class="hero-cta fade-up">
-      <a href="https://cal.com/lisa-jonsson-lbe4ex/demomote-med-lisa-premeny" target="_blank" class="btn-primary">Boka demo →</a>
+      <a href="https://premeny.se/registrera.html" class="btn-primary">Prova gratis i 30 dagar →</a>
       <a href="https://premeny.se/admin_demo.html" class="btn-ghost">Se demon</a>
     </div>
-    <p class="fade-up" style="font-size:15px;color:var(--dark);font-weight:500;margin-top:1rem">Ingen installation, inget systemkrångel <span style="color:var(--muted);font-weight:400">– ni är igång på minuter.</span></p>
+    <p class="fade-up" style="font-size:15px;color:var(--dark);font-weight:500;margin-top:1rem">Ingen installation, inget kort <span style="color:var(--muted);font-weight:400">– ni är igång på minuter.</span></p>
     <div class="hero-stats fade-up">
       <div>
         <div class="stat-num">2 min</div>
@@ -357,51 +387,60 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
   <div class="container">
     <div class="section-tag">Funktioner</div>
     <h2>Allt ni behöver.<br><em style="color:var(--gold);font-style:italic">Inget ni inte behöver.</em></h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">🔔</div>
-        <div class="feature-title">Automatisk påminnelse</div>
-        <div class="feature-desc">Systemet skickar automatiskt påminnelse till kontaktpersonen via mejl/sms innan sista beställningsdag om inte alla beställt. Ni väljer själva hur många dagar innan – stort sällskap kanske behöver en vecka eller två medan mindre bara ett par dagar. Ni bestämmer.</div>
+    <div class="fgroups">
+      <div class="fgroup g-gast">
+        <div class="fgroup-label"><span class="fdot"></span>För gästerna</div>
+        <div class="fcard">
+          <div class="ficon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></svg></div>
+          <div class="ftitle">Gästen kan ändra</div>
+          <div class="fdesc">Öppnar länken igen och skriver sitt namn – beställningen fylls i automatiskt och kan uppdateras. Ingen inloggning behövs.</div>
+        </div>
+        <div class="fcard">
+          <div class="ficon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg></div>
+          <div class="ftitle">Mobilanpassad</div>
+          <div class="fdesc">Gästformuläret är optimerat för mobil – stort, tydligt och enkelt att använda. Admingränssnittet fungerar också på mobil.</div>
+        </div>
+        <div class="fcard">
+          <div class="ficon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14a3.5 3.5 0 0 1 4 3.5V19"/></svg></div>
+          <div class="ftitle">En person kan fylla i för alla</div>
+          <div class="fdesc">Alla gäster är inte digitala – och ibland har någon redan samlat in valen. Med kontaktpersonens länk kan en lagledare, bröllopsvärd eller arrangör fylla i hela sällskapets val på ett ställe: så här många vill ha förrätt A, så här många rätt B. Perfekt på bussen till tävlingen eller när listan redan finns på papper. Köket får ändå en komplett sammanställning.</div>
+        </div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">⚠️</div>
-        <div class="feature-title">Specialkost tydligt markerad</div>
-        <div class="feature-desc">Gäster med specialkost syns med orange markering – både på kökslistan per rätt och i gästlistan. Ingenting missas.</div>
+      <div class="fgroup g-kok">
+        <div class="fgroup-label"><span class="fdot"></span>För köket</div>
+        <div class="fcard">
+          <div class="ficon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17h10v3H7z"/><path d="M7 17c-2.5-.5-4-2.5-4-4.5S4.7 9 7 9c.3-2 2-3.5 5-3.5s4.7 1.5 5 3.5c2.3 0 4 1.5 4 3.5S19.5 16.5 17 17"/></svg></div>
+          <div class="ftitle">Kökslista per sällskap</div>
+          <div class="fdesc">Se varje sällskaps beställningar separat – vad bröllopssällskapet vill ha, vad företagsmiddagen beställt. Kökspersonalen vet exakt vad som gäller för varje bord.</div>
+        </div>
+        <div class="fcard">
+          <div class="ficon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg></div>
+          <div class="ftitle">Specialkost tydligt markerad</div>
+          <div class="fdesc">Gäster med specialkost syns med orange markering – både på kökslistan per rätt och i gästlistan. Ingenting missas.</div>
+        </div>
+        <div class="fcard">
+          <div class="ficon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg></div>
+          <div class="ftitle">Beställningsöversikt per dag/dagar</div>
+          <div class="fdesc">Slå ihop alla sällskaps beställningar per datum och få ett totalt antal portioner per rätt – perfekt för kökets förberedelser i god tid.</div>
+        </div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🪑</div>
-        <div class="feature-title">Kökslista per sällskap</div>
-        <div class="feature-desc">Se varje sällskaps beställningar separat – vad bröllopssällskapet vill ha, vad företagsmiddagen beställt. Kökspersonalen vet exakt vad som gäller för varje bord.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔪</div>
-        <div class="feature-title">Beställningsöversikt per dag/dagar</div>
-        <div class="feature-desc">Slå ihop alla sällskaps beställningar per datum och få ett totalt antal portioner per rätt – perfekt för kökets förberedelser i god tid.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">✏️</div>
-        <div class="feature-title">Gästen kan ändra</div>
-        <div class="feature-desc">Öppnar länken igen och skriver sitt namn – beställningen fylls i automatiskt och kan uppdateras. Ingen inloggning behövs.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">⭐</div>
-        <div class="feature-title">Minskar matsvinn</div>
-        <div class="feature-desc">När ni vet vad gästerna ska äta i god tid kan ni köpa in rätt mängd råvaror. Mindre svinn, lägre kostnad – och bättre för miljön.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📝</div>
-        <div class="feature-title">Enkel menyhantering</div>
-        <div class="feature-desc">Vi lägger in er meny när ni börjar. Skapa sedan flera menyer — à la carte, julbord, bröllop — och välj vilken varje sällskap ska se. Uppdatera och kopiera menyer enkelt direkt i systemet.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">👥</div>
-        <div class="feature-title">En person kan fylla i för alla</div>
-        <div class="feature-desc">Alla gäster är inte digitala – och ibland har någon redan samlat in valen. Med kontaktpersonens länk kan en lagledare, bröllopsvärd eller arrangör fylla i hela sällskapets val på ett ställe: så här många vill ha förrätt A, så här många rätt B. Perfekt på bussen till tävlingen eller när listan redan finns på papper. Köket får ändå en komplett sammanställning.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📱</div>
-        <div class="feature-title">Mobilanpassad</div>
-        <div class="feature-desc">Gästformuläret är optimerat för mobil – stort, tydligt och enkelt att använda. Admingränssnittet fungerar också på mobil.</div>
+      <div class="fgroup g-drift">
+        <div class="fgroup-label"><span class="fdot"></span>För er som driver</div>
+        <div class="fcard">
+          <div class="ficon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 16v-5a6 6 0 0 0-12 0v5l-2 2h16z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></div>
+          <div class="ftitle">Automatisk påminnelse</div>
+          <div class="fdesc">Systemet skickar automatiskt påminnelse till kontaktpersonen via mejl/sms innan sista beställningsdag om inte alla beställt. Ni väljer själva hur många dagar innan – stort sällskap kanske behöver en vecka eller två medan mindre bara ett par dagar. Ni bestämmer.</div>
+        </div>
+        <div class="fcard">
+          <div class="ficon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div>
+          <div class="ftitle">Enkel menyhantering</div>
+          <div class="fdesc">Lägg in er meny själv – klistra in den så tolkar vi den åt er, eller så hjälper vi till. Skapa sedan flera menyer — à la carte, julbord, bröllop — och välj vilken varje sällskap ska se. Uppdatera och kopiera menyer enkelt direkt i systemet.</div>
+        </div>
+        <div class="fcard">
+          <div class="ficon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c0-9 6-14 15-14 0 9-5 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/></svg></div>
+          <div class="ftitle">Minskar matsvinn</div>
+          <div class="fdesc">När ni vet vad gästerna ska äta i god tid kan ni köpa in rätt mängd råvaror. Mindre svinn, lägre kostnad – och bättre för miljön.</div>
+        </div>
       </div>
     </div>
 
@@ -508,12 +547,12 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
     <div class="section-tag">Pris</div>
     <h2>Enkelt och förutsägbart</h2>
     <p class="section-sub">Ingen bindningstid. Vi vet att nöjda kunder stannar.</p>
-    <p style="font-size:15px;color:var(--gold);margin-bottom:2.5rem;font-style:italic">Vi lägger in er meny och ni är igång samma dag. Uppstartsavgift 1 490 kr tillkommer.</p>
+    <p style="font-size:17px;color:#3d3830;line-height:1.65;max-width:620px;margin:0 0 2.5rem"><strong style="font-weight:600;color:#1a1712">Prova på riktigt i 30 dagar</strong> – hela systemet, med era egna bokningar, menyer och gäster. Ingen uppstartsavgift, inget kort och inget dras automatiskt. När provet är slut kan ni fortfarande se era bokningar tills ni väljer att fortsätta.</p>
     <div class="pricing-grid" style="max-width:480px;grid-template-columns:1fr">
       <div class="price-card featured">
-        <div class="price-label">Månadsavgift</div>
+        <div class="price-label">30 dagar gratis – därefter</div>
         <div class="price-amount">295 <span style="font-size:1.5rem">kr</span></div>
-        <div class="price-per">per månad · faktureras månadsvis</div>
+        <div class="price-per">per månad ex. moms · faktureras månadsvis</div>
         <div class="price-divider"></div>
         <ul class="price-list">
           <li>Obegränsat antal bokningar och gäster</li>
@@ -521,7 +560,7 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
           <li>Automatisk påminnelse</li>
           <li>Sammanställning per dag & sällskap</li>
           <li>Summering över flera datum och sällskap</li>
-          <li>Vi fixar er meny vid uppstart</li>
+          <li>Klistra in er meny – den tolkas åt er</li>
           <li>Support via mejl och telefon</li>
         </ul>
       </div>
@@ -535,9 +574,9 @@ footer p{font-size:13px;color:rgba(240,235,226,.3)}
   <div class="container">
     <div class="section-tag">Kom igång</div>
     <h2>Enklare.<br><em style="color:var(--gold);font-style:italic">Snabbare. Säkrare.</em></h2>
-    <p>Personlig genomgång live. Vi sätter upp allt – ni är redo på ett par dagar.</p>
+    <p>Skapa ett konto och prova själva i 30 dagar – eller boka en personlig genomgång.</p>
     <div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap">
-      <a href="https://premeny.se/bli-kund.html" class="btn-cta" style="text-decoration:none;background:var(--dark);color:#fff">Bli kund →</a>
+      <a href="https://premeny.se/registrera.html" class="btn-cta" style="text-decoration:none;background:var(--dark);color:#fff">Prova gratis →</a>
       <a href="https://cal.com/lisa-jonsson-lbe4ex/demomote-med-lisa-premeny" target="_blank" class="btn-cta" style="text-decoration:none">📅 Boka demo</a>
     </div>
     <p style="margin-bottom:1.5rem"><a href="#" onclick="document.getElementById('writeToUs').style.display='flex';this.parentNode.style.display='none';return false;" style="color:rgba(240,235,226,.55);font-size:13px;text-decoration:underline;text-underline-offset:3px">Hellre att vi hör av oss? Skriv några rader →</a></p>
