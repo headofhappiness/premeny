@@ -1,7 +1,8 @@
 /* PreMeny – "ny version finns"-banderoll (admin och superadmin).
    Sidan har en egen byggstämpel (<meta name="pm-build">). version.json innehåller senaste stämpeln.
-   Skiljer de sig åt visas en tydlig banderoll där användaren själv väljer när sidan laddas om
-   (vi laddar aldrig om automatiskt – någon kan sitta mitt i en bokning). */
+   Skiljer de sig åt visas en smal grön list längst upp där användaren själv väljer när sidan laddas om
+   (vi laddar aldrig om automatiskt – någon kan sitta mitt i en bokning). Innehållet skjuts ned så att
+   menyn aldrig döljs. */
 (function(){
   var meta=document.querySelector('meta[name=pm-build]');
   if(!meta)return;
@@ -9,21 +10,33 @@
   if(!CURRENT||/-demo$/.test(CURRENT))return; // demon ska aldrig visa banderollen
   var timer=null;
 
+  function pad(){
+    var bar=document.getElementById('_update-bar');
+    if(!bar)return;
+    var h=bar.offsetHeight||40;
+    var st=document.getElementById('_update-pad');
+    if(!st){st=document.createElement('style');st.id='_update-pad';document.head.appendChild(st);}
+    // skjut ned innehållet och den klibbiga menyn så att ingenting hamnar bakom listen
+    st.textContent='body{padding-top:'+h+'px!important}.nav,nav{top:'+h+'px!important}';
+  }
+
   function show(){
     if(document.getElementById('_update-bar'))return;
     var bar=document.createElement('div');
     bar.id='_update-bar';
     bar.setAttribute('role','alert');
-    bar.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;max-width:640px;margin:0 auto;background:#1f5a2e;color:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;font-family:Outfit,Arial,sans-serif;font-size:17px;line-height:1.4;font-weight:500';
+    bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#1f5a2e;color:#fff;padding:7px 14px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-family:Outfit,Arial,sans-serif;font-size:15px;line-height:1.3;font-weight:500;text-align:center';
     var t=document.createElement('span');
     t.textContent='🔄 En ny version av PreMeny finns.';
     var b=document.createElement('button');
     b.type='button';
     b.textContent='Ladda om och se nyheterna';
-    b.style.cssText='background:#fff;color:#1f5a2e;border:none;border-radius:100px;padding:12px 20px;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;min-height:44px';
+    b.style.cssText='background:#fff;color:#1f5a2e;border:none;border-radius:100px;padding:5px 16px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;min-height:30px';
     b.onclick=function(){location.reload();};
     bar.appendChild(t);bar.appendChild(b);
     (document.body||document.documentElement).appendChild(bar);
+    pad();
+    window.addEventListener('resize',pad);
     if(timer){clearInterval(timer);timer=null;}
   }
 
