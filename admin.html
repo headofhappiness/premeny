@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-11-13b">
+<meta name="pm-build" content="2026-11-13c">
 <script>
 (function(){
   var CURRENT=document.querySelector("meta[name=pm-build]").getAttribute("content");
@@ -601,6 +601,11 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         <button class="btn bp" onclick="saveSettings()">Spara inställningar</button>
         <div id="set-msg" style="display:none;margin-top:.75rem" class="msg mok"></div>
       </div>
+      <div class="card" style="margin-top:1rem">
+        <div class="card-label">Inloggning och säkerhet</div>
+        <div id="mfaStatus" style="font-size:14px;line-height:1.8;color:var(--text)">…</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:.5rem;line-height:1.5">Tvåstegsverifiering skyddar kontot även om någon fått ert lösenord. Koden hämtas från en autentiseringsapp i telefonen.</div>
+      </div>
     </div>
   </div>
   <!-- FEEDBACK (utanför flikarna – visas på alla flikar) -->
@@ -635,6 +640,8 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script>window.MFA_ENFORCED=false; /* true = ingen "hoppa över" (servern kräver aal2) */</script>
+<script src="mfa.js?v=2026-11-13c"></script>
 <script>
 // ─── HJÄLPFUNKTIONER ────────────────────────────────────────────────
 function showMsg(id,cls,txt){var el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=txt;}
@@ -747,7 +754,14 @@ async function sendConfirmation(id){
 }
 async function doLogout(){await db.auth.signOut();location.reload();}
 
+let _mfaPassed=false;
 async function initAdmin(){
+  // Tvåstegsverifiering först (kodruta eller registrering av autentiseringsapp)
+  if(!_mfaPassed&&typeof mfaGuard==='function'){
+    const {data:{user:_u}}=await db.auth.getUser();
+    if(!_u)return;
+    return mfaGuard(function(){_mfaPassed=true;initAdmin();});
+  }
   const {data:{user}}=await db.auth.getUser();
   if(!user)return;
   const {data:arRows,error:arErr}=await db.from('restaurant_admins').select('restaurant_id').eq('user_id',user.id).limit(1);
@@ -950,7 +964,7 @@ function showTab(tab){
   if(tab==='menu')renderMenu();
   if(tab==='customers')loadCustomers();
   if(tab==='archive')renderArchive();
-  if(tab==='settings')loadSettings();
+  if(tab==='settings'){loadSettings();if(typeof mfaRenderStatus==='function')mfaRenderStatus('mfaStatus');}
 }
 
 // BOOKINGS

@@ -94,6 +94,7 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
   <div class="page">
     <h1>Översikt</h1>
     <div class="gold-line"></div>
+    <div id="saMfaStatus" style="font-size:13px;color:var(--muted);margin-bottom:1rem"></div>
 
     <div class="stat-row" id="statRow">
       <div class="stat"><div class="spinner"></div></div>
@@ -325,6 +326,8 @@ label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>window.MFA_ENFORCED=false; /* true = ingen "hoppa över" (servern kräver aal2) */</script>
+<script src="mfa.js?v=2026-11-13c"></script>
 <script>
 const SURL='https://gndzalmkbsfhclpoidqi.supabase.co';
 const SKEY='sb_publishable_-k5es8L7H2z0K7ipe13meA_IQxopBtY';
@@ -364,9 +367,15 @@ async function forgotPassword(){
 }
 async function doLogout(){await db.auth.signOut();location.reload();}
 
+let _mfaPassed=false;
 async function initAdmin(){
+  // Tvåstegsverifiering först (kodruta eller registrering av autentiseringsapp)
+  if(!_mfaPassed&&typeof mfaGuard==='function'){
+    return mfaGuard(function(){_mfaPassed=true;initAdmin();});
+  }
   document.getElementById('loginPage').style.display='none';
   document.getElementById('adminPage').style.display='block';
+  if(typeof mfaRenderStatus==='function')mfaRenderStatus('saMfaStatus');
   loadStats();
   loadRestaurants();
   loadAnnouncements();
@@ -580,6 +589,7 @@ async function loadRestaurants(){
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openStats('${r.id}','${r.name.replace(/'/g,"\\'")}')">📊 Statistik</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openWelcomeModal(this)" data-id="${r.id}" data-name="${r.name}" data-email="${r.contact_email||''}">✉ Välkomstmejl</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openMenuModal(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">🍽 Meny</button>
+        <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="saResetMfa(this)" data-id="${r.id}" data-name="${r.name}">🔐 Nollställ 2FA</button>
         <button class="btn bg" style="font-size:11px;padding:4px 10px" onclick="openEditRest('${r.id}')">Redigera</button>
         <button class="btn ${r.active?'bd':'bg'}" style="font-size:11px;padding:4px 10px" onclick="toggleActive('${r.id}',${r.active})">${r.active?'Arkivera':'Återaktivera'}</button>
         <button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="deleteRestPermanent(this.dataset.id,this.dataset.name)" data-id="${r.id}" data-name="${r.name}">Radera</button>
@@ -757,6 +767,19 @@ async function createRestaurant(){
     msgEl.style.display='block';msgEl.className='msg merr';msgEl.textContent='Fel: '+err.message;
   }
   btn.disabled=false;btn.textContent='Skapa restaurang';
+}
+
+// ── NOLLSTÄLL 2FA (när en restaurangadmin tappat sin telefon) ────────
+async function saResetMfa(btn){
+  const id=btn.dataset.id,name=btn.dataset.name;
+  if(!confirm('Nollställ tvåstegsverifieringen för '+name+'?\n\nAdmin får registrera en ny enhet vid nästa inloggning. Det loggas.'))return;
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    const r=await fetch(SURL+'/functions/v1/reset-admin-2fa',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({restaurantId:id})});
+    const j=await r.json();
+    if(!j.ok)throw new Error(j.error||'okänt fel');
+    alert('✓ Nollställt för '+(j.targetEmail||name)+' ('+(j.factorsRemoved||0)+' enhet(er) borttagna). Hen får registrera en ny vid nästa inloggning.');
+  }catch(e){alert('Fel: '+e.message);}
 }
 
 // ── REDIGERA RESTAURANG ──────────────────────────────────────────────
