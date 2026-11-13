@@ -1,6 +1,6 @@
 /* PreMeny – tydlighetslagret (JS): räknar fram en läsbar "bläckfärg" av restaurangens accentfärg.
    Guld/accent på vit eller kräm ger ofta för låg kontrast när den används som textfärg.
-   --gold-ink är samma ton, mörkad tills kontrasten mot vitt är minst 5:1. Ytor och ramar använder fortfarande --gold. */
+   --gold-ink är samma ton, mörkad tills kontrasten mot vitt är minst 6:1. Ytor och ramar använder fortfarande --gold. */
 (function(){
   var root=document.documentElement,last=null;
   function parse(h){
@@ -16,7 +16,7 @@
   function contrastWhite(c){return 1.05/(lum(c)+0.05);}
   function ink(hex){
     var c=parse(hex);if(!c)return null;
-    for(var i=0;i<30&&contrastWhite(c)<5;i++){c=c.map(function(v){return Math.round(v*0.92);});}
+    for(var i=0;i<30&&contrastWhite(c)<6;i++){c=c.map(function(v){return Math.round(v*0.92);});}
     return 'rgb('+c[0]+','+c[1]+','+c[2]+')';
   }
   function setGoldInk(hex){

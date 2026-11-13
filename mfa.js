@@ -22,7 +22,7 @@
     m.style.display = 'block'; m.style.color = ok ? '#3a6020' : '#a03030'; m.textContent = t;
   }
   function logoutHtml() {
-    return '<div style="margin-top:1.2rem;font-size:13px">'
+    return '<div style="margin-top:1.2rem;font-size:15px">'
       + (closableFn ? '<a href="#" onclick="mfaCloseGate();return false" style="color:var(--muted)">Avbryt</a>'
                     : '<a href="#" onclick="mfaLogout();return false" style="color:var(--muted)">Logga ut</a>')
       + '</div>';
@@ -40,24 +40,24 @@
     if (mode === 'verify') {
       h = '<div style="' + BOX + '">'
         + '<div style="font-size:1.4rem;font-family:\'Playfair Display\',serif;color:var(--dark,#1a1712);margin-bottom:.4rem">🔐 Tvåstegsverifiering</div>'
-        + '<div style="font-size:14px;color:var(--muted,#8a8070);margin-bottom:1.2rem;line-height:1.55">Skriv in den 6-siffriga koden från din autentiseringsapp.</div>'
+        + '<div style="font-size:14px;color:var(--muted,#4a4238);margin-bottom:1.2rem;line-height:1.55">Skriv in den 6-siffriga koden från din autentiseringsapp.</div>'
         + '<input id="pmMfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" style="' + INPUT + '">'
         + '<div style="margin-top:1rem"><button style="' + BTN + '" onclick="mfaGateVerify()">Fortsätt</button></div>'
-        + '<div id="pmMfaMsg" style="display:none;margin-top:1rem;font-size:13px"></div>'
-        + '<div style="margin-top:1rem;font-size:12px;color:var(--muted,#8a8070);line-height:1.5">Har du tappat din telefon? Kontakta <a href="mailto:info@premeny.se" style="color:var(--gold,#b8955a)">info@premeny.se</a> så nollställer vi.</div>'
+        + '<div id="pmMfaMsg" style="display:none;margin-top:1rem;font-size:15px"></div>'
+        + '<div style="margin-top:1rem;font-size:14px;color:var(--muted,#4a4238);line-height:1.5">Har du tappat din telefon? Kontakta <a href="mailto:info@premeny.se" style="color:var(--gold-ink,#7a5a1c)">info@premeny.se</a> så nollställer vi.</div>'
         + logoutHtml() + '</div>';
       ov.innerHTML = h; document.body.appendChild(ov);
       focusCode('pmMfaCode', mfaGateVerify);
     } else if (mode === 'enroll') {
       h = '<div style="' + BOX + '">'
         + '<div style="font-size:1.4rem;font-family:\'Playfair Display\',serif;color:var(--dark,#1a1712);margin-bottom:.4rem">🔐 Aktivera tvåstegsverifiering</div>'
-        + '<div style="font-size:14px;color:var(--muted,#8a8070);margin-bottom:1rem;line-height:1.55">För att skydda era och era gästers uppgifter kräver PreMeny tvåstegsverifiering. Öppna en autentiseringsapp (Google Authenticator, Microsoft Authenticator eller Authy), skanna QR-koden och skriv in de 6 siffrorna.</div>'
-        + '<div id="pmMfaQr" style="margin:.5rem 0 .75rem;min-height:60px;color:var(--muted,#8a8070);font-size:13px">Skapar QR-kod…</div>'
-        + '<div style="font-size:12px;color:var(--muted,#8a8070);margin-bottom:1rem">Kan du inte skanna? Skriv in nyckeln:<br><code id="pmMfaSecret" style="font-size:12px;word-break:break-all;background:var(--bg,#faf8f4);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:3px"></code></div>'
+        + '<div style="font-size:14px;color:var(--muted,#4a4238);margin-bottom:1rem;line-height:1.55">För att skydda era och era gästers uppgifter kräver PreMeny tvåstegsverifiering. Öppna en autentiseringsapp (Google Authenticator, Microsoft Authenticator eller Authy), skanna QR-koden och skriv in de 6 siffrorna.</div>'
+        + '<div id="pmMfaQr" style="margin:.5rem 0 .75rem;min-height:60px;color:var(--muted,#4a4238);font-size:15px">Skapar QR-kod…</div>'
+        + '<div style="font-size:14px;color:var(--muted,#4a4238);margin-bottom:1rem">Kan du inte skanna? Skriv in nyckeln:<br><code id="pmMfaSecret" style="font-size:14px;word-break:break-all;background:var(--bg,#faf8f4);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:3px"></code></div>'
         + '<input id="pmMfaEnrollCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" style="' + INPUT + '">'
         + '<div style="margin-top:1rem"><button style="' + BTN + '" onclick="mfaGateVerifyEnroll()">Aktivera och fortsätt</button></div>'
-        + '<div id="pmMfaMsg" style="display:none;margin-top:1rem;font-size:13px"></div>'
-        + (!enforced() && !closableFn ? '<div style="margin-top:1rem"><a href="#" onclick="mfaSkip();return false" style="font-size:12.5px;color:var(--muted,#8a8070)">Hoppa över just nu</a></div>' : '')
+        + '<div id="pmMfaMsg" style="display:none;margin-top:1rem;font-size:15px"></div>'
+        + (!enforced() && !closableFn ? '<div style="margin-top:1rem"><a href="#" onclick="mfaSkip();return false" style="font-size:14px;color:var(--muted,#4a4238)">Hoppa över just nu</a></div>' : '')
         + logoutHtml() + '</div>';
       ov.innerHTML = h; document.body.appendChild(ov);
       startEnroll();
@@ -65,7 +65,7 @@
       h = '<div style="' + BOX + '">'
         + '<div style="font-size:1.4rem;font-family:\'Playfair Display\',serif;color:var(--dark,#1a1712);margin-bottom:.6rem">🔐 Tvåstegsverifiering</div>'
         + '<div style="font-size:14px;color:#a03030;margin-bottom:1rem;line-height:1.55">Kunde inte kontrollera tvåstegsverifieringen' + (errText ? ': ' + String(errText).replace(/</g, '&lt;') : '') + '.</div>'
-        + '<div style="font-size:13px;color:var(--muted,#8a8070)">Försök igen om en stund eller kontakta <a href="mailto:info@premeny.se" style="color:var(--gold,#b8955a)">info@premeny.se</a>.</div>'
+        + '<div style="font-size:15px;color:var(--muted,#4a4238)">Försök igen om en stund eller kontakta <a href="mailto:info@premeny.se" style="color:var(--gold-ink,#7a5a1c)">info@premeny.se</a>.</div>'
         + logoutHtml() + '</div>';
       ov.innerHTML = h; document.body.appendChild(ov);
     }
@@ -154,11 +154,11 @@
       var f = await db.auth.mfa.listFactors();
       var has = ((f.data && f.data.totp) || []).some(function (x) { return x.status === 'verified'; });
       if (has) {
-        el.innerHTML = '<span style="display:inline-block;background:#f2f8ec;color:#3a6020;font-weight:500;border-radius:100px;padding:2px 11px;font-size:12.5px">På</span> &nbsp;Tvåstegsverifiering är aktiverad.'
-          + ' <button onclick="mfaChangeDevice(\'' + elId + '\')" style="background:none;border:1px solid var(--border,#e8e2d8);color:var(--muted,#8a8070);border-radius:100px;padding:4px 12px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:.5rem">Byt enhet</button>';
+        el.innerHTML = '<span style="display:inline-block;background:#f2f8ec;color:#3a6020;font-weight:500;border-radius:100px;padding:2px 11px;font-size:14px">På</span> &nbsp;Tvåstegsverifiering är aktiverad.'
+          + ' <button onclick="mfaChangeDevice(\'' + elId + '\')" style="background:none;border:1px solid var(--border,#e8e2d8);color:var(--muted,#4a4238);border-radius:100px;padding:4px 12px;font-size:14px;cursor:pointer;font-family:inherit;margin-left:.5rem">Byt enhet</button>';
       } else {
-        el.innerHTML = '<span style="display:inline-block;background:#fdf6e8;color:#9a6a10;font-weight:500;border-radius:100px;padding:2px 11px;font-size:12.5px">Av</span> &nbsp;Inte aktiverad ännu.'
-          + ' <button onclick="mfaEnrollNow(\'' + elId + '\')" style="' + BTN + ';padding:6px 16px;font-size:13px;margin-left:.5rem">Aktivera nu</button>';
+        el.innerHTML = '<span style="display:inline-block;background:#fdf6e8;color:#9a6a10;font-weight:500;border-radius:100px;padding:2px 11px;font-size:14px">Av</span> &nbsp;Inte aktiverad ännu.'
+          + ' <button onclick="mfaEnrollNow(\'' + elId + '\')" style="' + BTN + ';padding:6px 16px;font-size:15px;margin-left:.5rem">Aktivera nu</button>';
       }
     } catch (e) { el.textContent = 'Tvåstegsverifiering är inte tillgänglig just nu.'; }
   };
