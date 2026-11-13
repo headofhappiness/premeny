@@ -15,7 +15,7 @@
 <meta name="twitter:title" content="PreMeny – Se demon">
 <meta name="twitter:description" content="Klicka runt i en demo av PreMeny och se hur enkelt köket får överblick över gästernas förbeställningar.">
 <meta name="twitter:image" content="https://premeny.se/og-demo.png">
-<meta name="pm-build" content="2026-11-13g-demo">
+<meta name="pm-build" content="2026-11-13h-demo">
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -157,7 +157,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   input,textarea,select{font-size:16px}
 }
 </style>
-<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13g"><script src="ui-clarity.js?v=2026-11-13g"></script>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-13h"><script src="ui-clarity.js?v=2026-11-13h"></script>
 </head>
 <body>
 
@@ -629,7 +629,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>window.MFA_ENFORCED=true; /* true = ingen "hoppa över" (servern kräver aal2 sedan 2026-11-13) */</script>
-<script src="mfa.js?v=2026-11-13g"></script>
+<script src="mfa.js?v=2026-11-13h"></script>
 <script>
 // ─── HJÄLPFUNKTIONER ────────────────────────────────────────────────
 function showMsg(id,cls,txt){var el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=txt;}
@@ -747,8 +747,13 @@ let _mfaPassed=false;
 async function autoInitDemo(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('adminPage').style.display='block';
-  const {data:r}=await db.from('guest_restaurants').select('*').eq('slug',DEMO_SLUG).single();
-  if(!r){document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte. Kontakta premeny.se</div>';return;}
+  // Försök några gånger – ett enstaka nätverks- eller serverfel ska inte fälla demon
+  let r=null;
+  for(let forsok=0;forsok<4&&!r;forsok++){
+    if(forsok>0)await new Promise(function(ok){setTimeout(ok,1200*forsok);});
+    try{const q=await db.from('guest_restaurants').select('*').eq('slug',DEMO_SLUG).single();r=q.data||null;}catch(e){r=null;}
+  }
+  if(!r){document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem 1.5rem;color:var(--text);font-size:18px;line-height:1.6">Demon kunde inte laddas just nu.<br><button class="btn bp" style="margin-top:1.25rem" onclick="location.reload()">Försök igen</button><div style="margin-top:1rem;font-size:15px;color:var(--muted)">Hjälper det inte – hör av dig till info@premeny.se</div></div>';return;}
   rest=r;
   document.getElementById('restName').textContent=r.name+' (Demo)';
   document.documentElement.style.setProperty('--gold','#b8955a');

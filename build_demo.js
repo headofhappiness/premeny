@@ -150,8 +150,13 @@ ${restLine}`;
 async function autoInitDemo(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('adminPage').style.display='block';
-  const {data:r}=await db.from('guest_restaurants').select('*').eq('slug',DEMO_SLUG).single();
-  if(!r){document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem;color:var(--muted)">Demo-restaurangen hittades inte. Kontakta premeny.se</div>';return;}
+  // Försök några gånger – ett enstaka nätverks- eller serverfel ska inte fälla demon
+  let r=null;
+  for(let forsok=0;forsok<4&&!r;forsok++){
+    if(forsok>0)await new Promise(function(ok){setTimeout(ok,1200*forsok);});
+    try{const q=await db.from('guest_restaurants').select('*').eq('slug',DEMO_SLUG).single();r=q.data||null;}catch(e){r=null;}
+  }
+  if(!r){document.getElementById('adminPage').innerHTML='<div style="text-align:center;padding:4rem 1.5rem;color:var(--text);font-size:18px;line-height:1.6">Demon kunde inte laddas just nu.<br><button class="btn bp" style="margin-top:1.25rem" onclick="location.reload()">Försök igen</button><div style="margin-top:1rem;font-size:15px;color:var(--muted)">Hjälper det inte – hör av dig till info@premeny.se</div></div>';return;}
   rest=r;
   document.getElementById('restName').textContent=r.name+' (Demo)';
   document.documentElement.style.setProperty('--gold','#b8955a');
