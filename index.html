@@ -281,6 +281,15 @@ a{text-underline-offset:3px}
 .cta-section [style*="rgba(240,235,226"],footer [style*="rgba(240,235,226"],footer p,footer .org-nr,footer span{color:rgba(240,235,226,.86)!important}
 .cta-section [style*="font-size:13px"],footer p,footer .org-nr{font-size:14px!important}
 .cta-section a[style*="underline"]{color:rgba(240,235,226,.9)!important}
+
+/* CTA: tydlig punch med vad det betyder för var och en */
+.cta-section h2{max-width:760px}
+.cta-section p.cta-sub{font-size:20px;color:#E8D5A8;margin:0 auto 2.5rem}
+.cta-punch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem;max-width:900px;margin:0 auto 3.25rem;text-align:left}
+.cta-p{border-top:3px solid #B8955A;padding-top:.9rem}
+.cta-p-who{font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#E8D5A8;margin-bottom:.35rem}
+.cta-p-what{font-size:17px;line-height:1.5;color:#f0ebe2}
+@media(max-width:760px){.cta-punch{grid-template-columns:1fr;gap:1.1rem}.cta-section p.cta-sub{font-size:18px}}
 </style>
 </head>
 <body>
@@ -573,7 +582,13 @@ a{text-underline-offset:3px}
 <section class="cta-section" id="demo">
   <div class="container">
     <div class="section-tag">Kom igång</div>
-    <h2>Enklare.<br><em style="color:var(--gold);font-style:italic">Snabbare. Säkrare.</em></h2>
+    <h2>Enkelt, tryggt<br><em style="color:var(--gold);font-style:italic">och snyggt.</em></h2>
+    <p class="cta-sub">För gästen, kontaktpersonen och restaurangen.</p>
+    <div class="cta-punch">
+      <div class="cta-p"><div class="cta-p-who">Gästen</div><div class="cta-p-what">Väljer sin mat på mobilen, på en minut.</div></div>
+      <div class="cta-p"><div class="cta-p-who">Kontaktpersonen</div><div class="cta-p-what">Slipper samla in svar och jaga folk.</div></div>
+      <div class="cta-p"><div class="cta-p-who">Restaurangen</div><div class="cta-p-what">Får en färdig kökslista, med specialkost markerad.</div></div>
+    </div>
     <p>Skapa ett konto och prova själva i 30 dagar – eller boka en personlig genomgång.</p>
     <div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap">
       <a href="https://premeny.se/registrera.html" class="btn-cta" style="text-decoration:none;background:var(--dark);color:#fff">Prova gratis →</a>
