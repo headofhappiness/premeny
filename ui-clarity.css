@@ -4,7 +4,7 @@
 
 :root{
   /* PreMenys egna kulörer (verktyget): guld, svart och djupgrönt. Fasta, oberoende av restaurangens accentfärg. Djupgrönt används bara på stora ytor, aldrig som statusfärg. */
-  --pm-gold:#B8955A;--pm-green:#2F4A3F;
+  --pm-gold:#B8955A;--pm-green:#2A6B57;
   --muted:#4a4238;        /* gråtext: ca 9:1 mot kräm (var #8a8070 / #5a5248) */
   --border:#c9bfae;       /* kanter man faktiskt ser */
   --bs:#a89c86;
