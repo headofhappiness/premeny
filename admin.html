@@ -6,9 +6,9 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://gndzalmkbsfhclpoidqi.supabase.co wss://gndzalmkbsfhclpoidqi.supabase.co https://challenges.cloudflare.com; frame-src 'self' about: https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – PreMeny</title>
-<meta name="pm-build" content="2026-11-14a">
-<script src="update-check.js?v=2026-11-14a"></script>
-<script src="pm-captcha.js?v=2026-11-14a"></script>
+<meta name="pm-build" content="2026-11-14b">
+<script src="update-check.js?v=2026-11-14b"></script>
+<script src="pm-captcha.js?v=2026-11-14b"></script>
 <style>
 #bookingsLayout{display:flex;flex-direction:column;gap:1rem;align-items:stretch}
 #bookingsMain{min-width:0}
@@ -146,7 +146,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
   input,textarea,select{font-size:16px}
 }
 </style>
-<link rel="stylesheet" href="ui-clarity.css?v=2026-11-14a"><script src="ui-clarity.js?v=2026-11-14a"></script>
+<link rel="stylesheet" href="ui-clarity.css?v=2026-11-14b"><script src="ui-clarity.js?v=2026-11-14b"></script>
 </head>
 <body>
 
@@ -245,14 +245,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         </div>
         </div><!-- /lhBody -->
       </div>
-      <div class="fb"><h3>Aktiva bokningar</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bg nb-btn" onclick="backupPDF()" title="Ladda ner alla kommande bokningar som PDF">⬇ Säkerhetskopia</button><button class="btn bp nb-btn" onclick="toggleNB()">+ Ny bokning</button></div></div>
-      <div id="backupReminder" style="display:none;background:rgba(184,149,90,.1);border:2px solid rgba(184,149,90,.55);border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;font-size:13px;line-height:1.5;color:#5a4520;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <span>💾 <span style="font-weight:500;color:var(--dark)">Rekommendation:</span> ladda ner en daglig säkerhetskopia av kommande bokningar. Bra att ha om internet skulle krångla.</span>
-        <span style="display:flex;gap:8px;flex-shrink:0">
-          <button class="btn" style="padding:5px 14px;font-size:13px;min-height:0;background:var(--gold);color:#fff;border-color:var(--gold);font-weight:400" onclick="backupPDF();dismissBackupReminder()">Ladda ner</button>
-          <button class="btn" style="padding:5px 13px;font-size:13px;min-height:0;background:transparent;color:#6a5030;border-color:rgba(184,149,90,.4)" onclick="dismissBackupReminder()">Inte nu</button>
-        </span>
-      </div>
+      <div class="fb"><h3>Aktiva bokningar</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bp nb-btn" onclick="toggleNB()">+ Ny bokning</button></div></div>
       <div id="newBookingForm" style="display:none" class="card">
         <div class="card-label">Skapa ny bokning</div>
         <div class="r2">
@@ -561,6 +554,19 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
         <div id="set-msg" style="display:none;margin-top:.75rem" class="msg mok"></div>
       </div>
       <div class="card" style="margin-top:1rem">
+        <div class="card-label">Säkerhetskopia</div>
+        <p style="font-size:15px;line-height:1.6;color:var(--text);margin:0 0 .9rem">Ha era kommande bokningar och kökslistor till hands även om internet skulle krångla.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.1rem">
+          <button class="btn bg" onclick="backupPDF()">⬇ Ladda ner nu (PDF)</button>
+          <button class="btn bg" onclick="sendBackupNow(this)">✉ Skicka en till min e-post nu</button>
+        </div>
+        <label style="display:flex;gap:12px;align-items:flex-start;cursor:pointer;font-size:15px;color:var(--text)">
+          <input type="checkbox" id="set-daily-backup" onchange="toggleDailyBackup(this)" style="margin-top:3px;flex-shrink:0">
+          <span><strong style="font-weight:600">Daglig säkerhetskopia via mejl</strong><br><span style="font-size:14px;color:var(--muted);line-height:1.55">Varje morgon får ni ett mejl till <span id="set-backup-email" style="color:var(--text)"></span> med alla kommande bokningar, kökslista och specialkost. Mejlet innehåller gästernas namn. Ni kan stänga av det när ni vill.</span></span>
+        </label>
+        <div id="backup-msg" style="display:none;margin-top:.9rem" class="msg mok"></div>
+      </div>
+      <div class="card" style="margin-top:1rem">
         <div class="card-label">Inloggning och säkerhet</div>
         <div id="mfaStatus" style="font-size:14px;line-height:1.8;color:var(--text)">…</div>
         <div style="font-size:12px;color:var(--muted);margin-top:.5rem;line-height:1.5">Tvåstegsverifiering skyddar kontot även om någon fått ert lösenord. Koden hämtas från en autentiseringsapp i telefonen.</div>
@@ -600,7 +606,7 @@ label{display:block;font-size:15px;color:var(--muted);margin-bottom:4px}
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>window.MFA_ENFORCED=true; /* true = ingen "hoppa över" (servern kräver aal2 sedan 2026-11-13) */</script>
-<script src="mfa.js?v=2026-11-14a"></script>
+<script src="mfa.js?v=2026-11-14b"></script>
 <script>
 // ─── HJÄLPFUNKTIONER ────────────────────────────────────────────────
 function showMsg(id,cls,txt){var el=document.getElementById(id);if(!el)return;el.style.display='block';el.className='msg '+cls;el.textContent=txt;}
@@ -968,7 +974,6 @@ async function renderBookings(){
   const {data:bs}=await db.from('bookings').select('*, orders(id, order_items(menu_items(menu_categories(label))))').eq('restaurant_id',rest.id).gte('event_date',today).is('deleted_at',null).order('event_date');
   allBookings=bs||[];
   renderBookingList(allBookings);
-  if(allBookings.length)maybeShowBackupReminder();
 }
 
 function renderBookingList(bookings){
@@ -2888,25 +2893,36 @@ async function backupPDF(){
   doc.save('PreMeny-sakerhetskopia-'+new Date().toLocaleDateString('sv-SE')+'.pdf');
 }
 
-// Daglig påminnelse om säkerhetskopia (en gång per dag)
-function maybeShowBackupReminder(){
-  try{
-    const today=new Date().toLocaleDateString('sv-SE');
-    const key='premeny_backup_reminder_'+(rest?rest.id:'x');
-    const last=localStorage.getItem(key);
-    if(last===today)return; // redan visad/avfärdad idag
-    const bar=document.getElementById('backupReminder');
-    if(bar)bar.style.display='flex';
-  }catch(e){}
+// SÄKERHETSKOPIA (Inställningar): ladda ner nu, skicka en nu, eller slå på daglig kopia via mejl
+async function toggleDailyBackup(cb){
+  const on=cb.checked;
+  const msg=document.getElementById('backup-msg');
+  const show=function(cls,t){if(msg){msg.style.display='block';msg.className='msg '+cls;msg.textContent=t;}};
+  if(on){
+    if(!rest.contact_email){cb.checked=false;show('merr','Lägg först in en e-postadress under Restauranginformation och spara, så vet vi vart säkerhetskopian ska skickas.');return;}
+    if(!confirm('Slå på daglig säkerhetskopia?\n\nNi får varje morgon ett mejl till '+rest.contact_email+' med era kommande bokningar, kökslista och specialkost. Mejlet innehåller gästernas namn. Ni kan stänga av det när ni vill.')){cb.checked=false;return;}
+  }
+  const {error}=await db.from('restaurants').update({daily_backup:on}).eq('id',rest.id);
+  if(error){cb.checked=!on;show('merr','Kunde inte spara: '+error.message);return;}
+  rest.daily_backup=on;
+  show('mok',on?'✓ Daglig säkerhetskopia är på. Första mejlet kommer i morgon bitti.':'Daglig säkerhetskopia är avstängd.');
 }
-function dismissBackupReminder(){
+async function sendBackupNow(btn){
+  const msg=document.getElementById('backup-msg');
+  const show=function(cls,t){if(msg){msg.style.display='block';msg.className='msg '+cls;msg.textContent=t;}};
+  if(!rest.contact_email){show('merr','Lägg först in en e-postadress under Restauranginformation och spara.');return;}
+  if(!confirm('Skicka en säkerhetskopia till '+rest.contact_email+' nu?\n\nMejlet innehåller gästernas namn och specialkost.'))return;
+  const orig=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='Skickar...';}
   try{
-    const today=new Date().toLocaleDateString('sv-SE');
-    const key='premeny_backup_reminder_'+(rest?rest.id:'x');
-    localStorage.setItem(key,today);
-  }catch(e){}
-  const bar=document.getElementById('backupReminder');
-  if(bar)bar.style.display='none';
+    const {data:{session}}=await db.auth.getSession();
+    const resp=await fetch(SURL+'/functions/v1/send-backup',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:'{}'});
+    const r=await resp.json();
+    if(r.ok&&r.status==='skickad')show('mok','✓ Säkerhetskopia skickad till '+rest.contact_email+' ('+r.bokningar+' kommande bokning'+(r.bokningar===1?'':'ar')+').');
+    else if(r.status&&String(r.status).indexOf('inga kommande')>-1)show('minfo','Det finns inga kommande bokningar att skicka just nu.');
+    else show('merr','Kunde inte skicka: '+(r.error||r.detalj||r.status||'okänt fel'));
+  }catch(e){show('merr','Kunde inte skicka: '+String(e&&e.message||e));}
+  if(btn){btn.disabled=false;btn.textContent=orig;}
 }
 
 // ARKIV
@@ -3553,6 +3569,8 @@ function previewLogo(input){
 async function loadSettings(){
   if(!rest)return;
   var nm=document.getElementById('set-name');if(nm)nm.value=rest.name||'';
+  var dbk=document.getElementById('set-daily-backup');if(dbk)dbk.checked=!!rest.daily_backup;
+  var dbe=document.getElementById('set-backup-email');if(dbe)dbe.textContent=rest.contact_email||'(lägg in en e-postadress ovan)';
   var p=document.getElementById('set-phone');if(p)p.value=rest.phone||'';
   var e=document.getElementById('set-email');if(e)e.value=rest.contact_email||'';
   var a=document.getElementById('set-address');if(a)a.value=rest.address||'';

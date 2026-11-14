@@ -130,7 +130,7 @@ ${restLine}`;
     'deleteArchivedBooking','showNewMenuForm','openImportForMenu','downloadQR','createMenu',
     'addCat','saveSettings','importMenu','saveItem','delItem',
     'addItem','delCat','renameMenu','copyMenu','deleteMenu',
-    'saveCustomer','delCustomer'
+    'saveCustomer','delCustomer','toggleDailyBackup','sendBackupNow'
   ];
   const GUARD = 'if(IS_DEMO)return demoBlock();';
   for(const fn of guarded){
